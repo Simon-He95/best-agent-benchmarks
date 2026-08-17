@@ -51,7 +51,9 @@ function readProviderConfig() {
 
 function setSecret(name, value, repo) {
   if (value === undefined || value === null || value === "") return;
-  const result = spawnSync("gh", ["secret", "set", name, "--repo", repo, "--body"], {
+  // Omit --body so gh reads the value from stdin — the secret never appears in argv
+  // or shell history.
+  const result = spawnSync("gh", ["secret", "set", name, "--repo", repo], {
     input: String(value),
     encoding: "utf8",
   });
