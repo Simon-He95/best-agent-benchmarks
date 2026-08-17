@@ -185,3 +185,5 @@ jobs:
             results/swe-bench-results.json
             results/swe-bench-results.md
           retention-days: 90
+
+# re-register trigger
