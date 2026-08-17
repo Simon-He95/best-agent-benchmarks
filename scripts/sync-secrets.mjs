@@ -1,22 +1,31 @@
 /**
- * Push the local dimcode OAuth provider config to THIS repo's GitHub Actions benchmark secrets.
+ * Push the local dimcode OAuth login to THIS repo's GitHub Actions benchmark secrets.
  *
- *   node scripts/sync-secrets.mjs [--repo <owner/repo>] [--matrix gpt4o,claude,deepseek]
+ * Reads the dimsdk OAuth persistence (DIMCODE_HOME first, ~/.dimcode fallback):
+ *   <home>/dimcode/auth.json  -> nextApiOauth.access (JWT) + relayBaseUrl
+ * and syncs it as an OpenAI-compatible provider for the bench workflow:
+ *   BENCHMARK_PROVIDER_KIND = openai
+ *   BENCHMARK_PROVIDER_MODEL = deepseek-v4-flash (--model override)
+ *   BENCHMARK_PROVIDER_API_KEY = <oauth access token>
+ *   BENCHMARK_PROVIDER_BASE_URL = <relayBaseUrl>
+ *   BENCHMARK_PROVIDER_COMPATIBILITY_MODE = compatible
  *
- *   --repo    target repository (default: current git remote)
- *   --matrix  also fill MATRIX_PROVIDER_<NAME>_* slots with the same config
+ * The OAuth access token rotates roughly every 5-7 days; re-run this script to keep the
+ * CI secrets fresh (same workflow the original best-agent repo used).
  *
- * Requirements: `gh` CLI authenticated (`gh auth login`), local provider config at
- * ~/.best-agent/provider.json (BEST_AGENT_PROVIDER_CONFIG overrides).
+ * Usage:
+ *   node scripts/sync-secrets.mjs [--repo <owner/repo>] [--model <id>]
  *
- * Values are fed to `gh secret set` via stdin, never through argv, so they do not appear in
- * the process list or shell history. Nothing is printed to the terminal.
+ * Requirements: `gh` CLI authenticated, dimcode OAuth logged in on this machine.
+ * Values are fed to `gh secret set` via stdin, never through argv — nothing is printed.
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+
+const DEFAULT_MODEL = "deepseek-v4-flash";
 
 function repoFromRemote() {
   const result = spawnSync("git", ["remote", "get-url", "origin"], { encoding: "utf8" });
@@ -26,29 +35,39 @@ function repoFromRemote() {
   return match ? match[1] : undefined;
 }
 
-function providerConfigPath(environment = process.env) {
-  const override = environment.BEST_AGENT_PROVIDER_CONFIG;
-  if (override !== undefined) {
-    if (!isAbsolute(override)) throw new Error("BEST_AGENT_PROVIDER_CONFIG must be absolute.");
-    return override;
-  }
-  const home = homedir();
-  return home ? resolve(home, ".best-agent", "provider.json") : undefined;
+/** dimcode home: DIMCODE_HOME when set, else ~/.dimcode. */
+function dimcodeHome(environment = process.env) {
+  const explicit = environment.DIMCODE_HOME?.trim();
+  if (explicit) return resolve(explicit);
+  return join(homedir() ?? ".", ".dimcode");
 }
 
-function readProviderConfig() {
-  const path = providerConfigPath();
-  if (!path || !existsSync(path)) {
-    throw new Error(`Provider config not found at ${path ?? "(no home)"}. Log in via dimcode OAuth first.`);
+function readJsonRecord(filePath) {
+  try {
+    const value = JSON.parse(readFileSync(filePath, "utf8"));
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
   }
-  const value = JSON.parse(readFileSync(path, "utf8"));
-  // provider.json uses `baseURL` (uppercase); tolerate `baseUrl` too.
-  const { kind, model, apiKey, compatibilityMode } = value ?? {};
-  const baseUrl = value?.baseURL ?? value?.baseUrl;
-  if (typeof kind !== "string" || kind.length === 0 || typeof model !== "string" || typeof apiKey !== "string") {
-    throw new Error(`Provider config at ${path} is missing kind/model/apiKey.`);
+}
+
+/** Reads the dimsdk OAuth login: JWT access token + relay base URL. */
+function readOAuthLogin() {
+  const home = dimcodeHome();
+  const auth = readJsonRecord(join(home, "dimcode", "auth.json"));
+  const tokens = auth.nextApiOauth ?? {};
+  const access = typeof tokens.access === "string" && tokens.access.trim() ? tokens.access.trim() : undefined;
+  const relayBaseUrl =
+    typeof tokens.relayBaseUrl === "string" && tokens.relayBaseUrl.trim()
+      ? tokens.relayBaseUrl.trim()
+      : undefined;
+  if (!access || !relayBaseUrl) {
+    throw new Error(
+      `No dimcode OAuth login found at ${join(home, "dimcode", "auth.json")} (need nextApiOauth.access + relayBaseUrl). ` +
+        "Log in through the dimcode OAuth flow first.",
+    );
   }
-  return { kind, model, apiKey, baseUrl, compatibilityMode };
+  return { access, relayBaseUrl };
 }
 
 function setSecret(name, value, repo) {
@@ -67,14 +86,14 @@ function setSecret(name, value, repo) {
 function main() {
   const argv = process.argv.slice(2);
   let repo;
-  let matrix = [];
+  let model = DEFAULT_MODEL;
   for (let i = 0; i < argv.length; i += 1) {
     switch (argv[i]) {
       case "--repo":
         repo = argv[++i];
         break;
-      case "--matrix":
-        matrix = (argv[++i] ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+      case "--model":
+        model = argv[++i] || DEFAULT_MODEL;
         break;
       default:
         throw new Error(`Unknown argument: ${argv[i]}`);
@@ -85,23 +104,14 @@ function main() {
     if (!repo) throw new Error("Cannot infer repo; pass --repo <owner/repo>.");
   }
 
-  const config = readProviderConfig();
-  setSecret("BENCHMARK_PROVIDER_KIND", config.kind, repo);
-  setSecret("BENCHMARK_PROVIDER_MODEL", config.model, repo);
-  setSecret("BENCHMARK_PROVIDER_API_KEY", config.apiKey, repo);
-  setSecret("BENCHMARK_PROVIDER_BASE_URL", config.baseUrl, repo);
-  setSecret("BENCHMARK_PROVIDER_COMPATIBILITY_MODE", config.compatibilityMode, repo);
+  const login = readOAuthLogin();
+  setSecret("BENCHMARK_PROVIDER_KIND", "openai", repo);
+  setSecret("BENCHMARK_PROVIDER_MODEL", model, repo);
+  setSecret("BENCHMARK_PROVIDER_API_KEY", login.access, repo);
+  setSecret("BENCHMARK_PROVIDER_BASE_URL", login.relayBaseUrl, repo);
+  setSecret("BENCHMARK_PROVIDER_COMPATIBILITY_MODE", "compatible", repo);
 
-  for (const name of matrix) {
-    const prefix = `MATRIX_PROVIDER_${name.toUpperCase()}`;
-    setSecret(`${prefix}_KIND`, config.kind, repo);
-    setSecret(`${prefix}_MODEL`, config.model, repo);
-    setSecret(`${prefix}_API_KEY`, config.apiKey, repo);
-    setSecret(`${prefix}_BASE_URL`, config.baseUrl, repo);
-    setSecret(`${prefix}_COMPATIBILITY_MODE`, config.compatibilityMode, repo);
-  }
-
-  process.stdout.write(`Secrets synced to ${repo} (kind=${config.kind}, model=${config.model}).\n`);
+  process.stdout.write(`Secrets synced to ${repo} (dimcode OAuth, model=${model}).\n`);
 }
 
 main();
