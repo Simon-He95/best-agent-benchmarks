@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.best-agent/
+results/
+corpora/
+coverage/
+.DS_Store
+*.tsbuildinfo

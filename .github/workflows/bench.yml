@@ -1,0 +1,187 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner image. Plain backend is mandatory on every platform. macos-latest = arm64 (matches a locally published macOS CLI); ubuntu-latest also works once the CLI ships --workspace-backend."
+        required: false
+        default: "macos-latest"
+      backend:
+        description: "Workspace backend. Benchmarks are ONLY comparable under plain (spec 069) — always use plain. sandbox is a macOS-only dev override."
+        required: false
+        default: "plain"
+      run_smoke:
+        description: "Run the headless composition smoke gate first (fast; blocks the heavy job on failure)"
+        required: false
+        type: boolean
+        default: true
+      run_swe_bench:
+        description: "Run the SWE-bench Lite job (long; opt-in)"
+        required: false
+        type: boolean
+        default: false
+      swe_bench_limit:
+        description: "Number of SWE-bench tasks to run (0 = full corpus)"
+        required: false
+        default: "1"
+      swe_bench_concurrency:
+        description: "Parallel SWE-bench tasks"
+        required: false
+        default: "2"
+      swe_bench_model:
+        description: "Model override (empty = BEST_AGENT_PROVIDER_MODEL secret)"
+        required: false
+        default: ""
+      swe_bench_models:
+        description: 'JSON array of models to run in parallel, e.g. ["deepseek-v4-flash","glm-5.2"]; [""] = default model'
+        required: false
+        default: '[""]'
+      swe_bench_shards:
+        description: "JSON array of shard indices to split the corpus; [0] = single job"
+        required: false
+        default: "[0]"
+      swe_bench_shard_total:
+        description: "Total shard count (must be > max shard index)"
+        required: false
+        default: "1"
+      swe_bench_timeout:
+        description: "Per-task timeout in ms"
+        required: false
+        default: "1800000"
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: "0 2 * * 0"
+
+concurrency:
+  group: benchmark
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BEST_AGENT_PROVIDER_KIND: ${{ secrets.BENCHMARK_PROVIDER_KIND }}
+  BEST_AGENT_PROVIDER_MODEL: ${{ secrets.BENCHMARK_PROVIDER_MODEL }}
+  BEST_AGENT_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+  BEST_AGENT_PROVIDER_BASE_URL: ${{ secrets.BENCHMARK_PROVIDER_BASE_URL }}
+  BEST_AGENT_PROVIDER_COMPATIBILITY_MODE: ${{ secrets.BENCHMARK_PROVIDER_COMPATIBILITY_MODE }}
+
+jobs:
+  smoke:
+    name: Smoke (headless composition)
+    runs-on: ${{ inputs.runner || 'macos-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify benchmark provider secret is configured
+        run: |
+          if [ -z "$BEST_AGENT_PROVIDER_API_KEY" ]; then
+            echo "Missing BENCHMARK_PROVIDER_API_KEY secret. Configure BENCHMARK_PROVIDER_KIND/MODEL/API_KEY[/BASE_URL][/COMPATIBILITY_MODE]."
+            exit 1
+          fi
+
+      - name: Headless composition smoke gate
+        run: node scripts/smoke.mjs
+
+  swe-bench:
+    name: SWE-bench Lite (${{ matrix.model || 'default' }} shard ${{ matrix.shard }})
+    runs-on: ${{ inputs.runner || 'macos-latest' }}
+    timeout-minutes: 480
+    if: ${{ inputs.run_swe_bench }}
+    needs: smoke
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJSON(inputs.swe_bench_models) }}
+        shard: ${{ fromJSON(inputs.swe_bench_shards) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ripgrep (search tool accelerator; avoids pathologically slow scans on huge repos)
+        run: |
+          if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ripgrep
+          elif command -v brew >/dev/null 2>&1; then
+            brew install ripgrep
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download SWE-bench corpus
+        run: node scripts/swe-bench-harness.mjs --download
+
+      - name: Resolve effective model
+        id: model
+        run: |
+          MODEL="${{ matrix.model }}"
+          if [ -z "$MODEL" ]; then MODEL="${{ inputs.swe_bench_model }}"; fi
+          if [ -z "$MODEL" ]; then MODEL="${{ secrets.BENCHMARK_PROVIDER_MODEL }}"; fi
+          echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+
+      - name: Run SWE-bench Lite
+        env:
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+        run: node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag ${{ steps.model.outputs.model }}
+
+      - name: Upload per-model fragment
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-fragment-${{ steps.model.outputs.model }}-shard-${{ matrix.shard }}
+          path: |
+            results/swe-bench-results.*.json
+          if-no-files-found: error
+          retention-days: 90
+
+  swe-bench-merge:
+    name: Merge SWE-bench results
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ inputs.run_swe_bench }}
+    needs: swe-bench
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download all model fragments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: swe-bench-fragment-*
+          path: results
+          merge-multiple: true
+
+      - name: Merge SWE-bench fragments
+        run: node scripts/swe-bench-harness.mjs --merge-shards
+
+      - name: Upload merged SWE-bench results
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-results
+          path: |
+            results/swe-bench-results.json
+            results/swe-bench-results.md
+          retention-days: 90
