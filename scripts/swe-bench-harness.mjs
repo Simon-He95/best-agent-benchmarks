@@ -41,7 +41,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { basename, dirname, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
@@ -52,15 +52,30 @@ import { describeBenchmarkProvider } from "./benchmark-provider.mjs";
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const benchmarksDir = resolve(repoRoot, "results");
 const corporaDir = resolve(benchmarksDir, "corpora");
-const defaultCorpusPath = resolve(corporaDir, "swe-bench-lite.jsonl");
+/** Supported SWE-bench datasets: lite (300, rule-filtered) and verified (500, human-verified). */
+const DATASETS = Object.freeze({
+  lite: {
+    huggingface: "princeton-nlp/SWE-bench_Lite",
+    label: "SWE-bench Lite",
+    file: "swe-bench-lite.jsonl",
+  },
+  verified: {
+    huggingface: "princeton-nlp/SWE-bench_Verified",
+    label: "SWE-bench Verified",
+    file: "swe-bench-verified.jsonl",
+  },
+});
+const defaultCorpusPath = (dataset) => resolve(corporaDir, DATASETS[dataset].file);
 const pythonCommand = resolvePythonCommand();
 const DEFAULTS = {
   concurrency: 1,
-  corpusPath: defaultCorpusPath,
+  dataset: "lite",
+  corpusPath: undefined, // resolved from --dataset once parsed
   outputPath: resolve(benchmarksDir, "swe-bench-results.json"),
   taskTimeout: 300_000,
   backend: "plain",
   maxModelCycles: undefined,
+  reasoningEffort: undefined,
 };
 const GIT_NETWORK_RETRY_ATTEMPTS = 3;
 const GIT_NETWORK_RETRY_DELAY_MS = 1_000;
@@ -135,6 +150,12 @@ function parseArgs(argv) {
       case "--corpus":
         parsed.corpusPath = resolve(argv[++i]);
         break;
+      case "--dataset":
+        parsed.dataset = argv[++i];
+        if (!Object.hasOwn(DATASETS, parsed.dataset)) {
+          throw new Error(`--dataset must be ${Object.keys(DATASETS).join(" or ")}.`);
+        }
+        break;
       case "--limit":
         parsed.limit = Number(argv[++i]);
         break;
@@ -175,12 +196,19 @@ function parseArgs(argv) {
       case "--max-model-cycles":
         parsed.maxModelCycles = Number(argv[++i]);
         break;
+      case "--reasoning-effort":
+        parsed.reasoningEffort = argv[++i];
+        if (!/^(low|medium|high|xhigh|max|none)$/u.test(String(parsed.reasoningEffort))) {
+          throw new Error("--reasoning-effort must be low, medium, high, xhigh, max, or none.");
+        }
+        break;
       case "--help":
       case "-h":
         process.stdout.write(
           "Usage: node scripts/swe-bench-harness.mjs [options]\n" +
-            "  --download          fetch the SWE-bench Lite corpus\n" +
-            "  --corpus <path>     corpus JSONL (default results/corpora/swe-bench-lite.jsonl)\n" +
+            "  --download          fetch the corpus (default lite)\n" +
+            "  --dataset <name>    lite (300) | verified (500); default lite\n" +
+            "  --corpus <path>     corpus JSONL (default results/corpora/swe-bench-<dataset>.jsonl)\n" +
             "  --limit <n>         run the first n tasks (0 = all)\n" +
             "  --offset <n>        skip the first n tasks\n" +
             "  --shard <i> --shard-total <n>   run tasks where index % n == i (parallel shards)\n" +
@@ -193,6 +221,9 @@ function parseArgs(argv) {
             "                       and fails on the installed CLI lacking --workspace-backend\n" +
             "  --max-model-cycles <n>  anti-runaway model-cycle cap; auto when omitted (600 when\n" +
             "                       the installed CLI supports --max-model-cycles, else CLI default)\n" +
+            "  --reasoning-effort <e>  low|medium|high|xhigh|max|none (default: model catalog, e.g.\n" +
+            "                       deepseek-v4-flash -> high). Requires a CLI that carries the\n" +
+            "                       provider file's reasoningEffort in `run`.\n" +
             "  --output <path>     results JSON path (default results/swe-bench-results.json)\n",
         );
         process.exit(0);
@@ -200,6 +231,9 @@ function parseArgs(argv) {
       default:
         throw new Error(`Unknown argument: ${argv[i]}`);
     }
+  }
+  if (parsed.corpusPath === undefined) {
+    parsed.corpusPath = defaultCorpusPath(parsed.dataset);
   }
   if (argsShardInvalid(parsed)) {
     throw new Error("--shard requires --shard-total; --shard must be 0 <= shard < shard-total.");
@@ -228,7 +262,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
 
   if (args.download) {
-    await downloadCorpus();
+    await downloadCorpus(args.dataset);
     return;
   }
 
@@ -257,7 +291,22 @@ async function main() {
     );
   }
   const maxModelCycles = args.maxModelCycles ?? (maxCyclesSupported ? 600 : undefined);
-  const runOptions = { invocation: cliInvocation, backend: args.backend, maxModelCycles };
+  // Optional explicit reasoning effort: write a temp provider config (env/effective config
+  // + effort) and point BEST_AGENT_PROVIDER_CONFIG at it. Requires the CLI to carry
+  // reasoningEffort from the provider file in `run` (the v3-run.ts passthrough).
+  let providerConfigOverride;
+  if (args.reasoningEffort !== undefined) {
+    providerConfigOverride = writeProviderConfigWithEffort(args.reasoningEffort);
+    process.stderr.write(
+      `note: reasoning effort ${args.reasoningEffort} injected via ${providerConfigOverride}\n`,
+    );
+  }
+  const runOptions = {
+    invocation: cliInvocation,
+    backend: args.backend,
+    maxModelCycles,
+    providerConfigOverride,
+  };
 
   if (!existsSync(args.corpusPath)) {
     process.stderr.write(`Corpus not found at ${args.corpusPath}\n`);
@@ -331,11 +380,16 @@ async function main() {
       interactionTools: false,
       workspaceBackend: runOptions.backend,
       maxModelCycles: runOptions.maxModelCycles ?? "cli-default",
+      ...(runOptions.providerConfigOverride === undefined
+        ? {}
+        : { reasoningEffort: args.reasoningEffort }),
       taskTimeoutMs: args.taskTimeout,
       ...(args.shard !== undefined ? { shard: args.shard, shardTotal: args.shardTotal } : {}),
     },
     corpus: {
       path: args.corpusPath,
+      dataset: args.dataset,
+      label: DATASETS[args.dataset].label,
       totalTasks: allTasks.length,
       tasksRun: tasks.length,
     },
@@ -348,6 +402,7 @@ async function main() {
       wallMs: Number(wallMs.toFixed(1)),
       avgTaskMs: Number((wallMs / tasks.length).toFixed(1)),
     },
+    byRepo: computeByRepo(results),
     tasks: results,
   };
 
@@ -434,6 +489,7 @@ function mergeShardReports(outputPath) {
       tasksRun: tasks.length,
     },
     byModel,
+    byRepo: computeByRepo(tasks),
     summary: {
       resolved,
       errored,
@@ -547,6 +603,10 @@ async function runTask(task, timeoutMs, runOptions) {
         ...process.env,
         // Align the plan run-duration cap with the harness per-task timeout.
         BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
+        // Explicit reasoning effort override via a temp provider config file.
+        ...(runOptions.providerConfigOverride === undefined
+          ? {}
+          : { BEST_AGENT_PROVIDER_CONFIG: runOptions.providerConfigOverride }),
       },
     });
     if (cliResult.timedOut) {
@@ -948,12 +1008,14 @@ function taskResult(task, startMs, extra = {}) {
   };
 }
 
-async function downloadCorpus() {
-  process.stdout.write("Downloading SWE-bench Lite corpus from HuggingFace...\n");
+async function downloadCorpus(dataset = "lite") {
+  const spec = DATASETS[dataset] ?? DATASETS.lite;
+  const corpusPath = defaultCorpusPath(dataset);
+  process.stdout.write(`Downloading ${spec.label} corpus from HuggingFace...\n`);
   mkdirSync(corporaDir, { recursive: true });
 
   const baseUrl = new URL("https://datasets-server.huggingface.co/rows");
-  baseUrl.searchParams.set("dataset", "princeton-nlp/SWE-bench_Lite");
+  baseUrl.searchParams.set("dataset", spec.huggingface);
   baseUrl.searchParams.set("config", "default");
   baseUrl.searchParams.set("split", "test");
   baseUrl.searchParams.set("length", "100");
@@ -983,13 +1045,13 @@ async function downloadCorpus() {
         "print(len(lines))",
       ].join("\n"),
       baseUrl.toString(),
-      defaultCorpusPath,
+      corpusPath,
     ],
     { encoding: "utf8", timeout: 120_000 },
   );
 
   if (downloadResult.status !== 0) {
-    process.stderr.write("Failed to download SWE-bench Lite rows from HuggingFace.\n");
+    process.stderr.write(`Failed to download ${spec.label} rows from HuggingFace.\n`);
     process.stderr.write(
       downloadResult.stderr?.trim() || downloadResult.stdout?.trim() || "(no error output)\n",
     );
@@ -997,7 +1059,7 @@ async function downloadCorpus() {
   }
 
   process.stdout.write(
-    `Downloaded ${Number(downloadResult.stdout.trim())} tasks to ${defaultCorpusPath}\n`,
+    `Downloaded ${Number(downloadResult.stdout.trim())} tasks to ${corpusPath}\n`,
   );
 }
 
@@ -1010,8 +1072,9 @@ function loadCorpus(path) {
 }
 
 function renderMarkdown(report) {
+  const label = report.corpus?.label ?? "SWE-bench";
   const lines = [
-    "# SWE-bench Lite Results",
+    `# ${label} Results`,
     "",
     `- **Candidate:** ${report.candidateId}`,
     `- **Generated:** ${report.generatedAt}`,
@@ -1030,11 +1093,26 @@ function renderMarkdown(report) {
     `| Avg Task Time | ${(report.summary.avgTaskMs / 1000).toFixed(1)}s |`,
     `| Total Time | ${(report.summary.wallMs / 1000).toFixed(1)}s |`,
     "",
+    "## Per-Repo Results",
+    "",
+    "| Repo | Tasks | Resolved | pass@1 | Env Blocked | Errored | Avg Time |",
+    "|------|-------|----------|--------|-------------|---------|----------|",
+  ];
+
+  const byRepo = report.byRepo ?? {};
+  for (const [repo, entry] of Object.entries(byRepo)) {
+    lines.push(
+      `| ${repo} | ${entry.total} | ${entry.resolved} | ${entry.passAt1} | ${entry.environmentBlocked} | ${entry.errored} | ${(entry.avgTaskMs / 1000).toFixed(1)}s |`,
+    );
+  }
+
+  lines.push(
+    "",
     "## Per-Task Results",
     "",
     "| Instance | Repo | Resolved | Time | Error |",
     "|----------|------|----------|------|-------|",
-  ];
+  );
 
   for (const task of report.tasks) {
     const status = task.resolved
@@ -1058,6 +1136,81 @@ function renderMarkdown(report) {
 function ratio(value, total) {
   if (!total) return 0;
   return Number((value / total).toFixed(3));
+}
+
+/** Per-repo breakdown of task outcomes: totals, resolved, pass@1, and time. */
+function computeByRepo(tasks) {
+  const byRepo = {};
+  for (const task of tasks) {
+    const repo = task.repo ?? "unknown";
+    const entry = (byRepo[repo] ??= {
+      total: 0,
+      resolved: 0,
+      errored: 0,
+      environmentBlocked: 0,
+      timedOut: 0,
+      wallMs: 0,
+    });
+    entry.total += 1;
+    if (task.resolved) entry.resolved += 1;
+    if (task.error) entry.errored += 1;
+    if (task.environmentBlocked) entry.environmentBlocked += 1;
+    if (task.timedOut) entry.timedOut += 1;
+    entry.wallMs += task.wallMs ?? 0;
+  }
+  for (const repo of Object.keys(byRepo)) {
+    const entry = byRepo[repo];
+    entry.passAt1 = ratio(entry.resolved, entry.total);
+    entry.avgTaskMs = Number((entry.wallMs / Math.max(entry.total, 1)).toFixed(1));
+  }
+  return Object.fromEntries(
+    Object.entries(byRepo).sort((a, b) => b[1].total - a[1].total),
+  );
+}
+
+/** Resolves the effective provider config file path: BEST_AGENT_PROVIDER_CONFIG override,
+ *  else ~/.best-agent/provider.json. */
+function providerConfigPath() {
+  const override = process.env.BEST_AGENT_PROVIDER_CONFIG;
+  if (override !== undefined && override.trim() !== "") return resolve(override);
+  const home = homedir();
+  return home ? resolve(home, ".best-agent", "provider.json") : undefined;
+}
+
+/** Writes a temporary provider config that adds `reasoningEffort` to the effective provider
+ *  (env BEST_AGENT_PROVIDER_* first, else the existing provider file), and returns its path
+ *  for BEST_AGENT_PROVIDER_CONFIG. Requires a CLI that carries reasoningEffort from the
+ *  provider file in `run` (the v3-run.ts passthrough); older CLIs silently send the
+ *  model-catalog default instead. */
+function writeProviderConfigWithEffort(effort) {
+  const env = process.env;
+  let existing;
+  const existingPath = providerConfigPath();
+  if (existingPath !== undefined) {
+    try {
+      existing = JSON.parse(readFileSync(existingPath, "utf8"));
+    } catch {
+      existing = undefined;
+    }
+  }
+  const kind = env.BEST_AGENT_PROVIDER_KIND || existing?.kind;
+  const model = env.BEST_AGENT_PROVIDER_MODEL || existing?.model;
+  const apiKey = env.BEST_AGENT_PROVIDER_API_KEY || existing?.apiKey;
+  const baseURL = env.BEST_AGENT_PROVIDER_BASE_URL || existing?.baseURL || existing?.baseUrl;
+  const compat = env.BEST_AGENT_PROVIDER_COMPATIBILITY_MODE || existing?.compatibilityMode;
+  if (!kind || !model || !apiKey) {
+    throw new Error(
+      "--reasoning-effort requires provider env (BEST_AGENT_PROVIDER_KIND/MODEL/API_KEY) " +
+        "or an existing provider config file.",
+    );
+  }
+  const config = { kind, model, apiKey };
+  if (baseURL) config.baseURL = baseURL;
+  if (compat) config.compatibilityMode = compat;
+  config.reasoningEffort = effort;
+  const path = resolve(tmpdir(), `bench-provider-${effort}-${process.pid}.json`);
+  writeFileSync(path, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+  return path;
 }
 
 function resolvePythonCommand() {

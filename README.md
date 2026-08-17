@@ -68,14 +68,15 @@ Provider comes from `BEST_AGENT_PROVIDER_KIND/MODEL/API_KEY/BASE_URL/COMPATIBILI
 3. Actions → **Benchmark** → **Run workflow**:
 
    - `run_smoke` — fast headless composition gate (blocks the heavy job if the CLI is broken).
-   - `run_swe_bench` + `swe_bench_limit` / `concurrency` / `timeout` — the heavy job.
+   - `run_swe_bench` + `swe_bench_limit` / `swe_bench_dataset` / `concurrency` / `timeout` — the heavy job. `swe_bench_dataset` = `lite` (300) or `verified` (500).
+   - `reasoning_effort` — `low|medium|high|xhigh|max|none` (empty = model catalog default). Needs a CLI that carries the provider file's `reasoningEffort` in `run`.
    - `runner` = `macos-latest` (arm64; matches the locally published macOS CLI) — the standard, and free on public repos. `ubuntu-latest` also works once the CLI ships plain (plain is mandatory either way).
    - `swe_bench_models` + `swe_bench_shards` — parallel model × shard matrix; fragments auto-merge.
 
-Results land in `results/` and as GitHub Actions artifacts.
+Results land in `results/` and as GitHub Actions artifacts, with a per-repo pass-rate table plus the per-task list.
 
 ## Notes
 
-- The SWE-bench harness is adapted from the best-agent repo's `scripts/swe-bench-harness.mjs`; the only changes are the CLI entry resolution (published package instead of local build), repo-local output paths, and auto-detection of `--workspace-backend` / `--max-model-cycles`.
-- `--download` fetches the 300-task SWE-bench Lite corpus from HuggingFace into `results/corpora/`.
+- The SWE-bench harness is adapted from the best-agent repo's `scripts/swe-bench-harness.mjs`; the changes are the CLI entry resolution (published package instead of local build), repo-local output paths, auto-detection of `--workspace-backend` / `--max-model-cycles`, dataset selection (`--dataset lite|verified`), per-repo result breakdown, and explicit `--reasoning-effort`.
+- `--download` fetches the corpus (SWE-bench Lite 300 or Verified 500) from HuggingFace into `results/corpora/`.
 - Keep `results/` and `corpora/` out of git (already in `.gitignore`) so model API keys never leak into history.

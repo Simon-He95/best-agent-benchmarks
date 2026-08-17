@@ -25,6 +25,10 @@ on:
         description: "Number of SWE-bench tasks to run (0 = full corpus)"
         required: false
         default: "1"
+      swe_bench_dataset:
+        description: "SWE-bench dataset: lite (300) | verified (500)"
+        required: false
+        default: "lite"
       swe_bench_concurrency:
         description: "Parallel SWE-bench tasks"
         required: false
@@ -49,6 +53,10 @@ on:
         description: "Per-task timeout in ms"
         required: false
         default: "1800000"
+      reasoning_effort:
+        description: "Reasoning effort: low|medium|high|xhigh|max|none (empty = model catalog default, e.g. deepseek-v4-flash -> high). Needs a CLI that carries the provider file's reasoningEffort in run."
+        required: false
+        default: ""
   schedule:
     # Every Sunday at 02:00 UTC
     - cron: "0 2 * * 0"
@@ -127,7 +135,7 @@ jobs:
         run: npm ci
 
       - name: Download SWE-bench corpus
-        run: node scripts/swe-bench-harness.mjs --download
+        run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}
 
       - name: Resolve effective model
         id: model
@@ -140,7 +148,10 @@ jobs:
       - name: Run SWE-bench Lite
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
-        run: node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag ${{ steps.model.outputs.model }}
+        run: |
+          EFFORT=""
+          if [ -n "${{ inputs.reasoning_effort }}" ]; then EFFORT="--reasoning-effort ${{ inputs.reasoning_effort }}"; fi
+          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag ${{ steps.model.outputs.model }} $EFFORT
 
       - name: Upload per-model fragment
         uses: actions/upload-artifact@v4
