@@ -42,7 +42,9 @@ function readProviderConfig() {
     throw new Error(`Provider config not found at ${path ?? "(no home)"}. Log in via dimcode OAuth first.`);
   }
   const value = JSON.parse(readFileSync(path, "utf8"));
-  const { kind, model, apiKey, baseUrl, compatibilityMode } = value ?? {};
+  // provider.json uses `baseURL` (uppercase); tolerate `baseUrl` too.
+  const { kind, model, apiKey, compatibilityMode } = value ?? {};
+  const baseUrl = value?.baseURL ?? value?.baseUrl;
   if (typeof kind !== "string" || kind.length === 0 || typeof model !== "string" || typeof apiKey !== "string") {
     throw new Error(`Provider config at ${path} is missing kind/model/apiKey.`);
   }
