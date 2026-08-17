@@ -22,9 +22,17 @@ on:
         type: boolean
         default: false
       swe_bench_limit:
-        description: "Number of SWE-bench tasks to run (0 = full corpus)"
+        description: "Number of SWE-bench tasks to run (0 = full corpus after offset)"
         required: false
         default: "1"
+      swe_bench_offset:
+        description: "Skip the first N corpus tasks (sequential batches: batch k = offset k*limit)"
+        required: false
+        default: "0"
+      swe_bench_batch:
+        description: "Batch label (e.g. b1/b2) — uniquifies fragment tags so sequential batches merge cleanly"
+        required: false
+        default: ""
       swe_bench_dataset:
         description: "SWE-bench dataset: lite (300) | verified (500)"
         required: false
@@ -151,12 +159,14 @@ jobs:
         run: |
           EFFORT=""
           if [ -n "${{ inputs.reasoning_effort }}" ]; then EFFORT="--reasoning-effort ${{ inputs.reasoning_effort }}"; fi
-          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag ${{ steps.model.outputs.model }} $EFFORT
+          TAG="${{ steps.model.outputs.model }}"
+          if [ -n "${{ inputs.swe_bench_batch }}" ]; then TAG="$TAG-${{ inputs.swe_bench_batch }}"; fi
+          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --offset ${{ inputs.swe_bench_offset }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag "$TAG" $EFFORT
 
       - name: Upload per-model fragment
         uses: actions/upload-artifact@v4
         with:
-          name: swe-bench-fragment-${{ steps.model.outputs.model }}-shard-${{ matrix.shard }}
+          name: swe-bench-fragment-${{ steps.model.outputs.model }}-${{ inputs.swe_bench_batch || 'all' }}-shard-${{ matrix.shard }}
           path: |
             results/swe-bench-results.*.json
           if-no-files-found: error

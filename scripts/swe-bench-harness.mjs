@@ -324,13 +324,16 @@ async function main() {
       process.exit(1);
     }
   } else {
-    // Slicing and sharding are applied in corpus order. Shards use index % shardTotal so
-    // parallel CI jobs each cover a disjoint, evenly-distributed subset of the corpus.
+    // Order: offset -> limit -> shard. `limit` bounds the total batch BEFORE sharding, so
+    // sequential batches (offset/limit) can each be split across parallel shard jobs and
+    // cover disjoint, contiguous corpus slices (e.g. offset=0/limit=125, then offset=125).
+    // Shards use index % shardTotal so parallel CI jobs each cover a disjoint, evenly
+    // distributed subset of the batch.
     if (args.offset) tasks = tasks.slice(args.offset);
+    if (args.limit) tasks = tasks.slice(0, args.limit);
     if (args.shard !== undefined) {
       tasks = tasks.filter((_, index) => index % args.shardTotal === args.shard);
     }
-    if (args.limit) tasks = tasks.slice(0, args.limit);
   }
 
   // Model/shard runs write to tagged/shard-specific files so parallel CI jobs never
