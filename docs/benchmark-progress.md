@@ -1,17 +1,17 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-18T15:36:41.281Z
-- Tasks tracked: 250
+- Generated: 2026-08-18T19:58:09.092Z
+- Tasks tracked: 375
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 173 |
-| test-failed | 46 |
-| no-diff | 11 |
-| transport-loss | 2 |
-| env-blocked | 16 |
+| resolved | 181 |
+| test-failed | 103 |
+| no-diff | 28 |
+| transport-loss | 7 |
+| env-blocked | 54 |
 | unknown | 2 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
@@ -268,3 +268,128 @@
 | django__django-16950 | b2-testfailed | test-failed | 26 | test_inlineformset_factory_ignores_default_pks_on_submit (mo |
 | django__django-17029 | b2-testfailed | test-failed | 13 | test_clear_cache (unittest.loader._FailedTest.test_clear_cac |
 | django__django-17084 | rerun22 | no-diff | - |  |
+| django__django-17087 | art-b3 | test-failed | 14 | test_serialize_nested_class_method (unittest.loader._FailedT |
+| django__django-7530 | art-b3 | test-failed | 14 |  |
+| django__django-9296 | art-b3 | resolved | 16 |  |
+| matplotlib__matplotlib-13989 | art-b3 | test-failed | 36 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| matplotlib__matplotlib-14623 | art-b3 | env-blocked | 24 |  |
+| matplotlib__matplotlib-20488 | art-b3 | env-blocked | 18 |  |
+| matplotlib__matplotlib-20676 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-20826 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-20859 | art-b3 | env-blocked | 46 |  |
+| matplotlib__matplotlib-21568 | art-b3 | transport-loss | - |  |
+| matplotlib__matplotlib-22719 | art-b3 | test-failed | 23 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| matplotlib__matplotlib-22865 | art-b3 | test-failed | 23 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-22871 | art-b3 | transport-loss | - |  |
+| matplotlib__matplotlib-23299 | art-b3 | transport-loss | - |  |
+| matplotlib__matplotlib-23314 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-23412 | art-b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-23476 | art-b3 | env-blocked | 14 |  |
+| matplotlib__matplotlib-24026 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-24149 | art-b3 | env-blocked | 25 |  |
+| matplotlib__matplotlib-24177 | art-b3 | env-blocked | 103 |  |
+| matplotlib__matplotlib-24570 | art-b3 | test-failed | 18 |  |
+| matplotlib__matplotlib-24627 | art-b3 | test-failed | 16 |  |
+| matplotlib__matplotlib-24637 | art-b3 | test-failed | 21 |  |
+| matplotlib__matplotlib-24870 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-24970 | art-b3 | test-failed | 16 |  |
+| matplotlib__matplotlib-25122 | art-b3 | env-blocked | 33 |  |
+| matplotlib__matplotlib-25287 | art-b3 | test-failed | 41 |  |
+| matplotlib__matplotlib-25311 | art-b3 | transport-loss | - |  |
+| matplotlib__matplotlib-25332 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-25479 | art-b3 | no-diff | - |  |
+| matplotlib__matplotlib-25775 | art-b3 | test-failed | 85 |  |
+| matplotlib__matplotlib-25960 | art-b3 | env-blocked | 43 |  |
+| matplotlib__matplotlib-26113 | art-b3 | test-failed | 23 |  |
+| matplotlib__matplotlib-26208 | art-b3 | env-blocked | 14 |  |
+| matplotlib__matplotlib-26291 | art-b3 | env-blocked | 14 |  |
+| matplotlib__matplotlib-26342 | art-b3 | env-blocked | 36 |  |
+| matplotlib__matplotlib-26466 | art-b3 | env-blocked | 15 |  |
+| mwaskom__seaborn-3069 | art-b3 | resolved | 48 |  |
+| mwaskom__seaborn-3187 | art-b3 | no-diff | - |  |
+| pallets__flask-5014 | art-b3 | test-failed | 27 |  |
+| psf__requests-1142 | art-b3 | resolved | 25 |  |
+| psf__requests-1724 | art-b3 | transport-loss | - |  |
+| psf__requests-1766 | art-b3 | resolved | 14 |  |
+| psf__requests-1921 | art-b3 | resolved | 32 |  |
+| psf__requests-2317 | art-b3 | test-failed | 23 |  |
+| psf__requests-2931 | art-b3 | test-failed | 14 |  |
+| psf__requests-5414 | art-b3 | no-diff | - |  |
+| psf__requests-6028 | art-b3 | test-failed | 15 |  |
+| pydata__xarray-2905 | art-b3 | no-diff | - |  |
+| pydata__xarray-3095 | art-b3 | no-diff | - |  |
+| pydata__xarray-3151 | art-b3 | test-failed | 27 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3305 | art-b3 | test-failed | 53 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3677 | art-b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3993 | art-b3 | no-diff | - |  |
+| pydata__xarray-4075 | art-b3 | test-failed | 16 |  |
+| pydata__xarray-4094 | art-b3 | test-failed | 14 |  |
+| pydata__xarray-4356 | art-b3 | no-diff | - |  |
+| pydata__xarray-4629 | art-b3 | resolved | 14 |  |
+| pydata__xarray-4687 | art-b3 | test-failed | 48 |  |
+| pydata__xarray-4695 | art-b3 | test-failed | 14 |  |
+| pydata__xarray-4966 | art-b3 | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-6461 | art-b3 | no-diff | - |  |
+| pydata__xarray-6599 | art-b3 | test-failed | 16 |  |
+| pydata__xarray-6721 | art-b3 | test-failed | 30 |  |
+| pydata__xarray-6744 | art-b3 | test-failed | 26 |  |
+| pydata__xarray-6938 | art-b3 | test-failed | 16 |  |
+| pydata__xarray-6992 | art-b3 | test-failed | 14 |  |
+| pydata__xarray-7229 | art-b3 | test-failed | 82 |  |
+| pydata__xarray-7233 | art-b3 | no-diff | - |  |
+| pydata__xarray-7393 | art-b3 | test-failed | 19 |  |
+| pylint-dev__pylint-4551 | art-b3 | no-diff | - |  |
+| pylint-dev__pylint-4604 | art-b3 | test-failed | 16 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-4661 | art-b3 | test-failed | 92 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-4970 | art-b3 | resolved | 14 |  |
+| pylint-dev__pylint-6386 | art-b3 | resolved | 35 |  |
+| pylint-dev__pylint-6528 | art-b3 | test-failed | 103 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-6903 | art-b3 | test-failed | 36 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-7080 | art-b3 | test-failed | 13 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-7277 | art-b3 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-8898 | art-b3 | test-failed | 77 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| pytest-dev__pytest-10051 | art-b3 | test-failed | 15 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-10081 | art-b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-10356 | art-b3 | no-diff | - |  |
+| pytest-dev__pytest-5262 | art-b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5631 | art-b3 | test-failed | 18 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5787 | art-b3 | test-failed | 180 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5809 | art-b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5840 | art-b3 | test-failed | 22 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-6197 | art-b3 | test-failed | 56 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-6202 | art-b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7205 | art-b3 | test-failed | 22 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7236 | art-b3 | test-failed | 17 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7324 | art-b3 | test-failed | 36 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7432 | art-b3 | test-failed | 66 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7490 | art-b3 | test-failed | 20 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7521 | art-b3 | test-failed | 13 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7571 | art-b3 | test-failed | 33 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7982 | art-b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-8399 | art-b3 | test-failed | 54 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| scikit-learn__scikit-learn-10297 | art-b3 | env-blocked | 32 |  |
+| scikit-learn__scikit-learn-10844 | art-b3 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-10908 | art-b3 | env-blocked | 27 |  |
+| scikit-learn__scikit-learn-11310 | art-b3 | env-blocked | 106 |  |
+| scikit-learn__scikit-learn-11578 | art-b3 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-12585 | art-b3 | env-blocked | 24 |  |
+| scikit-learn__scikit-learn-12682 | art-b3 | env-blocked | 150 |  |
+| scikit-learn__scikit-learn-12973 | art-b3 | env-blocked | 38 |  |
+| scikit-learn__scikit-learn-13124 | art-b3 | env-blocked | 38 |  |
+| scikit-learn__scikit-learn-13135 | art-b3 | env-blocked | 14 |  |
+| scikit-learn__scikit-learn-13142 | art-b3 | env-blocked | 29 |  |
+| scikit-learn__scikit-learn-13328 | art-b3 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-13439 | art-b3 | env-blocked | 27 |  |
+| scikit-learn__scikit-learn-13496 | art-b3 | env-blocked | 68 |  |
+| scikit-learn__scikit-learn-13779 | art-b3 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-14053 | art-b3 | env-blocked | 29 |  |
+| scikit-learn__scikit-learn-14087 | art-b3 | env-blocked | 29 |  |
+| scikit-learn__scikit-learn-14141 | art-b3 | env-blocked | 13 |  |
+| scikit-learn__scikit-learn-14496 | art-b3 | env-blocked | 55 |  |
+| scikit-learn__scikit-learn-14629 | art-b3 | env-blocked | 31 |  |
+| scikit-learn__scikit-learn-14710 | art-b3 | env-blocked | 21 |  |
+| scikit-learn__scikit-learn-14894 | art-b3 | env-blocked | 27 |  |
+| scikit-learn__scikit-learn-14983 | art-b3 | env-blocked | 27 |  |
+| scikit-learn__scikit-learn-15100 | art-b3 | env-blocked | 17 |  |
+| scikit-learn__scikit-learn-25102 | art-b3 | env-blocked | 114 |  |
+| scikit-learn__scikit-learn-25232 | art-b3 | env-blocked | 72 |  |
