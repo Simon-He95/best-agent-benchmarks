@@ -143,6 +143,10 @@ jobs:
         with:
           python-version: "3.9"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
       - name: Install ripgrep (search tool accelerator; avoids pathologically slow scans on huge repos)
         run: |
           if command -v apt-get >/dev/null 2>&1; then

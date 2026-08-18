@@ -1576,20 +1576,23 @@ function resolvePythonCommand(task = undefined) {
   // SWE-bench instances pin era-appropriate runtimes, and the macOS system
   // python3.11 is wrong for both ends of the Django range: Python >= 3.10
   // removed the gettext `codeset` parameter (breaks Django < 4 at import,
-  // observed as a full-suite TypeError), while Django 5 requires >= 3.10.
-  // Choose the candidate order per task instead of always using the newest.
+  // observed as a full-suite TypeError), Python >= 3.9 changed the argparse
+  // invalid-choice message format (`argument {foo}:` prefix), and Django 5
+  // requires >= 3.10. Choose the candidate order per task instead of always
+  // using the newest. Django 3.x is fully supported by python3.8; django 4.x
+  // and 5.x are fully supported by python3.11.
   const repo = task?.repo;
   const djangoMajor =
     repo === "django/django" ? Number.parseInt(String(task?.version ?? ""), 10) : Number.NaN;
   const candidates =
     Number.isNaN(djangoMajor) || djangoMajor >= 4
-      ? ["python3.11", "python3.10", "python3.9", "python3"]
-      : ["python3.9", "python3.10", "python3.11", "python3"];
+      ? ["python3.11", "python3.10", "python3.9", "python3.8", "python3"]
+      : ["python3.8", "python3.9", "python3.10", "python3.11", "python3"];
   for (const candidate of candidates) {
     const result = spawnSync(candidate, ["--version"], { encoding: "utf8", timeout: 10_000 });
     if (result.status === 0) return candidate;
   }
-  throw new Error("SWE-bench harness requires python3.9 or newer to be installed.");
+  throw new Error("SWE-bench harness requires python3.8 or newer to be installed.");
 }
 
 function sanitize(value) {
