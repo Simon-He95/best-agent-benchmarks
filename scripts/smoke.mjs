@@ -101,7 +101,7 @@ async function main() {
   for (let attempt = 1; attempt <= MAX_RELAY_RETRIES; attempt += 1) {
     result = await runProcess([...cliPrefix, ...cliArgs], workspace, 300_000);
     const message = `${result.stderr ?? ""}${result.stdout ?? ""}`;
-    if (!/channel not found|获取重试渠道|get_channel_failed/iu.test(message)) break;
+    if (!/channel not found|获取重试渠道|get_channel_failed|reasoning_content.*must be passed back/iu.test(message)) break;
     if (attempt < MAX_RELAY_RETRIES) {
       process.stderr.write(
         `smoke> relay channel overloaded (attempt ${attempt}/${MAX_RELAY_RETRIES}); retrying in 10s\n`,
@@ -124,7 +124,7 @@ async function main() {
   }
 
   const relayMessage = `${stderr}${stdout}`;
-  const relayOverloaded = /channel not found|获取重试渠道|get_channel_failed/iu.test(relayMessage);
+  const relayOverloaded = /channel not found|获取重试渠道|get_channel_failed|reasoning_content.*must be passed back/iu.test(relayMessage);
   const summary = {
     ok: result.status === 0 && fixed && !result.timedOut,
     cliExitCode: result.status,
