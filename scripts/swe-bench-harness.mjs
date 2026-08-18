@@ -934,13 +934,15 @@ function installEditableProject(repoDir, venvPython) {
   // the repo's declared [build-system] requires (e.g. astropy needs extension_helpers), since
   // --no-build-isolation does not auto-install build dependencies.
   const constraintsPath = resolve(dirname(dirname(venvPython)), "swe-bench-build-constraints.txt");
-  // setuptools < 58 removed `ignore_egg_info_in_manifest` (used by setuptools_scm 6.x),
-  // and setuptools >= 68 removed `setuptools.dep_util` (used by old setup.py files such
-  // as astropy's). Verified combo on python3.10: setuptools 66.x + setuptools_scm >= 7.
-  writeFileSync(constraintsPath, "setuptools<68\n");
+  // Verified combo (python3.10, metadata stage passes, astropy 12907):
+  // setuptools 66.1.1 + setuptools_scm 7.1.0 + vcs_versioning 2.x + oldest-supported-numpy.
+  // setuptools < 58 removed `ignore_egg_info_in_manifest`, >= 68 removed
+  // `setuptools.dep_util`; setuptools_scm >= 8 pulls vcs_versioning whose older
+  // egg_info integration breaks on modern setuptools. Pin both, not just < 68.
+  writeFileSync(constraintsPath, "setuptools==66.1.1\nsetuptools_scm==7.1.0\n");
   const installLegacyResult = spawnSync(
     venvPython,
-    ["-m", "pip", "install", "setuptools<68", "wheel"],
+    ["-m", "pip", "install", "setuptools==66.1.1", "setuptools_scm==7.1.0", "wheel"],
     { cwd: repoDir, encoding: "utf8", timeout: 120_000 },
   );
   if (installLegacyResult.status !== 0) {
