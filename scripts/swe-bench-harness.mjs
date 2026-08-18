@@ -946,7 +946,10 @@ function installEditableProject(repoDir, venvPython) {
   writeFileSync(constraintsPath, "setuptools==66.1.1\nsetuptools_scm==7.1.0\n");
   const installLegacyResult = spawnSync(
     venvPython,
-    ["-m", "pip", "install", "setuptools==66.1.1", "setuptools_scm==7.1.0", "wheel"],
+    // numpy<2: astropy-era (2019) setup.py compiles C extensions directly against
+    // whatever numpy is installed; numpy 2.x breaks those builds
+    // (numpy_2_0_migration_guide "copy" keyword, observed on astropy-7336).
+    ["-m", "pip", "install", "setuptools==66.1.1", "setuptools_scm==7.1.0", "wheel", "numpy<2"],
     { cwd: repoDir, encoding: "utf8", timeout: 120_000 },
   );
   if (installLegacyResult.status !== 0) {
