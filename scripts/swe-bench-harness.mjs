@@ -725,6 +725,9 @@ async function runTask(task, timeoutMs, runOptions) {
       agentPatch:
         agentPatch.length > 10_000 ? agentPatch.slice(0, 10_000) + "\n... (truncated)" : agentPatch,
       ...traceTail(cliResult.stdout),
+      // The CLI prints one diagnostic line per tool call/closure to stderr; keep the
+      // tail so the agent's tool-call sequence is diagnosable on failed runs too.
+      cliStderrTail: (cliResult.stderr ?? "").trim().slice(-2_000),
       ...(evaluation.error ? { evaluationError: evaluation.error } : {}),
       ...(evaluation.method ? { verification: evaluation.method } : {}),
       ...(evaluation.failToPassCount !== undefined
