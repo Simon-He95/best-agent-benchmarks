@@ -989,6 +989,21 @@ function toRuntestsLabels(entries) {
   return labels;
 }
 
+/** Converts test-patch file paths into django runtests module labels. Django's runtests
+ *  takes test labels (module, module.Class.test), NOT file paths — passing a file path
+ *  makes build_suite return null and the whole evaluation crashes with
+ *  `'NoneType' object is not iterable` (observed on test-files tasks like django-11141). */
+function toRuntestsFileLabels(files) {
+  const labels = [];
+  for (const file of files) {
+    const match = file.match(/^tests\/(.+)\.py$/u);
+    if (match && !match[1].endsWith("/__init__")) {
+      labels.push(match[1].replace(/\//g, "."));
+    }
+  }
+  return labels;
+}
+
 async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
   if (!task.test_patch) return { resolved: false };
 
@@ -1009,7 +1024,13 @@ async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
   const plan = evaluationPlanFor(task, repoDir, evaluationPythonCommand);
   const failToPass = plan.targets(parseFailToPass(task));
   const passToPass = plan.targets(parsePassToPass(task));
-  const targets = failToPass.length > 0 ? failToPass : extractTestFilesFromPatch(task.test_patch);
+  const patchFiles = extractTestFilesFromPatch(task.test_patch);
+  const targets =
+    failToPass.length > 0
+      ? failToPass
+      : plan.kind === "runtests"
+        ? toRuntestsFileLabels(patchFiles)
+        : patchFiles;
   if (targets.length === 0) {
     return { resolved: false, error: "No FAIL_TO_PASS ids or test files found." };
   }
