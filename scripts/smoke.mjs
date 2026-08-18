@@ -93,7 +93,22 @@ async function main() {
   ];
 
   const started = performance.now();
-  const result = await runProcess([...cliPrefix, ...cliArgs], workspace, 300_000);
+  // The dimcode relay channel pool is intermittently overloaded ("channel not found").
+  // Retry the composition a few times with a short backoff before declaring the gate
+  // failed; only a persistent relay failure aborts the run.
+  let result;
+  const MAX_RELAY_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RELAY_RETRIES; attempt += 1) {
+    result = await runProcess([...cliPrefix, ...cliArgs], workspace, 300_000);
+    const message = `${result.stderr ?? ""}${result.stdout ?? ""}`;
+    if (!/channel not found|获取重试渠道|get_channel_failed/iu.test(message)) break;
+    if (attempt < MAX_RELAY_RETRIES) {
+      process.stderr.write(
+        `smoke> relay channel overloaded (attempt ${attempt}/${MAX_RELAY_RETRIES}); retrying in 10s\n`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
+    }
+  }
   const wallMs = Math.round(performance.now() - started);
 
   const stdout = result.stdout ?? "";
@@ -108,11 +123,14 @@ async function main() {
     fixed = false;
   }
 
+  const relayMessage = `${stderr}${stdout}`;
+  const relayOverloaded = /channel not found|获取重试渠道|get_channel_failed/iu.test(relayMessage);
   const summary = {
     ok: result.status === 0 && fixed && !result.timedOut,
     cliExitCode: result.status,
     timedOut: result.timedOut === true,
     fixed,
+    relayOverloaded,
     wallMs,
     composition: {
       mode: "run (headless)",
@@ -129,6 +147,12 @@ async function main() {
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 
   if (!keep) rmSync(workspace, { recursive: true, force: true });
+  if (relayOverloaded) {
+    process.stderr.write(
+      "SMOKE FAILED: relay channel overloaded (persistent get_channel_failed). " +
+        "Wait for the relay to stabilize, then retry the run.\n",
+    );
+  }
   process.exit(summary.ok ? 0 : 1);
 }
 
