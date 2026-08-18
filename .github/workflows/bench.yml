@@ -69,6 +69,11 @@ on:
         description: "Reasoning effort: low|medium|high|xhigh|max|none (empty = model catalog default, e.g. deepseek-v4-flash -> high). Needs a CLI that carries the provider file's reasoningEffort in run."
         required: false
         default: ""
+      debug_prompts:
+        description: "Set DEBUG_PROMPTS=1 for the CLI (dumps provider request wire to stderr; for reasoning_content 400 investigation)"
+        required: false
+        type: boolean
+        default: false
   schedule:
     # Every Sunday at 02:00 UTC
     - cron: "0 2 * * 0"
@@ -182,6 +187,12 @@ jobs:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
         run: node scripts/relay-health.mjs
 
+      - name: Run SWE-bench with debug prompts
+        if: ${{ inputs.debug_prompts }}
+        env:
+          DEBUG_PROMPTS: "1"
+        run: echo "debug"
+
       - name: Run SWE-bench Lite
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
@@ -192,6 +203,7 @@ jobs:
           if [ -n "${{ inputs.swe_bench_batch }}" ]; then TAG="$TAG-${{ inputs.swe_bench_batch }}"; fi
           TASKS=""
           if [ -n "${{ inputs.swe_bench_tasks }}" ]; then TASKS="--tasks ${{ inputs.swe_bench_tasks }}"; fi
+          if [ "${{ inputs.debug_prompts }}" == "true" ]; then export DEBUG_PROMPTS=1; fi
           node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --offset ${{ inputs.swe_bench_offset }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag "$TAG" $TASKS $EFFORT
 
       - name: Upload per-model fragment
