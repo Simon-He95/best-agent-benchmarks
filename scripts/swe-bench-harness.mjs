@@ -698,6 +698,14 @@ async function runTask(task, timeoutMs, runOptions) {
       return taskResult(task, startMs, {
         environmentBlocked: true,
         environmentError: evaluationEnvironment.error,
+        // Keep the agent's diff even when the evaluation environment fails, so an
+        // env-blocked run is still salvageable offline once the environment is fixed.
+        patchLines: agentPatch.split("\n").length,
+        agentPatch:
+          agentPatch.length > 10_000
+            ? agentPatch.slice(0, 10_000) + "\n... (truncated)"
+            : agentPatch,
+        ...traceTail(cliResult.stdout),
       });
     }
 
@@ -923,10 +931,13 @@ function installEditableProject(repoDir, venvPython) {
   // the repo's declared [build-system] requires (e.g. astropy needs extension_helpers), since
   // --no-build-isolation does not auto-install build dependencies.
   const constraintsPath = resolve(dirname(dirname(venvPython)), "swe-bench-build-constraints.txt");
-  writeFileSync(constraintsPath, "setuptools<60\n");
+  // setuptools < 58 removed `ignore_egg_info_in_manifest` (used by setuptools_scm 6.x),
+  // and setuptools >= 68 removed `setuptools.dep_util` (used by old setup.py files such
+  // as astropy's). Verified combo on python3.10: setuptools 66.x + setuptools_scm >= 7.
+  writeFileSync(constraintsPath, "setuptools<68\n");
   const installLegacyResult = spawnSync(
     venvPython,
-    ["-m", "pip", "install", "setuptools<60", "wheel"],
+    ["-m", "pip", "install", "setuptools<68", "wheel"],
     { cwd: repoDir, encoding: "utf8", timeout: 120_000 },
   );
   if (installLegacyResult.status !== 0) {
@@ -1642,20 +1653,24 @@ function resolvePythonCommand(task = undefined) {
   // observed as a full-suite TypeError), Python >= 3.9 changed the argparse
   // invalid-choice message format (`argument {foo}:` prefix), and Django 5
   // requires >= 3.10. Choose the candidate order per task instead of always
-  // using the newest. Django 3.x is fully supported by python3.8; django 4.x
-  // and 5.x are fully supported by python3.11.
+  // using the newest.
+  // Non-django repos (astropy/matplotlib/sphinx/sympy/pytest/scikit-learn, all
+  // 2019-2023 era) prefer 3.9 too: their setup.py uses setuptools/distutils
+  // private attributes that Python 3.11's stdlib distutils no longer provides
+  // (`ignore_egg_info_in_manifest` AttributeError under --no-build-isolation,
+  // observed as 25 environmentBlocked astropy tasks in b1).
   const repo = task?.repo;
   const djangoMajor =
     repo === "django/django" ? Number.parseInt(String(task?.version ?? ""), 10) : Number.NaN;
   const candidates =
-    Number.isNaN(djangoMajor) || djangoMajor >= 4
-      ? ["python3.11", "python3.10", "python3.9", "python3.8", "python3"]
-      : ["python3.8", "python3.9", "python3.10", "python3.11", "python3"];
+    repo === "django/django" && djangoMajor >= 4
+      ? ["python3.11", "python3.10", "python3.9", "python3"]
+      : ["python3.9", "python3.10", "python3.11", "python3"];
   for (const candidate of candidates) {
     const result = spawnSync(candidate, ["--version"], { encoding: "utf8", timeout: 10_000 });
     if (result.status === 0) return candidate;
   }
-  throw new Error("SWE-bench harness requires python3.8 or newer to be installed.");
+  throw new Error("SWE-bench harness requires python3.9 or newer to be installed.");
 }
 
 function sanitize(value) {
