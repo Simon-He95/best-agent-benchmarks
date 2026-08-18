@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-18T14:43:18.991Z
+- Generated: 2026-08-18T15:22:17.615Z
 - Tasks tracked: 250
 
 ## Summary by state
@@ -93,7 +93,7 @@
 | django__django-12143 | b1-reeval | resolved | 14 |  |
 | django__django-12155 | b1-reeval | resolved | 17 |  |
 | django__django-12193 | b1-reeval | resolved | 14 |  |
-| django__django-12209 | 400-debug | resolved | 29 |  |
+| django__django-12209 | 12209 | resolved | 13 |  |
 | django__django-12262 | b1-reeval | resolved | 26 |  |
 | django__django-12273 | b1-nopatch | test-failed | 18 | test_create_new_instance_with_pk_equals_none (model_inherita |
 | django__django-12276 | b1-reeval | resolved | 25 |  |

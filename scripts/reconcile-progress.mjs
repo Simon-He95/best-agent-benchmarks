@@ -37,10 +37,16 @@ const BATCH_ORDER = [
   "400-debug",
   "b1-nopatch2",
   "b2-testfailed",
+  "rerun22",
+  "400-rerun2",
+  "12209",
   "400-rerun2",
   "400-debug",
   "b1-nopatch2",
   "b2-testfailed",
+  "rerun22",
+  "400-rerun2",
+  "12209",
   "live-partial",
   "live",
 ];
@@ -57,6 +63,9 @@ const ARTIFACT_BATCH = {
   "art-400-debug": "400-debug",
   "art-b1-nopatch2": "b1-nopatch2",
   "art-b2-testfailed": "b2-testfailed",
+  "art-rerun22": "rerun22",
+  "art12209": "12209",
+  "art400r2b": "400-rerun2",
 };
 
 function readJson(path) {
