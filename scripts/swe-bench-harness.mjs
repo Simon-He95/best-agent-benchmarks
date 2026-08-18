@@ -614,11 +614,19 @@ async function runTask(task, timeoutMs, runOptions) {
       "",
       task.problem_statement,
       "",
+      ...(task.hints_text && task.hints_text.trim().length > 0
+        ? [
+            "Additional hints from the issue thread:",
+            task.hints_text.trim(),
+            "",
+          ]
+        : []),
       "Use the issue description above as the full problem statement. Make reasonable assumptions and continue.",
       "You have these workspace tools available: read, write, edit, search, stat, list, mkdir, remove, exec, apply_patch.",
       "Use the exact tool names above to inspect the repository and edit the necessary source files. Do not modify test files.",
       "You have no web access: do not call web_search, web_fetch, or any other web tool. Solve the bug by reading the repository code directly and applying the fix yourself.",
       "You MUST actually edit the source files with the write/edit/apply_patch tools — never respond with only a textual description of the fix. Inspect the code, apply the minimal correct change, then verify it.",
+      "Verification: after editing, run the relevant EXISTING tests in the repository (e.g. `python tests/runtests.py <related_module>` for Django, or pytest for other repos) to confirm your change works and does not break related behavior. If the repository needs dependencies first, install them with pip. A fix that only looks right but breaks existing tests is wrong.",
       "After making your changes, explain what you changed and why.",
     ].join("\n");
 
