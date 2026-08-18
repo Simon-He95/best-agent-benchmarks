@@ -371,6 +371,7 @@ async function main() {
   const errored = results.filter((r) => r.error || r.evaluationError).length;
   const environmentBlocked = results.filter((r) => r.environmentBlocked).length;
   const timedOut = results.filter((r) => r.timedOut).length;
+  const relayOverloaded = results.filter((r) => r.failureKind === "relay-overloaded").length;
 
   const report = {
     benchmark: "swe-bench-lite",
@@ -401,6 +402,7 @@ async function main() {
       errored,
       environmentBlocked,
       timedOut,
+      relayOverloaded,
       passAt1: ratio(resolved, tasks.length),
       wallMs: Number(wallMs.toFixed(1)),
       avgTaskMs: Number((wallMs / tasks.length).toFixed(1)),
@@ -468,6 +470,7 @@ function mergeShardReports(outputPath) {
   const errored = tasks.filter((task) => task.error || task.evaluationError).length;
   const environmentBlocked = tasks.filter((task) => task.environmentBlocked).length;
   const timedOut = tasks.filter((task) => task.timedOut).length;
+  const relayOverloaded = tasks.filter((task) => task.failureKind === "relay-overloaded").length;
   const byModel = {};
   for (const report of reports) {
     const key = `${report.provider?.kind ?? "?"}/${report.provider?.model ?? "?"}`;
@@ -498,6 +501,7 @@ function mergeShardReports(outputPath) {
       errored,
       environmentBlocked,
       timedOut,
+      relayOverloaded,
       passAt1: ratio(resolved, tasks.length),
       avgTaskMs: Number(
         (
@@ -1129,8 +1133,32 @@ function summarizeCommandFailure(command, result) {
   return `${command} failed: ${output.slice(0, 800)}\n...\n${output.slice(-800)}`;
 }
 
+/** True when the CLI failure is the dimcode relay's `get_channel_failed` (upstream channel
+ *  pool overloaded — server-side, unrelated to the task/model quality). These tasks are
+ *  counted separately in the report so a run's pass@1 is not polluted by relay capacity. */
+function isRelayOverloadError(result) {
+  return /channel not found|获取重试渠道|get_channel_failed/iu.test(
+    `${result.cliError ?? ""}${result.error ?? ""}`,
+  );
+}
+
+/** Classifies a task outcome into a stable failureKind for reporting. */
+function classifyFailure(result) {
+  if (result.resolved) return "resolved";
+  if (result.timedOut) return "timed-out";
+  if (result.environmentBlocked) return "env-blocked";
+  if (isRelayOverloadError(result)) return "relay-overloaded";
+  if (result.evaluationError) return "test-failed";
+  if (result.error === "Agent produced no diff" || result.failureKind === "no-diff") {
+    return "no-diff";
+  }
+  if (result.cliError) return "model-failure";
+  if (result.error) return "other";
+  return "unknown";
+}
+
 function taskResult(task, startMs, extra = {}) {
-  return {
+  const result = {
     instance_id: task.instance_id,
     repo: task.repo,
     wallMs: Number((performance.now() - startMs).toFixed(1)),
@@ -1139,6 +1167,8 @@ function taskResult(task, startMs, extra = {}) {
     error: undefined,
     ...extra,
   };
+  result.failureKind = classifyFailure(result);
+  return result;
 }
 
 async function downloadCorpus(dataset = "lite") {
@@ -1222,6 +1252,7 @@ function renderMarkdown(report) {
     `| Resolved | ${report.summary.resolved} |`,
     `| Errored | ${report.summary.errored} |`,
     `| Environment Blocked | ${report.summary.environmentBlocked ?? 0} |`,
+    `| Relay Overloaded | ${report.summary.relayOverloaded ?? 0} |`,
     `| Timed Out | ${report.summary.timedOut} |`,
     `| Avg Task Time | ${(report.summary.avgTaskMs / 1000).toFixed(1)}s |`,
     `| Total Time | ${(report.summary.wallMs / 1000).toFixed(1)}s |`,

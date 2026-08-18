@@ -38,9 +38,9 @@ on:
         required: false
         default: "lite"
       swe_bench_concurrency:
-        description: "Parallel SWE-bench tasks"
+        description: "Parallel SWE-bench tasks (keep low — the dimcode relay channel pool is easily saturated)"
         required: false
-        default: "2"
+        default: "1"
       swe_bench_model:
         description: "Model override (empty = BEST_AGENT_PROVIDER_MODEL secret)"
         required: false
@@ -152,6 +152,11 @@ jobs:
           if [ -z "$MODEL" ]; then MODEL="${{ inputs.swe_bench_model }}"; fi
           if [ -z "$MODEL" ]; then MODEL="${{ secrets.BENCHMARK_PROVIDER_MODEL }}"; fi
           echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+
+      - name: Relay channel health gate
+        env:
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+        run: node scripts/relay-health.mjs
 
       - name: Run SWE-bench Lite
         env:
