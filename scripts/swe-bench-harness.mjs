@@ -84,6 +84,17 @@ const FULL_ACCESS_GRANTS = ["read", "write", "exec"];
 const AGENT_TRACE_TAIL_BYTES = 100_000;
 const traceEncoder = new TextEncoder();
 
+/** Upstream-intermittent transport failures worth one automatic retry. */
+function isRetryableTransportFailure(cliResult) {
+  const err = String(cliResult.stderr ?? "");
+  return (
+    err.includes("must be passed back") ||
+    err.includes("ECONNRESET") ||
+    err.includes("Bad Gateway") ||
+    err.includes("Cannot connect")
+  );
+}
+
 function traceTail(stdout) {
   const text = String(stdout ?? "");
   if (traceEncoder.encode(text).byteLength <= AGENT_TRACE_TAIL_BYTES) {
@@ -677,6 +688,36 @@ async function runTask(task, timeoutMs, runOptions) {
       return taskResult(task, startMs, { timedOut: true });
     }
 
+    // One automatic task-level retry for upstream-intermittent transport failures
+    // (dimcode relay / provider): reasoning_content pass-back 400s, ECONNRESET and
+    // Bad Gateway are upstream instabilities, not agent behavior. The workspace is
+    // reset to the base commit so the retry starts fully clean.
+    let retriedTransport = false;
+    if (cliResult.status !== 0 && isRetryableTransportFailure(cliResult)) {
+      process.stderr.write(
+        `retry> ${task.instance_id} failed with upstream transport error; retrying once after workspace reset\n`,
+      );
+      spawnSync("git", ["checkout", "--", "."], { cwd: repoDir, encoding: "utf8" });
+      spawnSync("git", ["clean", "-fd"], { cwd: repoDir, encoding: "utf8" });
+      const retriedCliResult = await runCliProcess({
+        args: [...invocation.prefix, ...cliArgs],
+        cwd: repoDir,
+        timeoutMs,
+        env: {
+          ...process.env,
+          BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
+          ...(process.env.DEBUG_PROMPTS === "1" ? { BEST_AGENT_DEBUG_PROMPTS: "1" } : {}),
+          ...(runOptions.providerConfigOverride === undefined
+            ? {}
+            : { BEST_AGENT_PROVIDER_CONFIG: runOptions.providerConfigOverride }),
+        },
+      });
+      if (!retriedCliResult.timedOut) {
+        cliResult = retriedCliResult;
+        retriedTransport = true;
+      }
+    }
+
     // Capture the diff the agent produced.
     const diffResult = spawnSync("git", ["diff"], { cwd: repoDir, encoding: "utf8" });
     const agentPatch = diffResult.stdout ?? "";
@@ -725,6 +766,7 @@ async function runTask(task, timeoutMs, runOptions) {
 
     return taskResult(task, startMs, {
       resolved,
+      ...(retriedTransport ? { retriedTransport: true } : {}),
       patchLines: agentPatch.split("\n").length,
       agentPatch:
         agentPatch.length > 10_000 ? agentPatch.slice(0, 10_000) + "\n... (truncated)" : agentPatch,
