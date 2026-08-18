@@ -980,18 +980,27 @@ function installEditableProject(repoDir, venvPython) {
   // the repo's declared [build-system] requires (e.g. astropy needs extension_helpers), since
   // --no-build-isolation does not auto-install build dependencies.
   const constraintsPath = resolve(dirname(dirname(venvPython)), "swe-bench-build-constraints.txt");
-  // Verified combo (python3.10, metadata stage passes, astropy 12907):
-  // setuptools 66.1.1 + setuptools_scm 7.1.0 + vcs_versioning 2.x + oldest-supported-numpy.
-  // setuptools < 58 removed `ignore_egg_info_in_manifest`, >= 68 removed
-  // `setuptools.dep_util`; setuptools_scm >= 8 pulls vcs_versioning whose older
-  // egg_info integration breaks on modern setuptools. Pin both, not just < 68.
-  writeFileSync(constraintsPath, "setuptools==66.1.1\nsetuptools_scm==7.1.0\n");
+  // Verified combos:
+  //   - default: setuptools 66.1.1 + setuptools_scm 7.1.0 + vcs_versioning 2.x +
+  //     oldest-supported-numpy (astropy 12907 metadata passes).
+  //     setuptools < 58 removed `ignore_egg_info_in_manifest`, >= 68 removed
+  //     `setuptools.dep_util`; setuptools_scm >= 8 pulls vcs_versioning whose older
+  //     egg_info integration breaks on modern setuptools.
+  //   - scikit-learn (no pyproject, flat-layout repos): setuptools 57.5 avoids the
+  //     "Multiple top-level packages discovered in a flat-layout" error (observed
+  //     on sklearn-10844 with 66.x).
+  const legacySetuptools =
+    corpusTask?.repo === "scikit-learn/scikit-learn" ? "setuptools==57.5.0" : "setuptools==66.1.1";
+  writeFileSync(
+    constraintsPath,
+    `${legacySetuptools}\nsetuptools_scm==7.1.0\n`,
+  );
   const installLegacyResult = spawnSync(
     venvPython,
     // numpy<2: astropy-era (2019) setup.py compiles C extensions directly against
     // whatever numpy is installed; numpy 2.x breaks those builds
     // (numpy_2_0_migration_guide "copy" keyword, observed on astropy-7336).
-    ["-m", "pip", "install", "setuptools==66.1.1", "setuptools_scm==7.1.0", "wheel", "numpy<2"],
+    ["-m", "pip", "install", legacySetuptools, "setuptools_scm==7.1.0", "wheel", "numpy<2"],
     { cwd: repoDir, encoding: "utf8", timeout: 120_000 },
   );
   if (installLegacyResult.status !== 0) {
@@ -1023,10 +1032,13 @@ function installEditableProject(repoDir, venvPython) {
   }
   // CFLAGS: macOS 14/15 SDK rejects implicit function declarations in astropy-era
   // vendored C (cfitsio getcwd) — downgrade to warnings so legacy extensions build.
+  // CXXFLAGS: matplotlib-era C++ assigns unsigned char* -> char* (macOS 14+ SDK
+  // errors on this); -fpermissive downgrades it to a warning.
   const legacyEnv = {
     ...process.env,
     PIP_CONSTRAINT: constraintsPath,
     CFLAGS: "-Wno-implicit-function-declaration",
+    CXXFLAGS: "-fpermissive",
   };
   const retryResult = spawnSync(
     venvPython,
