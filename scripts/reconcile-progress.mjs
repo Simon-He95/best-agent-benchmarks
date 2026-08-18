@@ -19,6 +19,8 @@ const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const resultsDir = resolve(repoRoot, "results");
 const docsDir = resolve(repoRoot, "docs");
 
+import { statSync as require_stat } from "node:fs";
+
 const BATCH_ORDER = [
   "b1",
   "b1-reeval",
@@ -29,6 +31,9 @@ const BATCH_ORDER = [
   "b2",
   "stat-rerun2",
   "b2-testfailed",
+  "b1-nopatch-partial",
+  "b2-testfailed-partial",
+  "live-partial",
   "live",
 ];
 
@@ -94,6 +99,28 @@ function collectAllRecords() {
       if (!existsSync(candidate)) continue;
       const batch = ARTIFACT_BATCH[dir] ?? dir;
       records.push(...recordsFromResult(candidate, batch, "artifact"));
+    }
+    // 2b. In-flight run fragments downloaded live (e.g. .tmp/live/swe-bench-fragment-*/)
+    // are merged under a "-partial" batch name so the completed run's artifact (same
+    // batch, later in BATCH_ORDER) always wins per task.
+    const liveDir = resolve(tmpDir, "live");
+    if (existsSync(liveDir)) {
+      const walk = (d, out) => {
+        for (const f of readdirSync(d)) {
+          const p2 = resolve(d, f);
+          if (readdirSync) {
+            try { if (require_stat(p2).isDirectory()) { walk(p2, out); continue; } } catch { /* file */ }
+          }
+          if (f.endsWith(".json") && f.includes("swe-bench-results")) out.push(p2);
+        }
+      };
+      const files = [];
+      walk(liveDir, files);
+      for (const f of files) {
+        const m = f.match(/deepseek-v4-flash-([^.]+)\.shard/);
+        const batch = m ? m[1] + "-partial" : "live-partial";
+        records.push(...recordsFromResult(f, batch, "live-fragment"));
+      }
     }
   }
 
