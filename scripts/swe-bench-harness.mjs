@@ -979,13 +979,20 @@ function installEditableProject(repoDir, venvPython) {
       );
     }
   }
+  // CFLAGS: macOS 14/15 SDK rejects implicit function declarations in astropy-era
+  // vendored C (cfitsio getcwd) — downgrade to warnings so legacy extensions build.
+  const legacyEnv = {
+    ...process.env,
+    PIP_CONSTRAINT: constraintsPath,
+    CFLAGS: "-Wno-implicit-function-declaration",
+  };
   const retryResult = spawnSync(
     venvPython,
     ["-m", "pip", "install", "-e", ".", "--no-build-isolation"],
     {
       cwd: repoDir,
       encoding: "utf8",
-      env: { ...process.env, PIP_CONSTRAINT: constraintsPath },
+      env: legacyEnv,
       timeout: 180_000,
     },
   );
