@@ -665,7 +665,7 @@ async function runTask(task, timeoutMs, runOptions) {
       ...(backend === "plain" ? ["--workspace-backend", "plain"] : []),
       prompt,
     ];
-    const cliResult = await runCliProcess({
+    let cliResult = await runCliProcess({
       // Run through the resolved CLI invocation (node JS entry or native binary).
       args: [...invocation.prefix, ...cliArgs],
       cwd: repoDir,
