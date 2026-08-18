@@ -1039,12 +1039,12 @@ function installEditableProject(repoDir, venvPython) {
     },
   );
   if (retryResult.status === 0) return { ready: true };
+  const rawError = `${retryResult.stderr ?? ""}${retryResult.stdout ?? ""}`.trim();
   return {
     ready: false,
-    error: summarizeCommandFailure(
-      `${command} with --no-build-isolation`,
-      retryResult,
-    ),
+    // Keep the FULL error (not the tail-sliced summary) so CI evaluation failures
+    // (e.g. astropy build errors) are diagnosable from the fragment alone.
+    error: rawError || `${command} with --no-build-isolation failed`,
   };
 }
 
