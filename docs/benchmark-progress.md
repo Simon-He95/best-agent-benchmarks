@@ -1,53 +1,52 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-18T13:02:05.278Z
+- Generated: 2026-08-18T13:04:17.411Z
 - Tasks tracked: 250
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 138 |
-| test-failed | 51 |
-| no-diff | 28 |
-| transport-loss | 6 |
-| stat-polluted | 4 |
-| env-blocked | 19 |
-| unknown | 4 |
+| resolved | 160 |
+| test-failed | 58 |
+| no-diff | 5 |
+| transport-loss | 4 |
+| env-blocked | 21 |
+| unknown | 2 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
 | instance_id | batch | state | patchLines | failing test |
 |-------------|-------|-------|------------|--------------|
 | astropy__astropy-12907 | b1-nopatch-partial | env-blocked | 14 |  |
-| astropy__astropy-13033 | b1 | env-blocked | - |  |
-| astropy__astropy-13236 | b1 | stat-polluted | - |  |
-| astropy__astropy-13398 | b1 | stat-polluted | - |  |
+| astropy__astropy-13033 | b1-nopatch | env-blocked | 38 |  |
+| astropy__astropy-13236 | b1-nopatch | env-blocked | 42 |  |
+| astropy__astropy-13398 | b1-nopatch | unknown | - |  |
 | astropy__astropy-13453 | b1-nopatch-partial | env-blocked | 31 |  |
-| astropy__astropy-13579 | b1 | env-blocked | - |  |
-| astropy__astropy-13977 | b1 | env-blocked | - |  |
-| astropy__astropy-14096 | b1 | transport-loss | - |  |
+| astropy__astropy-13579 | b1-nopatch | env-blocked | 72 |  |
+| astropy__astropy-13977 | b1-nopatch | env-blocked | 115 |  |
+| astropy__astropy-14096 | b1-nopatch | env-blocked | 67 |  |
 | astropy__astropy-14182 | b1-nopatch-partial | env-blocked | 26 |  |
-| astropy__astropy-14309 | b1 | env-blocked | - |  |
-| astropy__astropy-14365 | b1 | env-blocked | - |  |
-| astropy__astropy-14369 | b1 | env-blocked | - |  |
+| astropy__astropy-14309 | b1-nopatch | env-blocked | 44 |  |
+| astropy__astropy-14365 | b1-nopatch | env-blocked | 16 |  |
+| astropy__astropy-14369 | b1-nopatch | env-blocked | 115 |  |
 | astropy__astropy-14508 | b1-nopatch-partial | env-blocked | 42 |  |
-| astropy__astropy-14539 | b1 | env-blocked | - |  |
-| astropy__astropy-14598 | b1 | env-blocked | - |  |
-| astropy__astropy-14995 | b1 | env-blocked | - |  |
+| astropy__astropy-14539 | b1-nopatch | env-blocked | 14 |  |
+| astropy__astropy-14598 | b1-nopatch | env-blocked | 40 |  |
+| astropy__astropy-14995 | b1-nopatch | env-blocked | 14 |  |
 | astropy__astropy-7166 | b1-nopatch-partial | env-blocked | 15 |  |
-| astropy__astropy-7336 | b1 | env-blocked | - |  |
-| astropy__astropy-7606 | b1 | env-blocked | - |  |
-| astropy__astropy-7671 | b1 | env-blocked | - |  |
+| astropy__astropy-7336 | b1-nopatch | env-blocked | 30 |  |
+| astropy__astropy-7606 | b1-nopatch | env-blocked | 21 |  |
+| astropy__astropy-7671 | b1-nopatch | env-blocked | 55 |  |
 | astropy__astropy-8707 | b1-nopatch-partial | env-blocked | 62 |  |
-| astropy__astropy-8872 | b1 | env-blocked | - |  |
+| astropy__astropy-8872 | b1-nopatch | env-blocked | 23 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
-| django__django-10554 | b1 | transport-loss | - |  |
+| django__django-10554 | b1-nopatch | resolved | 34 |  |
 | django__django-10880 | b1-reeval | resolved | 14 |  |
 | django__django-10914 | stat-rerun | resolved | 64 |  |
 | django__django-10973 | b1-reeval | resolved | 68 |  |
 | django__django-10999 | stat-rerun | resolved | 19 |  |
-| django__django-11066 | b1 | stat-polluted | - |  |
+| django__django-11066 | b1-nopatch | resolved | 14 |  |
 | django__django-11087 | b1-reeval | resolved | 58 |  |
 | django__django-11095 | b1-reeval | resolved | 80 |  |
 | django__django-11099 | b1-reeval | resolved | 23 |  |
@@ -61,7 +60,7 @@
 | django__django-11206 | b1-reeval | resolved | 19 |  |
 | django__django-11211 | b1-reeval | resolved | 14 |  |
 | django__django-11239 | b1-reeval | resolved | 34 |  |
-| django__django-11265 | b1 | unknown | - |  |
+| django__django-11265 | b1-nopatch | unknown | - |  |
 | django__django-11276 | b1-reeval | resolved | 36 |  |
 | django__django-11292 | b1-rerun | resolved | 52 |  |
 | django__django-11299 | b1-reeval | resolved | 15 |  |
@@ -71,14 +70,14 @@
 | django__django-11451 | b1-reeval | resolved | 14 |  |
 | django__django-11477 | stat-rerun | resolved | 14 |  |
 | django__django-11490 | b1-reeval | resolved | 13 |  |
-| django__django-11532 | b1 | unknown | - |  |
+| django__django-11532 | b1-nopatch | test-failed | 16 | test_non_ascii_dns_non_unicode_email (mail.tests.MailTests) |
 | django__django-11551 | b1-reeval | resolved | 58 |  |
 | django__django-11555 | b1-reeval | resolved | 17 |  |
 | django__django-11603 | b1-reeval | resolved | 35 |  |
 | django__django-11728 | b1-rerun | resolved | 55 |  |
 | django__django-11734 | b1-rerun-final | test-failed | 16 | test_subquery_exclude_outerref (queries.tests.ExcludeTests) |
 | django__django-11740 | b1-reeval | resolved | 34 |  |
-| django__django-11749 | b1 | transport-loss | - |  |
+| django__django-11749 | b1-nopatch | test-failed | 24 | test_subparser_invalid_option (user_commands.tests.CommandTe |
 | django__django-11790 | stat-rerun | test-failed | 16 | test_username_field_max_length_defaults_to_254 (auth_tests.t |
 | django__django-11815 | b1-reeval | resolved | 17 |  |
 | django__django-11820 | b1-rerun-final | resolved | 22 |  |
@@ -86,7 +85,7 @@
 | django__django-11880 | b1-reeval | resolved | 13 |  |
 | django__django-11885 | b1-nopatch-partial | no-diff | - |  |
 | django__django-11951 | b1-reeval | resolved | 15 |  |
-| django__django-11964 | b1 | unknown | - |  |
+| django__django-11964 | b1-nopatch | resolved | 41 |  |
 | django__django-11999 | b1-reeval | resolved | 19 |  |
 | django__django-12039 | b1-reeval | resolved | 33 |  |
 | django__django-12050 | b1-reeval | resolved | 14 |  |
@@ -94,55 +93,55 @@
 | django__django-12143 | b1-reeval | resolved | 14 |  |
 | django__django-12155 | b1-reeval | resolved | 17 |  |
 | django__django-12193 | b1-reeval | resolved | 14 |  |
-| django__django-12209 | b1 | unknown | - |  |
+| django__django-12209 | b1-nopatch | no-diff | - |  |
 | django__django-12262 | b1-reeval | resolved | 26 |  |
-| django__django-12273 | b1 | no-diff | - |  |
+| django__django-12273 | b1-nopatch | test-failed | 18 | test_create_new_instance_with_pk_equals_none (model_inherita |
 | django__django-12276 | b1-reeval | resolved | 25 |  |
 | django__django-12304 | b1-rerun | resolved | 14 |  |
 | django__django-12308 | b1-nopatch-partial | resolved | 24 |  |
-| django__django-12325 | b1 | no-diff | - |  |
-| django__django-12406 | b1 | no-diff | - |  |
+| django__django-12325 | b1-nopatch | test-failed | 29 | test_clash_parent_link (invalid_models_tests.test_relative_f |
+| django__django-12406 | b1-nopatch | resolved | 72 |  |
 | django__django-12419 | b1-reeval | resolved | 77 |  |
-| django__django-12663 | b1 | no-diff | - |  |
+| django__django-12663 | b1-nopatch | resolved | 15 |  |
 | django__django-12708 | b1-nopatch-partial | resolved | 16 |  |
 | django__django-12713 | b1-reeval | resolved | 33 |  |
 | django__django-12741 | b1-reeval | resolved | 30 |  |
 | django__django-12754 | b1-reeval | resolved | 23 |  |
-| django__django-12774 | b1 | no-diff | - |  |
-| django__django-12858 | b1 | no-diff | - |  |
-| django__django-12965 | b1 | no-diff | - |  |
+| django__django-12774 | b1-nopatch | test-failed | 38 | test_in_bulk_non_unique_meta_constaint (lookup.tests.LookupT |
+| django__django-12858 | b1-nopatch | resolved | 16 |  |
+| django__django-12965 | b1-nopatch | resolved | 13 |  |
 | django__django-13012 | b1-reeval | resolved | 18 |  |
 | django__django-13023 | b1-nopatch-partial | resolved | 14 |  |
-| django__django-13028 | b1 | no-diff | - |  |
-| django__django-13033 | b1 | no-diff | - |  |
-| django__django-13089 | b1 | no-diff | - |  |
+| django__django-13028 | b1-nopatch | resolved | 17 |  |
+| django__django-13033 | b1-nopatch | resolved | 14 |  |
+| django__django-13089 | b1-nopatch | resolved | 22 |  |
 | django__django-13109 | b1-reeval | resolved | 14 |  |
 | django__django-13112 | b1-nopatch-partial | resolved | 18 |  |
-| django__django-13121 | b1 | no-diff | - |  |
-| django__django-13128 | b1 | no-diff | - |  |
-| django__django-13158 | b1 | no-diff | - |  |
+| django__django-13121 | b1-nopatch | resolved | 38 |  |
+| django__django-13128 | b1-nopatch | no-diff | - |  |
+| django__django-13158 | b1-nopatch | transport-loss | - |  |
 | django__django-13195 | b1-nopatch-partial | test-failed | 76 | test_session_delete_on_end (sessions_tests.tests.SessionMidd |
-| django__django-13212 | b1 | stat-polluted | - |  |
-| django__django-13279 | b1 | no-diff | - |  |
-| django__django-13297 | b1 | no-diff | - |  |
+| django__django-13212 | b1-nopatch | test-failed | 144 | test_value_placeholder_with_file_field (forms_tests.tests.te |
+| django__django-13279 | b1-nopatch | resolved | 27 |  |
+| django__django-13297 | b1-nopatch | resolved | 32 |  |
 | django__django-13315 | b1-nopatch-partial | resolved | 29 |  |
 | django__django-13343 | b1-reeval | resolved | 26 |  |
-| django__django-13344 | b1 | no-diff | - |  |
-| django__django-13346 | b1 | no-diff | - |  |
-| django__django-13363 | b1 | no-diff | - |  |
+| django__django-13344 | b1-nopatch | resolved | 92 |  |
+| django__django-13346 | b1-nopatch | resolved | 54 |  |
+| django__django-13363 | b1-nopatch | resolved | 23 |  |
 | django__django-13401 | b1-rerun-final | test-failed | 37 | test_abstract_inherited_fields (model_fields.tests.BasicFiel |
 | django__django-13406 | b1-nopatch-partial | resolved | 34 |  |
 | django__django-13410 | b1-reeval | resolved | 25 |  |
-| django__django-13417 | b1 | no-diff | - |  |
-| django__django-13449 | b1 | no-diff | - |  |
-| django__django-13512 | b1 | no-diff | - |  |
+| django__django-13417 | b1-nopatch | resolved | 18 |  |
+| django__django-13449 | b1-nopatch | resolved | 35 |  |
+| django__django-13512 | b1-nopatch | test-failed | 14 | test_json_display_for_field (admin_utils.tests.UtilsTests) ( |
 | django__django-13513 | b1-nopatch-partial | no-diff | - |  |
 | django__django-13516 | stat-rerun | resolved | 15 |  |
-| django__django-13551 | b1 | no-diff | - |  |
-| django__django-13568 | b1 | no-diff | - |  |
-| django__django-13569 | b1 | no-diff | - |  |
+| django__django-13551 | b1-nopatch | resolved | 29 |  |
+| django__django-13568 | b1-nopatch | resolved | 18 |  |
+| django__django-13569 | b1-nopatch | resolved | 15 |  |
 | django__django-13590 | b1-nopatch-partial | resolved | 23 |  |
-| django__django-13658 | b1 | no-diff | - |  |
+| django__django-13658 | b1-nopatch | resolved | 19 |  |
 | django__django-13670 | b1-reeval | resolved | 14 |  |
 | django__django-13741 | b2 | resolved | 53 |  |
 | django__django-13786 | stat-rerun2 | resolved | 22 |  |
