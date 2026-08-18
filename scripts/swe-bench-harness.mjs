@@ -134,6 +134,7 @@ function parseArgs(argv) {
     download: false,
     limit: undefined,
     taskId: undefined,
+    taskIds: undefined,
     offset: 0,
     shard: undefined,
     shardTotal: undefined,
@@ -164,6 +165,12 @@ function parseArgs(argv) {
         break;
       case "--task":
         parsed.taskId = argv[++i];
+        break;
+      case "--tasks":
+        parsed.taskIds = String(argv[++i] ?? "")
+          .split(",")
+          .map((id) => id.trim())
+          .filter(Boolean);
         break;
       case "--offset":
         parsed.offset = Number(argv[++i]);
@@ -217,6 +224,7 @@ function parseArgs(argv) {
             "  --shard <i> --shard-total <n>   run tasks where index % n == i (parallel shards)\n" +
             "  --merge-shards      combine swe-bench-results.shard-*.json into the aggregate report\n" +
             "  --task <id>         run one task by instance id\n" +
+            "  --tasks <id,id,...>  run exactly the listed instance ids (skip already-verified tasks)\n" +
             "  --timeout <ms>      per-task timeout (default 300000)\n" +
             "  --concurrency <n>   parallel tasks (default 1)\n" +
             "  --backend <mode>    plain (default) or sandbox. Benchmarks are ONLY comparable\n" +
@@ -335,6 +343,17 @@ async function main() {
     if (tasks.length === 0) {
       process.stderr.write(`Task ${args.taskId} not found in corpus.\n`);
       process.exit(1);
+    }
+  } else if (args.taskIds && args.taskIds.length > 0) {
+    const wanted = new Set(args.taskIds);
+    tasks = allTasks.filter((t) => wanted.has(t.instance_id));
+    const missing = args.taskIds.filter((id) => !tasks.some((t) => t.instance_id === id));
+    if (missing.length > 0) {
+      process.stderr.write(`Tasks not found in corpus: ${missing.join(", ")}\n`);
+      process.exit(1);
+    }
+    if (args.shard !== undefined) {
+      tasks = tasks.filter((_, index) => index % args.shardTotal === args.shard);
     }
   } else {
     // Order: offset -> limit -> shard. `limit` bounds the total batch BEFORE sharding, so

@@ -33,6 +33,10 @@ on:
         description: "Batch label (e.g. b1/b2) — uniquifies fragment tags so sequential batches merge cleanly"
         required: false
         default: ""
+      swe_bench_tasks:
+        description: "Comma-separated instance ids to run exactly (e.g. rerun of failed tasks; overrides offset/limit)"
+        required: false
+        default: ""
       swe_bench_dataset:
         description: "SWE-bench dataset: lite (300) | verified (500)"
         required: false
@@ -183,7 +187,9 @@ jobs:
           if [ -n "${{ inputs.reasoning_effort }}" ]; then EFFORT="--reasoning-effort ${{ inputs.reasoning_effort }}"; fi
           TAG="${{ steps.model.outputs.model }}"
           if [ -n "${{ inputs.swe_bench_batch }}" ]; then TAG="$TAG-${{ inputs.swe_bench_batch }}"; fi
-          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --offset ${{ inputs.swe_bench_offset }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag "$TAG" $EFFORT
+          TASKS=""
+          if [ -n "${{ inputs.swe_bench_tasks }}" ]; then TASKS="--tasks ${{ inputs.swe_bench_tasks }}"; fi
+          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --offset ${{ inputs.swe_bench_offset }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag "$TAG" $TASKS $EFFORT
 
       - name: Upload per-model fragment
         uses: actions/upload-artifact@v4
