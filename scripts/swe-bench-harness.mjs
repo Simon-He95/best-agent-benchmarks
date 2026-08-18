@@ -368,7 +368,7 @@ async function main() {
 
   const wallMs = performance.now() - startTime;
   const resolved = results.filter((r) => r.resolved).length;
-  const errored = results.filter((r) => r.error).length;
+  const errored = results.filter((r) => r.error || r.evaluationError).length;
   const environmentBlocked = results.filter((r) => r.environmentBlocked).length;
   const timedOut = results.filter((r) => r.timedOut).length;
 
@@ -465,7 +465,7 @@ function mergeShardReports(outputPath) {
 
   const tasks = reports.flatMap((report) => report.tasks ?? []);
   const resolved = tasks.filter((task) => task.resolved).length;
-  const errored = tasks.filter((task) => task.error).length;
+  const errored = tasks.filter((task) => task.error || task.evaluationError).length;
   const environmentBlocked = tasks.filter((task) => task.environmentBlocked).length;
   const timedOut = tasks.filter((task) => task.timedOut).length;
   const byModel = {};
@@ -916,6 +916,33 @@ function installEditableProject(repoDir, venvPython) {
   };
 }
 
+/** Per-repo evaluation plan. django needs its own test runner (`tests/runtests.py`,
+ *  which configures DJANGO_SETTINGS_MODULE + django.setup()); the other SWE-bench repos
+ *  run plain pytest with node-id targets. */
+function evaluationPlanFor(task, repoDir, venvPython) {
+  if ((task.repo ?? "") === "django/django") {
+    return {
+      kind: "runtests",
+      targets: (entries) => toRuntestsLabels(entries),
+      run: (labels) => ({ command: venvPython, args: ["tests/runtests.py", ...labels, "--verbosity", "1"] }),
+    };
+  }
+  return {
+    kind: "pytest",
+    targets: (entries) => toPytestNodeIds(entries, repoDir),
+    run: (targets) => ({ command: venvPython, args: ["-m", "pytest", "--tb=short", "-q", ...targets] }),
+  };
+}
+
+/** Converts old-format ids to django runtests labels (`module.Class.test_name`). */
+function toRuntestsLabels(entries) {
+  return entries.map((entry) => {
+    if (entry.includes("::")) return entry;
+    const match = entry.match(/^(.+?) \(([\w.]+)\)$/u);
+    return match ? `${match[2]}.${match[1]}` : entry;
+  });
+}
+
 async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
   if (!task.test_patch) return { resolved: false };
 
@@ -933,31 +960,53 @@ async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
   // Prefer the official SWE-bench FAIL_TO_PASS test ids: they are the precise regression
   // signal and avoid false negatives from running every modified test file. Fall back to
   // the test files touched by the test patch when the ids are absent.
-  const failToPass = parseFailToPass(task);
-  const pytestTargets =
-    failToPass.length > 0 ? failToPass : extractTestFilesFromPatch(task.test_patch);
-  if (pytestTargets.length === 0) {
+  const plan = evaluationPlanFor(task, repoDir, evaluationPythonCommand);
+  const failToPass = plan.targets(parseFailToPass(task));
+  const passToPass = plan.targets(parsePassToPass(task));
+  const targets = failToPass.length > 0 ? failToPass : extractTestFilesFromPatch(task.test_patch);
+  if (targets.length === 0) {
     return { resolved: false, error: "No FAIL_TO_PASS ids or test files found." };
   }
 
-  const testResult = spawnSync(
-    evaluationPythonCommand,
-    ["-m", "pytest", "--tb=short", "-q", ...pytestTargets],
-    { cwd: repoDir, encoding: "utf8", timeout: 120_000 },
-  );
-  if (testResult.status !== 0) {
+  // FAIL_TO_PASS must pass (the reported regression is fixed).
+  const failCommand = plan.run(targets);
+  const failResult = spawnSync(failCommand.command, failCommand.args, {
+    cwd: repoDir,
+    encoding: "utf8",
+    timeout: 300_000,
+  });
+  if (failResult.status !== 0) {
     return {
       resolved: false,
       method: failToPass.length > 0 ? "fail-to-pass" : "test-files",
       failToPassCount: failToPass.length,
-      error: summarizeCommandFailure(`${pythonCommand} -m pytest`, testResult),
+      error: summarizeCommandFailure(`${pythonCommand} ${plan.kind}`, failResult),
     };
+  }
+
+  // PASS_TO_PASS must still pass (no regressions) when the corpus provides the ids.
+  if (passToPass.length > 0) {
+    const passCommand = plan.run(passToPass);
+    const passResult = spawnSync(passCommand.command, passCommand.args, {
+      cwd: repoDir,
+      encoding: "utf8",
+      timeout: 300_000,
+    });
+    if (passResult.status !== 0) {
+      return {
+        resolved: false,
+        method: "fail-to-pass+pass-to-pass",
+        failToPassCount: failToPass.length,
+        error: summarizeCommandFailure(`${pythonCommand} ${plan.kind} (PASS_TO_PASS)`, passResult),
+      };
+    }
   }
 
   return {
     resolved: true,
     method: failToPass.length > 0 ? "fail-to-pass" : "test-files",
     failToPassCount: failToPass.length,
+    kind: plan.kind,
   };
 }
 
@@ -972,6 +1021,87 @@ function parseFailToPass(task) {
   } catch {
     return [];
   }
+}
+
+/** Parses the corpus PASS_TO_PASS field (a JSON-encoded array of test ids). */
+function parsePassToPass(task) {
+  if (typeof task.PASS_TO_PASS !== "string") return [];
+  try {
+    const value = JSON.parse(task.PASS_TO_PASS);
+    return Array.isArray(value)
+      ? value.filter((id) => typeof id === "string" && id.length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Converts old-format SWE-bench test ids (`test_name (module.Class)`) into pytest node ids
+ *  (`path/to/test/file.py::Class::test_name`). Entries already in node-id form (containing
+ *  `::`) pass through unchanged. The HuggingFace corpus uses the old format; passing it
+ *  verbatim to pytest makes pytest fail with "file or directory not found" — the harness
+ *  bug that made every evaluation fail at collection. */
+function toPytestNodeIds(entries, repoDir) {
+  const nodeIds = [];
+  for (const entry of entries) {
+    if (entry.includes("::")) {
+      nodeIds.push(entry);
+      continue;
+    }
+    const match = entry.match(/^(.+?) \(([\w.]+)\)$/u);
+    if (!match) {
+      nodeIds.push(entry);
+      continue;
+    }
+    const testName = match[1];
+    const moduleClass = match[2];
+    const lastDot = moduleClass.lastIndexOf(".");
+    const modulePath = moduleClass.slice(0, lastDot);
+    const className = moduleClass.slice(lastDot + 1);
+    const file = findTestFile(repoDir, modulePath);
+    if (file) nodeIds.push(`${file}::${className}::${testName}`);
+    else nodeIds.push(entry); // cannot resolve; leave the raw id (pytest will report loudly)
+  }
+  return nodeIds;
+}
+
+/** Resolves a dotted test module (`aggregation.tests`) to its file path relative to the repo
+ *  root. Tries common SWE-bench layouts (tests/, test/, or repo-root) then a bounded search. */
+function findTestFile(repoDir, modulePath) {
+  const relPath = `${modulePath.replaceAll(".", "/")}.py`;
+  for (const candidate of [
+    relPath,
+    `tests/${relPath}`,
+    `test/${relPath}`,
+    `tests/${modulePath.replaceAll(".", "/")}/__init__.py`,
+  ]) {
+    if (existsSync(resolve(repoDir, candidate))) return candidate;
+  }
+  // Bounded fallback search: any .py whose path ends with the module-relative path.
+  const stack = [repoDir];
+  let scanned = 0;
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith(".") || entry.name === ".swe-bench-venv") continue;
+      const full = resolve(dir, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(full);
+      } else if (entry.isFile() && entry.name.endsWith(".py")) {
+        scanned += 1;
+        const relative = full.slice(repoDir.length + 1);
+        if (relative.endsWith(relPath)) return relative;
+        if (scanned > 20_000) return undefined;
+      }
+    }
+  }
+  return undefined;
 }
 
 function extractTestFilesFromPatch(patch) {
