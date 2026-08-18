@@ -79,6 +79,19 @@ const DEFAULTS = {
 const GIT_NETWORK_RETRY_ATTEMPTS = 3;
 const GIT_NETWORK_RETRY_DELAY_MS = 1_000;
 const FULL_ACCESS_GRANTS = ["read", "write", "exec"];
+/** Bound on the persisted CLI stdout tail for per-task agent-trace diagnostics
+ *  (tool-call sequence / model loops). Keeps fragment JSON bounded. */
+const AGENT_TRACE_TAIL_BYTES = 100_000;
+const traceEncoder = new TextEncoder();
+
+function traceTail(stdout) {
+  const text = String(stdout ?? "");
+  if (traceEncoder.encode(text).byteLength <= AGENT_TRACE_TAIL_BYTES) {
+    return { agentTrace: text, agentTraceBytes: text.length };
+  }
+  const sliced = text.slice(-AGENT_TRACE_TAIL_BYTES);
+  return { agentTrace: sliced, agentTraceBytes: text.length, agentTraceTruncated: true };
+}
 
 /**
  * Resolves how to invoke the installed best-agent CLI:
@@ -667,6 +680,7 @@ async function runTask(task, timeoutMs, runOptions) {
         // Keep the full stderr so provider/tool diagnostics (model-failure detail, tool
         // closure) are preserved for investigation.
         cliError: (cliResult.stderr ?? "").trim().slice(-2000),
+        ...traceTail(cliResult.stdout),
       });
     }
 
@@ -694,6 +708,7 @@ async function runTask(task, timeoutMs, runOptions) {
       patchLines: agentPatch.split("\n").length,
       agentPatch:
         agentPatch.length > 10_000 ? agentPatch.slice(0, 10_000) + "\n... (truncated)" : agentPatch,
+      ...traceTail(cliResult.stdout),
       ...(evaluation.error ? { evaluationError: evaluation.error } : {}),
       ...(evaluation.method ? { verification: evaluation.method } : {}),
       ...(evaluation.failToPassCount !== undefined
