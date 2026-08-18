@@ -66,7 +66,6 @@ const DATASETS = Object.freeze({
   },
 });
 const defaultCorpusPath = (dataset) => resolve(corporaDir, DATASETS[dataset].file);
-const pythonCommand = resolvePythonCommand();
 const DEFAULTS = {
   concurrency: 1,
   dataset: "lite",
@@ -653,7 +652,7 @@ async function runTask(task, timeoutMs, runOptions) {
     }
 
     // Test-environment setup and test-patch evaluation run only after the agent finished.
-    const evaluationEnvironment = prepareEvaluationEnvironment(repoDir);
+    const evaluationEnvironment = prepareEvaluationEnvironment(repoDir, task);
     if (!evaluationEnvironment.ready) {
       return taskResult(task, startMs, {
         environmentBlocked: true,
@@ -784,8 +783,9 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function prepareEvaluationEnvironment(repoDir) {
+function prepareEvaluationEnvironment(repoDir, corpusTask) {
   const venvDir = resolve(repoDir, ".swe-bench-venv");
+  const pythonCommand = resolvePythonCommand(corpusTask);
   const createVenvResult = spawnSync(pythonCommand, ["-m", "venv", venvDir], {
     cwd: repoDir,
     encoding: "utf8",
@@ -1007,7 +1007,7 @@ async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
       resolved: false,
       method: failToPass.length > 0 ? "fail-to-pass" : "test-files",
       failToPassCount: failToPass.length,
-      error: summarizeCommandFailure(`${pythonCommand} ${plan.kind}`, failResult),
+      error: summarizeCommandFailure(`${evaluationPythonCommand} ${plan.kind}`, failResult),
     };
   }
 
@@ -1024,7 +1024,10 @@ async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
         resolved: false,
         method: "fail-to-pass+pass-to-pass",
         failToPassCount: failToPass.length,
-        error: summarizeCommandFailure(`${pythonCommand} ${plan.kind} (PASS_TO_PASS)`, passResult),
+        error: summarizeCommandFailure(
+          `${evaluationPythonCommand} ${plan.kind} (PASS_TO_PASS)`,
+          passResult,
+        ),
       };
     }
   }
@@ -1169,7 +1172,7 @@ async function reevaluateOneTask(fragmentTask, corpusTask) {
       });
     }
 
-    const evaluationEnvironment = prepareEvaluationEnvironment(repoDir);
+    const evaluationEnvironment = prepareEvaluationEnvironment(repoDir, corpusTask);
     if (!evaluationEnvironment.ready) {
       return reevalResult(fragmentTask, startMs, {
         environmentBlocked: true,
@@ -1569,12 +1572,24 @@ function writeProviderConfigWithEffort(effort) {
   return path;
 }
 
-function resolvePythonCommand() {
-  for (const candidate of ["python3.11", "python3"]) {
+function resolvePythonCommand(task = undefined) {
+  // SWE-bench instances pin era-appropriate runtimes, and the macOS system
+  // python3.11 is wrong for both ends of the Django range: Python >= 3.10
+  // removed the gettext `codeset` parameter (breaks Django < 4 at import,
+  // observed as a full-suite TypeError), while Django 5 requires >= 3.10.
+  // Choose the candidate order per task instead of always using the newest.
+  const repo = task?.repo;
+  const djangoMajor =
+    repo === "django/django" ? Number.parseInt(String(task?.version ?? ""), 10) : Number.NaN;
+  const candidates =
+    Number.isNaN(djangoMajor) || djangoMajor >= 4
+      ? ["python3.11", "python3.10", "python3.9", "python3"]
+      : ["python3.9", "python3.10", "python3.11", "python3"];
+  for (const candidate of candidates) {
     const result = spawnSync(candidate, ["--version"], { encoding: "utf8", timeout: 10_000 });
     if (result.status === 0) return candidate;
   }
-  throw new Error("SWE-bench harness requires python3.11 or python3 to be installed.");
+  throw new Error("SWE-bench harness requires python3.9 or newer to be installed.");
 }
 
 function sanitize(value) {
