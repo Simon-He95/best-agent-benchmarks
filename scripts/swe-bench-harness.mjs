@@ -663,6 +663,10 @@ async function runTask(task, timeoutMs, runOptions) {
         ...process.env,
         // Align the plan run-duration cap with the harness per-task timeout.
         BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
+        // Optional wire-level request dump for the reasoning_content 400 investigation.
+        ...(process.env.DEBUG_PROMPTS === "1"
+          ? { BEST_AGENT_DEBUG_PROMPTS: "1" }
+          : {}),
         // Explicit reasoning effort override via a temp provider config file.
         ...(runOptions.providerConfigOverride === undefined
           ? {}
