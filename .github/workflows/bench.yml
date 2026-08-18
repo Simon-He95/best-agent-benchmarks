@@ -74,7 +74,10 @@ on:
     - cron: "0 2 * * 0"
 
 concurrency:
-  group: benchmark
+  # Batches run in parallel (distinct group per batch); identical batches still
+  # serialize against each other. Keep per-run concurrency low — the dimcode
+  # relay channel pool saturates easily (observed overload at 4+ parallel tasks).
+  group: benchmark-${{ inputs.swe_bench_batch || 'default' }}
   cancel-in-progress: false
 
 permissions:
