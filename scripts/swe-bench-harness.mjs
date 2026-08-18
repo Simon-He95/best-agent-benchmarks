@@ -139,6 +139,7 @@ function parseArgs(argv) {
     shard: undefined,
     shardTotal: undefined,
     mergeShards: false,
+    reevaluate: undefined,
     outputPathWasSet: false,
     tag: undefined,
   };
@@ -146,6 +147,9 @@ function parseArgs(argv) {
     switch (argv[i]) {
       case "--download":
         parsed.download = true;
+        break;
+      case "--reevaluate":
+        parsed.reevaluate = argv[++i] ? resolve(argv[i]) : undefined;
         break;
       case "--corpus":
         parsed.corpusPath = resolve(argv[++i]);
@@ -268,6 +272,16 @@ async function main() {
 
   if (args.mergeShards) {
     mergeShardReports(args.outputPath);
+    return;
+  }
+
+  if (args.reevaluate) {
+    await runReevaluate({
+      fragmentDir: args.reevaluate,
+      corpusPath: args.corpusPath,
+      concurrency: args.concurrency,
+      outputPath: args.outputPath,
+    });
     return;
   }
 
@@ -938,13 +952,22 @@ function evaluationPlanFor(task, repoDir, venvPython) {
   };
 }
 
-/** Converts old-format ids to django runtests labels (`module.Class.test_name`). */
+/** Converts old-format ids to django runtests labels (`module.Class.test_name`). Entries
+ *  that cannot be converted (bare descriptions like "Regression for #9362", or unknown
+ *  shapes) are DROPPED — passing them through makes runtests treat the test name as a module
+ *  and fail the whole batch with a false negative. */
 function toRuntestsLabels(entries) {
-  return entries.map((entry) => {
-    if (entry.includes("::")) return entry;
+  const labels = [];
+  for (const entry of entries) {
+    if (entry.includes("::")) {
+      labels.push(entry);
+      continue;
+    }
     const match = entry.match(/^(.+?) \(([\w.]+)\)$/u);
-    return match ? `${match[2]}.${match[1]}` : entry;
-  });
+    if (match) labels.push(`${match[2]}.${match[1]}`);
+    // else: skip unconvertible entries
+  }
+  return labels;
 }
 
 async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
@@ -1012,6 +1035,175 @@ async function evaluateWithTestPatch(repoDir, task, evaluationPythonCommand) {
     failToPassCount: failToPass.length,
     kind: plan.kind,
   };
+}
+
+/** Re-evaluates stored agent patches offline (no model calls). Given fragment tasks with
+ *  `agentPatch`, clones the repo at the corpus base commit, applies the agent patch + test
+ *  patch, and runs the fixed evaluation. Salvages runs whose agents produced fixes but whose
+ *  evaluation was broken by the old pytest invocation. */
+async function runReevaluate({ fragmentDir, corpusPath, concurrency, outputPath }) {
+  const corpusTasks = loadCorpus(corpusPath);
+  const byId = new Map(corpusTasks.map((task) => [task.instance_id, task]));
+
+  const fragmentFiles = readdirSync(fragmentDir)
+    .filter((entry) => entry.endsWith(".json") && entry.startsWith("swe-bench-results"))
+    .sort();
+  const fragments = [];
+  for (const file of fragmentFiles) {
+    try {
+      const parsed = JSON.parse(readFileSync(resolve(fragmentDir, file), "utf8"));
+      fragments.push(...(parsed.tasks ?? []));
+    } catch (error) {
+      process.stderr.write(
+        `reevaluate: cannot read fragment ${file}: ${error instanceof Error ? error.message : String(error)}\n`,
+      );
+    }
+  }
+  if (fragments.length === 0) {
+    process.stderr.write(`reevaluate: no fragment tasks found in ${fragmentDir}\n`);
+    process.exit(1);
+  }
+
+  const salvageable = fragments.filter(
+    (task) =>
+      task.agentPatch &&
+      !String(task.agentPatch).includes("... (truncated)") &&
+      byId.has(task.instance_id),
+  );
+  process.stdout.write(
+    `Re-evaluating ${salvageable.length} agent patches (from ${fragments.length} fragment tasks, no model calls)\n`,
+  );
+
+  const results = [];
+  for (let i = 0; i < salvageable.length; i += concurrency) {
+    const batch = salvageable.slice(i, i + concurrency);
+    const batchResults = await Promise.all(
+      batch.map((task) => reevaluateOneTask(task, byId.get(task.instance_id))),
+    );
+    results.push(...batchResults);
+    const solved = results.filter((r) => r.resolved).length;
+    process.stderr.write(
+      `progress> ${results.length}/${salvageable.length} reevaluated, ${solved} resolved\n`,
+    );
+  }
+
+  const resolved = results.filter((r) => r.resolved).length;
+  const report = {
+    benchmark: "swe-bench-verified",
+    candidateId: resolveCandidateId(repoRoot, ["SWE_BENCH_CANDIDATE_ID"]),
+    generatedAt: new Date().toISOString(),
+    reevaluatedFrom: fragmentFiles,
+    reevaluated: true,
+    composition: {
+      fullAccess: true,
+      permissionMode: "full",
+      interactionTools: false,
+      agentRuns: false,
+      note: "offline re-evaluation of stored agent patches (fixed evaluation)",
+    },
+    corpus: {
+      totalTasks: corpusTasks.length,
+      tasksRun: results.length,
+    },
+    summary: {
+      resolved,
+      errored: results.filter((r) => r.failureKind === "test-failed" || r.failureKind === "other").length,
+      environmentBlocked: results.filter((r) => r.environmentBlocked).length,
+      timedOut: results.filter((r) => r.timedOut).length,
+      relayOverloaded: 0,
+      passAt1: ratio(resolved, results.length),
+      avgTaskMs: Number(
+        (results.reduce((sum, r) => sum + (r.reevalWallMs ?? 0), 0) / Math.max(results.length, 1)).toFixed(1),
+      ),
+    },
+    byRepo: computeByRepo(results),
+    tasks: results,
+  };
+
+  const jsonText = `${JSON.stringify(report, null, 2)}\n`;
+  const markdownText = renderMarkdown(report);
+  const markdownPath = outputPath.replace(/\.json$/u, ".md");
+  writeFileSync(outputPath, jsonText);
+  writeFileSync(markdownPath, markdownText);
+  process.stdout.write(jsonText);
+  process.stdout.write(`wrote> ${outputPath}\n`);
+  process.stdout.write(`wrote> ${markdownPath}\n`);
+}
+
+/** Re-evaluates one stored agent patch: clone at base commit -> apply agent patch -> venv
+ *  -> fixed evaluation. No model calls. */
+async function reevaluateOneTask(fragmentTask, corpusTask) {
+  const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-reeval-`);
+  const startMs = performance.now();
+  try {
+    const repoDir = resolve(taskDir, "repo");
+    const cloneResult = await runGitNetworkCommand({
+      args: ["clone", "--depth", "1", `https://github.com/${corpusTask.repo}.git`, "repo"],
+      cwd: taskDir,
+    });
+    if (cloneResult.status !== 0) {
+      return reevalResult(fragmentTask, startMs, {
+        failureKind: "clone-failed",
+        error: `Clone failed: ${describeGitFailure(cloneResult)}`,
+      });
+    }
+    if (corpusTask.base_commit) {
+      const fetchResult = await runGitNetworkCommand({
+        args: ["fetch", "--depth", "1", "origin", corpusTask.base_commit],
+        cwd: repoDir,
+      });
+      if (fetchResult.status === 0) {
+        spawnSync("git", ["checkout", corpusTask.base_commit], { cwd: repoDir, encoding: "utf8" });
+      }
+    }
+
+    writeFileSync(resolve(repoDir, "__agent_patch.diff"), fragmentTask.agentPatch);
+    const applyAgent = spawnSync("git", ["apply", "--allow-empty", "__agent_patch.diff"], {
+      cwd: repoDir,
+      encoding: "utf8",
+    });
+    if (applyAgent.status !== 0) {
+      return reevalResult(fragmentTask, startMs, {
+        failureKind: "patch-not-applied",
+        error: `Agent patch did not apply: ${summarizeCommandFailure("git apply", applyAgent)}`,
+      });
+    }
+
+    const evaluationEnvironment = prepareEvaluationEnvironment(repoDir);
+    if (!evaluationEnvironment.ready) {
+      return reevalResult(fragmentTask, startMs, {
+        environmentBlocked: true,
+        failureKind: "env-blocked",
+        environmentError: evaluationEnvironment.error,
+      });
+    }
+
+    const evaluation = await evaluateWithTestPatch(repoDir, corpusTask, evaluationEnvironment.pythonCommand);
+    return reevalResult(fragmentTask, startMs, {
+      resolved: evaluation.resolved,
+      patchLines: String(fragmentTask.agentPatch).split("\n").length,
+      ...(evaluation.error ? { evaluationError: evaluation.error } : {}),
+      ...(evaluation.method ? { verification: evaluation.method } : {}),
+      ...(evaluation.failToPassCount !== undefined
+        ? { failToPassCount: evaluation.failToPassCount }
+        : {}),
+    });
+  } catch (error) {
+    return reevalResult(fragmentTask, startMs, {
+      failureKind: "harness-error",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  } finally {
+    rmSync(taskDir, { recursive: true, force: true });
+  }
+}
+
+function reevalResult(fragmentTask, startMs, extra = {}) {
+  const result = taskResult(fragmentTask, startMs, extra);
+  if (extra.failureKind) result.failureKind = extra.failureKind;
+  result.reevaluated = true;
+  result.reevalWallMs = Number((performance.now() - startMs).toFixed(1));
+  return result;
 }
 
 /** Parses the corpus FAIL_TO_PASS field (a JSON-encoded array of test ids). */
