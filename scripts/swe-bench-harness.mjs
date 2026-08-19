@@ -92,7 +92,10 @@ const traceEncoder = new TextEncoder();
  *  Deliberately conservative: provider-response timeouts and model errors are NOT retried
  *  (a slow model is not an upstream fault and must not get a second chance). */
 function isRetryableTransportFailure(cliResult) {
-  const err = String(cliResult.stderr ?? "").toLowerCase();
+  // The CLI sometimes prints the model-failure transport line to stdout and sometimes
+  // to stderr depending on the error path — check BOTH so an upstream ECONNRESET/
+  // gateway failure is always retried (never mistaken for a model failure).
+  const err = String(cliResult.stderr ?? "").toLowerCase() + "\n" + String(cliResult.stdout ?? "").toLowerCase();
   return [
     "must be passed back",
     "econnreset",
