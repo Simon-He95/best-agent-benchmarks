@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "@best-agent/cli": "^0.0.3-beta.6"
+  },
+  "optionalDependencies": {
+    "@best-agent/cli-darwin-arm64": "^0.0.3-beta.6"
   }
 }
