@@ -65,6 +65,10 @@ on:
         description: "Per-task timeout in ms"
         required: false
         default: "1800000"
+      verify_strict:
+        description: "Strict self-verification protocol prompt (A/B prompt experiment)"
+        required: false
+        default: "false"
       reasoning_effort:
         description: "Reasoning effort: low|medium|high|xhigh|max|none (empty = model catalog default, e.g. deepseek-v4-flash -> high). Needs a CLI that carries the provider file's reasoningEffort in run."
         required: false
