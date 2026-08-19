@@ -375,6 +375,7 @@ async function main() {
     invocation: cliInvocation,
     backend: args.backend,
     maxModelCycles,
+    useHints: args.useHints,
     providerConfigOverride,
     // Closed-book benchmark: the benchmark side excludes the network tool surface so
     // models never see web_fetch/web_search (official SWE-bench agents have terminal+file
@@ -624,7 +625,7 @@ function mergeShardReports(outputPath) {
 }
 
 async function runTask(task, timeoutMs, runOptions) {
-  const { invocation, backend, maxModelCycles } = runOptions;
+  const { invocation, backend, maxModelCycles, useHints } = runOptions;
   const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-${sanitize(task.instance_id)}-`);
   const startMs = performance.now();
   try {
@@ -659,7 +660,7 @@ async function runTask(task, timeoutMs, runOptions) {
       // Official SWE-bench protocol: only the issue statement reaches the agent.
       // hints_text (issue-thread excerpts, corpus field) is opt-in via --use-hints only
       // for comparison diagnostics, never for the official-comparable run.
-      ...(args.useHints && task.hints_text && task.hints_text.trim().length > 0
+      ...(useHints && task.hints_text && task.hints_text.trim().length > 0
         ? [
             "Additional hints from the issue thread:",
             task.hints_text.trim(),
