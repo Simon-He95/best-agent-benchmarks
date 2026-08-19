@@ -1095,8 +1095,12 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
     // -DNULL=((void*)0): astropy-era C defines its own NULL (e.g. `#define NULL 0`)
     // which collides with the macOS SDK _stdio.h NULL expansion ("expected identifier
     // or '('" in _stdio.h:322). Re-defining it to the standard value keeps both sides.
+    // -fpermissive in CFLAGS too: numpy.distutils-era builds (scikit-learn 0.20/1.x)
+    // compile C++ extensions with the C flag set (g++ command shows CFLAGS only, no
+    // CXXFLAGS), so void*-writes (svm.cpp malloc casts) need the downgrade there.
+    // clang/gcc accept -fpermissive with a harmless warning in C mode.
     CFLAGS:
-      "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=((void*)0) -Wno-macro-redefined",
+      "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=((void*)0) -Wno-macro-redefined -fpermissive",
     CXXFLAGS: "-fpermissive -Wno-incompatible-function-pointer-types",
   };
   const retryResult = spawnSync(
