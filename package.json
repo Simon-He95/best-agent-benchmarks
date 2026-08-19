@@ -13,6 +13,6 @@
     "sync:secrets": "node scripts/sync-secrets.mjs"
   },
   "dependencies": {
-    "@best-agent/cli": "^0.0.3-beta.5"
+    "@best-agent/cli": "^0.0.3-beta.6"
   }
 }
