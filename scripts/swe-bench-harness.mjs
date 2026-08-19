@@ -1151,13 +1151,15 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
     // -DNULL=((void*)0): astropy-era C defines its own NULL (e.g. `#define NULL 0`)
     // which collides with the macOS SDK _stdio.h NULL expansion ("expected identifier
     // or '('" in _stdio.h:322). Re-defining it to the standard value keeps both sides.
-    // -DNULL=__null: astropy-era C/C++ NULL conflicts with the macOS SDK _stdio.h; the
-    // paren form broke freetype's libtool shell invocation (`syntax error near '('`
-    // on matplotlib) so use __null — valid in both C and C++ modes, no shell syntax.
-    // -*-sklearn legacy C++ (svm.cpp malloc void* writes) is a clang hard error that
-    // -fpermissive does NOT downgrade; -fms-extensions restores the MSVC-style
-    // void*->T* conversion for the sklearn fallback only.
-    CFLAGS: `${sklearnCxxCompat ? "-fms-extensions " : ""}-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=__null -Wno-macro-redefined -fpermissive`,
+    // NO -DNULL: every defined variant broke a different consumer — ((void*)0) breaks
+    // freetype's libtool shell (parens), __null is a C++-only keyword and breaks
+    // Python object.h in C mode, and the original macOS SDK _stdio.h conflict is an
+    // Xcode-26-era incompatibility we cannot patch this way (astropy 13977 family is
+    // documented env-blocked). The system NULL is correct in C and C++ modes.
+    // fms-extensions (sklearn only): old svm.cpp assigns malloc(void*) to typed
+    // pointers — a clang hard error -fpermissive does NOT downgrade; the MS-style
+    // conversion restores compilation (verified: svm.cpp compiles past this point).
+    CFLAGS: `${sklearnCxxCompat ? "-fms-extensions " : ""}-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -Wno-macro-redefined -fpermissive`,
     CXXFLAGS: "-fpermissive -Wno-incompatible-function-pointer-types",
   };
   const retryResult = spawnSync(
