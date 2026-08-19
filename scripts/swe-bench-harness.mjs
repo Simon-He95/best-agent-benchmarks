@@ -105,6 +105,7 @@ function isRetryableTransportFailure(cliResult) {
     "eai_again",
     "bad gateway",
     "gateway timeout",
+    "headers timeout",
     "service unavailable",
     "too many requests",
     "cannot connect",
@@ -777,7 +778,10 @@ async function runTask(task, timeoutMs, runOptions) {
     // Bad Gateway are upstream instabilities, not agent behavior. The workspace is
     // reset to the base commit so the retry starts fully clean.
     let retriedTransport = false;
-    if (cliResult.status !== 0 && isRetryableTransportFailure(cliResult)) {
+    // Retry on the transport error MESSAGE alone (not process status): the CLI can
+    // report a model-failure transport error with a 0 exit code, which would otherwise
+    // skip the retry (observed django-13453/12682 400s classified as no-diff).
+    if (isRetryableTransportFailure(cliResult)) {
       process.stderr.write(
         `retry> ${task.instance_id} failed with upstream transport error; retrying once after workspace reset\n`,
       );
