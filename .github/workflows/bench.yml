@@ -150,6 +150,8 @@ jobs:
         shard: ${{ fromJSON(inputs.swe_bench_shards) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true  # vendored tools/cli/cli-deploy.tar.gz (Git LFS) for the self-contained CLI
 
       - uses: actions/setup-node@v4
         with:
