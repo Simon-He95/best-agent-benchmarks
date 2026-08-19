@@ -176,6 +176,7 @@ function parseArgs(argv) {
     limit: undefined,
     taskId: undefined,
     taskIds: undefined,
+    useHints: false,
     offset: 0,
     shard: undefined,
     shardTotal: undefined,
@@ -188,6 +189,12 @@ function parseArgs(argv) {
     switch (argv[i]) {
       case "--download":
         parsed.download = true;
+        break;
+      case "--use-hints":
+        // Official SWE-bench protocol passes ONLY problem_statement to the agent; the
+        // corpus's hints_text (issue-thread excerpts) is NOT part of the official eval
+        // surface and can leak fix direction. Default off for comparable pass@1.
+        parsed.useHints = true;
         break;
       case "--reevaluate":
         parsed.reevaluate = argv[++i] ? resolve(argv[i]) : undefined;
@@ -649,7 +656,10 @@ async function runTask(task, timeoutMs, runOptions) {
       "",
       task.problem_statement,
       "",
-      ...(task.hints_text && task.hints_text.trim().length > 0
+      // Official SWE-bench protocol: only the issue statement reaches the agent.
+      // hints_text (issue-thread excerpts, corpus field) is opt-in via --use-hints only
+      // for comparison diagnostics, never for the official-comparable run.
+      ...(args.useHints && task.hints_text && task.hints_text.trim().length > 0
         ? [
             "Additional hints from the issue thread:",
             task.hints_text.trim(),
