@@ -437,6 +437,7 @@ async function main() {
 
   const results = [];
   const startTime = performance.now();
+  let circuitOpen = false;
 
   for (let i = 0; i < tasks.length; i += args.concurrency) {
     const batch = tasks.slice(i, i + args.concurrency);
@@ -452,9 +453,30 @@ async function main() {
     process.stderr.write(
       `progress> ${results.length}/${tasks.length} complete, ${solved} resolved (${ratio(solved, results.length)} pass@1)\n`,
     );
+
+    // Early-abort on a systemic harness failure streak (fast, identical, harness-side).
+    const fastHarnessFails = batchResults.filter(
+      (r) =>
+        (r.wallMs ?? Infinity) < CIRCUIT_BREAK_FAST_FAIL_MS &&
+        harnessFailureFingerprint(r) !== undefined,
+    );
+    const fingerprints = new Set(fastHarnessFails.map((r) => harnessFailureFingerprint(r)));
+    if (fastHarnessFails.length >= CIRCUIT_BREAK_STREAK && fingerprints.size === 1) {
+      const [fp] = fingerprints;
+      process.stderr.write(
+        `\nCIRCUIT-BREAK: ${fastHarnessFails.length}/${batch.length} tasks in this batch failed in ` +
+          `<${CIRCUIT_BREAK_FAST_FAIL_MS}ms with the identical harness failure (${fp}). Every ` +
+          `remaining task will fail the same way — stopping this shard early. Check for a harness ` +
+          `bug (unbound variable, schema change) and verify locally with a 1-task run before ` +
+          `re-triggering.\n`,
+      );
+      circuitOpen = true;
+      break;
+    }
   }
 
   const wallMs = performance.now() - startTime;
+  if (circuitOpen) process.exitCode = 2; // shard job fails visibly; report still written below
   const resolved = results.filter((r) => r.resolved).length;
   const errored = results.filter((r) => r.error || r.evaluationError).length;
   const environmentBlocked = results.filter((r) => r.environmentBlocked).length;
@@ -890,6 +912,23 @@ async function runTaskSafe(task, timeoutMs, runOptions) {
       error: `Harness failure: ${error instanceof Error ? error.message : String(error)}`,
     });
   }
+}
+
+/** Circuit-breaker for systemic harness bugs (e.g. ReferenceError in shared prompt
+ *  assembly): a task that dies in <2 minutes with a Harness-failure and the SAME
+ *  normalized message three times in a row means every remaining task will die the
+ *  same way — stop the shard early instead of burning the whole batch for nothing.
+ *  Model failures, transport retries, and env errors are explicitly NOT fingerprints
+ *  (they are either retried or kept as results). */
+const CIRCUIT_BREAK_FAST_FAIL_MS = 120_000;
+const CIRCUIT_BREAK_STREAK = 3;
+
+function harnessFailureFingerprint(result) {
+  if (!result?.error || !/^Harness failure/i.test(result.error)) return undefined;
+  return result.error
+    .replace(/\/tmp\/swe-bench-[A-Za-z0-9_.-]+/g, "<TMP>")
+    .replace(/\d+/g, "<N>")
+    .slice(0, 160);
 }
 
 async function runGitNetworkCommand({ args, cwd }) {
