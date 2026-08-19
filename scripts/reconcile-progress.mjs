@@ -93,6 +93,9 @@ function recordsFromResult(file, batch, source) {
         cliError: t.cliError,
         evaluationError: t.evaluationError,
         environmentError: t.environmentError,
+        // Tie-break key for same-priority (unknown) batches: the fragment's own
+        // generatedAt timestamp, not filesystem directory order.
+        generatedAt: data.generatedAt,
         wallMs: t.wallMs,
         agentTraceBytes: t.agentTraceBytes,
         patchLines: t.patchLines,
@@ -179,14 +182,23 @@ function batchOrder(batch) {
   return index === -1 ? 9999 : index;
 }
 
+/** Newer record wins: compare batch priority, then fragment generatedAt (unknown
+ *  batches are all 9999, so the run timestamp decides — not directory sort order). */
+function isNewer(record, existing) {
+  if (batchOrder(record.batch) !== batchOrder(existing.batch)) {
+    return batchOrder(record.batch) > batchOrder(existing.batch);
+  }
+  const a = record.generatedAt ?? "";
+  const b = existing.generatedAt ?? "";
+  return a > b;
+}
+
 function main() {
   const records = collectAllRecords();
   const byId = new Map();
   for (const record of records) {
     const existing = byId.get(record.instance_id);
-    // `>=`: same-priority unknown batches (both 9999) — the LATER-collected record wins
-    // (collect order is readdir/artifact order, so the newest run's fragment is later).
-    if (!existing || batchOrder(record.batch) >= batchOrder(existing.batch)) {
+    if (!existing || isNewer(record, existing)) {
       byId.set(record.instance_id, record);
     }
   }

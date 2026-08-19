@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-19T12:45:18.142Z
+- Generated: 2026-08-19T13:00:04.151Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,10 +8,10 @@
 | State | Count |
 |-------|-------|
 | resolved | 165 |
-| test-failed | 156 |
+| test-failed | 159 |
 | no-diff | 4 |
 | transport-loss | 5 |
-| env-blocked | 38 |
+| env-blocked | 35 |
 | other | 1 |
 | unknown | 6 |
 
@@ -20,14 +20,14 @@
 | instance_id | batch | state | patchLines | failing test |
 |-------------|-------|-------|------------|--------------|
 | astropy__astropy-12907 | b1-nopatch | env-blocked | 14 |  |
-| astropy__astropy-13033 | rerun23b | env-blocked | 36 |  |
+| astropy__astropy-13033 | astropyenv2 | test-failed | 25 |  |
 | astropy__astropy-13236 | b1-nopatch | env-blocked | 42 |  |
 | astropy__astropy-13398 | b1-nopatch | unknown | - |  |
 | astropy__astropy-13453 | rerun23b | no-diff | - |  |
-| astropy__astropy-13579 | rerun23b | env-blocked | 30 |  |
-| astropy__astropy-13977 | rerun23b | env-blocked | 115 |  |
+| astropy__astropy-13579 | astropyenv2 | test-failed | 20 |  |
+| astropy__astropy-13977 | b3env5 | env-blocked | 115 |  |
 | astropy__astropy-14096 | b1-nopatch | env-blocked | 67 |  |
-| astropy__astropy-14182 | rerun23b | env-blocked | 48 |  |
+| astropy__astropy-14182 | b3up3 | env-blocked | 37 |  |
 | astropy__astropy-14309 | b1-nopatch | env-blocked | 44 |  |
 | astropy__astropy-14365 | b1-nopatch | env-blocked | 16 |  |
 | astropy__astropy-14369 | b1-nopatch | env-blocked | 115 |  |
@@ -38,9 +38,9 @@
 | astropy__astropy-7166 | rerun23b | test-failed | 14 |  |
 | astropy__astropy-7336 | rerun23b | test-failed | 19 |  |
 | astropy__astropy-7606 | b1-nopatch | env-blocked | 21 |  |
-| astropy__astropy-7671 | rerun23b | env-blocked | 34 |  |
-| astropy__astropy-8707 | rerun23b | env-blocked | 63 |  |
-| astropy__astropy-8872 | rerun23b | env-blocked | 23 |  |
+| astropy__astropy-7671 | astropyenv2 | test-failed | 31 |  |
+| astropy__astropy-8707 | b3env5 | env-blocked | 46 |  |
+| astropy__astropy-8872 | b3env5 | env-blocked | 38 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
 | django__django-10554 | nohints2 | transport-loss | - |  |
 | django__django-10880 | nohints2 | resolved | 14 |  |
