@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-19T12:06:38.521Z
+- Generated: 2026-08-19T12:45:18.142Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,10 +8,10 @@
 | State | Count |
 |-------|-------|
 | resolved | 165 |
-| test-failed | 153 |
+| test-failed | 156 |
 | no-diff | 4 |
-| transport-loss | 11 |
-| env-blocked | 35 |
+| transport-loss | 5 |
+| env-blocked | 38 |
 | other | 1 |
 | unknown | 6 |
 
@@ -368,27 +368,27 @@
 | pytest-dev__pytest-7571 | b3 | test-failed | 33 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-7982 | b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-8399 | b3 | test-failed | 54 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| scikit-learn__scikit-learn-10297 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-10297 | b3tr | test-failed | 32 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-10844 | b3env6 | test-failed | 14 |  |
 | scikit-learn__scikit-learn-10908 | b3env6 | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-11310 | b3env6 | test-failed | 54 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| scikit-learn__scikit-learn-11578 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-11578 | b3tr | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-12585 | b3env6 | test-failed | 14 |  |
 | scikit-learn__scikit-learn-12682 | b3env | no-diff | - |  |
 | scikit-learn__scikit-learn-12973 | b3env6 | test-failed | 39 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| scikit-learn__scikit-learn-13124 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-13124 | b3tr | test-failed | 30 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13135 | b3env6 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13142 | b3env6 | test-failed | 33 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13328 | b3env6 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-13439 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-13439 | b3tr | env-blocked | 16 |  |
 | scikit-learn__scikit-learn-13496 | b3env6 | other | - |  |
 | scikit-learn__scikit-learn-13779 | b3env6 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-14053 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-14053 | b3tr | env-blocked | 19 |  |
 | scikit-learn__scikit-learn-14087 | b3env6 | env-blocked | 36 |  |
 | scikit-learn__scikit-learn-14141 | b3env6 | env-blocked | 13 |  |
 | scikit-learn__scikit-learn-14496 | b3up3 | env-blocked | 62 |  |
 | scikit-learn__scikit-learn-14629 | b3env6 | env-blocked | 17 |  |
-| scikit-learn__scikit-learn-14710 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-14710 | b3tr | env-blocked | 21 |  |
 | scikit-learn__scikit-learn-14894 | b3env6 | env-blocked | 30 |  |
 | scikit-learn__scikit-learn-14983 | b3env6 | env-blocked | 17 |  |
 | scikit-learn__scikit-learn-15100 | b3env6 | env-blocked | 17 |  |
