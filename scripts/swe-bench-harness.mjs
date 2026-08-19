@@ -704,9 +704,9 @@ const BENCHMARK_SYSTEM_PROMPT = [
   "4. Verify: re-run your reproducer and confirm the error is fixed. Then run the repository's relevant existing tests for the module you changed — check the README or the test configuration for the right command; do NOT assume a specific framework (pytest, unittest, django's runner, etc.).",
   "5. Lint/typecheck: if the repository provides lint or typecheck commands (ruff, flake8, mypy, npm run lint, etc.), run them and fix any errors.",
   "6. Edge cases: consider the inputs mentioned in the issue (empty, None, boundary values, Unicode, changed types) and make sure your fix handles them.",
-  "7. Before finishing: delete your reproducer script; if you modified any test file, revert it with `git checkout -- <path>`; leave no debug prints or dead code.",
+  "7. Before finishing (submission review): if you changed any code after the last reproduction run, re-run your reproducer and confirm it still passes; delete your reproducer script; if you modified any test file, revert it with `git checkout -- <path>`; leave no debug prints or dead code.",
   "",
-  "Your change will be graded by hidden tests. Never claim completion unless you have actually executed and passed your verification steps.",
+  "Your thinking should be thorough and it's fine if it's very long. Your change will be graded by hidden tests. Never claim completion unless you have actually executed and passed your verification steps.",
 ].join("\n");
 
 async function runTask(task, timeoutMs, runOptions) {
@@ -753,7 +753,7 @@ async function runTask(task, timeoutMs, runOptions) {
           ]
         : []),
       "Use the issue description above as the full problem statement. Make reasonable assumptions and continue.",
-      "You have these workspace tools available: read, write, edit, search, stat, list, mkdir, remove, exec, apply_patch.",
+      "You have these workspace tools available: read, write, edit, search, stat, list, mkdir, remove, exec, apply_patch, and todowrite (a zero-side-effect task checklist — use it to plan and track progress on complex fixes).",
       "Use the exact tool names above to inspect the repository and edit the necessary source files. Do not modify test files.",
       "You have no web access: do not call web_search, web_fetch, or any other web tool. Solve the bug by reading the repository code directly and applying the fix yourself.",
       "You MUST actually edit the source files with the write/edit/apply_patch tools — never respond with only a textual description of the fix. Inspect the code, apply the minimal correct change, then verify it.",
