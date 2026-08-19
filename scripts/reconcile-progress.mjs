@@ -118,7 +118,7 @@ function collectAllRecords() {
     for (const dir of readdirSync(tmpDir).filter((d) => d.startsWith("art"))) {
       const candidate = resolve(tmpDir, dir, "swe-bench-results", "swe-bench-results.json");
       if (!existsSync(candidate)) continue;
-      const batch = ARTIFACT_BATCH[dir] ?? dir;
+      const batch = ARTIFACT_BATCH[dir] ?? dir.replace(/^art-?/, "");
       records.push(...recordsFromResult(candidate, batch, "artifact"));
     }
     // 2b. In-flight run fragments downloaded live (e.g. .tmp/live/swe-bench-fragment-*/)
@@ -170,12 +170,21 @@ function classify(record) {
   return "unknown";
 }
 
+/** Unknown batches (not listed in BATCH_ORDER) are newer than anything hard-coded, so
+ *  they win per task — EXCEPT "-partial" live fragments, which must never beat the full
+ *  batch artifact of the same run (always lowest priority). */
+function batchOrder(batch) {
+  if (batch.endsWith("-partial")) return -1;
+  const index = BATCH_ORDER.indexOf(batch);
+  return index === -1 ? 9999 : index;
+}
+
 function main() {
   const records = collectAllRecords();
   const byId = new Map();
   for (const record of records) {
     const existing = byId.get(record.instance_id);
-    if (!existing || BATCH_ORDER.indexOf(record.batch) > BATCH_ORDER.indexOf(existing.batch)) {
+    if (!existing || batchOrder(record.batch) > batchOrder(existing.batch)) {
       byId.set(record.instance_id, record);
     }
   }
