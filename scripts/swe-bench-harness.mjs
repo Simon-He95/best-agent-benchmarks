@@ -991,9 +991,13 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
   //     on sklearn-10844 with 66.x).
   const legacySetuptools =
     corpusTask?.repo === "scikit-learn/scikit-learn" ? "setuptools==57.5.0" : "setuptools==66.1.1";
+  // numpy<2 in the constraint file too (not just the installer call): the repo's
+  // runtime dependency resolution (e.g. matplotlib [project] deps) would otherwise
+  // upgrade numpy to 2.x after we pinned <2 during setup, and legacy C extensions
+  // fail against numpy 2 headers.
   writeFileSync(
     constraintsPath,
-    `${legacySetuptools}\nsetuptools_scm==7.1.0\n`,
+    `${legacySetuptools}\nsetuptools_scm==7.1.0\nnumpy<2\n`,
   );
   const installLegacyResult = spawnSync(
     venvPython,
@@ -1005,6 +1009,26 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
   );
   if (installLegacyResult.status !== 0) {
     return { ready: false, error: summarizeCommandFailure(command, installResult) };
+  }
+  // scikit-learn (no pyproject.toml in this era): setup.py calls cythonize() at
+  // import/metadata time, so Cython must be present in the venv itself.
+  if (corpusTask?.repo === "scikit-learn/scikit-learn") {
+    spawnSync(venvPython, ["-m", "pip", "install", "Cython==0.29.37"], {
+      cwd: repoDir,
+      encoding: "utf8",
+      timeout: 180_000,
+    });
+  }
+  // astropy-era setup_requires (setup_requires= in setup.cfg) makes setuptools
+  // fetch build eggs via fetch_build_egg, whose os.rename(dist_info, egg_info)
+  // fails on macOS (Errno 66, Directory not empty). Pre-installing cython here
+  // satisfies the requirement so fetch_build_eggs is a no-op.
+  if (corpusTask?.repo === "astropy/astropy") {
+    spawnSync(venvPython, ["-m", "pip", "install", "Cython==0.29.22"], {
+      cwd: repoDir,
+      encoding: "utf8",
+      timeout: 180_000,
+    });
   }
   const buildRequires = pyprojectBuildRequires(repoDir);
   if (buildRequires !== undefined) {
@@ -1041,7 +1065,11 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
   const legacyEnv = {
     ...process.env,
     PIP_CONSTRAINT: constraintsPath,
-    CFLAGS: "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types",
+    // -DNULL=((void*)0): astropy-era C defines its own NULL (e.g. `#define NULL 0`)
+    // which collides with the macOS SDK _stdio.h NULL expansion ("expected identifier
+    // or '('" in _stdio.h:322). Re-defining it to the standard value keeps both sides.
+    CFLAGS:
+      "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=((void*)0) -Wno-macro-redefined",
     CXXFLAGS: "-fpermissive -Wno-incompatible-function-pointer-types",
   };
   const retryResult = spawnSync(
