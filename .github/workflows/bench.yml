@@ -183,7 +183,13 @@ jobs:
 
       - name: Use vendored CLI deploy if present (bypass npm publish)
         run: |
-          if [ -f tools/cli/cli-deploy.tar.gz ]; then
+          if [ -d tools/cli/parts ] && ls tools/cli/parts/p* >/dev/null 2>&1; then
+            mkdir -p .cli
+            cat tools/cli/parts/p* > .cli/cli-deploy.tar.gz
+            tar -xzf .cli/cli-deploy.tar.gz -C .cli
+            echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
+            echo "Using vendored CLI deploy (tools/cli/parts, reassembled)"
+          elif [ -f tools/cli/cli-deploy.tar.gz ]; then
             mkdir -p .cli
             tar -xzf tools/cli/cli-deploy.tar.gz -C .cli
             echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
