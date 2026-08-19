@@ -85,14 +85,35 @@ const AGENT_TRACE_TAIL_BYTES = 100_000;
 const traceEncoder = new TextEncoder();
 
 /** Upstream-intermittent transport failures worth one automatic retry. */
+/** Retry eligibility for UPSTREAM network/relay failures ONLY (never model failures):
+ *  reasoning_content pass-back 400 (dimcode relay), socket errors (ECONNRESET/ECONNREFUSED/
+ *  ETIMEDOUT/ENOTFOUND/EAI_AGAIN), gateway/service/rate-limit responses, undici/Node fetch
+ *  failures, TLS handshake and DNS temporary failures, relay rate-limit runtime errors.
+ *  Deliberately conservative: provider-response timeouts and model errors are NOT retried
+ *  (a slow model is not an upstream fault and must not get a second chance). */
 function isRetryableTransportFailure(cliResult) {
-  const err = String(cliResult.stderr ?? "");
-  return (
-    err.includes("must be passed back") ||
-    err.includes("ECONNRESET") ||
-    err.includes("Bad Gateway") ||
-    err.includes("Cannot connect")
-  );
+  const err = String(cliResult.stderr ?? "").toLowerCase();
+  return [
+    "must be passed back",
+    "econnreset",
+    "econnrefused",
+    "etimedout",
+    "enotfound",
+    "eai_again",
+    "bad gateway",
+    "gateway timeout",
+    "service unavailable",
+    "too many requests",
+    "cannot connect",
+    "socket hang up",
+    "fetch failed",
+    "tls handshake",
+    "temporary failure",
+    "connection reset",
+    "request rate",
+    "rate limit",
+    "provider_runtime_error",
+  ].some((marker) => err.includes(marker));
 }
 
 function traceTail(stdout) {
