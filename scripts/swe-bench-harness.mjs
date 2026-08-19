@@ -139,6 +139,22 @@ async function cliSupportsWorkspaceBackend(invocation) {
   return !message.includes("Unsupported v3 run option: --workspace-backend");
 }
 
+/** Probes whether the installed CLI accepts `--no-network-tools` (closed-book benchmark
+ *  surface: web_fetch/web_search are not composed at all, so the model never sees them —
+ *  matching the official SWE-bench agent's terminal+files-only tool set). Published
+ *  releases before the flag fail arg parsing with "Unsupported v3 run option"; newer
+ *  releases parse it and fail on provider resolution instead (same probe pattern). */
+async function cliSupportsNoNetworkTools(invocation) {
+  const probe = await runCliProcess({
+    args: [...invocation.prefix, "run", "--no-network-tools", "probe"],
+    cwd: tmpdir(),
+    timeoutMs: 15_000,
+    env: { ...process.env, BEST_AGENT_PROVIDER_KIND: "probe-does-not-resolve" },
+  });
+  const message = `${probe.stderr ?? ""}${probe.stdout ?? ""}`;
+  return !message.includes("Unsupported v3 run option: --no-network-tools");
+}
+
 /** Probes whether the installed CLI accepts `--max-model-cycles <n>` (same probe pattern:
  *  unsupported versions fail arg parsing before any provider resolution or model call). */
 async function cliSupportsMaxModelCycles(invocation) {
@@ -329,6 +345,7 @@ async function main() {
   // fast before spending any task time or tokens.
   const backendSupported = await cliSupportsWorkspaceBackend(cliInvocation);
   const maxCyclesSupported = await cliSupportsMaxModelCycles(cliInvocation);
+  const noNetworkToolsSupported = await cliSupportsNoNetworkTools(cliInvocation);
   if (args.backend === "plain" && !backendSupported) {
     throw new Error(
       "--backend plain (default) requested but the installed CLI does not support " +
@@ -351,6 +368,11 @@ async function main() {
     backend: args.backend,
     maxModelCycles,
     providerConfigOverride,
+    // Closed-book benchmark: models must never see web_fetch/web_search (official
+    // SWE-bench agents have terminal+file tools only; searching the issue's fix online
+    // would invalidate pass@1 comparability). Skipped silently when the installed CLI
+    // predates the flag — default-deny authorization still blocks calls.
+    noNetworkTools: noNetworkToolsSupported,
   };
 
   if (!existsSync(args.corpusPath)) {
@@ -657,6 +679,9 @@ async function runTask(task, timeoutMs, runOptions) {
       // installed CLI predates the flag (CLI default 200 applies).
       ...(maxModelCycles === undefined ? [] : ["--max-model-cycles", String(maxModelCycles)]),
       ...FULL_ACCESS_GRANTS.flatMap((grant) => ["--workspace-grant", grant]),
+      // Closed-book benchmark surface: skip composing web_fetch/web_search entirely
+      // (CLI supports it on this run).
+      ...(runOptions.noNetworkTools ? ["--no-network-tools"] : []),
       // Spec 069: benchmark plain workspace backend — the sandbox (Seatbelt) is
       // macOS-only and unusable on Linux CI; benchmark workspaces are disposable
       // repo clones on ephemeral runners, so OS-level containment is unnecessary.
