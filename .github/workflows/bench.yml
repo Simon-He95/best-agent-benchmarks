@@ -179,15 +179,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download locally-built CLI deploy asset (bypass npm publish)
-        if: ${{ inputs.cli_asset != '' }}
-        env:
-          BEST_AGENT_CLI_ASSET: ${{ inputs.cli_asset }}
+      - name: Use vendored CLI deploy if present (bypass npm publish)
         run: |
-          mkdir -p .cli
-          gh release download "${BEST_AGENT_CLI_ASSET}" --repo Simon-He95/best-agent --pattern 'cli-deploy.tar.gz' --dir .cli --clobber
-          tar -xzf .cli/cli-deploy.tar.gz -C .cli
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
+          if [ -f tools/cli/cli-deploy.tar.gz ]; then
+            mkdir -p .cli
+            tar -xzf tools/cli/cli-deploy.tar.gz -C .cli
+            echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
+            echo "Using vendored CLI deploy (tools/cli/cli-deploy.tar.gz)"
+          else
+            echo "No vendored CLI deploy; using published npm package"
+          fi
 
       - name: Download SWE-bench corpus
         run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}
