@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-19T13:00:04.151Z
+- Generated: 2026-08-19T13:17:54.633Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -13,7 +13,6 @@
 | transport-loss | 5 |
 | env-blocked | 35 |
 | other | 1 |
-| unknown | 6 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -22,7 +21,7 @@
 | astropy__astropy-12907 | b1-nopatch | env-blocked | 14 |  |
 | astropy__astropy-13033 | astropyenv2 | test-failed | 25 |  |
 | astropy__astropy-13236 | b1-nopatch | env-blocked | 42 |  |
-| astropy__astropy-13398 | b1-nopatch | unknown | - |  |
+| astropy__astropy-13398 | b1-nopatch | timeout | - |  |
 | astropy__astropy-13453 | rerun23b | no-diff | - |  |
 | astropy__astropy-13579 | astropyenv2 | test-failed | 20 |  |
 | astropy__astropy-13977 | b3env5 | env-blocked | 115 |  |
@@ -61,7 +60,7 @@
 | django__django-11206 | nohints2 | resolved | 19 |  |
 | django__django-11211 | nohints2 | resolved | 14 |  |
 | django__django-11239 | b1-reeval | resolved | 34 |  |
-| django__django-11265 | b1-nopatch | unknown | - |  |
+| django__django-11265 | b1-nopatch | timeout | - |  |
 | django__django-11276 | b1-reeval | resolved | 36 |  |
 | django__django-11292 | b1-rerun | resolved | 52 |  |
 | django__django-11299 | nohints2 | resolved | 14 |  |
@@ -94,7 +93,7 @@
 | django__django-12143 | b1-reeval | resolved | 14 |  |
 | django__django-12155 | nohints2 | resolved | 17 |  |
 | django__django-12193 | nohints2 | resolved | 16 |  |
-| django__django-12209 | nohints2 | unknown | - |  |
+| django__django-12209 | nohints2 | timeout | - |  |
 | django__django-12262 | b1-reeval | resolved | 26 |  |
 | django__django-12273 | b1-nopatch | test-failed | 18 | test_create_new_instance_with_pk_equals_none (model_inherita |
 | django__django-12276 | nohints2 | resolved | 25 |  |
@@ -103,7 +102,7 @@
 | django__django-12325 | rerun23b | test-failed | 20 | test_clash_parent_link (invalid_models_tests.test_relative_f |
 | django__django-12406 | nohints2 | test-failed | 25 | test_choices_radio_blank (model_forms.test_modelchoicefield. |
 | django__django-12419 | nohints2 | resolved | 88 |  |
-| django__django-12663 | nohints2 | unknown | - |  |
+| django__django-12663 | nohints2 | timeout | - |  |
 | django__django-12708 | nohints2 | resolved | 16 |  |
 | django__django-12713 | b1-reeval | resolved | 33 |  |
 | django__django-12741 | b1-reeval | resolved | 30 |  |
@@ -158,7 +157,7 @@
 | django__django-13964 | nohints2 | resolved | 20 |  |
 | django__django-14007 | b2 | resolved | 31 |  |
 | django__django-14011 | b2-testfailed | test-failed | 60 |  |
-| django__django-14017 | nohints2 | unknown | - |  |
+| django__django-14017 | nohints2 | timeout | - |  |
 | django__django-14034 | b2-testfailed | test-failed | 19 | test_render_required_attributes (forms_tests.field_tests.tes |
 | django__django-14053 | nohints2 | resolved | 51 |  |
 | django__django-14089 | b2 | resolved | 15 |  |
@@ -195,7 +194,7 @@
 | django__django-14999 | b2 | resolved | 16 |  |
 | django__django-15022 | stat-rerun2 | test-failed | 95 | test_many_search_terms (admin_changelist.tests.ChangeListTes |
 | django__django-15037 | nohints2 | resolved | 20 |  |
-| django__django-15098 | nohints2 | unknown | - |  |
+| django__django-15098 | nohints2 | timeout | - |  |
 | django__django-15103 | b2 | resolved | 58 |  |
 | django__django-15104 | b2 | resolved | 14 |  |
 | django__django-15127 | nohints2 | test-failed | 14 | test_override_settings_level_tags (messages_tests.tests.Test |

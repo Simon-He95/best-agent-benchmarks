@@ -91,6 +91,7 @@ function recordsFromResult(file, batch, source) {
         error: t.error,
         failureKind: t.failureKind,
         cliError: t.cliError,
+        timedOut: t.timedOut,
         evaluationError: t.evaluationError,
         environmentError: t.environmentError,
         // Tie-break key for same-priority (unknown) batches: the fragment's own
@@ -162,6 +163,7 @@ function collectAllRecords() {
 
 function classify(record) {
   if (record.resolved) return "resolved";
+  if (record.timedOut || record.failureKind === "timed-out") return "timeout";
   if (record.environmentBlocked || record.environmentError) return "env-blocked";
   const cli = record.cliError || "";
   if (cli.includes("stat:unknown:malformed")) return "stat-polluted";

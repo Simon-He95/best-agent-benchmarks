@@ -872,7 +872,14 @@ async function runTask(task, timeoutMs, runOptions) {
       error: error instanceof Error ? error.message : String(error),
     });
   } finally {
-    rmSync(taskDir, { recursive: true, force: true });
+    // Best-effort temp cleanup: the CLI's grandchild processes may still hold open
+    // handles or be writing during the recursive delete, which can surface as
+    // ENOTEMPTY/EBUSY and would otherwise kill a finished task (observed sklearn-13496).
+    try {
+      rmSync(taskDir, { recursive: true, force: true });
+    } catch {
+      // OS reclaims the temp dir on exit; never fail a completed task over cleanup.
+    }
   }
 }
 
