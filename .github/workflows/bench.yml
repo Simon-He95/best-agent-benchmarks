@@ -69,8 +69,8 @@ on:
         description: "Strict self-verification protocol prompt (A/B prompt experiment)"
         required: false
         default: "false"
-      cli_source:
-        description: "Build the CLI from source (best-agent repo ref/branch/SHA) instead of the published npm package — avoids slow npm publish when iterating"
+      cli_asset:
+        description: "GitHub Release tag whose cli-deploy.tar.gz asset is the locally-built, self-contained CLI deploy dir (bypasses npm publish). Empty = use published npm package."
         required: false
         default: ""
       reasoning_effort:
@@ -179,20 +179,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build CLI from source (bypass npm publish)
-        if: ${{ inputs.cli_source != '' }}
+      - name: Download locally-built CLI deploy asset (bypass npm publish)
+        if: ${{ inputs.cli_asset != '' }}
         env:
-          BEST_AGENT_SRC_REF: ${{ inputs.cli_source }}
+          BEST_AGENT_CLI_ASSET: ${{ inputs.cli_asset }}
         run: |
-          # ref may be a branch or a SHA: clone default branch, then fetch the requested ref.
-          git clone --depth 1 https://github.com/Simon-He95/best-agent.git .cli-src
-          git -C .cli-src fetch --depth 1 origin "${BEST_AGENT_SRC_REF}" || true
-          git -C .cli-src checkout -q FETCH_HEAD 2>/dev/null || git -C .cli-src checkout -q main
-          cd .cli-src
-          corepack enable
-          corepack pnpm install --frozen-lockfile
-          pnpm build
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli-src/apps/cli/dist/index.js" >> "$GITHUB_ENV"
+          mkdir -p .cli
+          gh release download "${BEST_AGENT_CLI_ASSET}" --repo Simon-He95/best-agent --pattern 'cli-deploy.tar.gz' --dir .cli --clobber
+          tar -xzf .cli/cli-deploy.tar.gz -C .cli
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
 
       - name: Download SWE-bench corpus
         run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}
