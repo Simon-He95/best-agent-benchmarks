@@ -1034,11 +1034,15 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
   // vendored C (cfitsio getcwd) — downgrade to warnings so legacy extensions build.
   // CXXFLAGS: matplotlib-era C++ assigns unsigned char* -> char* (macOS 14+ SDK
   // errors on this); -fpermissive downgrades it to a warning.
+  // -Wno-incompatible-function-pointer-types: macOS clang 15+ turns this into an
+  // error by default; astropy-era C (wcslib traverseproc, _erfa ufunc npy_intp vs
+  // long) and numpy-generated code trip it. Linux compilers only warn, so this flag
+  // is a no-op there and is safe to set globally.
   const legacyEnv = {
     ...process.env,
     PIP_CONSTRAINT: constraintsPath,
-    CFLAGS: "-Wno-implicit-function-declaration",
-    CXXFLAGS: "-fpermissive",
+    CFLAGS: "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types",
+    CXXFLAGS: "-fpermissive -Wno-incompatible-function-pointer-types",
   };
   const retryResult = spawnSync(
     venvPython,
