@@ -69,6 +69,10 @@ on:
         description: "Strict self-verification protocol prompt (A/B prompt experiment)"
         required: false
         default: "false"
+      cli_source:
+        description: "Build the CLI from source (best-agent repo ref/branch/SHA) instead of the published npm package — avoids slow npm publish when iterating"
+        required: false
+        default: ""
       reasoning_effort:
         description: "Reasoning effort: low|medium|high|xhigh|max|none (empty = model catalog default, e.g. deepseek-v4-flash -> high). Needs a CLI that carries the provider file's reasoningEffort in run."
         required: false
@@ -174,6 +178,21 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build CLI from source (bypass npm publish)
+        if: ${{ inputs.cli_source != '' }}
+        env:
+          BEST_AGENT_SRC_REF: ${{ inputs.cli_source }}
+        run: |
+          # ref may be a branch or a SHA: clone default branch, then fetch the requested ref.
+          git clone --depth 1 https://github.com/Simon-He95/best-agent.git .cli-src
+          git -C .cli-src fetch --depth 1 origin "${BEST_AGENT_SRC_REF}" || true
+          git -C .cli-src checkout -q FETCH_HEAD 2>/dev/null || git -C .cli-src checkout -q main
+          cd .cli-src
+          corepack enable
+          corepack pnpm install --frozen-lockfile
+          pnpm build
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli-src/apps/cli/dist/index.js" >> "$GITHUB_ENV"
 
       - name: Download SWE-bench corpus
         run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}

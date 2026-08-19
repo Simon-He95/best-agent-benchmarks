@@ -137,6 +137,13 @@ function traceTail(stdout) {
  * Returns `{ prefix: string[] }` so the final invocation is `[...prefix, ...cliArgs]`.
  */
 function resolveCliInvocation() {
+  // Explicit override (CI builds the CLI from source — no npm publish needed).
+  const explicit = process.env.BEST_AGENT_CLI_PATH;
+  if (explicit) {
+    const entry = resolve(process.cwd(), explicit);
+    if (existsSync(entry)) return { prefix: [process.execPath, entry], kind: "node" };
+    if (existsSync(explicit)) return { prefix: [process.execPath, explicit], kind: "node" };
+  }
   for (const entry of [
     resolve(repoRoot, "node_modules", "@best-agent", "cli", "dist", "index.js"),
     resolve(repoRoot, "apps", "cli", "dist", "index.js"),
