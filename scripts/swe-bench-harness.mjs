@@ -994,10 +994,12 @@ function pyprojectBuildRequires(repoDir) {
 function installEditableProject(repoDir, venvPython, corpusTask) {
   const command = `${venvPython} -m pip install -e .`;
   const args = ["-m", "pip", "install", "-e", "."];
+  // sklearn-era full builds take 20-40min on CI macos; 3min was far too short and
+  // every large repo fell through to the fallback (or timed out mid-compile).
   const installResult = spawnSync(venvPython, args, {
     cwd: repoDir,
     encoding: "utf8",
-    timeout: 180_000,
+    timeout: 2_400_000,
   });
   if (installResult.status === 0) return { ready: true };
 
@@ -1089,18 +1091,23 @@ function installEditableProject(repoDir, venvPython, corpusTask) {
   // error by default; astropy-era C (wcslib traverseproc, _erfa ufunc npy_intp vs
   // long) and numpy-generated code trip it. Linux compilers only warn, so this flag
   // is a no-op there and is safe to set globally.
+  // MS-extensions for scikit-learn only: old svm.cpp assigns malloc(void*) results to
+  // typed pointers (clang hard error, -fpermissive does not downgrade it). -fms-extensions
+  // restores the MSVC-style void*->T* conversion and is inert for the other repos.
+  const sklearnCxxCompat = corpusTask?.repo === "scikit-learn/scikit-learn";
   const legacyEnv = {
     ...process.env,
     PIP_CONSTRAINT: constraintsPath,
     // -DNULL=((void*)0): astropy-era C defines its own NULL (e.g. `#define NULL 0`)
     // which collides with the macOS SDK _stdio.h NULL expansion ("expected identifier
     // or '('" in _stdio.h:322). Re-defining it to the standard value keeps both sides.
-    // -fpermissive in CFLAGS too: numpy.distutils-era builds (scikit-learn 0.20/1.x)
-    // compile C++ extensions with the C flag set (g++ command shows CFLAGS only, no
-    // CXXFLAGS), so void*-writes (svm.cpp malloc casts) need the downgrade there.
-    // clang/gcc accept -fpermissive with a harmless warning in C mode.
-    CFLAGS:
-      "-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=((void*)0) -Wno-macro-redefined -fpermissive",
+    // -DNULL=__null: astropy-era C/C++ NULL conflicts with the macOS SDK _stdio.h; the
+    // paren form broke freetype's libtool shell invocation (`syntax error near '('`
+    // on matplotlib) so use __null — valid in both C and C++ modes, no shell syntax.
+    // -*-sklearn legacy C++ (svm.cpp malloc void* writes) is a clang hard error that
+    // -fpermissive does NOT downgrade; -fms-extensions restores the MSVC-style
+    // void*->T* conversion for the sklearn fallback only.
+    CFLAGS: `${sklearnCxxCompat ? "-fms-extensions " : ""}-Wno-implicit-function-declaration -Wno-incompatible-function-pointer-types -DNULL=__null -Wno-macro-redefined -fpermissive`,
     CXXFLAGS: "-fpermissive -Wno-incompatible-function-pointer-types",
   };
   const retryResult = spawnSync(
