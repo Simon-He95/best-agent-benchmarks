@@ -933,7 +933,7 @@ function prepareEvaluationEnvironment(repoDir, corpusTask) {
     }
   }
 
-  const installProjectResult = installEditableProject(repoDir, venvPython);
+  const installProjectResult = installEditableProject(repoDir, venvPython, corpusTask);
   if (!installProjectResult.ready) {
     return { ready: false, error: installProjectResult.error };
   }
@@ -964,7 +964,7 @@ function pyprojectBuildRequires(repoDir) {
   return requires.length > 0 ? requires : undefined;
 }
 
-function installEditableProject(repoDir, venvPython) {
+function installEditableProject(repoDir, venvPython, corpusTask) {
   const command = `${venvPython} -m pip install -e .`;
   const args = ["-m", "pip", "install", "-e", "."];
   const installResult = spawnSync(venvPython, args, {
