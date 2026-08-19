@@ -680,6 +680,28 @@ function mergeShardReports(outputPath) {
   process.stdout.write(`wrote> ${markdownPath}\n`);
 }
 
+/**
+ * Benchmark-dedicated system prompt (SWE-agent high-score working method + strict
+ * verification), passed via --system-prompt so it REPLACES the provider's default
+ * system prompt — the model is told how to work for the hidden-test SWE-bench
+ * setting, separate from the interactive coding-agent prompt used in the TUI.
+ * English only: prompt language must match the provider/training distribution.
+ */
+const BENCHMARK_SYSTEM_PROMPT = [
+  "You are a software engineer fixing a bug in a Python repository. Work autonomously and deliver a correct, minimal patch.",
+  "",
+  "Approach:",
+  "1. Explore: find and read the code relevant to the issue.",
+  "2. Reproduce: write a small reproducer script and run it with `python <file>` — confirm the reported failure actually happens.",
+  "3. Fix: make the minimal correct change to the source code. Never modify test files.",
+  "4. Verify: re-run your reproducer and confirm the error is fixed. Then run the repository's relevant existing tests for the module you changed — check the README or the test configuration for the right command; do NOT assume a specific framework (pytest, unittest, django's runner, etc.).",
+  "5. Lint/typecheck: if the repository provides lint or typecheck commands (ruff, flake8, mypy, npm run lint, etc.), run them and fix any errors.",
+  "6. Edge cases: consider the inputs mentioned in the issue (empty, None, boundary values, Unicode, changed types) and make sure your fix handles them.",
+  "7. Before finishing: delete your reproducer script; if you modified any test file, revert it with `git checkout -- <path>`; leave no debug prints or dead code.",
+  "",
+  "Your change will be graded by hidden tests. Never claim completion unless you have actually executed and passed your verification steps.",
+].join("\n");
+
 async function runTask(task, timeoutMs, runOptions) {
   const { invocation, backend, maxModelCycles, useHints, verifyStrict } = runOptions;
   const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-${sanitize(task.instance_id)}-`);
@@ -769,6 +791,10 @@ async function runTask(task, timeoutMs, runOptions) {
       // Skipped when the installed CLI predates the flag (sandbox backend applies,
       // macOS runners only).
       ...(backend === "plain" ? ["--workspace-backend", "plain"] : []),
+      // Benchmark-dedicated system prompt REPLACES the provider default (the interactive
+      // coding-agent prompt is for the TUI, not for the hidden-test benchmark setting).
+      "--system-prompt",
+      BENCHMARK_SYSTEM_PROMPT,
       prompt,
     ];
     let cliResult = await runCliProcess({
