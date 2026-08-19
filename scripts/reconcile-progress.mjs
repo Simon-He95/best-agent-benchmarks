@@ -184,7 +184,9 @@ function main() {
   const byId = new Map();
   for (const record of records) {
     const existing = byId.get(record.instance_id);
-    if (!existing || batchOrder(record.batch) > batchOrder(existing.batch)) {
+    // `>=`: same-priority unknown batches (both 9999) — the LATER-collected record wins
+    // (collect order is readdir/artifact order, so the newest run's fragment is later).
+    if (!existing || batchOrder(record.batch) >= batchOrder(existing.batch)) {
       byId.set(record.instance_id, record);
     }
   }

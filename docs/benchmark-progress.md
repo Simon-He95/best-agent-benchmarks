@@ -1,18 +1,18 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-19T11:20:22.915Z
+- Generated: 2026-08-19T12:06:38.521Z
 - Tasks tracked: 375
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 164 |
-| test-failed | 117 |
-| no-diff | 22 |
-| transport-loss | 8 |
-| env-blocked | 53 |
-| other | 5 |
+| resolved | 165 |
+| test-failed | 153 |
+| no-diff | 4 |
+| transport-loss | 11 |
+| env-blocked | 35 |
+| other | 1 |
 | unknown | 6 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
@@ -20,27 +20,27 @@
 | instance_id | batch | state | patchLines | failing test |
 |-------------|-------|-------|------------|--------------|
 | astropy__astropy-12907 | b1-nopatch | env-blocked | 14 |  |
-| astropy__astropy-13033 | astropyenv | env-blocked | 39 |  |
+| astropy__astropy-13033 | rerun23b | env-blocked | 36 |  |
 | astropy__astropy-13236 | b1-nopatch | env-blocked | 42 |  |
 | astropy__astropy-13398 | b1-nopatch | unknown | - |  |
-| astropy__astropy-13453 | rerun23 | env-blocked | 31 |  |
-| astropy__astropy-13579 | astropyenv | env-blocked | 58 |  |
-| astropy__astropy-13977 | astropyenv | no-diff | - |  |
+| astropy__astropy-13453 | rerun23b | no-diff | - |  |
+| astropy__astropy-13579 | rerun23b | env-blocked | 30 |  |
+| astropy__astropy-13977 | rerun23b | env-blocked | 115 |  |
 | astropy__astropy-14096 | b1-nopatch | env-blocked | 67 |  |
-| astropy__astropy-14182 | astropyenv | no-diff | - |  |
+| astropy__astropy-14182 | rerun23b | env-blocked | 48 |  |
 | astropy__astropy-14309 | b1-nopatch | env-blocked | 44 |  |
 | astropy__astropy-14365 | b1-nopatch | env-blocked | 16 |  |
 | astropy__astropy-14369 | b1-nopatch | env-blocked | 115 |  |
-| astropy__astropy-14508 | rerun23 | other | - |  |
+| astropy__astropy-14508 | rerun23b | test-failed | 36 |  |
 | astropy__astropy-14539 | b1-nopatch | env-blocked | 14 |  |
 | astropy__astropy-14598 | b1-nopatch | env-blocked | 40 |  |
 | astropy__astropy-14995 | b1-nopatch | env-blocked | 14 |  |
-| astropy__astropy-7166 | rerun23 | other | - |  |
-| astropy__astropy-7336 | rerun23 | test-failed | 15 |  |
+| astropy__astropy-7166 | rerun23b | test-failed | 14 |  |
+| astropy__astropy-7336 | rerun23b | test-failed | 19 |  |
 | astropy__astropy-7606 | b1-nopatch | env-blocked | 21 |  |
-| astropy__astropy-7671 | astropyenv | env-blocked | 31 |  |
-| astropy__astropy-8707 | astropyenv | no-diff | - |  |
-| astropy__astropy-8872 | astropyenv | env-blocked | 23 |  |
+| astropy__astropy-7671 | rerun23b | env-blocked | 34 |  |
+| astropy__astropy-8707 | rerun23b | env-blocked | 63 |  |
+| astropy__astropy-8872 | rerun23b | env-blocked | 23 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
 | django__django-10554 | nohints2 | transport-loss | - |  |
 | django__django-10880 | nohints2 | resolved | 14 |  |
@@ -78,7 +78,7 @@
 | django__django-11728 | nohints2 | resolved | 29 |  |
 | django__django-11734 | b1-rerun-final | test-failed | 16 | test_subquery_exclude_outerref (queries.tests.ExcludeTests) |
 | django__django-11740 | nohints2 | resolved | 33 |  |
-| django__django-11749 | rerun23 | test-failed | 70 | test_subparser_invalid_option (user_commands.tests.CommandTe |
+| django__django-11749 | rerun23b | test-failed | 34 | test_subparser_invalid_option (user_commands.tests.CommandTe |
 | django__django-11790 | stat-rerun | test-failed | 16 | test_username_field_max_length_defaults_to_254 (auth_tests.t |
 | django__django-11815 | nohints2 | resolved | 19 |  |
 | django__django-11820 | nohints2 | test-failed | 17 | test_ordering_pointing_multiple_times_to_model_fields (inval |
@@ -100,7 +100,7 @@
 | django__django-12276 | nohints2 | resolved | 25 |  |
 | django__django-12304 | b1-rerun | resolved | 14 |  |
 | django__django-12308 | nohints2 | test-failed | 17 | test_json_display_for_field (admin_utils.tests.UtilsTests) ( |
-| django__django-12325 | rerun23 | test-failed | 31 | test_clash_parent_link (invalid_models_tests.test_relative_f |
+| django__django-12325 | rerun23b | test-failed | 20 | test_clash_parent_link (invalid_models_tests.test_relative_f |
 | django__django-12406 | nohints2 | test-failed | 25 | test_choices_radio_blank (model_forms.test_modelchoicefield. |
 | django__django-12419 | nohints2 | resolved | 88 |  |
 | django__django-12663 | nohints2 | unknown | - |  |
@@ -121,7 +121,7 @@
 | django__django-13121 | nohints2 | resolved | 77 |  |
 | django__django-13128 | 400-debug | transport-loss | - |  |
 | django__django-13158 | b1-nopatch | transport-loss | - |  |
-| django__django-13195 | rerun23 | test-failed | 62 | test_session_delete_on_end (sessions_tests.tests.SessionMidd |
+| django__django-13195 | rerun23b | test-failed | 45 | test_session_delete_on_end (sessions_tests.tests.SessionMidd |
 | django__django-13212 | b1-nopatch | test-failed | 144 | test_value_placeholder_with_file_field (forms_tests.tests.te |
 | django__django-13279 | b1-nopatch | resolved | 27 |  |
 | django__django-13297 | nohints2 | resolved | 53 |  |
@@ -233,7 +233,7 @@
 | django__django-15957 | nohints2 | resolved | 75 |  |
 | django__django-15973 | nohints2 | resolved | 41 |  |
 | django__django-15987 | b2-testfailed | resolved | 14 |  |
-| django__django-16032 | rerun23 | other | - |  |
+| django__django-16032 | rerun23b | resolved | 58 |  |
 | django__django-16082 | nohints2 | resolved | 14 |  |
 | django__django-16100 | nohints2 | resolved | 35 |  |
 | django__django-16116 | nohints2 | resolved | 34 |  |
@@ -246,7 +246,7 @@
 | django__django-16315 | nohints2 | resolved | 51 |  |
 | django__django-16333 | b2 | resolved | 15 |  |
 | django__django-16429 | nohints2 | resolved | 13 |  |
-| django__django-16454 | rerun23 | test-failed | 29 | test_subparser_error_formatting (unittest.loader._FailedTest |
+| django__django-16454 | rerun23b | test-failed | 30 | test_subparser_error_formatting (unittest.loader._FailedTest |
 | django__django-16485 | stat-rerun2 | test-failed | 14 | test_zero_values (unittest.loader._FailedTest.test_zero_valu |
 | django__django-16493 | b2-testfailed | test-failed | 17 | test_deconstruction (unittest.loader._FailedTest.test_decons |
 | django__django-16502 | stat-rerun2 | test-failed | 56 | test_no_body_returned_for_head_requests (unittest.loader._Fa |
@@ -256,7 +256,7 @@
 | django__django-16595 | stat-rerun2 | test-failed | 18 | test_alter_alter_field (unittest.loader._FailedTest.test_alt |
 | django__django-16612 | stat-rerun2 | test-failed | 16 | test_missing_slash_append_slash_true_query_string (unittest. |
 | django__django-16631 | b2-testfailed | test-failed | 93 | test_get_user_fallback_secret (unittest.loader._FailedTest.t |
-| django__django-16642 | rerun23 | other | - |  |
+| django__django-16642 | rerun23b | test-failed | 22 | test_content_disposition_buffer (unittest.loader._FailedTest |
 | django__django-16661 | b2-testfailed | test-failed | 32 | test_lookup_allowed_foreign_primary (unittest.loader._Failed |
 | django__django-16662 | stat-rerun2 | test-failed | 19 | test_args_kwargs_signature (unittest.loader._FailedTest.test |
 | django__django-16667 | stat-rerun2 | test-failed | 14 | test_form_field (unittest.loader._FailedTest.test_form_field |
@@ -265,84 +265,84 @@
 | django__django-16877 | b2-testfailed | test-failed | 50 | test_autoescape_off (unittest.loader._FailedTest.test_autoes |
 | django__django-16899 | stat-rerun2 | test-failed | 20 | test_nonexistent_field (unittest.loader._FailedTest.test_non |
 | django__django-16901 | b2-testfailed | test-failed | 21 | test_filter_multiple (unittest.loader._FailedTest.test_filte |
-| django__django-16938 | rerun23 | test-failed | 14 | test_serialize_no_only_pk_with_natural_keys (unittest.loader |
+| django__django-16938 | rerun23b | test-failed | 37 | test_serialize_no_only_pk_with_natural_keys (unittest.loader |
 | django__django-16950 | b2-testfailed | test-failed | 26 | test_inlineformset_factory_ignores_default_pks_on_submit (mo |
 | django__django-17029 | b2-testfailed | test-failed | 13 | test_clear_cache (unittest.loader._FailedTest.test_clear_cac |
-| django__django-17084 | rerun23 | other | - |  |
+| django__django-17084 | rerun23b | test-failed | 41 | test_referenced_window_requires_wrapping (unittest.loader._F |
 | django__django-17087 | b3 | test-failed | 14 | test_serialize_nested_class_method (unittest.loader._FailedT |
 | django__django-7530 | b3 | test-failed | 14 |  |
-| django__django-9296 | b3 | resolved | 16 |  |
+| django__django-9296 | nohints2 | resolved | 16 |  |
 | matplotlib__matplotlib-13989 | b3 | test-failed | 36 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
-| matplotlib__matplotlib-14623 | b3 | env-blocked | 24 |  |
-| matplotlib__matplotlib-20488 | b3 | env-blocked | 18 |  |
-| matplotlib__matplotlib-20676 | b3 | no-diff | - |  |
-| matplotlib__matplotlib-20826 | b3 | no-diff | - |  |
-| matplotlib__matplotlib-20859 | b3 | env-blocked | 46 |  |
-| matplotlib__matplotlib-21568 | b3 | transport-loss | - |  |
+| matplotlib__matplotlib-14623 | b3env | test-failed | 51 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| matplotlib__matplotlib-20488 | b3env2 | test-failed | 19 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-20676 | b3up2 | env-blocked | 19 |  |
+| matplotlib__matplotlib-20826 | b3up2 | env-blocked | 21 |  |
+| matplotlib__matplotlib-20859 | b3env3 | test-failed | 29 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-21568 | b3up2 | env-blocked | 19 |  |
 | matplotlib__matplotlib-22719 | b3 | test-failed | 23 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | matplotlib__matplotlib-22865 | b3 | test-failed | 23 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-22871 | b3 | transport-loss | - |  |
-| matplotlib__matplotlib-23299 | b3 | transport-loss | - |  |
-| matplotlib__matplotlib-23314 | b3 | no-diff | - |  |
+| matplotlib__matplotlib-22871 | b3up2 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-23299 | b3up2 | env-blocked | 24 |  |
+| matplotlib__matplotlib-23314 | b3up2 | env-blocked | 14 |  |
 | matplotlib__matplotlib-23412 | b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-23476 | b3 | env-blocked | 14 |  |
-| matplotlib__matplotlib-24026 | b3 | no-diff | - |  |
-| matplotlib__matplotlib-24149 | b3 | env-blocked | 25 |  |
-| matplotlib__matplotlib-24177 | b3 | env-blocked | 103 |  |
+| matplotlib__matplotlib-23476 | b3env2 | test-failed | 37 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-24026 | b3up2 | env-blocked | 45 |  |
+| matplotlib__matplotlib-24149 | b3env | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-24177 | b3env6 | env-blocked | 14 |  |
 | matplotlib__matplotlib-24570 | b3 | test-failed | 18 |  |
 | matplotlib__matplotlib-24627 | b3 | test-failed | 16 |  |
 | matplotlib__matplotlib-24637 | b3 | test-failed | 21 |  |
-| matplotlib__matplotlib-24870 | b3 | no-diff | - |  |
+| matplotlib__matplotlib-24870 | b3up | test-failed | 94 |  |
 | matplotlib__matplotlib-24970 | b3 | test-failed | 16 |  |
-| matplotlib__matplotlib-25122 | b3 | env-blocked | 33 |  |
+| matplotlib__matplotlib-25122 | b3env6 | env-blocked | 33 |  |
 | matplotlib__matplotlib-25287 | b3 | test-failed | 41 |  |
-| matplotlib__matplotlib-25311 | b3 | transport-loss | - |  |
-| matplotlib__matplotlib-25332 | b3 | no-diff | - |  |
-| matplotlib__matplotlib-25479 | b3 | no-diff | - |  |
+| matplotlib__matplotlib-25311 | b3up2 | test-failed | 70 |  |
+| matplotlib__matplotlib-25332 | b3up | test-failed | 26 |  |
+| matplotlib__matplotlib-25479 | b3up2 | env-blocked | 20 |  |
 | matplotlib__matplotlib-25775 | b3 | test-failed | 85 |  |
-| matplotlib__matplotlib-25960 | b3 | env-blocked | 43 |  |
+| matplotlib__matplotlib-25960 | b3env2 | test-failed | 65 |  |
 | matplotlib__matplotlib-26113 | b3 | test-failed | 23 |  |
-| matplotlib__matplotlib-26208 | b3 | env-blocked | 14 |  |
-| matplotlib__matplotlib-26291 | b3 | env-blocked | 14 |  |
-| matplotlib__matplotlib-26342 | b3 | env-blocked | 36 |  |
-| matplotlib__matplotlib-26466 | b3 | env-blocked | 15 |  |
+| matplotlib__matplotlib-26208 | b3env2 | transport-loss | - |  |
+| matplotlib__matplotlib-26291 | b3env | test-failed | 14 |  |
+| matplotlib__matplotlib-26342 | b3env3 | test-failed | 16 |  |
+| matplotlib__matplotlib-26466 | b3env6 | test-failed | 17 |  |
 | mwaskom__seaborn-3069 | b3 | resolved | 48 |  |
-| mwaskom__seaborn-3187 | b3 | no-diff | - |  |
+| mwaskom__seaborn-3187 | b3up | test-failed | 43 |  |
 | pallets__flask-5014 | b3 | test-failed | 27 |  |
-| psf__requests-1142 | b3 | resolved | 25 |  |
-| psf__requests-1724 | b3 | transport-loss | - |  |
+| psf__requests-1142 | nohints2 | resolved | 13 |  |
+| psf__requests-1724 | b3up | resolved | 14 |  |
 | psf__requests-1766 | b3 | resolved | 14 |  |
-| psf__requests-1921 | b3 | resolved | 32 |  |
+| psf__requests-1921 | nohints2 | test-failed | 14 |  |
 | psf__requests-2317 | b3 | test-failed | 23 |  |
 | psf__requests-2931 | b3 | test-failed | 14 |  |
-| psf__requests-5414 | b3 | no-diff | - |  |
+| psf__requests-5414 | b3up | test-failed | 14 |  |
 | psf__requests-6028 | b3 | test-failed | 15 |  |
-| pydata__xarray-2905 | b3 | no-diff | - |  |
-| pydata__xarray-3095 | b3 | no-diff | - |  |
+| pydata__xarray-2905 | b3up2 | test-failed | 15 |  |
+| pydata__xarray-3095 | b3up | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pydata__xarray-3151 | b3 | test-failed | 27 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pydata__xarray-3305 | b3 | test-failed | 53 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pydata__xarray-3677 | b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-3993 | b3 | no-diff | - |  |
+| pydata__xarray-3993 | b3up2 | test-failed | 115 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pydata__xarray-4075 | b3 | test-failed | 16 |  |
 | pydata__xarray-4094 | b3 | test-failed | 14 |  |
-| pydata__xarray-4356 | b3 | no-diff | - |  |
+| pydata__xarray-4356 | b3up2 | test-failed | 21 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | pydata__xarray-4629 | b3 | resolved | 14 |  |
 | pydata__xarray-4687 | b3 | test-failed | 48 |  |
 | pydata__xarray-4695 | b3 | test-failed | 14 |  |
 | pydata__xarray-4966 | b3 | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-6461 | b3 | no-diff | - |  |
+| pydata__xarray-6461 | b3up | test-failed | 104 |  |
 | pydata__xarray-6599 | b3 | test-failed | 16 |  |
 | pydata__xarray-6721 | b3 | test-failed | 30 |  |
 | pydata__xarray-6744 | b3 | test-failed | 26 |  |
 | pydata__xarray-6938 | b3 | test-failed | 16 |  |
 | pydata__xarray-6992 | b3 | test-failed | 14 |  |
 | pydata__xarray-7229 | b3 | test-failed | 82 |  |
-| pydata__xarray-7233 | b3 | no-diff | - |  |
+| pydata__xarray-7233 | b3up | test-failed | 14 |  |
 | pydata__xarray-7393 | b3 | test-failed | 19 |  |
-| pylint-dev__pylint-4551 | b3 | no-diff | - |  |
+| pylint-dev__pylint-4551 | b3up | transport-loss | - |  |
 | pylint-dev__pylint-4604 | b3 | test-failed | 16 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pylint-dev__pylint-4661 | b3 | test-failed | 92 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-4970 | b3 | resolved | 14 |  |
+| pylint-dev__pylint-4970 | nohints2 | resolved | 14 |  |
 | pylint-dev__pylint-6386 | b3 | resolved | 35 |  |
 | pylint-dev__pylint-6528 | b3 | test-failed | 103 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pylint-dev__pylint-6903 | b3 | test-failed | 36 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
@@ -351,7 +351,7 @@
 | pylint-dev__pylint-8898 | b3 | test-failed | 77 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | pytest-dev__pytest-10051 | b3 | test-failed | 15 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-10081 | b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-10356 | b3 | no-diff | - |  |
+| pytest-dev__pytest-10356 | b3up | test-failed | 53 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-5262 | b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-5631 | b3 | test-failed | 18 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-5787 | b3 | test-failed | 180 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
@@ -368,29 +368,29 @@
 | pytest-dev__pytest-7571 | b3 | test-failed | 33 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-7982 | b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-8399 | b3 | test-failed | 54 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| scikit-learn__scikit-learn-10297 | b3 | env-blocked | 32 |  |
-| scikit-learn__scikit-learn-10844 | b3 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-10908 | b3 | env-blocked | 27 |  |
-| scikit-learn__scikit-learn-11310 | b3 | env-blocked | 106 |  |
-| scikit-learn__scikit-learn-11578 | b3 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-12585 | b3 | env-blocked | 24 |  |
-| scikit-learn__scikit-learn-12682 | b3 | env-blocked | 150 |  |
-| scikit-learn__scikit-learn-12973 | b3 | env-blocked | 38 |  |
-| scikit-learn__scikit-learn-13124 | b3 | env-blocked | 38 |  |
-| scikit-learn__scikit-learn-13135 | b3 | env-blocked | 14 |  |
-| scikit-learn__scikit-learn-13142 | b3 | env-blocked | 29 |  |
-| scikit-learn__scikit-learn-13328 | b3 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-13439 | b3 | env-blocked | 27 |  |
-| scikit-learn__scikit-learn-13496 | b3 | env-blocked | 68 |  |
-| scikit-learn__scikit-learn-13779 | b3 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-14053 | b3 | env-blocked | 29 |  |
-| scikit-learn__scikit-learn-14087 | b3 | env-blocked | 29 |  |
-| scikit-learn__scikit-learn-14141 | b3 | env-blocked | 13 |  |
-| scikit-learn__scikit-learn-14496 | b3 | env-blocked | 55 |  |
-| scikit-learn__scikit-learn-14629 | b3 | env-blocked | 31 |  |
-| scikit-learn__scikit-learn-14710 | b3 | env-blocked | 21 |  |
-| scikit-learn__scikit-learn-14894 | b3 | env-blocked | 27 |  |
-| scikit-learn__scikit-learn-14983 | b3 | env-blocked | 27 |  |
-| scikit-learn__scikit-learn-15100 | b3 | env-blocked | 17 |  |
-| scikit-learn__scikit-learn-25102 | b3 | env-blocked | 114 |  |
-| scikit-learn__scikit-learn-25232 | b3 | env-blocked | 72 |  |
+| scikit-learn__scikit-learn-10297 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-10844 | b3env6 | test-failed | 14 |  |
+| scikit-learn__scikit-learn-10908 | b3env6 | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-11310 | b3env6 | test-failed | 54 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-11578 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-12585 | b3env6 | test-failed | 14 |  |
+| scikit-learn__scikit-learn-12682 | b3env | no-diff | - |  |
+| scikit-learn__scikit-learn-12973 | b3env6 | test-failed | 39 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-13124 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-13135 | b3env6 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-13142 | b3env6 | test-failed | 33 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-13328 | b3env6 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-13439 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-13496 | b3env6 | other | - |  |
+| scikit-learn__scikit-learn-13779 | b3env6 | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-14053 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-14087 | b3env6 | env-blocked | 36 |  |
+| scikit-learn__scikit-learn-14141 | b3env6 | env-blocked | 13 |  |
+| scikit-learn__scikit-learn-14496 | b3up3 | env-blocked | 62 |  |
+| scikit-learn__scikit-learn-14629 | b3env6 | env-blocked | 17 |  |
+| scikit-learn__scikit-learn-14710 | b3env6 | transport-loss | - |  |
+| scikit-learn__scikit-learn-14894 | b3env6 | env-blocked | 30 |  |
+| scikit-learn__scikit-learn-14983 | b3env6 | env-blocked | 17 |  |
+| scikit-learn__scikit-learn-15100 | b3env6 | env-blocked | 17 |  |
+| scikit-learn__scikit-learn-25102 | b3env5 | test-failed | 123 |  |
+| scikit-learn__scikit-learn-25232 | b3env5 | test-failed | 89 |  |
