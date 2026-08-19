@@ -202,6 +202,7 @@ function parseArgs(argv) {
     taskId: undefined,
     taskIds: undefined,
     useHints: false,
+    verifyStrict: false,
     offset: 0,
     shard: undefined,
     shardTotal: undefined,
@@ -220,6 +221,13 @@ function parseArgs(argv) {
         // corpus's hints_text (issue-thread excerpts) is NOT part of the official eval
         // surface and can leak fix direction. Default off for comparable pass@1.
         parsed.useHints = true;
+        break;
+      case "--verify-strict":
+        // Strict self-verification protocol in the prompt (reproduce -> own regression
+        // test -> verify -> regression check -> edge cases -> no false pass claims).
+        // Same evaluation/judgement; only delivery discipline changes. Used for
+        // A/B comparison against the default prompt.
+        parsed.verifyStrict = true;
         break;
       case "--reevaluate":
         parsed.reevaluate = argv[++i] ? resolve(argv[i]) : undefined;
@@ -401,6 +409,7 @@ async function main() {
     backend: args.backend,
     maxModelCycles,
     useHints: args.useHints,
+    verifyStrict: args.verifyStrict,
     providerConfigOverride,
     // Closed-book benchmark: the benchmark side excludes the network tool surface so
     // models never see web_fetch/web_search (official SWE-bench agents have terminal+file
@@ -672,7 +681,7 @@ function mergeShardReports(outputPath) {
 }
 
 async function runTask(task, timeoutMs, runOptions) {
-  const { invocation, backend, maxModelCycles, useHints } = runOptions;
+  const { invocation, backend, maxModelCycles, useHints, verifyStrict } = runOptions;
   const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-${sanitize(task.instance_id)}-`);
   const startMs = performance.now();
   try {
@@ -719,7 +728,19 @@ async function runTask(task, timeoutMs, runOptions) {
       "Use the exact tool names above to inspect the repository and edit the necessary source files. Do not modify test files.",
       "You have no web access: do not call web_search, web_fetch, or any other web tool. Solve the bug by reading the repository code directly and applying the fix yourself.",
       "You MUST actually edit the source files with the write/edit/apply_patch tools — never respond with only a textual description of the fix. Inspect the code, apply the minimal correct change, then verify it.",
-      "Verification: after editing, run the relevant EXISTING tests in the repository (e.g. `python tests/runtests.py <related_module>` for Django, or pytest for other repos) to confirm your change works and does not break related behavior. If the repository needs dependencies first, install them with pip. A fix that only looks right but breaks existing tests is wrong.",
+      ...(verifyStrict
+        ? [
+            "STRICT VERIFICATION PROTOCOL — you may NOT claim the fix is complete until you have actually executed every step below:",
+            "1. REPRODUCE: before editing, run a command that reproduces the bug from the issue (a minimal script, or the relevant existing test) and confirm it FAILS. If you cannot reproduce it, keep investigating — never guess.",
+            "2. WRITE YOUR OWN REGRESSION TEST: add a small test (or a standalone reproducer script if the repo's test runner is heavy) that captures the reported behavior. Run it and SEE IT FAIL before your fix.",
+            "3. FIX + VERIFY: apply the fix, then run your regression test AND the existing tests for the touched module (pytest <module> or the repo's test runner). Require real PASS output — a command that errors out, is skipped, or prints no PASS does NOT count.",
+            "4. REGRESSION CHECK: also run adjacent tests for anything your change could affect. A fix that breaks existing behavior is wrong.",
+            "5. EDGE CASES: check the inputs mentioned in the issue (empty, None, boundary values, Unicode, changed types). Your change must handle them.",
+            "6. NO FALSE PASS CLAIMS: never say \"all tests pass\" unless you executed the commands and saw PASS. If a test is slow, run a targeted subset; if dependencies are missing, install them first. Satisfy 1-6 before finalizing; leave no debug prints or dead code in your diff.",
+          ]
+        : [
+            "Verification: after editing, run the relevant EXISTING tests in the repository (e.g. `python tests/runtests.py <related_module>` for Django, or pytest for other repos) to confirm your change works and does not break related behavior. If the repository needs dependencies first, install them with pip. A fix that only looks right but breaks existing tests is wrong.",
+          ]),
       "After making your changes, explain what you changed and why.",
     ].join("\n");
 
