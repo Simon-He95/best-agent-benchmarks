@@ -114,6 +114,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build latest CLI from private best-agent source (bypasses npm publish)
+        env:
+          BEST_AGENT_REPO_TOKEN: ${{ secrets.BEST_AGENT_REPO_TOKEN }}
+        run: |
+          if [ -z "$BEST_AGENT_REPO_TOKEN" ]; then
+            echo "::error::BEST_AGENT_REPO_TOKEN secret is required (PAT with read access to Simon-He95/best-agent) to build the latest CLI. Add it in repo settings -> Secrets, or fall back to the published npm version by removing this step."
+            exit 0
+          fi
+          git clone -q --depth 1 https://x-access-token:${BEST_AGENT_REPO_TOKEN}@github.com/Simon-He95/best-agent.git .best-agent-src
+          cd .best-agent-src
+          corepack enable
+          corepack prepare pnpm@10 --activate
+          pnpm install --frozen-lockfile --silent
+          pnpm build
+          rm -rf ../node_modules/@best-agent/cli/dist
+          cp -r apps/cli/dist ../node_modules/@best-agent/cli/dist/
+          cp apps/cli/package.json ../node_modules/@best-agent/cli/package.json
+          cd ..
+          node_modules/.bin/best-agent run --help >/dev/null 2>&1 || echo "warn: CLI smoke via .bin failed (npm package resolution)"
+          echo "built CLI from best-agent@$(cd .best-agent-src && git rev-parse --short HEAD)"
+
       - name: Install ripgrep (search tool accelerator; avoids pathologically slow scans)
         run: |
           if command -v apt-get >/dev/null 2>&1; then
@@ -174,6 +195,27 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build latest CLI from private best-agent source (bypasses npm publish)
+        env:
+          BEST_AGENT_REPO_TOKEN: ${{ secrets.BEST_AGENT_REPO_TOKEN }}
+        run: |
+          if [ -z "$BEST_AGENT_REPO_TOKEN" ]; then
+            echo "::error::BEST_AGENT_REPO_TOKEN secret is required (PAT with read access to Simon-He95/best-agent) to build the latest CLI. Add it in repo settings -> Secrets, or fall back to the published npm version by removing this step."
+            exit 0
+          fi
+          git clone -q --depth 1 https://x-access-token:${BEST_AGENT_REPO_TOKEN}@github.com/Simon-He95/best-agent.git .best-agent-src
+          cd .best-agent-src
+          corepack enable
+          corepack prepare pnpm@10 --activate
+          pnpm install --frozen-lockfile --silent
+          pnpm build
+          rm -rf ../node_modules/@best-agent/cli/dist
+          cp -r apps/cli/dist ../node_modules/@best-agent/cli/dist/
+          cp apps/cli/package.json ../node_modules/@best-agent/cli/package.json
+          cd ..
+          node_modules/.bin/best-agent run --help >/dev/null 2>&1 || echo "warn: CLI smoke via .bin failed (npm package resolution)"
+          echo "built CLI from best-agent@$(cd .best-agent-src && git rev-parse --short HEAD)"
 
       - name: Download SWE-bench corpus
         run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}
