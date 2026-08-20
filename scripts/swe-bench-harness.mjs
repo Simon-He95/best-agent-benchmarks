@@ -1038,6 +1038,37 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Test-only dependencies per repo, installed in the EVAL environment only (after the
+ *  agent finished, never visible to it). Missing test deps (e.g. hypothesis for astropy's
+ *  conftest) make pytest fail with ImportError/INTERNALERROR — a false negative that looks
+ *  like a model failure but is an environment gap. Installing them is an environment fix,
+ *  not a judgement change (official SWE-bench uses pre-built SPEC images with all deps). */
+const TEST_DEPENDENCIES_BY_REPO = {
+  "astropy/astropy": [
+    "hypothesis",
+    "pytest-astropy",
+    "pytest-doctestplus",
+    "pytest-remotedata",
+    "pytest-arraydiff",
+    "pytest-openfiles",
+  ],
+};
+
+function installTestDependencies(venvPython, repoDir, corpusTask) {
+  const extra = TEST_DEPENDENCIES_BY_REPO[corpusTask?.repo];
+  if (!extra || extra.length === 0) return;
+  const result = spawnSync(venvPython, ["-m", "pip", "install", ...extra], {
+    cwd: repoDir,
+    encoding: "utf8",
+    timeout: 180_000,
+  });
+  if (result.status !== 0) {
+    process.stderr.write(
+      `warn> test-deps install failed: ${summarizeCommandFailure(extra.join(" "), result)}\n`,
+    );
+  }
+}
+
 function prepareEvaluationEnvironment(repoDir, corpusTask) {
   const venvDir = resolve(repoDir, ".swe-bench-venv");
   const pythonCommand = resolvePythonCommand(corpusTask);
@@ -1090,6 +1121,7 @@ function prepareEvaluationEnvironment(repoDir, corpusTask) {
   }
 
   const installProjectResult = installEditableProject(repoDir, venvPython, corpusTask);
+  installTestDependencies(venvPython, repoDir, corpusTask);
   if (!installProjectResult.ready) {
     return { ready: false, error: installProjectResult.error };
   }
