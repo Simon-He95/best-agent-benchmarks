@@ -1,19 +1,13 @@
 # Benchmark Failure Audit (semantic gap: gold test vs agent patch)
 
-- Generated: 2026-08-20T16:27:47.417Z
-- Real model failures audited: 152
+- Generated: 2026-08-20T22:43:32.697Z
+- Real model failures audited: 125
 - Source: gold `test_patch` assertions vs agent `agentPatch` (from `.tmp/art-*` fragments)
 
 ## Legend
 - **gold asserts**: new/changed FAIL_TO_PASS assertions (the precise behavior the fix must satisfy)
 - **agent files**: source files the agent modified
 - **gap signal**: the agent patch misses the file/behavior the gold test exercises (or assertion values the agent likely got wrong)
-
-## astropy__astropy-12907
-- FAIL_TO_PASS: astropy/modeling/tests/test_separable.py::test_separable[compound_model6-result6]; astropy/modeling/tests/test_separable.py::test_separable[compound_model9-result9]
-- gold test files: astropy/modeling/tests/test_separable.py
-- agent modified: astropy/modeling/separable.py
-- gold asserts (0):
 
 ## astropy__astropy-13033
 - FAIL_TO_PASS: astropy/timeseries/tests/test_sampled.py::test_required_columns
@@ -31,24 +25,6 @@
 - FAIL_TO_PASS: astropy/coordinates/tests/test_intermediate_transformations.py::test_itrs_topo_to_altaz_with_refraction; astropy/coordinates/tests/test_intermediate_transformations.py::test_itrs_topo_to_hadec_with_refraction; astropy/coordinates/tests/test_intermediate_transformations.py::test_cirs_itrs_topo; astropy/coordinates/tests/test_intermediate_transformations.py::test_itrs_straight_overhead
 - gold test files: astropy/coordinates/tests/test_intermediate_transformations.py
 - agent modified: CHANGES.rst, astropy/coordinates/builtin_frames/icrs_observed_transforms.py, astropy/coordinates/builtin_frames/utils.py
-- gold asserts (0):
-
-## astropy__astropy-13453
-- FAIL_TO_PASS: astropy/io/ascii/tests/test_html.py::test_write_table_formatted_columns
-- gold test files: astropy/io/ascii/tests/test_html.py
-- agent modified: astropy/io/ascii/core.py, astropy/io/ascii/html.py
-- gold asserts (0):
-
-## astropy__astropy-13579
-- FAIL_TO_PASS: astropy/wcs/wcsapi/wrappers/tests/test_sliced_wcs.py::test_coupled_world_slicing
-- gold test files: astropy/wcs/wcsapi/wrappers/tests/test_sliced_wcs.py
-- agent modified: CHANGES.rst, astropy/wcs/wcsapi/wrappers/sliced_wcs.py
-- gold asserts (0):
-
-## astropy__astropy-14309
-- FAIL_TO_PASS: astropy/io/fits/tests/test_connect.py::test_is_fits_gh_14305
-- gold test files: astropy/io/fits/tests/test_connect.py
-- agent modified: astropy/io/fits/connect.py, astropy/io/misc/hdf5.py, astropy/io/votable/connect.py
 - gold asserts (0):
 
 ## astropy__astropy-14365
@@ -69,22 +45,10 @@
 - agent modified: astropy/io/fits/card.py
 - gold asserts (0):
 
-## astropy__astropy-14539
-- FAIL_TO_PASS: astropy/io/fits/tests/test_diff.py::TestDiff::test_identical_tables; astropy/io/fits/tests/test_diff.py::TestDiff::test_different_table_data
-- gold test files: astropy/io/fits/tests/test_diff.py
-- agent modified: astropy/io/fits/diff.py
-- gold asserts (0):
-
 ## astropy__astropy-14598
 - FAIL_TO_PASS: astropy/io/fits/tests/test_header.py::TestHeaderFunctions::test_long_string_value_with_quotes
 - gold test files: astropy/io/fits/tests/test_header.py
 - agent modified: CHANGES.rst, astropy/io/fits/card.py
-- gold asserts (0):
-
-## astropy__astropy-14995
-- FAIL_TO_PASS: astropy/nddata/mixins/tests/test_ndarithmetic.py::test_nddata_bitmask_arithmetic
-- gold test files: astropy/nddata/mixins/tests/test_ndarithmetic.py
-- agent modified: astropy/nddata/mixins/ndarithmetic.py
 - gold asserts (0):
 
 ## astropy__astropy-7166
@@ -503,120 +467,6 @@
 - gold asserts (1):
   - `self.assertIn(connection_alias, ['default', 'other'])`
 
-## matplotlib__matplotlib-14623
-- FAIL_TO_PASS: lib/matplotlib/tests/test_axes.py::test_inverted_limits
-- gold test files: lib/matplotlib/tests/test_axes.py
-- agent modified: lib/matplotlib/axes/_base.py, src/ft2font.cpp
-- gold asserts (0):
-
-## matplotlib__matplotlib-20488
-- FAIL_TO_PASS: lib/matplotlib/tests/test_image.py::test_huge_range_log[png--1]
-- gold test files: lib/matplotlib/tests/test_image.py
-- agent modified: lib/matplotlib/image.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-20859
-- FAIL_TO_PASS: lib/matplotlib/tests/test_legend.py::test_subfigure_legend
-- gold test files: lib/matplotlib/tests/test_legend.py
-- agent modified: lib/matplotlib/legend.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-22865
-- FAIL_TO_PASS: lib/matplotlib/tests/test_colorbar.py::test_colorbar_extend_drawedges[both-1-res0]; lib/matplotlib/tests/test_colorbar.py::test_colorbar_extend_drawedges[min-0-res1]; lib/matplotlib/tests/test_colorbar.py::test_colorbar_extend_drawedges[max-0-res2]
-- gold test files: lib/matplotlib/tests/test_colorbar.py
-- agent modified: lib/matplotlib/colorbar.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-22871
-- FAIL_TO_PASS: lib/matplotlib/tests/test_dates.py::test_offset_changes
-- gold test files: lib/matplotlib/tests/test_dates.py
-- agent modified: lib/matplotlib/dates.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-23299
-- FAIL_TO_PASS: lib/matplotlib/tests/test_rcparams.py::test_no_backend_reset_rccontext
-- gold test files: lib/matplotlib/tests/test_rcparams.py
-- agent modified: lib/matplotlib/__init__.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-23412
-- FAIL_TO_PASS: lib/matplotlib/tests/test_patches.py::test_dash_offset_patch_draw[png]
-- gold test files: lib/matplotlib/tests/test_patches.py
-- agent modified: lib/matplotlib/patches.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-24149
-- FAIL_TO_PASS: lib/matplotlib/tests/test_axes.py::test_bar_all_nan[png]
-- gold test files: lib/matplotlib/tests/test_axes.py
-- agent modified: lib/matplotlib/axes/_axes.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-24570
-- FAIL_TO_PASS: lib/matplotlib/tests/test_offsetbox.py::test_packers[bottom]; lib/matplotlib/tests/test_offsetbox.py::test_packers[top]
-- gold test files: lib/matplotlib/tests/test_offsetbox.py
-- agent modified: lib/matplotlib/offsetbox.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-24627
-- FAIL_TO_PASS: lib/matplotlib/tests/test_axes.py::test_cla_clears_children_axes_and_fig
-- gold test files: lib/matplotlib/tests/test_axes.py
-- agent modified: lib/matplotlib/axes/_base.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-24870
-- FAIL_TO_PASS: lib/matplotlib/tests/test_contour.py::test_bool_autolevel
-- gold test files: lib/matplotlib/tests/test_contour.py
-- agent modified: lib/matplotlib/contour.py, lib/matplotlib/tri/_tricontour.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-24970
-- FAIL_TO_PASS: lib/matplotlib/tests/test_colors.py::test_index_dtype[uint8]
-- gold test files: lib/matplotlib/tests/test_colors.py
-- agent modified: setup.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-25287
-- FAIL_TO_PASS: lib/matplotlib/tests/test_axes.py::test_xaxis_offsetText_color; lib/matplotlib/tests/test_axes.py::test_yaxis_offsetText_color
-- gold test files: lib/matplotlib/tests/test_axes.py
-- agent modified: lib/matplotlib/axis.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-25332
-- FAIL_TO_PASS: lib/matplotlib/tests/test_pickle.py::test_complete[png]
-- gold test files: lib/matplotlib/tests/test_pickle.py
-- agent modified: lib/matplotlib/cbook.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-25775
-- FAIL_TO_PASS: lib/matplotlib/tests/test_text.py::test_set_antialiased; lib/matplotlib/tests/test_text.py::test_get_antialiased; lib/matplotlib/tests/test_text.py::test_annotation_antialiased; lib/matplotlib/tests/test_text.py::test_text_antialiased_off_default_vs_manual[png]; lib/matplotlib/tests/test_text.py::test_text_antialiased_off_default_vs_manual[pdf]; lib/matplotlib/tests/test_text.py::test_text_antialiased_on_default_vs_manual[png]; lib/matplotlib/tests/test_text.py::test_text_antialiased_on_default_vs_manual[pdf]
-- gold test files: lib/matplotlib/tests/test_text.py
-- agent modified: lib/matplotlib/backends/backend_agg.py, lib/matplotlib/backends/backend_cairo.py, lib/matplotlib/text.py, lib/matplotlib/text.pyi
-- gold asserts (0):
-
-## matplotlib__matplotlib-25960
-- FAIL_TO_PASS: lib/matplotlib/tests/test_figure.py::test_subfigures_wspace_hspace
-- gold test files: lib/matplotlib/tests/test_figure.py
-- agent modified: lib/matplotlib/figure.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-26291
-- FAIL_TO_PASS: lib/mpl_toolkits/axes_grid1/tests/test_axes_grid1.py::test_inset_axes_tight
-- gold test files: lib/mpl_toolkits/axes_grid1/tests/test_axes_grid1.py
-- agent modified: lib/mpl_toolkits/axes_grid1/inset_locator.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-26342
-- FAIL_TO_PASS: lib/matplotlib/tests/test_contour.py::test_contour_set_paths[png]
-- gold test files: lib/matplotlib/tests/test_contour.py
-- agent modified: lib/matplotlib/contour.py
-- gold asserts (0):
-
-## matplotlib__matplotlib-26466
-- FAIL_TO_PASS: lib/matplotlib/tests/test_text.py::test_annotate_and_offsetfrom_copy_input[png]
-- gold test files: lib/matplotlib/tests/test_text.py
-- agent modified: lib/matplotlib/text.py
-- gold asserts (0):
-
 ## mwaskom__seaborn-3187
 - FAIL_TO_PASS: tests/_core/test_plot.py::TestLegend::test_legend_has_no_offset; tests/test_relational.py::TestRelationalPlotter::test_legend_has_no_offset
 - gold test files: tests/_core/test_plot.py, tests/test_relational.py
@@ -626,7 +476,7 @@
 ## pallets__flask-5014
 - FAIL_TO_PASS: tests/test_blueprints.py::test_empty_name_not_allowed
 - gold test files: tests/test_blueprints.py
-- agent modified: CHANGES.rst, src/flask/blueprints.py
+- agent modified: src/flask/blueprints.py
 - gold asserts (0):
 
 ## psf__requests-1921
@@ -638,7 +488,7 @@
 ## psf__requests-2317
 - FAIL_TO_PASS: test_requests.py::RequestsTestCase::test_HTTP_302_ALLOW_REDIRECT_GET; test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES; test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES_WITH_DATA; test_requests.py::RequestsTestCase::test_basicauth_with_netrc; test_requests.py::RequestsTestCase::test_json_param_post_content_type_works; test_requests.py::RequestsTestCase::test_manual_redirect_with_partial_body_read; test_requests.py::RequestsTestCase::test_requests_history_is_saved; test_requests.py::TestTimeout::test_encoded_methods
 - gold test files: test_requests.py
-- agent modified: requests/sessions.py
+- agent modified: requests/models.py, requests/sessions.py
 - gold asserts (0):
 
 ## psf__requests-2931
@@ -746,7 +596,7 @@
 ## pydata__xarray-6721
 - FAIL_TO_PASS: xarray/tests/test_dataset.py::TestDataset::test_chunks_does_not_load_data
 - gold test files: xarray/tests/test_dataset.py
-- agent modified: doc/whats-new.rst, xarray/core/common.py
+- agent modified: xarray/core/common.py, xarray/core/variable.py
 - gold asserts (0):
 
 ## pydata__xarray-6744
@@ -770,7 +620,7 @@
 ## pydata__xarray-7229
 - FAIL_TO_PASS: xarray/tests/test_computation.py::test_where_attrs
 - gold test files: xarray/tests/test_computation.py
-- agent modified: doc/whats-new.rst, xarray/core/computation.py
+- agent modified: xarray/core/computation.py
 - gold asserts (0):
 
 ## pydata__xarray-7233
@@ -800,13 +650,7 @@
 ## pylint-dev__pylint-4661
 - FAIL_TO_PASS: tests/lint/unittest_lint.py::test_pylint_home
 - gold test files: tests/lint/unittest_lint.py
-- agent modified: ChangeLog, doc/faq.rst, pylint/config/__init__.py, setup.cfg
-- gold asserts (0):
-
-## pylint-dev__pylint-6528
-- FAIL_TO_PASS: tests/lint/unittest_lint.py::test_recursive_ignore[--ignore-ignored_subdirectory]; tests/lint/unittest_lint.py::test_recursive_ignore[--ignore-patterns-ignored_*]; tests/test_self.py::TestRunTC::test_ignore_recursive; tests/test_self.py::TestRunTC::test_ignore_pattern_recursive
-- gold test files: tests/lint/unittest_lint.py, tests/regrtest_data/directory/ignored_subdirectory/failing.py, tests/test_self.py
-- agent modified: pylint/lint/expand_modules.py, pylint/lint/pylinter.py
+- agent modified: ChangeLog, doc/faq.rst, doc/whatsnew/2.10.rst, pylint/config/__init__.py
 - gold asserts (0):
 
 ## pylint-dev__pylint-6903
@@ -878,7 +722,7 @@
 ## pytest-dev__pytest-5840
 - FAIL_TO_PASS: testing/test_conftest.py::test_setinitial_conftest_subdirs[test]; testing/test_conftest.py::test_setinitial_conftest_subdirs[tests]
 - gold test files: testing/test_conftest.py
-- agent modified: src/_pytest/pathlib.py
+- agent modified: src/_pytest/config/__init__.py
 - gold asserts (0):
 
 ## pytest-dev__pytest-6197
@@ -944,7 +788,7 @@
 ## pytest-dev__pytest-8399
 - FAIL_TO_PASS: testing/test_unittest.py::test_fixtures_setup_setUpClass_issue8394
 - gold test files: testing/test_nose.py, testing/test_unittest.py
-- agent modified: src/_pytest/python.py, src/_pytest/unittest.py
+- agent modified: src/_pytest/unittest.py
 - gold asserts (0):
 
 ## scikit-learn__scikit-learn-10297
@@ -995,12 +839,6 @@
 - agent modified: doc/whats_new/v0.21.rst, sklearn/model_selection/_split.py
 - gold asserts (0):
 
-## scikit-learn__scikit-learn-13135
-- FAIL_TO_PASS: sklearn/preprocessing/tests/test_discretization.py::test_nonuniform_strategies[kmeans-expected_2bins1-expected_3bins1-expected_5bins1]
-- gold test files: sklearn/preprocessing/tests/test_discretization.py
-- agent modified: sklearn/preprocessing/_discretization.py
-- gold asserts (0):
-
 ## scikit-learn__scikit-learn-13142
 - FAIL_TO_PASS: sklearn/mixture/tests/test_bayesian_mixture.py::test_bayesian_mixture_fit_predict_n_init; sklearn/mixture/tests/test_gaussian_mixture.py::test_gaussian_mixture_fit_predict_n_init
 - gold test files: sklearn/mixture/tests/test_bayesian_mixture.py, sklearn/mixture/tests/test_gaussian_mixture.py
@@ -1020,4 +858,4 @@
 - gold asserts (0):
 
 
-_Audited 152 tasks (had both gold test assertions and an agent patch)._
+_Audited 125 tasks (had both gold test assertions and an agent patch)._
