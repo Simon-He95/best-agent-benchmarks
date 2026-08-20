@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T19:09:16.978Z
+- Generated: 2026-08-20T22:43:22.237Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -346,26 +346,26 @@
 | pylint-dev__pylint-7080 | rb7 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pylint-dev__pylint-7277 | rb7 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pylint-dev__pylint-8898 | rb7 | test-failed | 81 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
-| pytest-dev__pytest-10051 | rerunnpm | test-failed | 25 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-10081 | b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-10356 | b3up | test-failed | 53 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-5262 | b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-5631 | rerunnpm | test-failed | 18 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-5787 | b3 | test-failed | 180 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-5809 | b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-5840 | b3 | test-failed | 22 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-6197 | rerunnpm | test-failed | 45 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-6202 | b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7205 | b3 | test-failed | 22 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7236 | b3 | test-failed | 17 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7324 | rerunnpm | test-failed | 20 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7432 | b3 | test-failed | 66 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7490 | b3 | test-failed | 20 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7521 | b3 | test-failed | 13 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7571 | rerunnpm | test-failed | 33 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-7982 | b3 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| pytest-dev__pytest-8399 | b3 | test-failed | 54 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
-| scikit-learn__scikit-learn-10297 | b3tr | test-failed | 32 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pytest-dev__pytest-10051 | rb8 | test-failed | 25 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-10081 | rb8 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-10356 | rb8 | test-failed | 52 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5262 | rb8 | test-failed | 23 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5631 | rb8 | test-failed | 18 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5787 | rb8 | test-failed | 255 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5809 | rb8 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-5840 | rb8 | test-failed | 43 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-6197 | rb8 | test-failed | 26 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-6202 | rb8 | test-failed | 15 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7205 | rb8 | test-failed | 20 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7236 | rb8 | test-failed | 17 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7324 | rb8 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7432 | rb8 | test-failed | 43 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7490 | rb8 | test-failed | 19 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7521 | rb8 | test-failed | 13 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7571 | rb8 | test-failed | 32 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-7982 | rb8 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| pytest-dev__pytest-8399 | rb8 | test-failed | 14 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
+| scikit-learn__scikit-learn-10297 | rb8 | test-failed | 32 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-10844 | rerunnpm | test-failed | 23 |  |
 | scikit-learn__scikit-learn-10908 | rb9 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-11310 | b3env6 | test-failed | 54 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
