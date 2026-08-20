@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-19T17:04:37.470Z
+- Generated: 2026-08-20T04:45:23.890Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,9 +8,9 @@
 | State | Count |
 |-------|-------|
 | resolved | 169 |
-| test-failed | 168 |
-| no-diff | 1 |
-| env-blocked | 30 |
+| test-failed | 169 |
+| no-diff | 2 |
+| env-blocked | 28 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -22,9 +22,9 @@
 | astropy__astropy-13398 | b1-nopatch | timeout | - |  |
 | astropy__astropy-13453 | nodiff | timeout | - |  |
 | astropy__astropy-13579 | astropyenv2 | test-failed | 20 |  |
-| astropy__astropy-13977 | astr11 | env-blocked | 27 |  |
-| astropy__astropy-14096 | astr11 | env-blocked | 29 |  |
-| astropy__astropy-14182 | astr11 | env-blocked | 35 |  |
+| astropy__astropy-13977 | rerunenv | env-blocked | 26 |  |
+| astropy__astropy-14096 | rerunenv | env-blocked | 18 |  |
+| astropy__astropy-14182 | rerunenv | env-blocked | 37 |  |
 | astropy__astropy-14309 | astr11 | test-failed | 35 |  |
 | astropy__astropy-14365 | astr11 | test-failed | 29 |  |
 | astropy__astropy-14369 | astr11 | test-failed | 124 |  |
@@ -34,10 +34,10 @@
 | astropy__astropy-14995 | astr11 | test-failed | 14 |  |
 | astropy__astropy-7166 | rerun23b | test-failed | 14 |  |
 | astropy__astropy-7336 | rerun23b | test-failed | 19 |  |
-| astropy__astropy-7606 | b1-nopatch | env-blocked | 21 |  |
+| astropy__astropy-7606 | rerunenv | env-blocked | 14 |  |
 | astropy__astropy-7671 | astropyenv2 | test-failed | 31 |  |
-| astropy__astropy-8707 | b3env5 | env-blocked | 46 |  |
-| astropy__astropy-8872 | b3env5 | env-blocked | 38 |  |
+| astropy__astropy-8707 | rerunenv | env-blocked | 40 |  |
+| astropy__astropy-8872 | rerunenv | env-blocked | 24 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
 | django__django-10554 | trans | resolved | 34 |  |
 | django__django-10880 | nohints2 | resolved | 14 |  |
@@ -272,34 +272,34 @@
 | matplotlib__matplotlib-13989 | b3 | test-failed | 36 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | matplotlib__matplotlib-14623 | b3env | test-failed | 51 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | matplotlib__matplotlib-20488 | b3env2 | test-failed | 19 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-20676 | b3up2 | env-blocked | 19 |  |
-| matplotlib__matplotlib-20826 | b3up2 | env-blocked | 21 |  |
+| matplotlib__matplotlib-20676 | rerunenv | env-blocked | 19 |  |
+| matplotlib__matplotlib-20826 | rerunenv | env-blocked | 21 |  |
 | matplotlib__matplotlib-20859 | b3env3 | test-failed | 29 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-21568 | b3up2 | env-blocked | 19 |  |
+| matplotlib__matplotlib-21568 | rerunenv | env-blocked | 19 |  |
 | matplotlib__matplotlib-22719 | b3 | test-failed | 23 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | matplotlib__matplotlib-22865 | b3 | test-failed | 23 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | matplotlib__matplotlib-22871 | b3up2 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-23299 | b3up2 | env-blocked | 24 |  |
-| matplotlib__matplotlib-23314 | b3up2 | env-blocked | 14 |  |
+| matplotlib__matplotlib-23299 | rerunenv | test-failed | 27 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-23314 | rerunenv | env-blocked | 14 |  |
 | matplotlib__matplotlib-23412 | b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | matplotlib__matplotlib-23476 | b3env2 | test-failed | 37 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-24026 | b3up2 | env-blocked | 45 |  |
+| matplotlib__matplotlib-24026 | rerunenv | env-blocked | 44 |  |
 | matplotlib__matplotlib-24149 | b3env | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-24177 | b3env6 | env-blocked | 14 |  |
+| matplotlib__matplotlib-24177 | rerunenv | env-blocked | 14 |  |
 | matplotlib__matplotlib-24570 | b3 | test-failed | 18 |  |
 | matplotlib__matplotlib-24627 | b3 | test-failed | 16 |  |
 | matplotlib__matplotlib-24637 | b3 | test-failed | 21 |  |
 | matplotlib__matplotlib-24870 | b3up | test-failed | 94 |  |
 | matplotlib__matplotlib-24970 | b3 | test-failed | 16 |  |
-| matplotlib__matplotlib-25122 | b3env6 | env-blocked | 33 |  |
+| matplotlib__matplotlib-25122 | rerunenv | env-blocked | 33 |  |
 | matplotlib__matplotlib-25287 | b3 | test-failed | 41 |  |
 | matplotlib__matplotlib-25311 | b3up2 | test-failed | 70 |  |
 | matplotlib__matplotlib-25332 | b3up | test-failed | 26 |  |
-| matplotlib__matplotlib-25479 | b3up2 | env-blocked | 20 |  |
+| matplotlib__matplotlib-25479 | rerunenv | env-blocked | 22 |  |
 | matplotlib__matplotlib-25775 | b3 | test-failed | 85 |  |
 | matplotlib__matplotlib-25960 | b3env2 | test-failed | 65 |  |
 | matplotlib__matplotlib-26113 | b3 | test-failed | 23 |  |
-| matplotlib__matplotlib-26208 | trans | env-blocked | 155 |  |
+| matplotlib__matplotlib-26208 | rerunenv | env-blocked | 21 |  |
 | matplotlib__matplotlib-26291 | b3env | test-failed | 14 |  |
 | matplotlib__matplotlib-26342 | b3env3 | test-failed | 16 |  |
 | matplotlib__matplotlib-26466 | b3env6 | test-failed | 17 |  |
@@ -371,23 +371,23 @@
 | scikit-learn__scikit-learn-11310 | b3env6 | test-failed | 54 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-11578 | b3tr | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-12585 | b3env6 | test-failed | 14 |  |
-| scikit-learn__scikit-learn-12682 | nodiff | env-blocked | 122 |  |
+| scikit-learn__scikit-learn-12682 | rerunenv | env-blocked | 119 |  |
 | scikit-learn__scikit-learn-12973 | b3env6 | test-failed | 39 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13124 | b3tr | test-failed | 30 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13135 | b3env6 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13142 | b3env6 | test-failed | 33 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| scikit-learn__scikit-learn-13328 | b3env6 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-13439 | b3tr | env-blocked | 16 |  |
-| scikit-learn__scikit-learn-13496 | clean | env-blocked | 53 |  |
-| scikit-learn__scikit-learn-13779 | b3env6 | env-blocked | 15 |  |
-| scikit-learn__scikit-learn-14053 | b3tr | env-blocked | 19 |  |
-| scikit-learn__scikit-learn-14087 | b3env6 | env-blocked | 36 |  |
-| scikit-learn__scikit-learn-14141 | b3env6 | env-blocked | 13 |  |
-| scikit-learn__scikit-learn-14496 | b3up3 | env-blocked | 62 |  |
-| scikit-learn__scikit-learn-14629 | b3env6 | env-blocked | 17 |  |
-| scikit-learn__scikit-learn-14710 | b3tr | env-blocked | 21 |  |
-| scikit-learn__scikit-learn-14894 | b3env6 | env-blocked | 30 |  |
-| scikit-learn__scikit-learn-14983 | b3env6 | env-blocked | 17 |  |
-| scikit-learn__scikit-learn-15100 | b3env6 | env-blocked | 17 |  |
+| scikit-learn__scikit-learn-13328 | rerunenv | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-13439 | rerunenv | env-blocked | 16 |  |
+| scikit-learn__scikit-learn-13496 | rerunenv | env-blocked | 38 |  |
+| scikit-learn__scikit-learn-13779 | rerunenv | env-blocked | 15 |  |
+| scikit-learn__scikit-learn-14053 | rerunenv | env-blocked | 27 |  |
+| scikit-learn__scikit-learn-14087 | rerunenv | env-blocked | 29 |  |
+| scikit-learn__scikit-learn-14141 | rerunenv | env-blocked | 13 |  |
+| scikit-learn__scikit-learn-14496 | rerunenv | no-diff | - |  |
+| scikit-learn__scikit-learn-14629 | rerunenv | env-blocked | 43 |  |
+| scikit-learn__scikit-learn-14710 | rerunenv | env-blocked | 21 |  |
+| scikit-learn__scikit-learn-14894 | rerunenv | env-blocked | 19 |  |
+| scikit-learn__scikit-learn-14983 | rerunenv | env-blocked | 23 |  |
+| scikit-learn__scikit-learn-15100 | rerunenv | env-blocked | 17 |  |
 | scikit-learn__scikit-learn-25102 | b3env5 | test-failed | 123 |  |
 | scikit-learn__scikit-learn-25232 | b3env5 | test-failed | 89 |  |
