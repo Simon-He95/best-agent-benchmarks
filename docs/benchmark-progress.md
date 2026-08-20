@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T15:24:05.856Z
+- Generated: 2026-08-20T16:20:54.907Z
 - Tasks tracked: 375
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 182 |
-| test-failed | 155 |
+| resolved | 185 |
+| test-failed | 152 |
 | no-diff | 2 |
 | transport-loss | 3 |
 | env-blocked | 31 |
@@ -157,27 +157,27 @@
 | django__django-14007 | b2 | resolved | 31 |  |
 | django__django-14011 | r2 | test-failed | 34 | setUpClass (servers.tests.LiveServerAddress) |
 | django__django-14017 | r2 | resolved | 27 |  |
-| django__django-14034 | verifyab | test-failed | 22 | test_render_required_attributes (forms_tests.field_tests.tes |
+| django__django-14034 | rb3 | test-failed | 21 | test_render_required_attributes (forms_tests.field_tests.tes |
 | django__django-14053 | nohints2 | resolved | 51 |  |
 | django__django-14089 | b2 | resolved | 15 |  |
 | django__django-14122 | b2 | resolved | 20 |  |
-| django__django-14140 | rerunnpm | test-failed | 17 | test_deconstruct (queries.test_q.QTests.test_deconstruct) |
-| django__django-14155 | verifyab | test-failed | 14 | test_repr (urlpatterns_reverse.tests.ResolverMatchTests.test |
-| django__django-14170 | stat-rerun2 | test-failed | 33 | test_extract_year_greaterthan_lookup (db_functions.datetime. |
+| django__django-14140 | rb3 | resolved | 50 |  |
+| django__django-14155 | rb3 | test-failed | 44 | test_repr (urlpatterns_reverse.tests.ResolverMatchTests.test |
+| django__django-14170 | rb3 | test-failed | 14 | test_extract_year_greaterthan_lookup (db_functions.datetime. |
 | django__django-14238 | b2 | resolved | 14 |  |
 | django__django-14311 | nohints2 | resolved | 22 |  |
-| django__django-14315 | b2-testfailed | test-failed | 13 | test_runshell_use_environ (backends.base.test_client.SimpleD |
-| django__django-14349 | rerunnpm | test-failed | 22 | test_validators (validators.tests.TestValidators.test_valida |
+| django__django-14315 | rb3 | test-failed | 14 | test_runshell_use_environ (backends.base.test_client.SimpleD |
+| django__django-14349 | rb3 | test-failed | 14 | test_validators (validators.tests.TestValidators.test_valida |
 | django__django-14351 | nodiff | resolved | 20 |  |
 | django__django-14373 | b2 | resolved | 16 |  |
-| django__django-14376 | b2-testfailed | test-failed | 17 | test_options_non_deprecated_keys_preferred (dbshell.test_mys |
+| django__django-14376 | rb3 | test-failed | 17 | test_options_non_deprecated_keys_preferred (dbshell.test_mys |
 | django__django-14404 | b2 | resolved | 15 |  |
 | django__django-14434 | b2 | resolved | 16 |  |
 | django__django-14493 | nohints2 | resolved | 13 |  |
 | django__django-14500 | nohints2 | resolved | 15 |  |
 | django__django-14534 | nohints2 | resolved | 14 |  |
 | django__django-14539 | nohints2 | resolved | 25 |  |
-| django__django-14559 | nohints2 | test-failed | 30 | test_empty_objects (queries.test_bulk_update.BulkUpdateTests |
+| django__django-14559 | rb3 | resolved | 40 |  |
 | django__django-14580 | nohints2 | resolved | 14 |  |
 | django__django-14608 | nohints2 | resolved | 46 |  |
 | django__django-14631 | nohints2 | resolved | 99 |  |
@@ -185,21 +185,21 @@
 | django__django-14725 | rerunnpm | resolved | 115 |  |
 | django__django-14752 | nohints2 | resolved | 22 |  |
 | django__django-14765 | nohints2 | resolved | 15 |  |
-| django__django-14771 | stat-rerun2 | test-failed | 28 | test_xoptions (utils_tests.test_autoreload.TestChildArgument |
+| django__django-14771 | rb3 | resolved | 17 |  |
 | django__django-14787 | b2-testfailed | resolved | 14 |  |
 | django__django-14792 | nohints2 | resolved | 49 |  |
 | django__django-14855 | nohints2 | resolved | 18 |  |
 | django__django-14915 | nohints2 | resolved | 15 |  |
 | django__django-14999 | b2 | resolved | 16 |  |
-| django__django-15022 | stat-rerun2 | test-failed | 95 | test_many_search_terms (admin_changelist.tests.ChangeListTes |
+| django__django-15022 | rb3 | timeout | - |  |
 | django__django-15037 | nohints2 | resolved | 20 |  |
-| django__django-15098 | nohints2 | timeout | - |  |
+| django__django-15098 | rb3 | test-failed | 14 | test_get_language_from_path_real (i18n.tests.MiscTests.test_ |
 | django__django-15103 | b2 | resolved | 58 |  |
 | django__django-15104 | b2 | resolved | 14 |  |
-| django__django-15127 | rerunnpm | test-failed | 14 | test_override_settings_level_tags (messages_tests.tests.Test |
+| django__django-15127 | rb3 | test-failed | 14 | test_override_settings_level_tags (messages_tests.tests.Test |
 | django__django-15128 | nohints2 | resolved | 78 |  |
 | django__django-15161 | nohints2 | resolved | 126 |  |
-| django__django-15252 | stat-rerun2 | test-failed | 39 | test_migrate_test_setting_false_ensure_schema (backends.base |
+| django__django-15252 | rb3 | test-failed | 61 | test_migrate_test_setting_false_ensure_schema (backends.base |
 | django__django-15268 | b2-testfailed | resolved | 22 |  |
 | django__django-15277 | nohints2 | resolved | 15 |  |
 | django__django-15278 | nohints2 | resolved | 17 |  |
@@ -218,15 +218,15 @@
 | django__django-15563 | nohints2 | resolved | 58 |  |
 | django__django-15569 | nohints2 | resolved | 13 |  |
 | django__django-15572 | stat-rerun2 | resolved | 23 |  |
-| django__django-15629 | b2-testfailed | test-failed | 50 |  |
+| django__django-15629 | rb3 | test-failed | 48 |  |
 | django__django-15695 | nohints2 | resolved | 15 |  |
 | django__django-15731 | nohints2 | resolved | 23 |  |
-| django__django-15732 | nohints2 | test-failed | 17 | test_remove_unique_together_on_unique_field (migrations.test |
+| django__django-15732 | rb3 | test-failed | 13 | test_remove_unique_together_on_unique_field (migrations.test |
 | django__django-15741 | stat-rerun2 | resolved | 13 |  |
 | django__django-15814 | nohints2 | resolved | 14 |  |
 | django__django-15851 | b2 | resolved | 16 |  |
 | django__django-15863 | stat-rerun2 | resolved | 23 |  |
-| django__django-15916 | rerunnpm | test-failed | 16 | test_custom_callback_in_meta (model_forms.tests.FormFieldCal |
+| django__django-15916 | rb3 | test-failed | 16 | test_custom_callback_in_meta (model_forms.tests.FormFieldCal |
 | django__django-15930 | nohints2 | resolved | 20 |  |
 | django__django-15957 | nohints2 | resolved | 75 |  |
 | django__django-15973 | nohints2 | resolved | 41 |  |
@@ -239,14 +239,14 @@
 | django__django-16139 | b2 | resolved | 16 |  |
 | django__django-16145 | nohints2 | resolved | 15 |  |
 | django__django-16255 | nohints2 | resolved | 14 |  |
-| django__django-16256 | stat-rerun2 | test-failed | 95 |  |
+| django__django-16256 | rb3 | test-failed | 91 |  |
 | django__django-16263 | nohints2 | resolved | 232 |  |
 | django__django-16315 | nohints2 | resolved | 51 |  |
 | django__django-16333 | b2 | resolved | 15 |  |
 | django__django-16429 | nohints2 | resolved | 13 |  |
-| django__django-16454 | rerun23b | test-failed | 30 | test_subparser_error_formatting (unittest.loader._FailedTest |
-| django__django-16485 | rerunnpm | test-failed | 16 | test_zero_values (unittest.loader._FailedTest.test_zero_valu |
-| django__django-16493 | b2-testfailed | test-failed | 17 | test_deconstruction (unittest.loader._FailedTest.test_decons |
+| django__django-16454 | rb3 | test-failed | 61 | test_subparser_error_formatting (unittest.loader._FailedTest |
+| django__django-16485 | rb3 | test-failed | 14 | test_zero_values (unittest.loader._FailedTest.test_zero_valu |
+| django__django-16493 | rb3 | test-failed | 14 | test_deconstruction (unittest.loader._FailedTest.test_decons |
 | django__django-16502 | stat-rerun2 | test-failed | 56 | test_no_body_returned_for_head_requests (unittest.loader._Fa |
 | django__django-16527 | stat-rerun2 | test-failed | 13 | test_submit_row_save_as_new_add_permission_required (unittes |
 | django__django-16560 | rerunnpm | test-failed | 370 | test_custom_violation_code_message (unittest.loader._FailedT |
