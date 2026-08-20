@@ -1,15 +1,15 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T13:38:03.630Z
+- Generated: 2026-08-20T15:24:05.856Z
 - Tasks tracked: 375
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 172 |
-| test-failed | 159 |
-| no-diff | 3 |
+| resolved | 182 |
+| test-failed | 155 |
+| no-diff | 2 |
 | transport-loss | 3 |
 | env-blocked | 31 |
 
@@ -17,26 +17,26 @@
 
 | instance_id | batch | state | patchLines | failing test |
 |-------------|-------|-------|------------|--------------|
-| astropy__astropy-12907 | astr11 | test-failed | 14 |  |
-| astropy__astropy-13033 | astropyenv2 | test-failed | 25 |  |
-| astropy__astropy-13236 | rerunnpm | test-failed | 27 |  |
-| astropy__astropy-13398 | b1-nopatch | timeout | - |  |
-| astropy__astropy-13453 | nodiff | timeout | - |  |
-| astropy__astropy-13579 | astropyenv2 | test-failed | 20 |  |
+| astropy__astropy-12907 | r1 | test-failed | 14 |  |
+| astropy__astropy-13033 | r1 | test-failed | 36 |  |
+| astropy__astropy-13236 | r1 | test-failed | 43 |  |
+| astropy__astropy-13398 | r1 | test-failed | 125 |  |
+| astropy__astropy-13453 | r1 | test-failed | 19 |  |
+| astropy__astropy-13579 | r1 | test-failed | 15 |  |
 | astropy__astropy-13977 | rerunenv | env-blocked | 26 |  |
 | astropy__astropy-14096 | rerunenv | env-blocked | 18 |  |
 | astropy__astropy-14182 | rerunenv | env-blocked | 37 |  |
-| astropy__astropy-14309 | rerunnpm | test-failed | 18 |  |
-| astropy__astropy-14365 | astr11 | test-failed | 29 |  |
-| astropy__astropy-14369 | astr11 | test-failed | 124 |  |
-| astropy__astropy-14508 | rerun23b | test-failed | 36 |  |
-| astropy__astropy-14539 | rerunnpm | no-diff | - |  |
-| astropy__astropy-14598 | astr11 | test-failed | 23 |  |
-| astropy__astropy-14995 | astr11 | test-failed | 14 |  |
-| astropy__astropy-7166 | rerun23b | test-failed | 14 |  |
-| astropy__astropy-7336 | rerunnpm | test-failed | 17 |  |
+| astropy__astropy-14309 | r1 | test-failed | 19 |  |
+| astropy__astropy-14365 | r1 | test-failed | 14 |  |
+| astropy__astropy-14369 | r1 | test-failed | 100 |  |
+| astropy__astropy-14508 | r1 | test-failed | 78 |  |
+| astropy__astropy-14539 | r1 | test-failed | 14 |  |
+| astropy__astropy-14598 | r1 | test-failed | 104 |  |
+| astropy__astropy-14995 | r1 | test-failed | 14 |  |
+| astropy__astropy-7166 | r1 | test-failed | 14 |  |
+| astropy__astropy-7336 | r1 | test-failed | 28 |  |
 | astropy__astropy-7606 | rerunenv | env-blocked | 14 |  |
-| astropy__astropy-7671 | astropyenv2 | test-failed | 31 |  |
+| astropy__astropy-7671 | r1 | test-failed | 42 |  |
 | astropy__astropy-8707 | rerunenv | env-blocked | 40 |  |
 | astropy__astropy-8872 | rerunenv | env-blocked | 24 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
@@ -44,42 +44,42 @@
 | django__django-10880 | nohints2 | resolved | 14 |  |
 | django__django-10914 | nohints2 | resolved | 66 |  |
 | django__django-10973 | b1-reeval | resolved | 68 |  |
-| django__django-10999 | keyprobe2 | test-failed | 14 | test_negative (utils_tests.test_dateparse.DurationParseTests |
+| django__django-10999 | r1 | test-failed | 14 | test_negative (utils_tests.test_dateparse.DurationParseTests |
 | django__django-11066 | nohints2 | resolved | 14 |  |
-| django__django-11087 | rerunnpm | test-failed | 27 | test_only_referenced_fields_selected (delete.tests.DeletionT |
+| django__django-11087 | r1 | resolved | 47 |  |
 | django__django-11095 | nohints2 | resolved | 65 |  |
 | django__django-11099 | b1-reeval | resolved | 23 |  |
 | django__django-11119 | nohints2 | resolved | 14 |  |
 | django__django-11133 | nohints2 | resolved | 23 |  |
 | django__django-11138 | verifyab | resolved | 171 |  |
-| django__django-11141 | verifyab | test-failed | 17 | test_load_empty_dir (migrations.test_loader.LoaderTests) |
+| django__django-11141 | r1 | test-failed | 17 | test_load_empty_dir (migrations.test_loader.LoaderTests) |
 | django__django-11149 | nohints2 | resolved | 84 |  |
 | django__django-11163 | nohints2 | resolved | 14 |  |
 | django__django-11179 | nohints2 | resolved | 13 |  |
 | django__django-11206 | nohints2 | resolved | 19 |  |
 | django__django-11211 | nohints2 | resolved | 14 |  |
 | django__django-11239 | b1-reeval | resolved | 34 |  |
-| django__django-11265 | b1-nopatch | timeout | - |  |
+| django__django-11265 | r1 | resolved | 30 |  |
 | django__django-11276 | b1-reeval | resolved | 36 |  |
 | django__django-11292 | b1-rerun | resolved | 52 |  |
 | django__django-11299 | nohints2 | resolved | 14 |  |
 | django__django-11333 | nohints2 | resolved | 43 |  |
-| django__django-11400 | rerunnpm | test-failed | 37 | test_get_choices_reverse_related_field_default_ordering (mod |
+| django__django-11400 | r2 | resolved | 63 |  |
 | django__django-11433 | b1-reeval | resolved | 15 |  |
 | django__django-11451 | b1-reeval | resolved | 14 |  |
 | django__django-11477 | nohints2 | resolved | 13 |  |
 | django__django-11490 | b1-reeval | resolved | 13 |  |
-| django__django-11532 | verifyab | test-failed | 14 | test_non_ascii_dns_non_unicode_email (mail.tests.MailTests) |
+| django__django-11532 | r2 | test-failed | 19 | test_non_ascii_dns_non_unicode_email (mail.tests.MailTests) |
 | django__django-11551 | nohints2 | resolved | 58 |  |
 | django__django-11555 | nohints2 | resolved | 24 |  |
 | django__django-11603 | nohints2 | resolved | 35 |  |
 | django__django-11728 | nohints2 | resolved | 29 |  |
 | django__django-11734 | verifyab | resolved | 29 |  |
 | django__django-11740 | nohints2 | resolved | 33 |  |
-| django__django-11749 | verifyab | test-failed | 26 | test_subparser_invalid_option (user_commands.tests.CommandTe |
-| django__django-11790 | rerunnpm | test-failed | 16 | test_username_field_max_length_defaults_to_254 (auth_tests.t |
+| django__django-11749 | r2 | test-failed | 25 | test_subparser_invalid_option (user_commands.tests.CommandTe |
+| django__django-11790 | r2 | test-failed | 16 | test_username_field_max_length_defaults_to_254 (auth_tests.t |
 | django__django-11815 | nohints2 | resolved | 19 |  |
-| django__django-11820 | verifyab | test-failed | 16 | test_ordering_pointing_multiple_times_to_model_fields (inval |
+| django__django-11820 | r2 | test-failed | 14 | test_ordering_pointing_multiple_times_to_model_fields (inval |
 | django__django-11848 | nohints2 | resolved | 22 |  |
 | django__django-11880 | nohints2 | resolved | 13 |  |
 | django__django-11885 | b1-nopatch2 | resolved | 88 |  |
@@ -92,21 +92,21 @@
 | django__django-12143 | b1-reeval | resolved | 14 |  |
 | django__django-12155 | nohints2 | resolved | 17 |  |
 | django__django-12193 | nohints2 | resolved | 16 |  |
-| django__django-12209 | nohints2 | timeout | - |  |
+| django__django-12209 | r2 | resolved | 56 |  |
 | django__django-12262 | b1-reeval | resolved | 26 |  |
-| django__django-12273 | verifyab | test-failed | 15 | test_create_new_instance_with_pk_equals_none (model_inherita |
+| django__django-12273 | r2 | test-failed | 18 | test_create_new_instance_with_pk_equals_none (model_inherita |
 | django__django-12276 | nohints2 | resolved | 25 |  |
 | django__django-12304 | b1-rerun | resolved | 14 |  |
 | django__django-12308 | rerunnpm | resolved | 24 |  |
-| django__django-12325 | verifyab | test-failed | 21 | test_clash_parent_link (invalid_models_tests.test_relative_f |
-| django__django-12406 | verifyab | test-failed | 25 | test_choices_radio_blank (model_forms.test_modelchoicefield. |
+| django__django-12325 | r2 | test-failed | 20 | test_clash_parent_link (invalid_models_tests.test_relative_f |
+| django__django-12406 | r2 | resolved | 51 |  |
 | django__django-12419 | nohints2 | resolved | 88 |  |
-| django__django-12663 | nohints2 | timeout | - |  |
+| django__django-12663 | r2 | timeout | - |  |
 | django__django-12708 | nohints2 | resolved | 16 |  |
 | django__django-12713 | b1-reeval | resolved | 33 |  |
 | django__django-12741 | b1-reeval | resolved | 30 |  |
 | django__django-12754 | nohints2 | resolved | 21 |  |
-| django__django-12774 | rerunnpm | test-failed | 21 | test_in_bulk_non_unique_meta_constaint (lookup.tests.LookupT |
+| django__django-12774 | r2 | resolved | 21 |  |
 | django__django-12858 | b1-nopatch | resolved | 16 |  |
 | django__django-12965 | nohints2 | resolved | 14 |  |
 | django__django-13012 | nohints2 | resolved | 19 |  |
@@ -117,10 +117,10 @@
 | django__django-13109 | nohints2 | resolved | 14 |  |
 | django__django-13112 | nohints2 | resolved | 19 |  |
 | django__django-13121 | nohints2 | resolved | 77 |  |
-| django__django-13128 | trans | test-failed | 163 | test_non_empty_group_by (expressions.tests.ExpressionWrapper |
-| django__django-13158 | trans | test-failed | 14 | test_union_none (queries.test_qs_combinators.QuerySetSetOper |
-| django__django-13195 | verifyab | test-failed | 38 | test_session_delete_on_end (sessions_tests.tests.SessionMidd |
-| django__django-13212 | rerunnpm | test-failed | 145 | test_value_placeholder_with_decimal_field (forms_tests.tests |
+| django__django-13128 | r2 | resolved | 22 |  |
+| django__django-13158 | r2 | resolved | 14 |  |
+| django__django-13195 | r2 | test-failed | 62 | test_delete_cookie_secure_samesite_none (responses.test_cook |
+| django__django-13212 | r2 | test-failed | 154 | test_value_placeholder_with_decimal_field (forms_tests.tests |
 | django__django-13279 | b1-nopatch | resolved | 27 |  |
 | django__django-13297 | nohints2 | resolved | 53 |  |
 | django__django-13315 | nohints2 | resolved | 14 |  |
@@ -128,13 +128,13 @@
 | django__django-13344 | nohints2 | resolved | 50 |  |
 | django__django-13346 | nohints2 | resolved | 42 |  |
 | django__django-13363 | nohints2 | resolved | 23 |  |
-| django__django-13401 | verifyab | test-failed | 33 | test_abstract_inherited_fields (model_fields.tests.BasicFiel |
+| django__django-13401 | r2 | test-failed | 38 | test_abstract_inherited_fields (model_fields.tests.BasicFiel |
 | django__django-13406 | nohints2 | resolved | 14 |  |
 | django__django-13410 | nohints2 | resolved | 25 |  |
 | django__django-13417 | nohints2 | resolved | 18 |  |
 | django__django-13449 | nohints2 | resolved | 31 |  |
-| django__django-13512 | verifyab | test-failed | 14 | test_json_display_for_field (admin_utils.tests.UtilsTests) ( |
-| django__django-13513 | nodiff | no-diff | - |  |
+| django__django-13512 | r2 | resolved | 27 |  |
+| django__django-13513 | r2 | no-diff | - |  |
 | django__django-13516 | stat-rerun | resolved | 15 |  |
 | django__django-13551 | b1-nopatch | resolved | 29 |  |
 | django__django-13568 | b1-nopatch | resolved | 18 |  |
@@ -155,8 +155,8 @@
 | django__django-13933 | nohints2 | resolved | 29 |  |
 | django__django-13964 | nohints2 | resolved | 20 |  |
 | django__django-14007 | b2 | resolved | 31 |  |
-| django__django-14011 | verifyab | test-failed | 33 | setUpClass (servers.tests.LiveServerAddress) |
-| django__django-14017 | nohints2 | timeout | - |  |
+| django__django-14011 | r2 | test-failed | 34 | setUpClass (servers.tests.LiveServerAddress) |
+| django__django-14017 | r2 | resolved | 27 |  |
 | django__django-14034 | verifyab | test-failed | 22 | test_render_required_attributes (forms_tests.field_tests.tes |
 | django__django-14053 | nohints2 | resolved | 51 |  |
 | django__django-14089 | b2 | resolved | 15 |  |
