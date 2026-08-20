@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T16:53:24.003Z
+- Generated: 2026-08-20T17:02:16.770Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,10 +8,9 @@
 | State | Count |
 |-------|-------|
 | resolved | 185 |
-| test-failed | 148 |
+| test-failed | 133 |
 | no-diff | 2 |
-| transport-loss | 3 |
-| env-blocked | 35 |
+| env-blocked | 53 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -267,37 +266,37 @@
 | django__django-16950 | b2-testfailed | test-failed | 26 | test_inlineformset_factory_ignores_default_pks_on_submit (mo |
 | django__django-17029 | rerunnpm | test-failed | 13 | test_clear_cache (unittest.loader._FailedTest.test_clear_cac |
 | django__django-17084 | rerun23b | test-failed | 41 | test_referenced_window_requires_wrapping (unittest.loader._F |
-| django__django-17087 | b3 | test-failed | 14 | test_serialize_nested_class_method (unittest.loader._FailedT |
-| django__django-7530 | b3 | test-failed | 14 |  |
+| django__django-17087 | rb5 | test-failed | 14 | test_serialize_nested_class_method (unittest.loader._FailedT |
+| django__django-7530 | rb5 | test-failed | 14 |  |
 | django__django-9296 | nohints2 | resolved | 16 |  |
 | matplotlib__matplotlib-13989 | rerunnpm | env-blocked | 14 |  |
-| matplotlib__matplotlib-14623 | b3env | test-failed | 51 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
-| matplotlib__matplotlib-20488 | b3env2 | test-failed | 19 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-14623 | rb5 | env-blocked | 29 |  |
+| matplotlib__matplotlib-20488 | rb5 | env-blocked | 36 |  |
 | matplotlib__matplotlib-20676 | rerunenv | env-blocked | 19 |  |
 | matplotlib__matplotlib-20826 | rerunenv | env-blocked | 21 |  |
-| matplotlib__matplotlib-20859 | b3env3 | test-failed | 29 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-20859 | rb5 | env-blocked | 23 |  |
 | matplotlib__matplotlib-21568 | rerunenv | env-blocked | 19 |  |
-| matplotlib__matplotlib-22719 | rerunnpm | transport-loss | - |  |
-| matplotlib__matplotlib-22865 | b3 | test-failed | 23 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-22871 | b3up2 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-23299 | rerunenv | test-failed | 27 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-22719 | rb5 | env-blocked | 14 |  |
+| matplotlib__matplotlib-22865 | rb5 | env-blocked | 22 |  |
+| matplotlib__matplotlib-22871 | rb5 | env-blocked | 18 |  |
+| matplotlib__matplotlib-23299 | rb5 | env-blocked | 14 |  |
 | matplotlib__matplotlib-23314 | rerunenv | env-blocked | 14 |  |
-| matplotlib__matplotlib-23412 | b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| matplotlib__matplotlib-23476 | rerunnpm | transport-loss | - |  |
+| matplotlib__matplotlib-23412 | rb5 | env-blocked | 17 |  |
+| matplotlib__matplotlib-23476 | rb5 | env-blocked | 17 |  |
 | matplotlib__matplotlib-24026 | rerunenv | env-blocked | 44 |  |
-| matplotlib__matplotlib-24149 | b3env | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| matplotlib__matplotlib-24149 | rb5 | env-blocked | 20 |  |
 | matplotlib__matplotlib-24177 | rerunenv | env-blocked | 14 |  |
-| matplotlib__matplotlib-24570 | b3 | test-failed | 18 |  |
-| matplotlib__matplotlib-24627 | b3 | test-failed | 16 |  |
-| matplotlib__matplotlib-24637 | rerunnpm | transport-loss | - |  |
-| matplotlib__matplotlib-24870 | b3up | test-failed | 94 |  |
-| matplotlib__matplotlib-24970 | b3 | test-failed | 16 |  |
+| matplotlib__matplotlib-24570 | rb5 | env-blocked | 18 |  |
+| matplotlib__matplotlib-24627 | rb5 | env-blocked | 61 |  |
+| matplotlib__matplotlib-24637 | rb5 | env-blocked | 21 |  |
+| matplotlib__matplotlib-24870 | rb5 | env-blocked | 94 |  |
+| matplotlib__matplotlib-24970 | rb5 | env-blocked | 41 |  |
 | matplotlib__matplotlib-25122 | rerunenv | env-blocked | 33 |  |
-| matplotlib__matplotlib-25287 | b3 | test-failed | 41 |  |
+| matplotlib__matplotlib-25287 | rb5 | env-blocked | 43 |  |
 | matplotlib__matplotlib-25311 | rerunnpm | env-blocked | 23 |  |
-| matplotlib__matplotlib-25332 | b3up | test-failed | 26 |  |
+| matplotlib__matplotlib-25332 | rb5 | env-blocked | 33 |  |
 | matplotlib__matplotlib-25479 | rerunenv | env-blocked | 22 |  |
-| matplotlib__matplotlib-25775 | b3 | test-failed | 85 |  |
+| matplotlib__matplotlib-25775 | rb5 | env-blocked | 214 |  |
 | matplotlib__matplotlib-25960 | rb6 | env-blocked | 54 |  |
 | matplotlib__matplotlib-26113 | rerunnpm | env-blocked | 40 |  |
 | matplotlib__matplotlib-26208 | rerunenv | env-blocked | 21 |  |
