@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T18:08:11.228Z
+- Generated: 2026-08-20T19:09:16.978Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,9 +8,9 @@
 | State | Count |
 |-------|-------|
 | resolved | 191 |
-| test-failed | 127 |
+| test-failed | 125 |
 | no-diff | 2 |
-| env-blocked | 53 |
+| env-blocked | 54 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -324,28 +324,28 @@
 | pydata__xarray-4094 | rb6 | test-failed | 16 |  |
 | pydata__xarray-4356 | rb6 | test-failed | 21 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | pydata__xarray-4629 | b3 | resolved | 14 |  |
-| pydata__xarray-4687 | rerunnpm | test-failed | 35 |  |
-| pydata__xarray-4695 | b3 | test-failed | 14 |  |
-| pydata__xarray-4966 | b3 | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-6461 | b3up | test-failed | 104 |  |
-| pydata__xarray-6599 | rerunnpm | test-failed | 29 |  |
-| pydata__xarray-6721 | b3 | test-failed | 30 |  |
-| pydata__xarray-6744 | b3 | test-failed | 26 |  |
-| pydata__xarray-6938 | b3 | test-failed | 16 |  |
-| pydata__xarray-6992 | rerunnpm | test-failed | 14 |  |
-| pydata__xarray-7229 | b3 | test-failed | 82 |  |
-| pydata__xarray-7233 | b3up | test-failed | 14 |  |
-| pydata__xarray-7393 | b3 | test-failed | 19 |  |
-| pylint-dev__pylint-4551 | rerunnpm | test-failed | 113 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
-| pylint-dev__pylint-4604 | b3 | test-failed | 16 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-4661 | b3 | test-failed | 92 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-4687 | rb7 | test-failed | 45 |  |
+| pydata__xarray-4695 | rb7 | test-failed | 14 |  |
+| pydata__xarray-4966 | rb7 | test-failed | 29 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-6461 | rb7 | test-failed | 77 |  |
+| pydata__xarray-6599 | rb7 | test-failed | 16 |  |
+| pydata__xarray-6721 | rb7 | test-failed | 27 |  |
+| pydata__xarray-6744 | rb7 | test-failed | 22 |  |
+| pydata__xarray-6938 | rb7 | test-failed | 16 |  |
+| pydata__xarray-6992 | rb7 | test-failed | 16 |  |
+| pydata__xarray-7229 | rb7 | test-failed | 42 |  |
+| pydata__xarray-7233 | rb7 | test-failed | 14 |  |
+| pydata__xarray-7393 | rb7 | test-failed | 21 |  |
+| pylint-dev__pylint-4551 | rb7 | test-failed | 200 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| pylint-dev__pylint-4604 | rb7 | test-failed | 16 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-4661 | rb7 | test-failed | 87 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | pylint-dev__pylint-4970 | nohints2 | resolved | 14 |  |
 | pylint-dev__pylint-6386 | b3 | resolved | 35 |  |
-| pylint-dev__pylint-6528 | b3 | test-failed | 103 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-6903 | rerunnpm | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-7080 | b3 | test-failed | 13 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-7277 | b3 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pylint-dev__pylint-8898 | b3 | test-failed | 77 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| pylint-dev__pylint-6528 | rb7 | timeout | - |  |
+| pylint-dev__pylint-6903 | rb7 | test-failed | 45 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-7080 | rb7 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-7277 | rb7 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pylint-dev__pylint-8898 | rb7 | test-failed | 81 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | pytest-dev__pytest-10051 | rerunnpm | test-failed | 25 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-10081 | b3 | test-failed | 16 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | pytest-dev__pytest-10356 | b3up | test-failed | 53 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
@@ -367,14 +367,14 @@
 | pytest-dev__pytest-8399 | b3 | test-failed | 54 | /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe |
 | scikit-learn__scikit-learn-10297 | b3tr | test-failed | 32 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-10844 | rerunnpm | test-failed | 23 |  |
-| scikit-learn__scikit-learn-10908 | b3env6 | test-failed | 25 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-10908 | rb9 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-11310 | b3env6 | test-failed | 54 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| scikit-learn__scikit-learn-11578 | b3tr | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-11578 | rb9 | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-12585 | rerunnpm | test-failed | 14 |  |
 | scikit-learn__scikit-learn-12682 | rerunenv | env-blocked | 119 |  |
-| scikit-learn__scikit-learn-12973 | b3env6 | test-failed | 39 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-12973 | rb9 | test-failed | 34 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13124 | b3tr | test-failed | 30 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| scikit-learn__scikit-learn-13135 | b3env6 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| scikit-learn__scikit-learn-13135 | rb9 | no-diff | - |  |
 | scikit-learn__scikit-learn-13142 | rerunnpm | test-failed | 33 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | scikit-learn__scikit-learn-13328 | rerunenv | env-blocked | 15 |  |
 | scikit-learn__scikit-learn-13439 | rerunenv | env-blocked | 16 |  |
@@ -383,11 +383,11 @@
 | scikit-learn__scikit-learn-14053 | rerunenv | env-blocked | 27 |  |
 | scikit-learn__scikit-learn-14087 | rerunenv | env-blocked | 29 |  |
 | scikit-learn__scikit-learn-14141 | rerunenv | env-blocked | 13 |  |
-| scikit-learn__scikit-learn-14496 | rerunenv | no-diff | - |  |
+| scikit-learn__scikit-learn-14496 | rb9 | env-blocked | 29 |  |
 | scikit-learn__scikit-learn-14629 | rerunenv | env-blocked | 43 |  |
 | scikit-learn__scikit-learn-14710 | rerunenv | env-blocked | 21 |  |
 | scikit-learn__scikit-learn-14894 | rerunenv | env-blocked | 19 |  |
 | scikit-learn__scikit-learn-14983 | rerunenv | env-blocked | 23 |  |
 | scikit-learn__scikit-learn-15100 | rerunenv | env-blocked | 17 |  |
 | scikit-learn__scikit-learn-25102 | b3env5 | test-failed | 123 |  |
-| scikit-learn__scikit-learn-25232 | b3env5 | test-failed | 89 |  |
+| scikit-learn__scikit-learn-25232 | rb9 | test-failed | 71 |  |
