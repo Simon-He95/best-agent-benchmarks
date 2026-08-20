@@ -119,11 +119,29 @@ function collectAllRecords() {
   // 2. Downloaded artifacts under .tmp/art-* and results/.
   const tmpDir = resolve(repoRoot, ".tmp");
   if (existsSync(tmpDir)) {
+    const walkFragments = (d, out) => {
+      for (const f of readdirSync(d)) {
+        const p2 = resolve(d, f);
+        let st;
+        try { st = require_stat(p2); } catch { continue; }
+        if (st.isDirectory()) walkFragments(p2, out);
+        else if (f.endsWith(".json") && f.includes("swe-bench-results")) out.push(p2);
+      }
+    };
     for (const dir of readdirSync(tmpDir).filter((d) => d.startsWith("art"))) {
-      const candidate = resolve(tmpDir, dir, "swe-bench-results", "swe-bench-results.json");
-      if (!existsSync(candidate)) continue;
       const batch = ARTIFACT_BATCH[dir] ?? dir.replace(/^art-?/, "");
-      records.push(...recordsFromResult(candidate, batch, "artifact"));
+      const mergeCandidate = resolve(tmpDir, dir, "swe-bench-results", "swe-bench-results.json");
+      if (existsSync(mergeCandidate)) {
+        // Prefer the merged aggregate (latest generatedAt across all shards); using it
+        // keeps per-task records consistent when multiple runs share tasks.
+        records.push(...recordsFromResult(mergeCandidate, batch, "artifact"));
+      } else {
+        // Merge skipped (e.g. a sibling shard was cancelled) — recover the completed
+        // shards from their per-shard fragments so their results are not lost.
+        const files = [];
+        walkFragments(resolve(tmpDir, dir), files);
+        for (const f of files) records.push(...recordsFromResult(f, batch, "artifact"));
+      }
     }
     // 2b. In-flight run fragments downloaded live (e.g. .tmp/live/swe-bench-fragment-*/)
     // are merged under a "-partial" batch name so the completed run's artifact (same
