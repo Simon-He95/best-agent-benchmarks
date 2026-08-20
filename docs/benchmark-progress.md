@@ -1,6 +1,6 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T16:20:54.907Z
+- Generated: 2026-08-20T16:53:24.003Z
 - Tasks tracked: 375
 
 ## Summary by state
@@ -8,10 +8,10 @@
 | State | Count |
 |-------|-------|
 | resolved | 185 |
-| test-failed | 152 |
+| test-failed | 148 |
 | no-diff | 2 |
 | transport-loss | 3 |
-| env-blocked | 31 |
+| env-blocked | 35 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -298,32 +298,32 @@
 | matplotlib__matplotlib-25332 | b3up | test-failed | 26 |  |
 | matplotlib__matplotlib-25479 | rerunenv | env-blocked | 22 |  |
 | matplotlib__matplotlib-25775 | b3 | test-failed | 85 |  |
-| matplotlib__matplotlib-25960 | b3env2 | test-failed | 65 |  |
+| matplotlib__matplotlib-25960 | rb6 | env-blocked | 54 |  |
 | matplotlib__matplotlib-26113 | rerunnpm | env-blocked | 40 |  |
 | matplotlib__matplotlib-26208 | rerunenv | env-blocked | 21 |  |
-| matplotlib__matplotlib-26291 | b3env | test-failed | 14 |  |
-| matplotlib__matplotlib-26342 | b3env3 | test-failed | 16 |  |
-| matplotlib__matplotlib-26466 | b3env6 | test-failed | 17 |  |
+| matplotlib__matplotlib-26291 | rb6 | env-blocked | 14 |  |
+| matplotlib__matplotlib-26342 | rb6 | env-blocked | 26 |  |
+| matplotlib__matplotlib-26466 | rb6 | env-blocked | 16 |  |
 | mwaskom__seaborn-3069 | b3 | resolved | 48 |  |
-| mwaskom__seaborn-3187 | rerunnpm | test-failed | 35 |  |
-| pallets__flask-5014 | b3 | test-failed | 27 |  |
+| mwaskom__seaborn-3187 | rb6 | test-failed | 35 |  |
+| pallets__flask-5014 | rb6 | test-failed | 15 |  |
 | psf__requests-1142 | nohints2 | resolved | 13 |  |
 | psf__requests-1724 | b3up | resolved | 14 |  |
 | psf__requests-1766 | b3 | resolved | 14 |  |
-| psf__requests-1921 | nohints2 | test-failed | 14 |  |
-| psf__requests-2317 | b3 | test-failed | 23 |  |
-| psf__requests-2931 | rerunnpm | test-failed | 24 |  |
-| psf__requests-5414 | b3up | test-failed | 14 |  |
-| psf__requests-6028 | b3 | test-failed | 15 |  |
-| pydata__xarray-2905 | b3up2 | test-failed | 15 |  |
-| pydata__xarray-3095 | rerunnpm | test-failed | 38 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-3151 | b3 | test-failed | 27 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-3305 | b3 | test-failed | 53 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-3677 | b3 | test-failed | 17 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
-| pydata__xarray-3993 | rerunnpm | test-failed | 49 |  |
-| pydata__xarray-4075 | b3 | test-failed | 16 |  |
-| pydata__xarray-4094 | b3 | test-failed | 14 |  |
-| pydata__xarray-4356 | b3up2 | test-failed | 21 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| psf__requests-1921 | rb6 | test-failed | 24 |  |
+| psf__requests-2317 | rb6 | test-failed | 36 |  |
+| psf__requests-2931 | rb6 | test-failed | 26 |  |
+| psf__requests-5414 | rb6 | test-failed | 14 |  |
+| psf__requests-6028 | rb6 | test-failed | 14 |  |
+| pydata__xarray-2905 | rb6 | test-failed | 15 |  |
+| pydata__xarray-3095 | rb6 | test-failed | 15 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3151 | rb6 | test-failed | 14 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3305 | rb6 | test-failed | 80 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3677 | rb6 | test-failed | 18 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-3993 | rb6 | test-failed | 70 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| pydata__xarray-4075 | rb6 | test-failed | 20 |  |
+| pydata__xarray-4094 | rb6 | test-failed | 16 |  |
+| pydata__xarray-4356 | rb6 | test-failed | 21 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
 | pydata__xarray-4629 | b3 | resolved | 14 |  |
 | pydata__xarray-4687 | rerunnpm | test-failed | 35 |  |
 | pydata__xarray-4695 | b3 | test-failed | 14 |  |
