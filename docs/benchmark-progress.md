@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T17:02:16.770Z
+- Generated: 2026-08-20T18:08:11.228Z
 - Tasks tracked: 375
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 185 |
-| test-failed | 133 |
+| resolved | 191 |
+| test-failed | 127 |
 | no-diff | 2 |
 | env-blocked | 53 |
 
@@ -16,26 +16,26 @@
 
 | instance_id | batch | state | patchLines | failing test |
 |-------------|-------|-------|------------|--------------|
-| astropy__astropy-12907 | r1 | test-failed | 14 |  |
-| astropy__astropy-13033 | r1 | test-failed | 36 |  |
-| astropy__astropy-13236 | r1 | test-failed | 43 |  |
-| astropy__astropy-13398 | r1 | test-failed | 125 |  |
-| astropy__astropy-13453 | r1 | test-failed | 19 |  |
-| astropy__astropy-13579 | r1 | test-failed | 15 |  |
+| astropy__astropy-12907 | atd | resolved | 14 |  |
+| astropy__astropy-13033 | atd | test-failed | 37 |  |
+| astropy__astropy-13236 | atd | test-failed | 19 |  |
+| astropy__astropy-13398 | atd | test-failed | 143 |  |
+| astropy__astropy-13453 | atd | resolved | 41 |  |
+| astropy__astropy-13579 | atd | resolved | 35 |  |
 | astropy__astropy-13977 | rerunenv | env-blocked | 26 |  |
 | astropy__astropy-14096 | rerunenv | env-blocked | 18 |  |
 | astropy__astropy-14182 | rerunenv | env-blocked | 37 |  |
-| astropy__astropy-14309 | r1 | test-failed | 19 |  |
-| astropy__astropy-14365 | r1 | test-failed | 14 |  |
-| astropy__astropy-14369 | r1 | test-failed | 100 |  |
-| astropy__astropy-14508 | r1 | test-failed | 78 |  |
-| astropy__astropy-14539 | r1 | test-failed | 14 |  |
-| astropy__astropy-14598 | r1 | test-failed | 104 |  |
-| astropy__astropy-14995 | r1 | test-failed | 14 |  |
-| astropy__astropy-7166 | r1 | test-failed | 14 |  |
-| astropy__astropy-7336 | r1 | test-failed | 28 |  |
+| astropy__astropy-14309 | atd | resolved | 16 |  |
+| astropy__astropy-14365 | atd | test-failed | 25 |  |
+| astropy__astropy-14369 | atd | test-failed | 105 |  |
+| astropy__astropy-14508 | atd | test-failed | 34 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| astropy__astropy-14539 | atd | resolved | 28 |  |
+| astropy__astropy-14598 | atd | test-failed | 14 |  |
+| astropy__astropy-14995 | atd | resolved | 15 |  |
+| astropy__astropy-7166 | atd | test-failed | 46 |  |
+| astropy__astropy-7336 | atd | test-failed | 15 |  |
 | astropy__astropy-7606 | rerunenv | env-blocked | 14 |  |
-| astropy__astropy-7671 | r1 | test-failed | 42 |  |
+| astropy__astropy-7671 | atd | test-failed | 55 |  |
 | astropy__astropy-8707 | rerunenv | env-blocked | 40 |  |
 | astropy__astropy-8872 | rerunenv | env-blocked | 24 |  |
 | django__django-10097 | b1-rerun | resolved | 14 |  |
@@ -246,26 +246,26 @@
 | django__django-16454 | rb3 | test-failed | 61 | test_subparser_error_formatting (unittest.loader._FailedTest |
 | django__django-16485 | rb3 | test-failed | 14 | test_zero_values (unittest.loader._FailedTest.test_zero_valu |
 | django__django-16493 | rb3 | test-failed | 14 | test_deconstruction (unittest.loader._FailedTest.test_decons |
-| django__django-16502 | stat-rerun2 | test-failed | 56 | test_no_body_returned_for_head_requests (unittest.loader._Fa |
-| django__django-16527 | stat-rerun2 | test-failed | 13 | test_submit_row_save_as_new_add_permission_required (unittes |
-| django__django-16560 | rerunnpm | test-failed | 370 | test_custom_violation_code_message (unittest.loader._FailedT |
-| django__django-16569 | b2-testfailed | test-failed | 16 | test_disable_delete_extra_formset_forms (unittest.loader._Fa |
-| django__django-16595 | stat-rerun2 | test-failed | 18 | test_alter_alter_field (unittest.loader._FailedTest.test_alt |
-| django__django-16612 | stat-rerun2 | test-failed | 16 | test_missing_slash_append_slash_true_query_string (unittest. |
-| django__django-16631 | rerunnpm | test-failed | 41 | test_get_user_fallback_secret (unittest.loader._FailedTest.t |
-| django__django-16642 | rerun23b | test-failed | 22 | test_content_disposition_buffer (unittest.loader._FailedTest |
-| django__django-16661 | b2-testfailed | test-failed | 32 | test_lookup_allowed_foreign_primary (unittest.loader._Failed |
-| django__django-16662 | stat-rerun2 | test-failed | 19 | test_args_kwargs_signature (unittest.loader._FailedTest.test |
-| django__django-16667 | rerunnpm | test-failed | 14 | test_form_field (unittest.loader._FailedTest.test_form_field |
-| django__django-16801 | stat-rerun2 | test-failed | 15 | test_post_init_not_connected (unittest.loader._FailedTest.te |
-| django__django-16819 | stat-rerun2 | test-failed | 36 | test_add_remove_index (unittest.loader._FailedTest.test_add_ |
-| django__django-16877 | b2-testfailed | test-failed | 50 | test_autoescape_off (unittest.loader._FailedTest.test_autoes |
-| django__django-16899 | rerunnpm | test-failed | 35 | test_nonexistent_field (unittest.loader._FailedTest.test_non |
-| django__django-16901 | b2-testfailed | test-failed | 21 | test_filter_multiple (unittest.loader._FailedTest.test_filte |
-| django__django-16938 | rerun23b | test-failed | 37 | test_serialize_no_only_pk_with_natural_keys (unittest.loader |
-| django__django-16950 | b2-testfailed | test-failed | 26 | test_inlineformset_factory_ignores_default_pks_on_submit (mo |
-| django__django-17029 | rerunnpm | test-failed | 13 | test_clear_cache (unittest.loader._FailedTest.test_clear_cac |
-| django__django-17084 | rerun23b | test-failed | 41 | test_referenced_window_requires_wrapping (unittest.loader._F |
+| django__django-16502 | rb4 | test-failed | 29 | test_no_body_returned_for_head_requests (unittest.loader._Fa |
+| django__django-16527 | rb4 | test-failed | 13 | test_submit_row_save_as_new_add_permission_required (unittes |
+| django__django-16560 | rb4 | test-failed | 279 | test_custom_violation_code_message (unittest.loader._FailedT |
+| django__django-16569 | rb4 | test-failed | 16 | test_disable_delete_extra_formset_forms (unittest.loader._Fa |
+| django__django-16595 | rb4 | test-failed | 18 | test_alter_alter_field (unittest.loader._FailedTest.test_alt |
+| django__django-16612 | rb4 | test-failed | 18 | test_missing_slash_append_slash_true_query_string (unittest. |
+| django__django-16631 | rb4 | test-failed | 41 | test_get_user_fallback_secret (unittest.loader._FailedTest.t |
+| django__django-16642 | rb4 | test-failed | 16 | test_content_disposition_buffer (unittest.loader._FailedTest |
+| django__django-16661 | rb4 | test-failed | 34 | test_lookup_allowed_foreign_primary (unittest.loader._Failed |
+| django__django-16662 | rb4 | test-failed | 17 | test_args_kwargs_signature (unittest.loader._FailedTest.test |
+| django__django-16667 | rb4 | test-failed | 14 | test_form_field (unittest.loader._FailedTest.test_form_field |
+| django__django-16801 | rb4 | test-failed | 16 | test_post_init_not_connected (unittest.loader._FailedTest.te |
+| django__django-16819 | rb4 | test-failed | 37 | test_add_remove_index (unittest.loader._FailedTest.test_add_ |
+| django__django-16877 | rb4 | test-failed | 64 | test_autoescape_off (unittest.loader._FailedTest.test_autoes |
+| django__django-16899 | rb4 | test-failed | 36 | test_nonexistent_field (unittest.loader._FailedTest.test_non |
+| django__django-16901 | rb4 | test-failed | 29 | test_filter_multiple (unittest.loader._FailedTest.test_filte |
+| django__django-16938 | rb4 | test-failed | 33 | test_serialize_no_only_pk_with_natural_keys (unittest.loader |
+| django__django-16950 | rb4 | test-failed | 25 | test_inlineformset_factory_ignores_default_pks_on_submit (mo |
+| django__django-17029 | rb4 | test-failed | 13 | test_clear_cache (unittest.loader._FailedTest.test_clear_cac |
+| django__django-17084 | rb4 | test-failed | 37 | test_referenced_window_requires_wrapping (unittest.loader._F |
 | django__django-17087 | rb5 | test-failed | 14 | test_serialize_nested_class_method (unittest.loader._FailedT |
 | django__django-7530 | rb5 | test-failed | 14 |  |
 | django__django-9296 | nohints2 | resolved | 16 |  |
