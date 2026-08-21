@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-21T00:47:16.006Z
-- Tasks tracked: 415
+- Generated: 2026-08-21T01:00:54.054Z
+- Tasks tracked: 435
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
 | resolved | 197 |
-| test-failed | 158 |
+| test-failed | 177 |
 | no-diff | 2 |
 | env-blocked | 54 |
 
@@ -431,3 +431,23 @@
 | sympy__sympy-13974 | b41 | test-failed | 24 | file or directory not found: test_tensor_product_simp |
 | sympy__sympy-14248 | b41 | timeout | - |  |
 | sympy__sympy-14531 | b41 | test-failed | 62 | file or directory not found: test_python_relational |
+| sympy__sympy-18211 | b43 | test-failed | 24 | file or directory not found: test_issue_18188 |
+| sympy__sympy-18698 | b43 | test-failed | 43 | file or directory not found: test_factor_terms |
+| sympy__sympy-18763 | b43 | test-failed | 14 | file or directory not found: test_latex_subs |
+| sympy__sympy-19040 | b43 | test-failed | 25 | file or directory not found: test_issue_5786 |
+| sympy__sympy-19346 | b43 | test-failed | 43 | file or directory not found: test_dict |
+| sympy__sympy-19495 | b43 | test-failed | 17 | file or directory not found: test_subs_CondSet |
+| sympy__sympy-19637 | b43 | test-failed | 14 | file or directory not found: test_kernS |
+| sympy__sympy-19783 | b43 | test-failed | 46 | file or directory not found: test_dagger_mul |
+| sympy__sympy-19954 | b43 | test-failed | 25 | file or directory not found: test_sylow_subgroup |
+| sympy__sympy-20154 | b43 | test-failed | 58 | file or directory not found: test_partitions |
+| sympy__sympy-20428 | b43 | test-failed | 23 | file or directory not found: test_issue_20427 |
+| sympy__sympy-20438 | b43 | timeout | - |  |
+| sympy__sympy-20590 | b43 | test-failed | 14 | file or directory not found: test_immutable |
+| sympy__sympy-20801 | b43 | test-failed | 24 | file or directory not found: test_zero_not_false |
+| sympy__sympy-20916 | b43 | test-failed | 14 | file or directory not found: test_super_sub |
+| sympy__sympy-21379 | b43 | test-failed | 25 | file or directory not found: test_Mod |
+| sympy__sympy-21596 | b43 | test-failed | 28 | file or directory not found: test_imageset_intersect_real |
+| sympy__sympy-21612 | b43 | test-failed | 16 | file or directory not found: test_Mul |
+| sympy__sympy-21847 | b43 | test-failed | 23 | file or directory not found: test_monomials |
+| sympy__sympy-21930 | b43 | test-failed | 23 | file or directory not found: test_create |
