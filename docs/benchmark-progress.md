@@ -1,16 +1,16 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-21T02:02:42.975Z
-- Tasks tracked: 474
+- Generated: 2026-08-21T02:14:33.825Z
+- Tasks tracked: 480
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
 | resolved | 198 |
-| test-failed | 215 |
+| test-failed | 220 |
 | no-diff | 2 |
-| env-blocked | 54 |
+| env-blocked | 55 |
 
 ## Per-task ledger (instance_id, batch, state, failing test)
 
@@ -391,6 +391,12 @@
 | scikit-learn__scikit-learn-15100 | rerunenv | env-blocked | 17 |  |
 | scikit-learn__scikit-learn-25102 | b3env5 | test-failed | 123 |  |
 | scikit-learn__scikit-learn-25232 | rb9 | test-failed | 71 |  |
+| scikit-learn__scikit-learn-25747 | b47 | test-failed | 27 |  |
+| scikit-learn__scikit-learn-25931 | b47 | test-failed | 44 |  |
+| scikit-learn__scikit-learn-25973 | b47 | test-failed | 56 |  |
+| scikit-learn__scikit-learn-26194 | b47 | test-failed | 73 |  |
+| scikit-learn__scikit-learn-26323 | b47 | test-failed | 15 |  |
+| scikit-learn__scikit-learn-9288 | b47 | env-blocked | 34 |  |
 | sphinx-doc__sphinx-10323 | b45 | test-failed | 30 |  |
 | sphinx-doc__sphinx-10435 | b45 | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
 | sphinx-doc__sphinx-10449 | b45 | resolved | 35 |  |
