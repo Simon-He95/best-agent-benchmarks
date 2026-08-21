@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-21T02:14:33.825Z
-- Tasks tracked: 480
+- Generated: 2026-08-21T02:36:50.008Z
+- Tasks tracked: 500
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
 | resolved | 198 |
-| test-failed | 220 |
+| test-failed | 239 |
 | no-diff | 2 |
 | env-blocked | 55 |
 
@@ -417,6 +417,26 @@
 | sphinx-doc__sphinx-8035 | b45 | test-failed | 79 |  |
 | sphinx-doc__sphinx-8056 | b45 | test-failed | 21 |  |
 | sphinx-doc__sphinx-8120 | b45 | test-failed | 15 |  |
+| sphinx-doc__sphinx-8265 | b46 | test-failed | 36 |  |
+| sphinx-doc__sphinx-8269 | b46 | test-failed | 13 |  |
+| sphinx-doc__sphinx-8459 | b46 | test-failed | 14 |  |
+| sphinx-doc__sphinx-8475 | b46 | test-failed | 23 |  |
+| sphinx-doc__sphinx-8548 | b46 | test-failed | 114 |  |
+| sphinx-doc__sphinx-8551 | b46 | test-failed | 16 |  |
+| sphinx-doc__sphinx-8593 | b46 | test-failed | 16 |  |
+| sphinx-doc__sphinx-8595 | b46 | test-failed | 14 |  |
+| sphinx-doc__sphinx-8621 | b46 | test-failed | 43 |  |
+| sphinx-doc__sphinx-8638 | b46 | test-failed | 32 |  |
+| sphinx-doc__sphinx-8721 | b46 | test-failed | 14 |  |
+| sphinx-doc__sphinx-9229 | b46 | timeout | - |  |
+| sphinx-doc__sphinx-9230 | b46 | test-failed | 56 |  |
+| sphinx-doc__sphinx-9258 | b46 | test-failed | 27 |  |
+| sphinx-doc__sphinx-9281 | b46 | test-failed | 16 |  |
+| sphinx-doc__sphinx-9320 | b46 | test-failed | 33 |  |
+| sphinx-doc__sphinx-9367 | b46 | test-failed | 17 | not found: /private/var/folders/df/djsxfhc17x95674wsm_g8s980 |
+| sphinx-doc__sphinx-9461 | b46 | test-failed | 121 |  |
+| sphinx-doc__sphinx-9591 | b46 | test-failed | 15 |  |
+| sphinx-doc__sphinx-9602 | b46 | test-failed | 18 |  |
 | sphinx-doc__sphinx-9658 | b44 | resolved | 73 |  |
 | sphinx-doc__sphinx-9673 | b44 | test-failed | 14 |  |
 | sphinx-doc__sphinx-9698 | b44 | test-failed | 14 |  |
