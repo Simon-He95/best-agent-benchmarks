@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-21T01:21:52.539Z
-- Tasks tracked: 454
+- Generated: 2026-08-21T02:02:42.975Z
+- Tasks tracked: 474
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
 | resolved | 198 |
-| test-failed | 195 |
+| test-failed | 215 |
 | no-diff | 2 |
 | env-blocked | 54 |
 
@@ -435,6 +435,26 @@
 | sympy__sympy-13974 | b41 | test-failed | 24 | file or directory not found: test_tensor_product_simp |
 | sympy__sympy-14248 | b41 | timeout | - |  |
 | sympy__sympy-14531 | b41 | test-failed | 62 | file or directory not found: test_python_relational |
+| sympy__sympy-14711 | b42 | test-failed | 14 | file or directory not found: test_Vector |
+| sympy__sympy-14976 | b42 | test-failed | 15 | file or directory not found: test_MpmathPrinter |
+| sympy__sympy-15017 | b42 | test-failed | 54 | file or directory not found: test_ndim_array_initiation |
+| sympy__sympy-15345 | b42 | test-failed | 18 | file or directory not found: test_Function |
+| sympy__sympy-15349 | b42 | test-failed | 14 | file or directory not found: test_quaternion_conversions |
+| sympy__sympy-15599 | b42 | test-failed | 16 | file or directory not found: test_Mod |
+| sympy__sympy-15809 | b42 | test-failed | 32 | file or directory not found: test_Min |
+| sympy__sympy-15875 | b42 | test-failed | 39 | file or directory not found: test_Add_is_zero |
+| sympy__sympy-15976 | b42 | test-failed | 51 | file or directory not found: test_presentation_symbol |
+| sympy__sympy-16450 | b42 | test-failed | 14 | file or directory not found: test_posify |
+| sympy__sympy-16597 | b42 | test-failed | 235 | file or directory not found: test_infinity |
+| sympy__sympy-16766 | b42 | test-failed | 16 | file or directory not found: test_PythonCodePrinter |
+| sympy__sympy-16792 | b42 | test-failed | 14 | file or directory not found: test_ccode_unused_array_arg |
+| sympy__sympy-16886 | b42 | test-failed | 14 | file or directory not found: test_encode_morse |
+| sympy__sympy-17139 | b42 | test-failed | 14 | file or directory not found: test__TR56 |
+| sympy__sympy-17318 | b42 | test-failed | 14 | file or directory not found: test_issue_12420 |
+| sympy__sympy-17630 | b42 | test-failed | 19 | file or directory not found: test_issue_17624 |
+| sympy__sympy-17655 | b42 | test-failed | 24 | file or directory not found: test_point |
+| sympy__sympy-18189 | b42 | test-failed | 14 | file or directory not found: test_diophantine |
+| sympy__sympy-18199 | b42 | test-failed | 14 | file or directory not found: test_solve_modular |
 | sympy__sympy-18211 | b43 | test-failed | 24 | file or directory not found: test_issue_18188 |
 | sympy__sympy-18698 | b43 | test-failed | 43 | file or directory not found: test_factor_terms |
 | sympy__sympy-18763 | b43 | test-failed | 14 | file or directory not found: test_latex_subs |
