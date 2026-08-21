@@ -212,7 +212,7 @@ jobs:
           name: swe-bench-corpus-${{ github.run_id }}
           path: results/corpora/swe-bench-verified.jsonl
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   swe-bench:
     name: macOS generation (${{ matrix.batch.id }})
