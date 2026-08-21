@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-20T22:43:22.237Z
-- Tasks tracked: 375
+- Generated: 2026-08-21T00:47:16.006Z
+- Tasks tracked: 415
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 191 |
-| test-failed | 125 |
+| resolved | 197 |
+| test-failed | 158 |
 | no-diff | 2 |
 | env-blocked | 54 |
 
@@ -391,3 +391,43 @@
 | scikit-learn__scikit-learn-15100 | rerunenv | env-blocked | 17 |  |
 | scikit-learn__scikit-learn-25102 | b3env5 | test-failed | 123 |  |
 | scikit-learn__scikit-learn-25232 | rb9 | test-failed | 71 |  |
+| sphinx-doc__sphinx-10323 | b45 | test-failed | 30 |  |
+| sphinx-doc__sphinx-10435 | b45 | test-failed | 20 | found no collectors for /private/var/folders/df/djsxfhc17x95 |
+| sphinx-doc__sphinx-10449 | b45 | resolved | 35 |  |
+| sphinx-doc__sphinx-10466 | b45 | resolved | 18 |  |
+| sphinx-doc__sphinx-10614 | b45 | resolved | 67 |  |
+| sphinx-doc__sphinx-10673 | b45 | resolved | 102 |  |
+| sphinx-doc__sphinx-11445 | b45 | resolved | 31 |  |
+| sphinx-doc__sphinx-11510 | b45 | resolved | 83 |  |
+| sphinx-doc__sphinx-7440 | b45 | test-failed | 44 |  |
+| sphinx-doc__sphinx-7454 | b45 | test-failed | 29 |  |
+| sphinx-doc__sphinx-7462 | b45 | test-failed | 25 |  |
+| sphinx-doc__sphinx-7590 | b45 | test-failed | 110 |  |
+| sphinx-doc__sphinx-7748 | b45 | test-failed | 89 |  |
+| sphinx-doc__sphinx-7757 | b45 | test-failed | 39 |  |
+| sphinx-doc__sphinx-7889 | b45 | test-failed | 26 |  |
+| sphinx-doc__sphinx-7910 | b45 | test-failed | 25 |  |
+| sphinx-doc__sphinx-7985 | b45 | test-failed | 20 |  |
+| sphinx-doc__sphinx-8035 | b45 | test-failed | 79 |  |
+| sphinx-doc__sphinx-8056 | b45 | test-failed | 21 |  |
+| sphinx-doc__sphinx-8120 | b45 | test-failed | 15 |  |
+| sympy__sympy-11618 | b41 | test-failed | 25 | file or directory not found: test_issue_11617 |
+| sympy__sympy-12096 | b41 | test-failed | 14 | file or directory not found: test_issue_12092 |
+| sympy__sympy-12419 | b41 | test-failed | 91 | file or directory not found: test_Identity |
+| sympy__sympy-12481 | b41 | test-failed | 20 | file or directory not found: test_args |
+| sympy__sympy-12489 | b41 | test-failed | 176 | file or directory not found: test_Permutation_subclassing |
+| sympy__sympy-13031 | b41 | test-failed | 31 | file or directory not found: test_sparse_matrix |
+| sympy__sympy-13091 | b41 | test-failed | 388 | file or directory not found: test_equality |
+| sympy__sympy-13372 | b41 | test-failed | 22 | file or directory not found: test_evalf_bugs |
+| sympy__sympy-13480 | b41 | test-failed | 14 | file or directory not found: test_coth |
+| sympy__sympy-13551 | b41 | test-failed | 27 | file or directory not found: test_issue_13546 |
+| sympy__sympy-13615 | b41 | test-failed | 31 | file or directory not found: test_Complement |
+| sympy__sympy-13647 | b41 | test-failed | 14 | file or directory not found: test_col_insert |
+| sympy__sympy-13757 | b41 | test-failed | 13 | file or directory not found: test_issue_13079 |
+| sympy__sympy-13798 | b41 | test-failed | 35 | file or directory not found: test_latex_basic |
+| sympy__sympy-13852 | b41 | test-failed | 36 | file or directory not found: test_polylog_values |
+| sympy__sympy-13877 | b41 | test-failed | 62 | file or directory not found: test_determinant |
+| sympy__sympy-13878 | b41 | test-failed | 166 | file or directory not found: test_arcsin |
+| sympy__sympy-13974 | b41 | test-failed | 24 | file or directory not found: test_tensor_product_simp |
+| sympy__sympy-14248 | b41 | timeout | - |  |
+| sympy__sympy-14531 | b41 | test-failed | 62 | file or directory not found: test_python_relational |
