@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 .best-agent/
+.tmp/
 results/
 corpora/
 coverage/

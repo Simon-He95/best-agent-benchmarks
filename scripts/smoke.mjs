@@ -26,6 +26,8 @@ import { performance } from "node:perf_hooks";
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 function resolveCliPrefix() {
+  const configured = process.env.BEST_AGENT_CLI_PATH;
+  if (configured) return /\.[cm]?js$/u.test(configured) ? [process.execPath, configured] : [configured];
   for (const entry of [
     resolve(repoRoot, "node_modules", "@best-agent", "cli", "dist", "index.js"),
     resolve(repoRoot, "apps", "cli", "dist", "index.js"),

@@ -3,93 +3,54 @@ name: Benchmark
 on:
   workflow_dispatch:
     inputs:
-      runner:
-        description: "Runner image. Plain backend is mandatory on every platform. macos-latest = arm64 (matches a locally published macOS CLI); ubuntu-latest also works once the CLI ships --workspace-backend."
-        required: false
-        default: "macos-latest"
-      backend:
-        description: "Workspace backend. Benchmarks are ONLY comparable under plain (spec 069) — always use plain. sandbox is a macOS-only dev override."
-        required: false
-        default: "plain"
       run_smoke:
-        description: "Run the headless composition smoke gate first (fast; blocks the heavy job on failure)"
+        description: Run the headless composition smoke gate
         required: false
         type: boolean
         default: true
       run_swe_bench:
-        description: "Run the SWE-bench Lite job (long; opt-in)"
+        description: Generate frozen SWE-bench Verified predictions
         required: false
         type: boolean
         default: false
       swe_bench_limit:
-        description: "Number of SWE-bench tasks to run (0 = full corpus after offset)"
+        description: Number of tasks after offset (0 = all)
         required: false
         default: "1"
       swe_bench_offset:
-        description: "Skip the first N corpus tasks (sequential batches: batch k = offset k*limit)"
+        description: Skip the first N corpus tasks
         required: false
         default: "0"
       swe_bench_batch:
-        description: "Batch label (e.g. b1/b2) — uniquifies fragment tags so sequential batches merge cleanly"
+        description: Immutable diagnostic batch label
         required: false
-        default: ""
+        default: "diagnostic"
       swe_bench_tasks:
-        description: "Comma-separated instance ids to run exactly (e.g. rerun of failed tasks; overrides offset/limit)"
+        description: Predeclared comma-separated instance IDs; overrides offset/limit
         required: false
         default: ""
-      swe_bench_dataset:
-        description: "SWE-bench dataset: lite (300) | verified (500)"
-        required: false
-        default: "lite"
       swe_bench_concurrency:
-        description: "Parallel SWE-bench tasks (keep low — the dimcode relay channel pool is easily saturated)"
+        description: Parallel model attempts
         required: false
         default: "1"
       swe_bench_model:
-        description: "Model override (empty = BEST_AGENT_PROVIDER_MODEL secret)"
+        description: Model override; empty uses the repository secret
         required: false
         default: ""
-      swe_bench_models:
-        description: 'JSON array of models to run in parallel, e.g. ["deepseek-v4-flash","glm-5.2"]; [""] = default model'
-        required: false
-        default: '[""]'
       swe_bench_shards:
-        description: "JSON array of shard indices to split the corpus; [0] = single job"
+        description: JSON shard-index array
         required: false
         default: "[0]"
       swe_bench_shard_total:
-        description: "Total shard count (must be > max shard index)"
+        description: Total shard count
         required: false
         default: "1"
       swe_bench_timeout:
-        description: "Per-task timeout in ms"
+        description: Per-task timeout in milliseconds
         required: false
         default: "1800000"
-      verify_strict:
-        description: "Strict self-verification protocol prompt (A/B prompt experiment)"
-        required: false
-        default: "false"
-      cli_asset:
-        description: "GitHub Release tag whose cli-deploy.tar.gz asset is the locally-built, self-contained CLI deploy dir (bypasses npm publish). Empty = use published npm package."
-        required: false
-        default: ""
-      reasoning_effort:
-        description: "Reasoning effort: low|medium|high|xhigh|max|none (empty = model catalog default, e.g. deepseek-v4-flash -> high). Needs a CLI that carries the provider file's reasoningEffort in run."
-        required: false
-        default: ""
-      debug_prompts:
-        description: "Set DEBUG_PROMPTS=1 for the CLI (dumps provider request wire to stderr; for reasoning_content 400 investigation)"
-        required: false
-        type: boolean
-        default: false
-  schedule:
-    # Every Sunday at 02:00 UTC
-    - cron: "0 2 * * 0"
 
 concurrency:
-  # Batches run in parallel (distinct group per batch); identical batches still
-  # serialize against each other. Keep per-run concurrency low — the dimcode
-  # relay channel pool saturates easily (observed overload at 4+ parallel tasks).
   group: benchmark-${{ inputs.swe_bench_batch || 'default' }}
   cancel-in-progress: false
 
@@ -105,178 +66,156 @@ env:
 
 jobs:
   smoke:
-    name: Smoke (headless composition)
-    runs-on: ${{ inputs.runner || 'macos-latest' }}
+    name: macOS headless smoke
+    if: ${{ inputs.run_smoke || inputs.run_swe_bench }}
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install ripgrep (search tool accelerator; avoids pathologically slow scans)
+      - name: Install benchmark dependencies and the exact CLI candidate
         run: |
-          if command -v apt-get >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ripgrep
-          elif command -v brew >/dev/null 2>&1; then
-            brew install ripgrep
-          fi
+          npm ci
+          CLI_VERSION="$(node -p 'require("./config/best-agent-candidate.json").cliVersion')"
+          npm install --no-save --ignore-scripts "@best-agent/cli@${CLI_VERSION}"
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/.bin/best-agent" >> "$GITHUB_ENV"
 
-      - name: Verify benchmark provider secret is configured
-        run: |
-          if [ -z "$BEST_AGENT_PROVIDER_API_KEY" ]; then
-            echo "Missing BENCHMARK_PROVIDER_API_KEY secret. Configure BENCHMARK_PROVIDER_KIND/MODEL/API_KEY[/BASE_URL][/COMPATIBILITY_MODE]."
-            exit 1
-          fi
+      - name: Verify provider configuration
+        run: test -n "$BEST_AGENT_PROVIDER_API_KEY"
 
-      - name: Headless composition smoke gate
+      - name: Headless composition smoke
         run: node scripts/smoke.mjs
 
   swe-bench:
-    name: SWE-bench Lite (${{ matrix.model || 'default' }} shard ${{ matrix.shard }})
-    runs-on: ${{ inputs.runner || 'macos-latest' }}
-    timeout-minutes: 480
+    name: macOS generation (shard ${{ matrix.shard }})
     if: ${{ inputs.run_swe_bench }}
     needs: smoke
+    runs-on: macos-15
+    timeout-minutes: 480
     strategy:
       fail-fast: false
       matrix:
-        model: ${{ fromJSON(inputs.swe_bench_models) }}
         shard: ${{ fromJSON(inputs.swe_bench_shards) }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Resolve the single candidate record
+        id: candidate
+        run: |
+          echo "commit=$(node -p 'require("./config/best-agent-candidate.json").commit')" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'require("./config/best-agent-candidate.json").cliVersion')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
         with:
-          lfs: true  # vendored tools/cli/cli-deploy.tar.gz (Git LFS) for the self-contained CLI
+          repository: Simon-He95/best-agent
+          ref: ${{ steps.candidate.outputs.commit }}
+          path: tools/best-agent-source
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.8"
-
-      - name: Install ripgrep (search tool accelerator; avoids pathologically slow scans on huge repos)
+      - name: Install benchmark dependencies and the exact CLI candidate
         run: |
-          if command -v apt-get >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ripgrep
-          elif command -v brew >/dev/null 2>&1; then
-            brew install ripgrep
-          fi
+          npm ci
+          npm install --no-save --ignore-scripts "@best-agent/cli@${{ steps.candidate.outputs.version }}"
+          echo "BEST_AGENT_SOURCE_DIR=${GITHUB_WORKSPACE}/tools/best-agent-source" >> "$GITHUB_ENV"
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/.bin/best-agent" >> "$GITHUB_ENV"
+          echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.commit }}" >> "$GITHUB_ENV"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Use vendored CLI deploy if present (bypass npm publish)
-        run: |
-          if [ -d tools/cli/parts ] && ls tools/cli/parts/p* >/dev/null 2>&1; then
-            mkdir -p .cli
-            cat tools/cli/parts/p* > .cli/cli-deploy.tar.gz
-            tar -xzf .cli/cli-deploy.tar.gz -C .cli
-            echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
-            echo "Using vendored CLI deploy (tools/cli/parts, reassembled)"
-          elif [ -f tools/cli/cli-deploy.tar.gz ]; then
-            mkdir -p .cli
-            tar -xzf tools/cli/cli-deploy.tar.gz -C .cli
-            echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/.cli/cli-deploy/dist/index.js" >> "$GITHUB_ENV"
-            echo "Using vendored CLI deploy (tools/cli/cli-deploy.tar.gz)"
-          else
-            echo "No vendored CLI deploy; using published npm package"
-          fi
-
-      - name: Download SWE-bench corpus
-        run: node scripts/swe-bench-harness.mjs --download --dataset ${{ inputs.swe_bench_dataset }}
+      - name: Prepare pinned SWE-bench Verified corpus
+        run: node scripts/prepare-swe-bench.mjs
 
       - name: Resolve effective model
         id: model
         run: |
-          MODEL="${{ matrix.model }}"
-          if [ -z "$MODEL" ]; then MODEL="${{ inputs.swe_bench_model }}"; fi
-          if [ -z "$MODEL" ]; then MODEL="${{ secrets.BENCHMARK_PROVIDER_MODEL }}"; fi
+          MODEL="${{ inputs.swe_bench_model }}"
+          if [ -z "$MODEL" ]; then MODEL="$BEST_AGENT_PROVIDER_MODEL"; fi
           echo "model=$MODEL" >> "$GITHUB_OUTPUT"
 
-      - name: Relay channel health gate
+      - name: Relay health gate
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
         run: node scripts/relay-health.mjs
 
-      - name: Run SWE-bench with debug prompts
-        if: ${{ inputs.debug_prompts }}
-        env:
-          DEBUG_PROMPTS: "1"
-        run: echo "debug"
-
-      - name: Run SWE-bench Lite
+      - name: Generate and freeze predictions
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+          SWE_BENCH_EVALUATION_BATCH_ID: cli-${{ steps.candidate.outputs.version }}-${{ inputs.swe_bench_batch }}-${{ steps.model.outputs.model }}-shard-${{ matrix.shard }}
         run: |
-          EFFORT=""
-          if [ -n "${{ inputs.reasoning_effort }}" ]; then EFFORT="--reasoning-effort ${{ inputs.reasoning_effort }}"; fi
-          TAG="${{ steps.model.outputs.model }}"
-          if [ -n "${{ inputs.swe_bench_batch }}" ]; then TAG="$TAG-${{ inputs.swe_bench_batch }}"; fi
-          TASKS=""
-          if [ -n "${{ inputs.swe_bench_tasks }}" ]; then TASKS="--tasks ${{ inputs.swe_bench_tasks }}"; fi
-          if [ "${{ inputs.debug_prompts }}" == "true" ]; then export DEBUG_PROMPTS=1; fi
-          VS=""
-          if [ "${{ inputs.verify_strict }}" == "true" ]; then VS="--verify-strict"; fi
-          node scripts/swe-bench-harness.mjs --limit ${{ inputs.swe_bench_limit }} --offset ${{ inputs.swe_bench_offset }} --dataset ${{ inputs.swe_bench_dataset }} --concurrency ${{ inputs.swe_bench_concurrency }} --timeout ${{ inputs.swe_bench_timeout }} --backend ${{ inputs.backend }} --shard ${{ matrix.shard }} --shard-total ${{ inputs.swe_bench_shard_total }} --tag "$TAG" $TASKS $EFFORT $VS
+          ARGS=(
+            --generation-only
+            --official-manifest "${GITHUB_WORKSPACE}/.tmp/official-evaluator-manifest.json"
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl"
+            --limit "${{ inputs.swe_bench_limit }}"
+            --offset "${{ inputs.swe_bench_offset }}"
+            --concurrency "${{ inputs.swe_bench_concurrency }}"
+            --timeout "${{ inputs.swe_bench_timeout }}"
+            --shard "${{ matrix.shard }}"
+            --shard-total "${{ inputs.swe_bench_shard_total }}"
+            --tag "${{ steps.model.outputs.model }}-${{ inputs.swe_bench_batch }}"
+          )
+          if [ -n "${{ inputs.swe_bench_tasks }}" ]; then
+            ARGS+=(--tasks "${{ inputs.swe_bench_tasks }}")
+          fi
+          node scripts/swe-bench-harness.mjs "${ARGS[@]}"
 
-      - name: Upload per-model fragment
+      - name: Upload immutable generation artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: swe-bench-fragment-${{ steps.model.outputs.model }}-${{ inputs.swe_bench_batch || 'all' }}-shard-${{ matrix.shard }}
+          name: swe-bench-generation-${{ inputs.swe_bench_batch }}-shard-${{ matrix.shard }}
           path: |
             results/swe-bench-results.*.json
+            results/swe-bench-results.*.md
+            results/swe-bench-results.*.predictions/**
           if-no-files-found: error
           retention-days: 90
 
   swe-bench-merge:
-    name: Merge SWE-bench results
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    name: Merge deferred generation reports
     if: ${{ inputs.run_swe_bench }}
     needs: swe-bench
+    runs-on: macos-15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
+      - name: Resolve the single candidate record
+        id: candidate
+        run: echo "commit=$(node -p 'require("./config/best-agent-candidate.json").commit')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Simon-He95/best-agent
+          ref: ${{ steps.candidate.outputs.commit }}
+          path: tools/best-agent-source
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Download all model fragments
+      - name: Download generation artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: swe-bench-fragment-*
+          pattern: swe-bench-generation-*
           path: results
           merge-multiple: true
 
-      - name: Merge SWE-bench fragments
+      - name: Merge canonical reports
+        env:
+          BEST_AGENT_SOURCE_DIR: ${{ github.workspace }}/tools/best-agent-source
         run: node scripts/swe-bench-harness.mjs --merge-shards
 
-      - name: Upload merged SWE-bench results
+      - name: Upload merged deferred report
         uses: actions/upload-artifact@v4
         with:
-          name: swe-bench-results
+          name: swe-bench-results-deferred
           path: |
             results/swe-bench-results.json
             results/swe-bench-results.md
+            results/swe-bench-results.*.predictions/**
           retention-days: 90
-
-# re-register trigger

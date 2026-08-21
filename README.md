@@ -1,82 +1,66 @@
 # best-agent-benchmarks
 
-Public benchmark harness for [best-agent](https://github.com/Simon-He95/best-agent) — runs the **published** `@best-agent/cli` headlessly and scores it against SWE-bench Lite.
+Public macOS generation runner for `@best-agent/cli` on SWE-bench Verified.
 
-Runs on GitHub Actions **public-repo free unlimited minutes** (standard `macos-latest` / `ubuntu-latest` runners). No local compute, no laptop heat.
+## Evaluation boundary
 
-## Benchmark composition (the important part)
+This repository does not grade patches. It reads the one candidate commit and CLI version from
+`config/best-agent-candidate.json` and delegates generation, frozen-patch capture,
+official Docker execution, verdict projection, and aggregation to that commit's canonical
+SWE-bench implementation. Local Markdown only presents those canonical dispositions.
 
-Every task runs the CLI one-shot headless command, with the exact benchmark environment:
+The hosted workflow is deliberately two-stage:
+
+1. GitHub's macOS runner executes `best-agent run` and publishes exact frozen predictions.
+2. A macOS machine with Docker Desktop evaluates those same predictions with the pinned
+   official SWE-bench Docker evaluator.
+
+The first-stage report is always `official-swe-bench-docker-deferred` with `passAt1: null`.
+It is not a second grader and cannot be reported as pass@1.
+
+## Fixed composition
+
+- CLI candidate: the exact version in `config/best-agent-candidate.json`.
+- Dataset: SWE-bench Verified, pinned revision and JSONL hash in
+  `config/swe-bench-verified.json`.
+- Workspace: plain backend with read/write/exec grants.
+- Interaction and network ToolBindings: excluded.
+- Exec subprocesses: not claimed to be physically network-isolated.
+- Task selection: fixed before generation with offset/limit/shards or an explicit `--tasks`
+  list.
+- Hidden tests, official logs, and verdicts never enter the model attempt.
+
+## Hosted macOS generation
+
+Set `BENCHMARK_PROVIDER_KIND`, `BENCHMARK_PROVIDER_MODEL`,
+`BENCHMARK_PROVIDER_API_KEY`, and optional provider URL/compatibility secrets, then run the
+`Benchmark` workflow. Use `swe_bench_tasks` for a predeclared diagnostic failure set.
+
+Failure-only batches measure diagnostic recovery. They must not be merged into an old run and
+reported as pass@1. A new pass@1 requires one preselected attempt for every task in a complete
+batch.
+
+## Local official evaluation
+
+Download one generation artifact without changing its report or prediction files. Point the
+commands below at a clean checkout of the pinned best-agent commit and a pinned SWE-bench
+v4.1.0 checkout at commit `726c5461e2ef52d83cf1ea2107870a8bb3328d57`:
 
 ```bash
-best-agent run \
-  --workspace <repo> \
-  --workspace-grant read --workspace-grant write --workspace-grant exec \
-  [--workspace-backend plain] \
-  <prompt>
+export BEST_AGENT_SOURCE_DIR=/absolute/path/to/best-agent
+
+node scripts/prepare-swe-bench.mjs \
+  --evaluator-source /absolute/path/to/SWE-bench \
+  --evaluator-python /absolute/path/to/swe-bench-venv/bin/python \
+  --docker /usr/local/bin/docker \
+  --manifest /absolute/path/to/official-evaluator-manifest.json
+
+node scripts/evaluate-official.mjs \
+  --report /absolute/path/to/swe-bench-results.<tag>.shard-0.json \
+  --predictions /absolute/path/to/swe-bench-results.<tag>.shard-0.predictions \
+  --manifest /absolute/path/to/official-evaluator-manifest.json \
+  --output /absolute/path/to/swe-bench-results.<tag>.shard-0.official.json
 ```
 
-- **Headless**: `best-agent run` is the one-shot non-interactive mode — no TUI.
-- **No ask_user**: the `run` command excludes interaction ToolBindings (`ask_user`/`tool_approve` are never injected).
-- **Full access**: permission mode `full` + `--workspace-grant read write exec`.
-- **Plain workspace backend ALWAYS** (spec 069): `--workspace-backend plain` on every platform — macOS and Linux alike. There is no sandbox fallback: if the installed CLI lacks the flag, the harness/smoke **fail fast** rather than silently run a different, non-comparable backend.
-
-## Status: read this first
-
-The currently published CLI has a **regression in the `run` workspace tool surface**:
-
-| CLI | `run` workspace tools (read/write/...) |
-|---|---|
-| `@best-agent/cli@latest` (0.0.2-beta.8) | ✗ ancient — no `--workspace` / grants at all |
-| `@best-agent/cli@beta` (0.0.3-beta.1, current) | ✗ **broken** — every workspace tool call fails with `tool-unknown` |
-| unpublished source (local build) | ✓ works |
-
-Until a fixed version is published to npm, benchmarks are **blocked**: the plain backend is mandatory, and neither published release ships `--workspace-backend`. `scripts/smoke.mjs` (the CI smoke gate) fails by design — it catches exactly this. After the CLI ships `--workspace-backend` (and `--max-model-cycles`), the harness uses plain on every platform with no config change.
-
-Benchmarks run on **`macos-latest`** (arm64) — the same architecture as the locally built macOS CLI — on public-repo free unlimited minutes.
-
-## Run locally
-
-```bash
-npm install
-
-# headless composition smoke (validates CLI + provider + full access + no ask_user)
-node scripts/smoke.mjs
-
-# full SWE-bench Lite run (first N tasks)
-node scripts/swe-bench-harness.mjs --download --limit 3 --concurrency 2 --timeout 600000
-```
-
-Provider comes from `BEST_AGENT_PROVIDER_KIND/MODEL/API_KEY/BASE_URL/COMPATIBILITY_MODE` env, else `~/.best-agent/provider.json`, else dimcode OAuth — same resolution as the CLI itself.
-
-## Run on GitHub Actions (free public-repo minutes)
-
-1. Make this repo **public** (public repos get free unlimited standard-runner minutes).
-2. Set benchmark provider secrets in **this** repo's Settings → Secrets and variables → Actions:
-
-   ```bash
-   gh secret set BENCHMARK_PROVIDER_KIND   --repo Simon-He95/best-agent-benchmarks --body openai
-   gh secret set BENCHMARK_PROVIDER_MODEL  --repo Simon-He95/best-agent-benchmarks --body <model>
-   gh secret set BENCHMARK_PROVIDER_API_KEY --repo Simon-He95/best-agent-benchmarks --body <key>
-   # optional:
-   gh secret set BENCHMARK_PROVIDER_BASE_URL           --repo ... --body <url>
-   gh secret set BENCHMARK_PROVIDER_COMPATIBILITY_MODE --repo ... --body native
-   ```
-
-   (`scripts/sync-secrets.mjs` does this from the local `~/.best-agent/provider.json`.)
-
-3. Actions → **Benchmark** → **Run workflow**:
-
-   - `run_smoke` — fast headless composition gate (blocks the heavy job if the CLI is broken).
-   - `run_swe_bench` + `swe_bench_limit` / `swe_bench_dataset` / `concurrency` / `timeout` — the heavy job. `swe_bench_dataset` = `lite` (300) or `verified` (500).
-   - `reasoning_effort` — `low|medium|high|xhigh|max|none` (empty = model catalog default). Needs a CLI that carries the provider file's `reasoningEffort` in `run`.
-   - `runner` = `macos-latest` (arm64; matches the locally published macOS CLI) — the standard, and free on public repos. `ubuntu-latest` also works once the CLI ships plain (plain is mandatory either way).
-   - `swe_bench_models` + `swe_bench_shards` — parallel model × shard matrix; fragments auto-merge.
-
-Results land in `results/` and as GitHub Actions artifacts, with a per-repo pass-rate table plus the per-task list.
-
-## Notes
-
-- The SWE-bench harness is adapted from the best-agent repo's `scripts/swe-bench-harness.mjs`; the changes are the CLI entry resolution (published package instead of local build), repo-local output paths, auto-detection of `--workspace-backend` / `--max-model-cycles`, dataset selection (`--dataset lite|verified`), per-repo result breakdown, and explicit `--reasoning-effort`.
-- `--download` fetches the corpus (SWE-bench Lite 300 or Verified 500) from HuggingFace into `results/corpora/`.
-- Keep `results/` and `corpora/` out of git (already in `.gitignore`) so model API keys never leak into history.
+`scripts/evaluate-official.mjs` imports the pinned evaluator directly. It never invokes the
+CLI, provider, or model and never parses raw test output itself.

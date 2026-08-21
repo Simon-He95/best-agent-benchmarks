@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Public benchmark harness for @best-agent/cli — headless `run` with full-access / sandbox-plain / no ask_user composition.",
+  "description": "Public macOS generation runner for the pinned best-agent official SWE-bench evaluator.",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "bench:swe-bench": "node scripts/swe-bench-harness.mjs",
+    "bench:prepare": "node scripts/prepare-swe-bench.mjs",
+    "bench:evaluate": "node scripts/evaluate-official.mjs",
+    "test": "node --test test/*.test.mjs",
     "bench:smoke": "node scripts/smoke.mjs",
     "sync:secrets": "node scripts/sync-secrets.mjs"
-  },
-  "dependencies": {
-    "@best-agent/cli": "^0.0.3-beta.8"
   }
 }
