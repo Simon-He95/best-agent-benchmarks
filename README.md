@@ -41,6 +41,7 @@ Set `BENCHMARK_PROVIDER_KIND`, `BENCHMARK_PROVIDER_MODEL`,
 `Benchmark` workflow. Use `swe_bench_tasks` for a predeclared diagnostic failure set.
 The workflow installs the published npm package and never checks out the private best-agent
 repository.
+Generation jobs install `ripgrep`, the CLI search tool's required macOS runtime.
 
 Failure-only batches measure diagnostic recovery. They must not be merged into an old run and
 reported as pass@1. A new pass@1 requires one preselected attempt for every task in a complete

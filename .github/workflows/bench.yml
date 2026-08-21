@@ -251,6 +251,9 @@ jobs:
           name: swe-bench-corpus-${{ github.run_id }}
           path: results/corpora
 
+      - name: Install the search runtime
+        run: brew install ripgrep
+
       - name: Install benchmark dependencies and the exact CLI candidate
         run: |
           npm ci
