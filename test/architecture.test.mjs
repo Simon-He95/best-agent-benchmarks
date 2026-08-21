@@ -79,6 +79,8 @@ test("hosted generation uses the public package and caps each batch at ten tasks
   assert.doesNotMatch(workflow, /repository:\s*Simon-He95\/best-agent(?:\s|$)/u);
   assert.match(workflow, /@best-agent\/cli@\$\{\{ steps\.candidate\.outputs\.version \}\}/u);
   assert.match(workflow, /count > 10/u);
+  assert.match(workflow, /name: swe-bench-corpus-\$\{\{ github\.run_id \}\}/u);
+  assert.match(workflow, /needs: \[plan, smoke, corpus\]/u);
 });
 
 test("beta.9 diagnostic plan is the frozen ledger's complete non-resolved population", () => {

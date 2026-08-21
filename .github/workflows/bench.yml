@@ -172,10 +172,52 @@ jobs:
       - name: Headless composition smoke
         run: node scripts/smoke.mjs
 
+  corpus:
+    name: Freeze SWE-bench corpus
+    if: ${{ inputs.run_swe_bench }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the official evaluator commit
+        id: evaluator
+        run: node -e "import('./scripts/swe-bench-official-evaluator.mjs').then(m => console.log('commit=' + m.OFFICIAL_EVALUATOR_COMMIT))" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: SWE-bench/SWE-bench
+          ref: ${{ steps.evaluator.outputs.commit }}
+          path: tools/swe-bench-source
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Acquire and verify the frozen corpus once
+        run: |
+          for attempt in 1 2 3; do
+            if node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep $((attempt * 5))
+          done
+
+      - name: Upload frozen corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora/swe-bench-verified.jsonl
+          if-no-files-found: error
+          retention-days: 1
+
   swe-bench:
     name: macOS generation (${{ matrix.batch.id }})
     if: ${{ inputs.run_swe_bench }}
-    needs: [plan, smoke]
+    needs: [plan, smoke, corpus]
     runs-on: macos-15
     timeout-minutes: 480
     strategy:
@@ -202,6 +244,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
 
       - name: Install benchmark dependencies and the exact CLI candidate
         run: |

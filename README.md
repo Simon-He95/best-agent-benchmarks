@@ -15,6 +15,9 @@ The hosted workflow is deliberately two-stage:
 2. A macOS machine with Docker Desktop evaluates those same predictions with the pinned
    official SWE-bench Docker evaluator.
 
+The workflow acquires and hash-verifies the pinned corpus once per run, then distributes those
+same bytes to every bounded generation batch.
+
 The first-stage report is always `official-swe-bench-docker-deferred` with `passAt1: null`.
 It is not a second grader and cannot be reported as pass@1.
 
