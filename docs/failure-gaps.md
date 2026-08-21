@@ -1,7 +1,7 @@
 # Benchmark Failure Audit (semantic gap: gold test vs agent patch)
 
-- Generated: 2026-08-20T22:43:32.697Z
-- Real model failures audited: 125
+- Generated: 2026-08-21T02:37:01.912Z
+- Real model failures audited: 239
 - Source: gold `test_patch` assertions vs agent `agentPatch` (from `.tmp/art-*` fragments)
 
 ## Legend
@@ -857,5 +857,691 @@
 - agent modified: doc/whats_new/v1.3.rst, sklearn/impute/_iterative.py
 - gold asserts (0):
 
+## scikit-learn__scikit-learn-25747
+- FAIL_TO_PASS: sklearn/utils/tests/test_set_output.py::test_set_output_pandas_keep_index
+- gold test files: sklearn/utils/tests/test_set_output.py
+- agent modified: sklearn/utils/_set_output.py
+- gold asserts (0):
 
-_Audited 125 tasks (had both gold test assertions and an agent patch)._
+## scikit-learn__scikit-learn-25931
+- FAIL_TO_PASS: sklearn/ensemble/tests/test_iforest.py::test_iforest_preserve_feature_names
+- gold test files: sklearn/ensemble/tests/test_iforest.py
+- agent modified: sklearn/ensemble/_iforest.py
+- gold asserts (0):
+
+## scikit-learn__scikit-learn-25973
+- FAIL_TO_PASS: sklearn/feature_selection/tests/test_sequential.py::test_cv_generator_support
+- gold test files: sklearn/feature_selection/tests/test_sequential.py
+- agent modified: sklearn/feature_selection/_sequential.py
+- gold asserts (0):
+
+## scikit-learn__scikit-learn-26194
+- FAIL_TO_PASS: sklearn/metrics/tests/test_ranking.py::test_roc_curve_drop_intermediate; sklearn/metrics/tests/test_ranking.py::test_roc_curve_with_probablity_estimates[42]
+- gold test files: sklearn/metrics/tests/test_ranking.py
+- agent modified: doc/modules/model_evaluation.rst, doc/whats_new/v1.3.rst, sklearn/metrics/_ranking.py
+- gold asserts (0):
+
+## scikit-learn__scikit-learn-26323
+- FAIL_TO_PASS: sklearn/compose/tests/test_column_transformer.py::test_remainder_set_output
+- gold test files: sklearn/compose/tests/test_column_transformer.py
+- agent modified: sklearn/compose/_column_transformer.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-10323
+- FAIL_TO_PASS: tests/test_directive_code.py::test_LiteralIncludeReader_dedent_and_append_and_prepend
+- gold test files: tests/test_directive_code.py
+- agent modified: CHANGES, sphinx/directives/code.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-10435
+- FAIL_TO_PASS: tests/test_build_latex.py::test_latex_code_role
+- gold test files: tests/test_build_latex.py
+- agent modified: sphinx/writers/latex.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7440
+- FAIL_TO_PASS: tests/test_domain_std.py::test_glossary
+- gold test files: tests/test_domain_std.py
+- agent modified: CHANGES, sphinx/domains/std.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7454
+- FAIL_TO_PASS: tests/test_domain_py.py::test_parse_annotation
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7462
+- FAIL_TO_PASS: tests/test_domain_py.py::test_parse_annotation; tests/test_pycode_ast.py::test_unparse[()-()]
+- gold test files: tests/test_domain_py.py, tests/test_pycode_ast.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7590
+- FAIL_TO_PASS: tests/test_domain_cpp.py::test_expressions
+- gold test files: tests/test_domain_cpp.py
+- agent modified: sphinx/domains/cpp.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7748
+- FAIL_TO_PASS: tests/test_ext_autodoc_configs.py::test_autoclass_content_and_docstring_signature_init; tests/test_ext_autodoc_configs.py::test_autoclass_content_and_docstring_signature_both
+- gold test files: tests/roots/test-ext-autodoc/target/docstring_signature.py, tests/test_ext_autodoc_configs.py
+- agent modified: sphinx/ext/autodoc/__init__.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7757
+- FAIL_TO_PASS: tests/test_util_inspect.py::test_signature_from_str_positionaly_only_args
+- gold test files: tests/test_util_inspect.py
+- agent modified: sphinx/util/inspect.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7889
+- FAIL_TO_PASS: tests/test_ext_autodoc_mock.py::test_MockObject
+- gold test files: tests/test_ext_autodoc_mock.py
+- agent modified: CHANGES, sphinx/ext/autodoc/mock.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7910
+- FAIL_TO_PASS: tests/test_ext_napoleon.py::SkipMemberTest::test_class_decorated_doc
+- gold test files: sphinx/testing/util.py, tests/test_ext_napoleon.py
+- agent modified: sphinx/ext/napoleon/__init__.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-7985
+- FAIL_TO_PASS: tests/test_build_linkcheck.py::test_defaults; tests/test_build_linkcheck.py::test_anchors_ignored
+- gold test files: tests/roots/test-linkcheck/links.txt, tests/test_build_linkcheck.py
+- agent modified: sphinx/builders/linkcheck.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8035
+- FAIL_TO_PASS: tests/test_ext_autodoc_private_members.py::test_private_members
+- gold test files: tests/test_ext_autodoc_private_members.py
+- agent modified: CHANGES, doc/usage/extensions/autodoc.rst, sphinx/ext/autodoc/__init__.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8056
+- FAIL_TO_PASS: tests/test_ext_napoleon_docstring.py::NumpyDocstringTest::test_multiple_parameters
+- gold test files: tests/test_ext_napoleon_docstring.py
+- agent modified: sphinx/util/docfields.py
+- gold asserts (2):
+  - `self.assertEqual(expected, actual)`
+  - `self.assertEqual(expected, actual)`
+
+## sphinx-doc__sphinx-8120
+- FAIL_TO_PASS: tests/test_intl.py::test_customize_system_message
+- gold test files: tests/test_intl.py
+- agent modified: sphinx/application.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8265
+- FAIL_TO_PASS: tests/test_pycode_ast.py::test_unparse[(1,
+- gold test files: tests/test_pycode_ast.py
+- agent modified: sphinx/pycode/ast.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8269
+- FAIL_TO_PASS: tests/test_build_linkcheck.py::test_raises_for_invalid_status
+- gold test files: tests/roots/test-linkcheck-localserver/conf.py, tests/roots/test-linkcheck-localserver/index.rst, tests/test_build_linkcheck.py
+- agent modified: sphinx/builders/linkcheck.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8459
+- FAIL_TO_PASS: tests/test_ext_autodoc_configs.py::test_autodoc_typehints_description_and_type_aliases
+- gold test files: tests/test_ext_autodoc_configs.py
+- agent modified: sphinx/ext/autodoc/typehints.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8475
+- FAIL_TO_PASS: tests/test_build_linkcheck.py::test_TooManyRedirects_on_HEAD
+- gold test files: tests/test_build_linkcheck.py
+- agent modified: sphinx/builders/linkcheck.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8548
+- FAIL_TO_PASS: tests/test_ext_autodoc_autoclass.py::test_inherited_instance_variable
+- gold test files: tests/roots/test-ext-autodoc/target/instance_variable.py, tests/test_ext_autodoc_autoclass.py
+- agent modified: sphinx/ext/autodoc/__init__.py, sphinx/ext/autodoc/importer.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8551
+- FAIL_TO_PASS: tests/test_domain_py.py::test_info_field_list
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8593
+- FAIL_TO_PASS: tests/test_ext_autodoc_private_members.py::test_private_field; tests/test_ext_autodoc_private_members.py::test_private_members
+- gold test files: tests/roots/test-ext-autodoc/target/private.py, tests/test_ext_autodoc_private_members.py
+- agent modified: sphinx/ext/autodoc/__init__.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8595
+- FAIL_TO_PASS: tests/test_ext_autodoc_automodule.py::test_empty_all
+- gold test files: tests/roots/test-ext-autodoc/target/empty_all.py, tests/test_ext_autodoc_automodule.py
+- agent modified: sphinx/ext/autodoc/__init__.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8621
+- FAIL_TO_PASS: tests/test_markup.py::test_inline[verify-:kbd:`Alt+^`-<p><kbd; tests/test_markup.py::test_inline[verify-:kbd:`-`-<p><kbd
+- gold test files: tests/test_markup.py
+- agent modified: sphinx/builders/html/transforms.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8638
+- FAIL_TO_PASS: tests/test_domain_py.py::test_info_field_list_var
+- gold test files: tests/test_domain_py.py
+- agent modified: CHANGES, sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-8721
+- FAIL_TO_PASS: tests/test_ext_viewcode.py::test_viewcode_epub_default
+- gold test files: tests/test_ext_viewcode.py
+- agent modified: sphinx/ext/viewcode.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9230
+- FAIL_TO_PASS: tests/test_domain_py.py::test_info_field_list
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/util/docfields.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9258
+- FAIL_TO_PASS: tests/test_domain_py.py::test_info_field_list_piped_type
+- gold test files: tests/test_domain_py.py
+- agent modified: CHANGES, sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9281
+- FAIL_TO_PASS: tests/test_util_inspect.py::test_object_description_enum
+- gold test files: tests/test_util_inspect.py
+- agent modified: sphinx/util/inspect.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9320
+- FAIL_TO_PASS: tests/test_quickstart.py::test_exits_when_existing_confpy
+- gold test files: tests/test_quickstart.py
+- agent modified: sphinx/cmd/quickstart.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9367
+- FAIL_TO_PASS: tests/test_pycode_ast.py::test_unparse[(1,)-(1,)]
+- gold test files: tests/test_pycode_ast.py
+- agent modified: sphinx/pycode/ast.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9461
+- FAIL_TO_PASS: tests/test_domain_py.py::test_pyproperty; tests/test_ext_autodoc_autoclass.py::test_properties; tests/test_ext_autodoc_autoproperty.py::test_class_properties
+- gold test files: tests/roots/test-ext-autodoc/target/properties.py, tests/test_domain_py.py, tests/test_ext_autodoc_autoclass.py, tests/test_ext_autodoc_autoproperty.py
+- agent modified: sphinx/domains/python.py, sphinx/ext/autodoc/__init__.py, sphinx/util/inspect.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9591
+- FAIL_TO_PASS: tests/test_domain_py.py::test_pyproperty
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9602
+- FAIL_TO_PASS: tests/test_domain_py.py::test_parse_annotation_Literal
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9673
+- FAIL_TO_PASS: tests/test_ext_autodoc_configs.py::test_autodoc_typehints_description_no_undoc
+- gold test files: tests/test_ext_autodoc_configs.py
+- agent modified: sphinx/ext/autodoc/typehints.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9698
+- FAIL_TO_PASS: tests/test_domain_py.py::test_pymethod_options
+- gold test files: tests/test_domain_py.py
+- agent modified: sphinx/domains/python.py
+- gold asserts (0):
+
+## sphinx-doc__sphinx-9711
+- FAIL_TO_PASS: tests/test_extension.py::test_needs_extensions
+- gold test files: tests/test_extension.py
+- agent modified: sphinx/extension.py
+- gold asserts (0):
+
+## sympy__sympy-11618
+- FAIL_TO_PASS: test_issue_11617
+- gold test files: sympy/geometry/tests/test_point.py
+- agent modified: sympy/geometry/point.py
+- gold asserts (0):
+
+## sympy__sympy-12096
+- FAIL_TO_PASS: test_issue_12092
+- gold test files: sympy/utilities/tests/test_lambdify.py
+- agent modified: sympy/core/function.py
+- gold asserts (0):
+
+## sympy__sympy-12419
+- FAIL_TO_PASS: test_Identity
+- gold test files: sympy/matrices/expressions/tests/test_matexpr.py
+- agent modified: sympy/concrete/delta.py, sympy/functions/special/tensor_functions.py, sympy/matrices/expressions/matexpr.py
+- gold asserts (0):
+
+## sympy__sympy-12481
+- FAIL_TO_PASS: test_args
+- gold test files: sympy/combinatorics/tests/test_permutations.py
+- agent modified: sympy/combinatorics/permutations.py
+- gold asserts (0):
+
+## sympy__sympy-12489
+- FAIL_TO_PASS: test_Permutation_subclassing
+- gold test files: sympy/combinatorics/tests/test_permutations.py
+- agent modified: sympy/combinatorics/permutations.py
+- gold asserts (0):
+
+## sympy__sympy-13031
+- FAIL_TO_PASS: test_sparse_matrix
+- gold test files: sympy/matrices/tests/test_sparse.py
+- agent modified: sympy/matrices/sparse.py
+- gold asserts (0):
+
+## sympy__sympy-13091
+- FAIL_TO_PASS: test_equality; test_comparisons_with_unknown_type
+- gold test files: sympy/core/tests/test_basic.py, sympy/core/tests/test_numbers.py
+- agent modified: sympy/core/basic.py, sympy/core/expr.py, sympy/core/numbers.py
+- gold asserts (0):
+
+## sympy__sympy-13372
+- FAIL_TO_PASS: test_evalf_bugs
+- gold test files: sympy/core/tests/test_evalf.py
+- agent modified: sympy/core/evalf.py
+- gold asserts (0):
+
+## sympy__sympy-13480
+- FAIL_TO_PASS: test_coth
+- gold test files: sympy/functions/elementary/tests/test_hyperbolic.py
+- agent modified: sympy/functions/elementary/hyperbolic.py
+- gold asserts (0):
+
+## sympy__sympy-13551
+- FAIL_TO_PASS: test_issue_13546
+- gold test files: sympy/concrete/tests/test_products.py
+- agent modified: sympy/concrete/products.py
+- gold asserts (0):
+
+## sympy__sympy-13615
+- FAIL_TO_PASS: test_Complement
+- gold test files: sympy/sets/tests/test_sets.py
+- agent modified: sympy/sets/sets.py
+- gold asserts (0):
+
+## sympy__sympy-13647
+- FAIL_TO_PASS: test_col_insert
+- gold test files: sympy/matrices/tests/test_commonmatrix.py
+- agent modified: sympy/matrices/common.py
+- gold asserts (0):
+
+## sympy__sympy-13757
+- FAIL_TO_PASS: test_issue_13079
+- gold test files: sympy/core/tests/test_match.py, sympy/polys/tests/test_polytools.py
+- agent modified: sympy/polys/polytools.py
+- gold asserts (0):
+
+## sympy__sympy-13798
+- FAIL_TO_PASS: test_latex_basic
+- gold test files: sympy/printing/tests/test_latex.py
+- agent modified: sympy/printing/latex.py
+- gold asserts (0):
+
+## sympy__sympy-13852
+- FAIL_TO_PASS: test_polylog_values
+- gold test files: sympy/functions/special/tests/test_zeta_functions.py
+- agent modified: sympy/functions/special/zeta_functions.py
+- gold asserts (0):
+
+## sympy__sympy-13877
+- FAIL_TO_PASS: test_determinant
+- gold test files: sympy/matrices/tests/test_matrices.py
+- agent modified: sympy/matrices/matrices.py
+- gold asserts (0):
+
+## sympy__sympy-13878
+- FAIL_TO_PASS: test_arcsin
+- gold test files: sympy/stats/tests/test_continuous_rv.py
+- agent modified: sympy/stats/crv_types.py
+- gold asserts (0):
+
+## sympy__sympy-13974
+- FAIL_TO_PASS: test_tensor_product_simp
+- gold test files: sympy/physics/quantum/tests/test_tensorproduct.py
+- agent modified: sympy/physics/quantum/tensorproduct.py
+- gold asserts (0):
+
+## sympy__sympy-14531
+- FAIL_TO_PASS: test_python_relational; test_Rational
+- gold test files: sympy/printing/tests/test_python.py, sympy/printing/tests/test_str.py
+- agent modified: sympy/printing/str.py
+- gold asserts (0):
+
+## sympy__sympy-14711
+- FAIL_TO_PASS: test_Vector
+- gold test files: sympy/physics/vector/tests/test_vector.py
+- agent modified: sympy/physics/vector/vector.py
+- gold asserts (0):
+
+## sympy__sympy-14976
+- FAIL_TO_PASS: test_MpmathPrinter
+- gold test files: sympy/printing/tests/test_pycode.py, sympy/solvers/tests/test_numeric.py
+- agent modified: sympy/printing/pycode.py
+- gold asserts (0):
+
+## sympy__sympy-15017
+- FAIL_TO_PASS: test_ndim_array_initiation
+- gold test files: sympy/tensor/array/tests/test_immutable_ndim_array.py
+- agent modified: sympy/tensor/array/dense_ndim_array.py, sympy/tensor/array/sparse_ndim_array.py
+- gold asserts (0):
+
+## sympy__sympy-15345
+- FAIL_TO_PASS: test_Function
+- gold test files: sympy/printing/tests/test_mathematica.py
+- agent modified: sympy/printing/mathematica.py
+- gold asserts (0):
+
+## sympy__sympy-15349
+- FAIL_TO_PASS: test_quaternion_conversions
+- gold test files: sympy/algebras/tests/test_quaternion.py
+- agent modified: sympy/algebras/quaternion.py
+- gold asserts (0):
+
+## sympy__sympy-15599
+- FAIL_TO_PASS: test_Mod
+- gold test files: sympy/core/tests/test_arit.py
+- agent modified: sympy/core/mod.py
+- gold asserts (0):
+
+## sympy__sympy-15809
+- FAIL_TO_PASS: test_Min; test_Max
+- gold test files: sympy/functions/elementary/tests/test_miscellaneous.py
+- agent modified: sympy/functions/elementary/miscellaneous.py
+- gold asserts (0):
+
+## sympy__sympy-15875
+- FAIL_TO_PASS: test_Add_is_zero
+- gold test files: sympy/core/tests/test_arit.py
+- agent modified: sympy/core/add.py
+- gold asserts (0):
+
+## sympy__sympy-15976
+- FAIL_TO_PASS: test_presentation_symbol
+- gold test files: sympy/printing/tests/test_mathml.py
+- agent modified: sympy/printing/mathml.py
+- gold asserts (0):
+
+## sympy__sympy-16450
+- FAIL_TO_PASS: test_posify
+- gold test files: sympy/simplify/tests/test_simplify.py
+- agent modified: sympy/simplify/simplify.py
+- gold asserts (0):
+
+## sympy__sympy-16597
+- FAIL_TO_PASS: test_infinity; test_neg_infinity; test_other_symbol
+- gold test files: sympy/core/tests/test_assumptions.py, sympy/functions/elementary/tests/test_miscellaneous.py
+- agent modified: sympy/assumptions/ask.py, sympy/assumptions/ask_generated.py, sympy/core/assumptions.py, sympy/core/power.py, sympy/printing/tree.py, sympy/tensor/indexed.py
+- gold asserts (0):
+
+## sympy__sympy-16766
+- FAIL_TO_PASS: test_PythonCodePrinter
+- gold test files: sympy/printing/tests/test_pycode.py
+- agent modified: sympy/printing/pycode.py
+- gold asserts (0):
+
+## sympy__sympy-16792
+- FAIL_TO_PASS: test_ccode_unused_array_arg
+- gold test files: sympy/utilities/tests/test_codegen.py
+- agent modified: sympy/utilities/codegen.py
+- gold asserts (0):
+
+## sympy__sympy-16886
+- FAIL_TO_PASS: test_encode_morse
+- gold test files: sympy/crypto/tests/test_crypto.py
+- agent modified: sympy/crypto/crypto.py
+- gold asserts (0):
+
+## sympy__sympy-17139
+- FAIL_TO_PASS: test__TR56; test_issue_17137
+- gold test files: sympy/simplify/tests/test_fu.py, sympy/simplify/tests/test_simplify.py
+- agent modified: sympy/simplify/fu.py
+- gold asserts (0):
+
+## sympy__sympy-17318
+- FAIL_TO_PASS: test_issue_12420
+- gold test files: sympy/simplify/tests/test_sqrtdenest.py
+- agent modified: sympy/simplify/radsimp.py
+- gold asserts (0):
+
+## sympy__sympy-17630
+- FAIL_TO_PASS: test_issue_17624; test_zero_matrix_add
+- gold test files: sympy/matrices/expressions/tests/test_blockmatrix.py, sympy/matrices/expressions/tests/test_matadd.py
+- agent modified: sympy/matrices/expressions/matexpr.py
+- gold asserts (0):
+
+## sympy__sympy-17655
+- FAIL_TO_PASS: test_point; test_point3D
+- gold test files: sympy/geometry/tests/test_point.py
+- agent modified: sympy/geometry/point.py
+- gold asserts (0):
+
+## sympy__sympy-18189
+- FAIL_TO_PASS: test_diophantine
+- gold test files: sympy/solvers/tests/test_diophantine.py
+- agent modified: sympy/solvers/diophantine.py
+- gold asserts (0):
+
+## sympy__sympy-18199
+- FAIL_TO_PASS: test_solve_modular
+- gold test files: sympy/ntheory/tests/test_residue.py, sympy/solvers/tests/test_solveset.py
+- agent modified: sympy/ntheory/residue_ntheory.py
+- gold asserts (0):
+
+## sympy__sympy-18211
+- FAIL_TO_PASS: test_issue_18188
+- gold test files: sympy/core/tests/test_relational.py
+- agent modified: sympy/core/relational.py
+- gold asserts (0):
+
+## sympy__sympy-18698
+- FAIL_TO_PASS: test_factor_terms
+- gold test files: sympy/polys/tests/test_polytools.py
+- agent modified: sympy/polys/polytools.py
+- gold asserts (0):
+
+## sympy__sympy-18763
+- FAIL_TO_PASS: test_latex_subs
+- gold test files: sympy/printing/tests/test_latex.py
+- agent modified: sympy/printing/latex.py
+- gold asserts (0):
+
+## sympy__sympy-19040
+- FAIL_TO_PASS: test_issue_5786
+- gold test files: sympy/polys/tests/test_polytools.py
+- agent modified: sympy/polys/sqfreetools.py
+- gold asserts (0):
+
+## sympy__sympy-19346
+- FAIL_TO_PASS: test_dict
+- gold test files: sympy/printing/tests/test_repr.py
+- agent modified: sympy/printing/repr.py
+- gold asserts (0):
+
+## sympy__sympy-19495
+- FAIL_TO_PASS: test_subs_CondSet
+- gold test files: sympy/sets/tests/test_conditionset.py
+- agent modified: sympy/sets/conditionset.py
+- gold asserts (0):
+
+## sympy__sympy-19637
+- FAIL_TO_PASS: test_kernS
+- gold test files: sympy/core/tests/test_sympify.py
+- agent modified: sympy/core/sympify.py
+- gold asserts (0):
+
+## sympy__sympy-19783
+- FAIL_TO_PASS: test_dagger_mul; test_identity
+- gold test files: sympy/physics/quantum/tests/test_dagger.py, sympy/physics/quantum/tests/test_operator.py
+- agent modified: sympy/physics/quantum/dagger.py, sympy/physics/quantum/operator.py
+- gold asserts (0):
+
+## sympy__sympy-19954
+- FAIL_TO_PASS: test_sylow_subgroup
+- gold test files: sympy/combinatorics/tests/test_perm_groups.py
+- agent modified: sympy/combinatorics/perm_groups.py
+- gold asserts (0):
+
+## sympy__sympy-20154
+- FAIL_TO_PASS: test_partitions; test_uniq
+- gold test files: sympy/utilities/tests/test_iterables.py
+- agent modified: sympy/utilities/iterables.py
+- gold asserts (0):
+
+## sympy__sympy-20428
+- FAIL_TO_PASS: test_issue_20427
+- gold test files: sympy/polys/tests/test_polytools.py
+- agent modified: sympy/polys/densearith.py
+- gold asserts (0):
+
+## sympy__sympy-20590
+- FAIL_TO_PASS: test_immutable
+- gold test files: sympy/core/tests/test_basic.py
+- agent modified: sympy/core/_print_helpers.py
+- gold asserts (0):
+
+## sympy__sympy-20801
+- FAIL_TO_PASS: test_zero_not_false
+- gold test files: sympy/core/tests/test_numbers.py
+- agent modified: sympy/core/numbers.py
+- gold asserts (0):
+
+## sympy__sympy-20916
+- FAIL_TO_PASS: test_super_sub
+- gold test files: sympy/printing/tests/test_conventions.py, sympy/testing/quality_unicode.py
+- agent modified: sympy/printing/conventions.py
+- gold asserts (0):
+
+## sympy__sympy-21379
+- FAIL_TO_PASS: test_Mod
+- gold test files: sympy/core/tests/test_arit.py
+- agent modified: sympy/core/mod.py
+- gold asserts (0):
+
+## sympy__sympy-21596
+- FAIL_TO_PASS: test_imageset_intersect_real
+- gold test files: sympy/sets/tests/test_fancysets.py
+- agent modified: sympy/sets/handlers/intersection.py
+- gold asserts (0):
+
+## sympy__sympy-21612
+- FAIL_TO_PASS: test_Mul
+- gold test files: sympy/printing/tests/test_str.py
+- agent modified: sympy/printing/str.py
+- gold asserts (0):
+
+## sympy__sympy-21847
+- FAIL_TO_PASS: test_monomials
+- gold test files: sympy/polys/tests/test_monomials.py
+- agent modified: sympy/polys/monomials.py
+- gold asserts (0):
+
+## sympy__sympy-21930
+- FAIL_TO_PASS: test_create; test_commutation; test_create_f; test_NO; test_Tensors; test_issue_19661
+- gold test files: sympy/physics/tests/test_secondquant.py
+- agent modified: sympy/physics/secondquant.py
+- gold asserts (0):
+
+## sympy__sympy-22080
+- FAIL_TO_PASS: test_create_expand_pow_optimization; test_PythonCodePrinter; test_empty_modules
+- gold test files: sympy/codegen/tests/test_rewriting.py, sympy/printing/tests/test_pycode.py, sympy/utilities/tests/test_lambdify.py
+- agent modified: sympy/printing/codeprinter.py, sympy/printing/precedence.py
+- gold asserts (0):
+
+## sympy__sympy-22456
+- FAIL_TO_PASS: test_String
+- gold test files: sympy/codegen/tests/test_ast.py
+- agent modified: sympy/codegen/ast.py, sympy/core/basic.py
+- gold asserts (0):
+
+## sympy__sympy-22714
+- FAIL_TO_PASS: test_issue_22684
+- gold test files: sympy/geometry/tests/test_point.py
+- agent modified: sympy/geometry/point.py
+- gold asserts (0):
+
+## sympy__sympy-22914
+- FAIL_TO_PASS: test_PythonCodePrinter
+- gold test files: sympy/printing/tests/test_pycode.py
+- agent modified: sympy/printing/pycode.py
+- gold asserts (0):
+
+## sympy__sympy-23262
+- FAIL_TO_PASS: test_issue_14941
+- gold test files: sympy/utilities/tests/test_lambdify.py
+- agent modified: sympy/utilities/lambdify.py
+- gold asserts (0):
+
+## sympy__sympy-23413
+- FAIL_TO_PASS: test_hermite_normal
+- gold test files: sympy/matrices/tests/test_normalforms.py, sympy/polys/matrices/tests/test_normalforms.py
+- agent modified: sympy/polys/matrices/normalforms.py
+- gold asserts (0):
+
+## sympy__sympy-23534
+- FAIL_TO_PASS: test_symbols
+- gold test files: sympy/core/tests/test_symbol.py
+- agent modified: sympy/core/symbol.py
+- gold asserts (0):
+
+## sympy__sympy-23824
+- FAIL_TO_PASS: test_kahane_simplify1
+- gold test files: sympy/physics/hep/tests/test_gamma_matrices.py
+- agent modified: sympy/physics/hep/gamma_matrices.py
+- gold asserts (0):
+
+## sympy__sympy-23950
+- FAIL_TO_PASS: test_as_set
+- gold test files: sympy/sets/tests/test_contains.py
+- agent modified: sympy/sets/contains.py
+- gold asserts (0):
+
+## sympy__sympy-24066
+- FAIL_TO_PASS: test_issue_24062
+- gold test files: sympy/physics/units/tests/test_quantities.py
+- agent modified: sympy/physics/units/unitsystem.py
+- gold asserts (0):
+
+## sympy__sympy-24213
+- FAIL_TO_PASS: test_issue_24211
+- gold test files: sympy/physics/units/tests/test_quantities.py
+- agent modified: sympy/physics/units/unitsystem.py
+- gold asserts (0):
+
+## sympy__sympy-24443
+- FAIL_TO_PASS: test_homomorphism
+- gold test files: sympy/combinatorics/tests/test_homomorphisms.py
+- agent modified: sympy/combinatorics/homomorphisms.py
+- gold asserts (0):
+
+## sympy__sympy-24539
+- FAIL_TO_PASS: test_PolyElement_as_expr
+- gold test files: sympy/polys/tests/test_rings.py
+- agent modified: sympy/polys/rings.py
+- gold asserts (0):
+
+## sympy__sympy-24562
+- FAIL_TO_PASS: test_issue_24543
+- gold test files: sympy/core/tests/test_numbers.py
+- agent modified: sympy/core/numbers.py
+- gold asserts (0):
+
+## sympy__sympy-24661
+- FAIL_TO_PASS: test_issue_24288
+- gold test files: sympy/parsing/tests/test_sympy_parser.py
+- agent modified: sympy/parsing/sympy_parser.py
+- gold asserts (0):
+
+
+_Audited 239 tasks (had both gold test assertions and an agent patch)._
