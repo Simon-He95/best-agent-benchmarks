@@ -37,14 +37,11 @@ on:
         description: Model override; empty uses the repository secret
         required: false
         default: ""
-      swe_bench_shards:
-        description: JSON shard-index array
+      rerun_beta9_failures:
+        description: Run all 302 beta.8 non-resolved tasks in tracked batches of at most 10
         required: false
-        default: "[0]"
-      swe_bench_shard_total:
-        description: Total shard count
-        required: false
-        default: "1"
+        type: boolean
+        default: false
       swe_bench_timeout:
         description: Per-task timeout in milliseconds
         required: false
@@ -65,6 +62,91 @@ env:
   BEST_AGENT_PROVIDER_COMPATIBILITY_MODE: ${{ secrets.BENCHMARK_PROVIDER_COMPATIBILITY_MODE }}
 
 jobs:
+  plan:
+    name: Freeze task batches
+    if: ${{ inputs.run_swe_bench }}
+    runs-on: macos-15
+    outputs:
+      batches: ${{ steps.plan.outputs.batches }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build bounded matrix
+        id: plan
+        env:
+          RERUN_BETA9_FAILURES: ${{ inputs.rerun_beta9_failures }}
+          BATCH_LABEL: ${{ inputs.swe_bench_batch }}
+          TASK_IDS: ${{ inputs.swe_bench_tasks }}
+          TASK_LIMIT: ${{ inputs.swe_bench_limit }}
+          TASK_OFFSET: ${{ inputs.swe_bench_offset }}
+          TASK_CONCURRENCY: ${{ inputs.swe_bench_concurrency }}
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          let batches;
+          if (process.env.RERUN_BETA9_FAILURES === "true") {
+            const manifest = require("./config/beta9-failure-rerun-batches.json");
+            const candidate = require("./config/best-agent-candidate.json");
+            if (manifest.candidateVersion !== candidate.cliVersion) {
+              throw new Error("Failure plan candidate does not match the CLI candidate.");
+            }
+            const taskIds = manifest.batches.flatMap(batch => batch.tasks);
+            if (
+              !Number.isInteger(manifest.maxBatchSize) ||
+              manifest.maxBatchSize < 1 ||
+              manifest.maxBatchSize > 10 ||
+              taskIds.length !== manifest.taskCount ||
+              new Set(taskIds).size !== taskIds.length ||
+              manifest.batches.some(
+                batch =>
+                  !/^[a-zA-Z0-9._-]+$/.test(batch.id) ||
+                  batch.tasks.length < 1 ||
+                  batch.tasks.length > manifest.maxBatchSize,
+              )
+            ) {
+              throw new Error("Failure plan must be a unique, complete set of batches capped at 10 tasks.");
+            }
+            batches = manifest.batches.map((batch, shard) => ({
+              id: batch.id,
+              tasks: batch.tasks.join(","),
+              limit: batch.tasks.length,
+              offset: 0,
+              concurrency: 1,
+              shard,
+              shardTotal: manifest.batches.length,
+            }));
+          } else {
+            const id = process.env.BATCH_LABEL ?? "";
+            if (!/^[a-zA-Z0-9._-]+$/.test(id)) {
+              throw new Error("Batch label must be filesystem-safe.");
+            }
+            const taskIds = (process.env.TASK_IDS ?? "")
+              .split(",")
+              .map(value => value.trim())
+              .filter(Boolean);
+            const limit = Number(process.env.TASK_LIMIT);
+            const count = taskIds.length || limit;
+            const concurrency = Number(process.env.TASK_CONCURRENCY);
+            if (!Number.isInteger(count) || count < 1 || count > 10) {
+              throw new Error("Each workflow run must preselect between 1 and 10 tasks.");
+            }
+            if (new Set(taskIds).size !== taskIds.length) throw new Error("Task IDs must be unique.");
+            if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 2) {
+              throw new Error("Task concurrency must be 1 or 2.");
+            }
+            batches = [{
+              id,
+              tasks: taskIds.join(","),
+              limit,
+              offset: Number(process.env.TASK_OFFSET),
+              concurrency,
+              shard: 0,
+              shardTotal: 1,
+            }];
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `batches=${JSON.stringify(batches)}\n`);
+          NODE
+
   smoke:
     name: macOS headless smoke
     if: ${{ inputs.run_smoke || inputs.run_swe_bench }}
@@ -91,29 +173,31 @@ jobs:
         run: node scripts/smoke.mjs
 
   swe-bench:
-    name: macOS generation (shard ${{ matrix.shard }})
+    name: macOS generation (${{ matrix.batch.id }})
     if: ${{ inputs.run_swe_bench }}
-    needs: smoke
+    needs: [plan, smoke]
     runs-on: macos-15
     timeout-minutes: 480
     strategy:
       fail-fast: false
+      max-parallel: 2
       matrix:
-        shard: ${{ fromJSON(inputs.swe_bench_shards) }}
+        batch: ${{ fromJSON(needs.plan.outputs.batches) }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Resolve the single candidate record
         id: candidate
         run: |
-          echo "commit=$(node -p 'require("./config/best-agent-candidate.json").commit')" >> "$GITHUB_OUTPUT"
           echo "version=$(node -p 'require("./config/best-agent-candidate.json").cliVersion')" >> "$GITHUB_OUTPUT"
+          echo "source_commit=$(node -p 'require("./config/best-agent-candidate.json").sourceCommit')" >> "$GITHUB_OUTPUT"
+          node -e "import('./scripts/swe-bench-official-evaluator.mjs').then(m => console.log('evaluator_commit=' + m.OFFICIAL_EVALUATOR_COMMIT))" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
         with:
-          repository: Simon-He95/best-agent
-          ref: ${{ steps.candidate.outputs.commit }}
-          path: tools/best-agent-source
+          repository: SWE-bench/SWE-bench
+          ref: ${{ steps.candidate.outputs.evaluator_commit }}
+          path: tools/swe-bench-source
 
       - uses: actions/setup-node@v4
         with:
@@ -123,12 +207,11 @@ jobs:
         run: |
           npm ci
           npm install --no-save --ignore-scripts "@best-agent/cli@${{ steps.candidate.outputs.version }}"
-          echo "BEST_AGENT_SOURCE_DIR=${GITHUB_WORKSPACE}/tools/best-agent-source" >> "$GITHUB_ENV"
           echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/.bin/best-agent" >> "$GITHUB_ENV"
-          echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.commit }}" >> "$GITHUB_ENV"
+          echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
 
       - name: Prepare pinned SWE-bench Verified corpus
-        run: node scripts/prepare-swe-bench.mjs
+        run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"
 
       - name: Resolve effective model
         id: model
@@ -145,29 +228,30 @@ jobs:
       - name: Generate and freeze predictions
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
-          SWE_BENCH_EVALUATION_BATCH_ID: cli-${{ steps.candidate.outputs.version }}-${{ inputs.swe_bench_batch }}-${{ steps.model.outputs.model }}-shard-${{ matrix.shard }}
+          BATCH_TASKS: ${{ matrix.batch.tasks }}
+          SWE_BENCH_EVALUATION_BATCH_ID: cli-${{ steps.candidate.outputs.version }}-${{ matrix.batch.id }}-${{ steps.model.outputs.model }}
         run: |
           ARGS=(
             --generation-only
             --official-manifest "${GITHUB_WORKSPACE}/.tmp/official-evaluator-manifest.json"
             --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl"
-            --limit "${{ inputs.swe_bench_limit }}"
-            --offset "${{ inputs.swe_bench_offset }}"
-            --concurrency "${{ inputs.swe_bench_concurrency }}"
+            --limit "${{ matrix.batch.limit }}"
+            --offset "${{ matrix.batch.offset }}"
+            --concurrency "${{ matrix.batch.concurrency }}"
             --timeout "${{ inputs.swe_bench_timeout }}"
-            --shard "${{ matrix.shard }}"
-            --shard-total "${{ inputs.swe_bench_shard_total }}"
-            --tag "${{ steps.model.outputs.model }}-${{ inputs.swe_bench_batch }}"
+            --shard "${{ matrix.batch.shard }}"
+            --shard-total "${{ matrix.batch.shardTotal }}"
+            --output "${GITHUB_WORKSPACE}/results/swe-bench-results.shard-${{ matrix.batch.shard }}.json"
           )
-          if [ -n "${{ inputs.swe_bench_tasks }}" ]; then
-            ARGS+=(--tasks "${{ inputs.swe_bench_tasks }}")
+          if [ -n "$BATCH_TASKS" ]; then
+            ARGS+=(--tasks "$BATCH_TASKS")
           fi
           node scripts/swe-bench-harness.mjs "${ARGS[@]}"
 
       - name: Upload immutable generation artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: swe-bench-generation-${{ inputs.swe_bench_batch }}-shard-${{ matrix.shard }}
+          name: swe-bench-generation-${{ matrix.batch.id }}
           path: |
             results/swe-bench-results.*.json
             results/swe-bench-results.*.md
@@ -184,16 +268,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve the single candidate record
-        id: candidate
-        run: echo "commit=$(node -p 'require("./config/best-agent-candidate.json").commit')" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/checkout@v4
-        with:
-          repository: Simon-He95/best-agent
-          ref: ${{ steps.candidate.outputs.commit }}
-          path: tools/best-agent-source
-
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -206,9 +280,7 @@ jobs:
           merge-multiple: true
 
       - name: Merge canonical reports
-        env:
-          BEST_AGENT_SOURCE_DIR: ${{ github.workspace }}/tools/best-agent-source
-        run: node scripts/swe-bench-harness.mjs --merge-shards
+        run: node scripts/swe-bench-harness.mjs --merge-shards --output "${GITHUB_WORKSPACE}/results/swe-bench-results.json"
 
       - name: Upload merged deferred report
         uses: actions/upload-artifact@v4

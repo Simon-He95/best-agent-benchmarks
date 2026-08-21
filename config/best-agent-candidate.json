@@ -1,4 +1,8 @@
 {
-  "commit": "9a696ddcc497837efbc91a41ee22a14de05e1ea3",
-  "cliVersion": "0.0.3-beta.9"
+  "cliVersion": "0.0.3-beta.9",
+  "sourceCommit": "9a696ddcc497837efbc91a41ee22a14de05e1ea3",
+  "harnessSha256": "824076f39055578bc0041dae1a5df7877de49f4d1968a073610d1ead764d016f",
+  "officialEvaluatorSha256": "7bde27a93ee02740675b8c896151a0332d9a27aaf18ac13455b849a2ebd3fc25",
+  "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
+  "benchmarkProviderSha256": "1dd875b4fb90df44b8bd6c9539cec8449a8e81ddf10a2ab5e8dcf56b84cb9f52"
 }

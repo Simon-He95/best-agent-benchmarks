@@ -4,10 +4,10 @@ Public macOS generation runner for `@best-agent/cli` on SWE-bench Verified.
 
 ## Evaluation boundary
 
-This repository does not grade patches. It reads the one candidate commit and CLI version from
-`config/best-agent-candidate.json` and delegates generation, frozen-patch capture,
-official Docker execution, verdict projection, and aggregation to that commit's canonical
-SWE-bench implementation. Local Markdown only presents those canonical dispositions.
+This repository does not implement a second grader. It installs the public CLI version from
+`config/best-agent-candidate.json` and runs the byte-exact harness and official evaluator frozen
+from that record's source commit. Their SHA-256 values are part of the same candidate record.
+Local Markdown only presents canonical evaluator dispositions.
 
 The hosted workflow is deliberately two-stage:
 
@@ -28,6 +28,7 @@ It is not a second grader and cannot be reported as pass@1.
 - Exec subprocesses: not claimed to be physically network-isolated.
 - Task selection: fixed before generation with offset/limit/shards or an explicit `--tasks`
   list.
+- Hosted diagnostic batches contain at most 10 predeclared tasks.
 - Hidden tests, official logs, and verdicts never enter the model attempt.
 
 ## Hosted macOS generation
@@ -35,6 +36,8 @@ It is not a second grader and cannot be reported as pass@1.
 Set `BENCHMARK_PROVIDER_KIND`, `BENCHMARK_PROVIDER_MODEL`,
 `BENCHMARK_PROVIDER_API_KEY`, and optional provider URL/compatibility secrets, then run the
 `Benchmark` workflow. Use `swe_bench_tasks` for a predeclared diagnostic failure set.
+The workflow installs the published npm package and never checks out the private best-agent
+repository.
 
 Failure-only batches measure diagnostic recovery. They must not be merged into an old run and
 reported as pass@1. A new pass@1 requires one preselected attempt for every task in a complete
@@ -42,13 +45,10 @@ batch.
 
 ## Local official evaluation
 
-Download one generation artifact without changing its report or prediction files. Point the
-commands below at a clean checkout of the pinned best-agent commit and a pinned SWE-bench
-v4.1.0 checkout at commit `726c5461e2ef52d83cf1ea2107870a8bb3328d57`:
+Download one generation artifact without changing its report or prediction files. Use a pinned
+SWE-bench v4.1.0 checkout at commit `726c5461e2ef52d83cf1ea2107870a8bb3328d57`:
 
 ```bash
-export BEST_AGENT_SOURCE_DIR=/absolute/path/to/best-agent
-
 node scripts/prepare-swe-bench.mjs \
   --evaluator-source /absolute/path/to/SWE-bench \
   --evaluator-python /absolute/path/to/swe-bench-venv/bin/python \

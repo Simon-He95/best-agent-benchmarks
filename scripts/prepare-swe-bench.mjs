@@ -11,21 +11,19 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { pathToFileURL, fileURLToPath } from "node:url";
+import { fileURLToPath } from "node:url";
 
-import { resolveBestAgentSource, verifyBestAgentSource } from "./swe-bench-harness.mjs";
+import * as evaluator from "./swe-bench-official-evaluator.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 export function parsePrepareArgs(argv) {
   const parsed = {
-    sourceDir: resolveBestAgentSource(),
     corpusPath: resolve(repoRoot, "results", "corpora", "swe-bench-verified.jsonl"),
     manifestPath: resolve(repoRoot, ".tmp", "official-evaluator-manifest.json"),
   };
   for (let index = 0; index < argv.length; index += 1) {
-    if (argv[index] === "--source") parsed.sourceDir = resolve(argv[++index]);
-    else if (argv[index] === "--corpus") parsed.corpusPath = resolve(argv[++index]);
+    if (argv[index] === "--corpus") parsed.corpusPath = resolve(argv[++index]);
     else if (argv[index] === "--manifest") parsed.manifestPath = resolve(argv[++index]);
     else if (argv[index] === "--evaluator-source") {
       parsed.evaluatorSourceDir = resolve(argv[++index]);
@@ -38,9 +36,7 @@ export function parsePrepareArgs(argv) {
 }
 
 export async function prepareSweBench(options) {
-  const harnessPath = verifyBestAgentSource(options.sourceDir);
-  const evaluatorModulePath = resolve(dirname(harnessPath), "swe-bench-official-evaluator.mjs");
-  const evaluator = await import(pathToFileURL(evaluatorModulePath).href);
+  if (!options.evaluatorSourceDir) throw new Error("--evaluator-source is required.");
   const profile = JSON.parse(
     readFileSync(resolve(repoRoot, "config", "swe-bench-verified.json"), "utf8"),
   );
@@ -67,7 +63,7 @@ export async function prepareSweBench(options) {
     schemaVersion: 1,
     profileId: profile.profileId,
     evaluatorPython: options.evaluatorPython ?? resolveExecutable("python3"),
-    evaluatorSourceDir: options.evaluatorSourceDir ?? options.sourceDir,
+    evaluatorSourceDir: options.evaluatorSourceDir,
     gitExecutable: resolveExecutable("git"),
     dockerExecutable:
       options.dockerExecutable ?? resolveExecutable("docker", "/usr/local/bin/docker"),

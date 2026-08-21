@@ -2,17 +2,16 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { pathToFileURL, fileURLToPath } from "node:url";
+import { fileURLToPath } from "node:url";
 
-import { resolveBestAgentSource, verifyBestAgentSource } from "./swe-bench-harness.mjs";
+import * as evaluator from "./swe-bench-official-evaluator.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 export function parseEvaluationArgs(argv) {
-  const parsed = { sourceDir: resolveBestAgentSource(), concurrency: 1 };
+  const parsed = { concurrency: 1 };
   for (let index = 0; index < argv.length; index += 1) {
-    if (argv[index] === "--source") parsed.sourceDir = resolve(argv[++index]);
-    else if (argv[index] === "--report") parsed.reportPath = resolve(argv[++index]);
+    if (argv[index] === "--report") parsed.reportPath = resolve(argv[++index]);
     else if (argv[index] === "--predictions") parsed.predictionDir = resolve(argv[++index]);
     else if (argv[index] === "--manifest") parsed.manifestPath = resolve(argv[++index]);
     else if (argv[index] === "--output") parsed.outputPath = resolve(argv[++index]);
@@ -30,10 +29,6 @@ export function parseEvaluationArgs(argv) {
 
 export async function evaluateDeferredReport(options) {
   if (existsSync(options.outputPath)) throw new Error("Refusing to overwrite evaluation output.");
-  const harnessPath = verifyBestAgentSource(options.sourceDir);
-  const evaluator = await import(
-    pathToFileURL(resolve(dirname(harnessPath), "swe-bench-official-evaluator.mjs")).href
-  );
   const sourceReport = JSON.parse(readFileSync(options.reportPath, "utf8"));
   if (
     sourceReport.evaluation?.method !== "official-swe-bench-docker-deferred" ||
