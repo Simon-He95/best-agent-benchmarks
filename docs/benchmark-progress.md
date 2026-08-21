@@ -1,14 +1,14 @@
 # Benchmark Progress Ledger
 
-- Generated: 2026-08-21T01:00:54.054Z
-- Tasks tracked: 435
+- Generated: 2026-08-21T01:21:52.539Z
+- Tasks tracked: 454
 
 ## Summary by state
 
 | State | Count |
 |-------|-------|
-| resolved | 197 |
-| test-failed | 177 |
+| resolved | 198 |
+| test-failed | 195 |
 | no-diff | 2 |
 | env-blocked | 54 |
 
@@ -411,6 +411,10 @@
 | sphinx-doc__sphinx-8035 | b45 | test-failed | 79 |  |
 | sphinx-doc__sphinx-8056 | b45 | test-failed | 21 |  |
 | sphinx-doc__sphinx-8120 | b45 | test-failed | 15 |  |
+| sphinx-doc__sphinx-9658 | b44 | resolved | 73 |  |
+| sphinx-doc__sphinx-9673 | b44 | test-failed | 14 |  |
+| sphinx-doc__sphinx-9698 | b44 | test-failed | 14 |  |
+| sphinx-doc__sphinx-9711 | b44 | test-failed | 40 |  |
 | sympy__sympy-11618 | b41 | test-failed | 25 | file or directory not found: test_issue_11617 |
 | sympy__sympy-12096 | b41 | test-failed | 14 | file or directory not found: test_issue_12092 |
 | sympy__sympy-12419 | b41 | test-failed | 91 | file or directory not found: test_Identity |
@@ -451,3 +455,18 @@
 | sympy__sympy-21612 | b43 | test-failed | 16 | file or directory not found: test_Mul |
 | sympy__sympy-21847 | b43 | test-failed | 23 | file or directory not found: test_monomials |
 | sympy__sympy-21930 | b43 | test-failed | 23 | file or directory not found: test_create |
+| sympy__sympy-22080 | b44 | test-failed | 42 | file or directory not found: test_create_expand_pow_optimiza |
+| sympy__sympy-22456 | b44 | test-failed | 36 | file or directory not found: test_String |
+| sympy__sympy-22714 | b44 | test-failed | 14 | file or directory not found: test_issue_22684 |
+| sympy__sympy-22914 | b44 | test-failed | 18 | file or directory not found: test_PythonCodePrinter |
+| sympy__sympy-23262 | b44 | test-failed | 16 | file or directory not found: test_issue_14941 |
+| sympy__sympy-23413 | b44 | test-failed | 29 | file or directory not found: test_hermite_normal |
+| sympy__sympy-23534 | b44 | test-failed | 14 | file or directory not found: test_symbols |
+| sympy__sympy-23824 | b44 | test-failed | 14 | file or directory not found: test_kahane_simplify1 |
+| sympy__sympy-23950 | b44 | test-failed | 11 | file or directory not found: test_as_set |
+| sympy__sympy-24066 | b44 | test-failed | 15 | file or directory not found: test_issue_24062 |
+| sympy__sympy-24213 | b44 | test-failed | 15 | file or directory not found: test_issue_24211 |
+| sympy__sympy-24443 | b44 | test-failed | 56 | file or directory not found: test_homomorphism |
+| sympy__sympy-24539 | b44 | test-failed | 14 | file or directory not found: test_PolyElement_as_expr |
+| sympy__sympy-24562 | b44 | test-failed | 14 | file or directory not found: test_issue_24543 |
+| sympy__sympy-24661 | b44 | test-failed | 44 | file or directory not found: test_issue_24288 |
