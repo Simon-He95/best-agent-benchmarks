@@ -106,7 +106,15 @@ test("the model workspace retains only the frozen base commit", () => {
     const base = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim();
     writeFileSync(join(repository, "value.txt"), "future\n");
     assert.equal(spawnSync("git", ["commit", "-am", "future"], { cwd: repository }).status, 0);
+    const future = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim();
     assert.equal(spawnSync("git", ["remote", "add", "origin", repository], { cwd: repository }).status, 0);
+    assert.equal(spawnSync("git", ["update-ref", "refs/remotes/origin/main", future], { cwd: repository }).status, 0);
+    assert.equal(
+      spawnSync("git", ["symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main"], {
+        cwd: repository,
+      }).status,
+      0,
+    );
     assert.equal(spawnSync("git", ["checkout", "--detach", base], { cwd: repository }).status, 0);
 
     const isolated = isolateFrozenGitCommit(repository);

@@ -12,7 +12,7 @@
     "reasoningEffort": "high",
     "transportProfile": "dim-oauth"
   },
-  "harnessSha256": "75af3f50f66dd222f8dbeb2e12e8576c98e3f113f4af35abf400f72208b80111",
+  "harnessSha256": "9aaa25418e57139916ccc5bbe15705bb9abb40bfe119aaea1df34127cfff8040",
   "officialEvaluatorSha256": "7bde27a93ee02740675b8c896151a0332d9a27aaf18ac13455b849a2ebd3fc25",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
   "benchmarkProviderSha256": "1dd875b4fb90df44b8bd6c9539cec8449a8e81ddf10a2ab5e8dcf56b84cb9f52"

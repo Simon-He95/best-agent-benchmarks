@@ -931,6 +931,7 @@ export function isolateFrozenGitCommit(repoDir) {
     "set -eu",
     "git remote remove origin",
     "git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags | while IFS= read -r ref; do git update-ref -d \"$ref\"; done",
+    "if git symbolic-ref -q refs/remotes/origin/HEAD >/dev/null; then git symbolic-ref -d refs/remotes/origin/HEAD; fi",
     "git reflog expire --expire=now --all",
     "git gc --prune=now",
     "test -z \"$(git remote)\"",
