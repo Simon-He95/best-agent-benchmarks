@@ -933,6 +933,7 @@ export function isolateFrozenGitCommit(repoDir) {
     "git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags | while IFS= read -r ref; do git update-ref -d \"$ref\"; done",
     "if git symbolic-ref -q refs/remotes/origin/HEAD >/dev/null; then git symbolic-ref -d refs/remotes/origin/HEAD; fi",
     "git reflog expire --expire=now --all",
+    "git prune --expire=now",
     "git gc --prune=now",
     "test -z \"$(git remote)\"",
     "test -z \"$(git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags)\"",
