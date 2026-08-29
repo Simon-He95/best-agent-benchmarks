@@ -60,11 +60,7 @@ permissions:
   contents: read
 
 env:
-  BEST_AGENT_PROVIDER_KIND: ${{ secrets.BENCHMARK_PROVIDER_KIND }}
-  BEST_AGENT_PROVIDER_MODEL: ${{ secrets.BENCHMARK_PROVIDER_MODEL }}
-  BEST_AGENT_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
-  BEST_AGENT_PROVIDER_BASE_URL: ${{ secrets.BENCHMARK_PROVIDER_BASE_URL }}
-  BEST_AGENT_PROVIDER_COMPATIBILITY_MODE: ${{ secrets.BENCHMARK_PROVIDER_COMPATIBILITY_MODE }}
+  BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
 
 jobs:
   plan:
@@ -111,11 +107,11 @@ jobs:
           if (rerunBeta9Failures && runFullVerified) {
             throw new Error("Select either the beta.9 diagnostic rerun or the full Verified run, not both.");
           }
-          if (runFullVerified && !(process.env.MODEL_OVERRIDE ?? "").trim()) {
-            throw new Error("Full Verified runs must pin an explicit model input.");
-          }
           if (runFullVerified) {
             const candidate = require("./config/best-agent-candidate.json");
+            if ((process.env.MODEL_OVERRIDE ?? "").trim() !== candidate.provider?.model) {
+              throw new Error("Full Verified runs must pin the candidate provider model.");
+            }
             if (candidate.formalBenchmarkReady !== true) {
               throw new Error("The pinned candidate has not passed the formal benchmark fairness gates.");
             }
@@ -232,8 +228,11 @@ jobs:
           npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${CLI_VERSION}"
           echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
 
-      - name: Verify provider configuration
-        run: test -n "$BEST_AGENT_PROVIDER_API_KEY"
+      - name: Verify provider credential
+        run: test -n "$BENCHMARK_PROVIDER_API_KEY"
+
+      - name: Materialize the frozen provider identity
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
 
       - name: Verify exec network isolation
         run: node scripts/sandbox-network-smoke.mjs
@@ -325,6 +324,9 @@ jobs:
           echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
           echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
 
+      - name: Materialize the frozen provider identity
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+
       - name: Prepare pinned SWE-bench Verified corpus
         run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"
 
@@ -332,13 +334,8 @@ jobs:
         id: model
         run: |
           MODEL="${{ inputs.swe_bench_model }}"
-          if [ -z "$MODEL" ]; then MODEL="$BEST_AGENT_PROVIDER_MODEL"; fi
+          if [ -z "$MODEL" ]; then MODEL="$(node -p 'require("./config/best-agent-candidate.json").provider.model')"; fi
           echo "model=$MODEL" >> "$GITHUB_OUTPUT"
-
-      - name: Relay health gate
-        env:
-          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
-        run: node scripts/relay-health.mjs
 
       - name: Generate and freeze predictions
         env:

@@ -125,6 +125,7 @@ test("formal generation contains no automatic model or acquisition retry", () =>
   const smoke = readFileSync(new URL("../scripts/smoke.mjs", import.meta.url), "utf8");
   const harness = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(workflow, /for attempt in/u);
+  assert.doesNotMatch(workflow, /scripts\/relay-health\.mjs/u);
   assert.doesNotMatch(smoke, /MAX_RELAY_RETRIES|for \(let attempt/u);
   assert.doesNotMatch(harness, /GIT_NETWORK_RETRY|for \(let attempt/u);
 });
@@ -170,7 +171,7 @@ test("full Verified plan is a candidate-independent exact 500-task population", 
   const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
   assert.match(workflow, /run_full_verified:/u);
   assert.match(workflow, /Full plan must exact-cover the frozen corpus in corpus order\./u);
-  assert.match(workflow, /Full Verified runs must pin an explicit model input\./u);
+  assert.match(workflow, /Full Verified runs must pin the candidate provider model\./u);
 });
 
 test("repository instructions forbid mixed-generation and evaluator-driven scoring", () => {

@@ -24,6 +24,8 @@ It is not a second grader and cannot be reported as pass@1.
 ## Fixed composition
 
 - CLI candidate: the exact version in `config/best-agent-candidate.json`.
+- Provider model, compatibility, reasoning effort, and authenticated transport profile: the
+  exact profile in the same candidate record; CI supplies only its rotating OAuth credential.
 - Dataset: SWE-bench Verified, pinned revision and JSONL hash in
   `config/swe-bench-verified.json`.
 - Workspace: macOS sandbox backend with read/write/exec grants.
