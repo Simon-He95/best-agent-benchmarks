@@ -42,6 +42,11 @@ on:
         required: false
         type: boolean
         default: false
+      run_full_verified:
+        description: Run one frozen attempt for all 500 SWE-bench Verified tasks in tracked batches of 5
+        required: false
+        type: boolean
+        default: false
       swe_bench_timeout:
         description: Per-task timeout in milliseconds
         required: false
@@ -65,29 +70,65 @@ jobs:
   plan:
     name: Freeze task batches
     if: ${{ inputs.run_swe_bench }}
+    needs: corpus
     runs-on: macos-15
     outputs:
       batches: ${{ steps.plan.outputs.batches }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
       - name: Build bounded matrix
         id: plan
         env:
           RERUN_BETA9_FAILURES: ${{ inputs.rerun_beta9_failures }}
+          RUN_FULL_VERIFIED: ${{ inputs.run_full_verified }}
           BATCH_LABEL: ${{ inputs.swe_bench_batch }}
           TASK_IDS: ${{ inputs.swe_bench_tasks }}
           TASK_LIMIT: ${{ inputs.swe_bench_limit }}
           TASK_OFFSET: ${{ inputs.swe_bench_offset }}
           TASK_CONCURRENCY: ${{ inputs.swe_bench_concurrency }}
+          MODEL_OVERRIDE: ${{ inputs.swe_bench_model }}
         run: |
           node <<'NODE'
           const fs = require("node:fs");
-          let batches;
-          if (process.env.RERUN_BETA9_FAILURES === "true") {
-            const manifest = require("./config/beta9-failure-rerun-batches.json");
+          const corpusRows = fs.readFileSync("./results/corpora/swe-bench-verified.jsonl", "utf8")
+            .trim()
+            .split("\n")
+            .map(line => JSON.parse(line));
+          const corpusIds = corpusRows.map(row => row.instance_id);
+          const corpusIdSet = new Set(corpusIds);
+          if (corpusIds.length !== 500 || corpusIdSet.size !== corpusIds.length) {
+            throw new Error("Frozen corpus must contain exactly 500 unique tasks.");
+          }
+          const rerunBeta9Failures = process.env.RERUN_BETA9_FAILURES === "true";
+          const runFullVerified = process.env.RUN_FULL_VERIFIED === "true";
+          if (rerunBeta9Failures && runFullVerified) {
+            throw new Error("Select either the beta.9 diagnostic rerun or the full Verified run, not both.");
+          }
+          if (runFullVerified && !(process.env.MODEL_OVERRIDE ?? "").trim()) {
+            throw new Error("Full Verified runs must pin an explicit model input.");
+          }
+          if (runFullVerified) {
             const candidate = require("./config/best-agent-candidate.json");
-            if (manifest.candidateVersion !== candidate.cliVersion) {
+            if (candidate.formalBenchmarkReady !== true) {
+              throw new Error("The pinned candidate has not passed the formal benchmark fairness gates.");
+            }
+          }
+          let batches;
+          if (rerunBeta9Failures || runFullVerified) {
+            const manifest = require(
+              runFullVerified
+                ? "./config/swe-bench-full-batches.json"
+                : "./config/beta9-failure-rerun-batches.json",
+            );
+            const candidate = require("./config/best-agent-candidate.json");
+            if (rerunBeta9Failures && manifest.candidateVersion !== candidate.cliVersion) {
               throw new Error("Failure plan candidate does not match the CLI candidate.");
             }
             const taskIds = manifest.batches.flatMap(batch => batch.tasks);
@@ -104,7 +145,21 @@ jobs:
                   batch.tasks.length > manifest.maxBatchSize,
               )
             ) {
-              throw new Error("Failure plan must be a unique, complete set of batches capped at 10 tasks.");
+              throw new Error("Tracked plan must be a unique, complete set of batches capped at 10 tasks.");
+            }
+            if (taskIds.some(taskId => !corpusIdSet.has(taskId))) {
+              throw new Error("Tracked plan contains a task outside the frozen corpus.");
+            }
+            if (runFullVerified) {
+              const profile = require("./config/swe-bench-verified.json");
+              if (
+                manifest.profileId !== profile.profileId ||
+                manifest.corpusSha256 !== profile.jsonlSha256 ||
+                manifest.taskCount !== profile.taskCount ||
+                taskIds.some((taskId, index) => taskId !== corpusIds[index])
+              ) {
+                throw new Error("Full plan must exact-cover the frozen corpus in corpus order.");
+              }
             }
             batches = manifest.batches.map((batch, shard) => ({
               id: batch.id,
@@ -131,14 +186,21 @@ jobs:
               throw new Error("Each workflow run must preselect between 1 and 10 tasks.");
             }
             if (new Set(taskIds).size !== taskIds.length) throw new Error("Task IDs must be unique.");
+            if (taskIds.some(taskId => !corpusIdSet.has(taskId))) {
+              throw new Error("Predeclared task is outside the frozen corpus.");
+            }
             if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 2) {
               throw new Error("Task concurrency must be 1 or 2.");
+            }
+            const offset = Number(process.env.TASK_OFFSET);
+            if (!Number.isInteger(offset) || offset < 0 || offset + count > corpusIds.length) {
+              throw new Error("Task offset/limit must stay inside the frozen corpus.");
             }
             batches = [{
               id,
               tasks: taskIds.join(","),
               limit,
-              offset: Number(process.env.TASK_OFFSET),
+              offset,
               concurrency,
               shard: 0,
               shardTotal: 1,
@@ -163,11 +225,18 @@ jobs:
         run: |
           npm ci
           CLI_VERSION="$(node -p 'require("./config/best-agent-candidate.json").cliVersion')"
-          npm install --no-save --ignore-scripts "@best-agent/cli@${CLI_VERSION}"
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/.bin/best-agent" >> "$GITHUB_ENV"
+          CLI_PACKAGE="$(node -p 'require("./config/best-agent-candidate.json").packageName')"
+          EXPECTED_INTEGRITY="$(node -p 'require("./config/best-agent-candidate.json").packageIntegrity')"
+          test "$(uname -m)" = "arm64"
+          test "$(npm view "${CLI_PACKAGE}@${CLI_VERSION}" dist.integrity)" = "$EXPECTED_INTEGRITY"
+          npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${CLI_VERSION}"
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
 
       - name: Verify provider configuration
         run: test -n "$BEST_AGENT_PROVIDER_API_KEY"
+
+      - name: Verify exec network isolation
+        run: node scripts/sandbox-network-smoke.mjs
 
       - name: Headless composition smoke
         run: node scripts/smoke.mjs
@@ -195,16 +264,7 @@ jobs:
           node-version: 24
 
       - name: Acquire and verify the frozen corpus once
-        run: |
-          for attempt in 1 2 3; do
-            if node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"; then
-              exit 0
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              exit 1
-            fi
-            sleep $((attempt * 5))
-          done
+        run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"
 
       - name: Upload frozen corpus
         uses: actions/upload-artifact@v4
@@ -257,8 +317,12 @@ jobs:
       - name: Install benchmark dependencies and the exact CLI candidate
         run: |
           npm ci
-          npm install --no-save --ignore-scripts "@best-agent/cli@${{ steps.candidate.outputs.version }}"
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/.bin/best-agent" >> "$GITHUB_ENV"
+          CLI_PACKAGE="$(node -p 'require("./config/best-agent-candidate.json").packageName')"
+          EXPECTED_INTEGRITY="$(node -p 'require("./config/best-agent-candidate.json").packageIntegrity')"
+          test "$(uname -m)" = "arm64"
+          test "$(npm view "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}" dist.integrity)" = "$EXPECTED_INTEGRITY"
+          npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}"
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
           echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
 
       - name: Prepare pinned SWE-bench Verified corpus

@@ -7,8 +7,8 @@
  *   - full access: permission mode `full` + `--workspace-grant read write exec`;
  *   - no ask-user: the `run` command excludes the interaction ToolBindings, so the agent
  *     never stalls on a human prompt during a task;
- *   - closed tool surface: network ToolBindings are excluded, while the plain workspace
- *     backend does not claim OS-level egress isolation for exec subprocesses.
+ *   - closed tool surface: network ToolBindings are excluded and macOS Seatbelt denies
+ *     network access from exec subprocesses.
  *
  * Usage:
  *   node scripts/swe-bench-harness.mjs [options]
@@ -76,8 +76,6 @@ const DEFAULTS = {
       ? undefined
       : resolve(process.env.SWE_BENCH_OFFICIAL_MANIFEST),
 };
-const GIT_NETWORK_RETRY_ATTEMPTS = 3;
-const GIT_NETWORK_RETRY_DELAY_MS = 1_000;
 const FULL_ACCESS_GRANTS = ["read", "write", "exec"];
 const PATCH_CAPTURE_MAX_BUFFER_BYTES = 17 * 1024 * 1024;
 
@@ -396,10 +394,10 @@ async function main() {
       fullAccess: true,
       permissionMode: "full",
       interactionTools: false,
-      workspaceBackend: "plain",
+      workspaceBackend: "sandbox",
       excludedToolScopes: ["network"],
       networkToolSchemas: false,
-      execNetworkIsolation: false,
+      execNetworkIsolation: true,
       taskTimeoutMs: args.taskTimeout,
       ...(args.shard !== undefined ? { shard: args.shard, shardTotal: args.shardTotal } : {}),
     },
@@ -512,10 +510,10 @@ function mergeShardReports(outputPath) {
       fullAccess: true,
       permissionMode: "full",
       interactionTools: false,
-      workspaceBackend: "plain",
+      workspaceBackend: "sandbox",
       excludedToolScopes: ["network"],
       networkToolSchemas: false,
-      execNetworkIsolation: false,
+      execNetworkIsolation: true,
       fragments: reports.length,
     },
     corpus: {
@@ -627,7 +625,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
   const startMs = performance.now();
   try {
     // Clone the repo at the base commit (shallow).
-    const cloneResult = await runGitNetworkCommand({
+    const cloneResult = runGitCommand({
       args: ["clone", "--depth", "1", `https://github.com/${task.repo}.git`, "repo"],
       cwd: taskDir,
     });
@@ -640,7 +638,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
 
     const repoDir = resolve(taskDir, "repo");
     if (task.base_commit) {
-      const fetchResult = await runGitNetworkCommand({
+      const fetchResult = runGitCommand({
         args: ["fetch", "--depth", "1", "origin", task.base_commit],
         cwd: repoDir,
       });
@@ -664,6 +662,13 @@ async function runTask(task, timeoutMs, evaluationContext) {
       if (head.status !== 0 || head.stdout.trim() !== task.base_commit) {
         return taskResult(task, startMs, {
           error: "Checked-out HEAD does not match the frozen SWE-bench base commit.",
+          benchmarkInconclusive: true,
+        });
+      }
+      const isolation = isolateFrozenGitCommit(repoDir);
+      if (isolation.status !== 0) {
+        return taskResult(task, startMs, {
+          error: `Frozen repository isolation failed: ${describeGitFailure(isolation)}`,
           benchmarkInconclusive: true,
         });
       }
@@ -705,11 +710,8 @@ async function runTask(task, timeoutMs, evaluationContext) {
       "--max-model-cycles",
       "600",
       ...FULL_ACCESS_GRANTS.flatMap((grant) => ["--workspace-grant", grant]),
-      // Spec 069: benchmark plain workspace backend — the sandbox (Seatbelt) is
-      // macOS-only and unusable on Linux CI; benchmark workspaces are disposable
-      // repo clones on ephemeral runners, so OS-level containment is unnecessary.
       "--workspace-backend",
-      "plain",
+      "sandbox",
       "--tool-exclude",
       "network",
       prompt,
@@ -920,32 +922,30 @@ async function runTaskSafe(task, timeoutMs, evaluationContext) {
   }
 }
 
-async function runGitNetworkCommand({ args, cwd }) {
-  let lastResult;
-  for (let attempt = 1; attempt <= GIT_NETWORK_RETRY_ATTEMPTS; attempt += 1) {
-    lastResult = spawnSync("git", args, { cwd, encoding: "utf8", timeout: 60_000 });
-    if (lastResult.status === 0) return lastResult;
-    if (!isRetryableGitNetworkFailure(lastResult) || attempt === GIT_NETWORK_RETRY_ATTEMPTS) {
-      return lastResult;
-    }
-    await delay(GIT_NETWORK_RETRY_DELAY_MS * attempt);
-  }
-  return lastResult;
+function runGitCommand({ args, cwd }) {
+  return spawnSync("git", args, { cwd, encoding: "utf8", timeout: 60_000 });
 }
 
-function isRetryableGitNetworkFailure(result) {
-  const output = `${result?.stderr ?? ""}\n${result?.stdout ?? ""}`;
-  return /connection reset by peer|recv failure|remote end hung up unexpectedly|could not resolve host|failed to connect|connection timed out|operation timed out|tls connection was non-properly terminated|http\/2 stream/i.test(
-    output,
-  );
+export function isolateFrozenGitCommit(repoDir) {
+  const script = [
+    "set -eu",
+    "git remote remove origin",
+    "git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags | while IFS= read -r ref; do git update-ref -d \"$ref\"; done",
+    "git reflog expire --expire=now --all",
+    "git gc --prune=now",
+    "test -z \"$(git remote)\"",
+    "test -z \"$(git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags)\"",
+    "test -z \"$(git fsck --unreachable --no-reflogs 2>&1)\"",
+  ].join("\n");
+  return spawnSync("/bin/sh", ["-c", script], {
+    cwd: repoDir,
+    encoding: "utf8",
+    timeout: 60_000,
+  });
 }
 
 function describeGitFailure(result) {
   return `${result?.stderr ?? ""}${result?.stdout ?? ""}`.slice(0, 500);
-}
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function taskResult(task, startMs, extra = {}) {

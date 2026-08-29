@@ -19,7 +19,7 @@
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
 
@@ -86,44 +86,39 @@ async function main() {
     "--workspace",
     workspace,
     ...["read", "write", "exec"].flatMap((grant) => ["--workspace-grant", grant]),
-    // Spec 069: the benchmark environment is ALWAYS the plain workspace backend. No
-    // sandbox fallback — if the installed CLI lacks the flag, the smoke gate fails.
+    // Generation runs on macOS, so the benchmark uses Seatbelt to deny exec egress.
     "--workspace-backend",
-    "plain",
+    "sandbox",
     ...(model === undefined ? [] : ["--model", model]),
     prompt,
   ];
 
   const started = performance.now();
-  // The dimcode relay channel pool is intermittently overloaded ("channel not found").
-  // Retry the composition a few times with a short backoff before declaring the gate
-  // failed; only a persistent relay failure aborts the run.
-  let result;
-  const MAX_RELAY_RETRIES = 3;
-  for (let attempt = 1; attempt <= MAX_RELAY_RETRIES; attempt += 1) {
-    result = await runProcess([...cliPrefix, ...cliArgs], workspace, 300_000);
-    const message = `${result.stderr ?? ""}${result.stdout ?? ""}`;
-    if (!/channel not found|获取重试渠道|get_channel_failed|reasoning_content.*must be passed back/iu.test(message)) break;
-    if (attempt < MAX_RELAY_RETRIES) {
-      process.stderr.write(
-        `smoke> relay channel overloaded (attempt ${attempt}/${MAX_RELAY_RETRIES}); retrying in 10s\n`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 10_000));
-    }
-  }
+  const result = await runProcess([...cliPrefix, ...cliArgs], workspace, 300_000);
   const wallMs = Math.round(performance.now() - started);
 
   const stdout = result.stdout ?? "";
   const stderr = result.stderr ?? "";
 
-  let fixed = false;
-  try {
-    const content = readFileSync(target, "utf8");
-    // A correct fix keeps the division but guards the zero case (raises ValueError).
-    fixed = content.includes("a / b") && /zero|== 0|b != 0|b === 0/i.test(content);
-  } catch {
-    fixed = false;
-  }
+  const content = readFileSync(target, "utf8");
+  const verification = spawnSync(
+    "python3",
+    [
+      "-c",
+      [
+        "from math_utils import divide",
+        "assert divide(6, 3) == 2",
+        "try:",
+        "    divide(1, 0)",
+        "except ValueError:",
+        "    pass",
+        "else:",
+        "    raise AssertionError('divide(1, 0) did not raise ValueError')",
+      ].join("\n"),
+    ],
+    { cwd: workspace, encoding: "utf8" },
+  );
+  const fixed = content.includes("a / b") && verification.status === 0;
 
   const relayMessage = `${stderr}${stdout}`;
   const relayOverloaded = /channel not found|获取重试渠道|get_channel_failed|reasoning_content.*must be passed back/iu.test(relayMessage);
@@ -139,7 +134,8 @@ async function main() {
       fullAccess: true,
       workspaceGrants: ["read", "write", "exec"],
       interactionTools: false,
-      workspaceBackend: "plain (spec 069; always)",
+      workspaceBackend: "sandbox",
+      execNetworkIsolation: true,
     },
     finalAnswer: stdout.trim().slice(-800),
     cliError: stderr.trim().slice(-800),

@@ -1,7 +1,10 @@
 {
-  "cliVersion": "0.0.3-beta.9",
-  "sourceCommit": "9a696ddcc497837efbc91a41ee22a14de05e1ea3",
-  "harnessSha256": "824076f39055578bc0041dae1a5df7877de49f4d1968a073610d1ead764d016f",
+  "cliVersion": "0.0.3-beta.12",
+  "packageName": "@best-agent/cli-darwin-arm64",
+  "packageIntegrity": "sha512-rosXZgI44vF2DsXGIvFM6etnAbroR71knZYi3xnsRPlr+yqi1yLgRf/5qkctAfjqtMvBkfHi/QPrIsu/oo9GAw==",
+  "sourceCommit": "ef72b37bbb00e66355d2f7dea9f80cb61aa4f795",
+  "formalBenchmarkReady": true,
+  "harnessSha256": "75af3f50f66dd222f8dbeb2e12e8576c98e3f113f4af35abf400f72208b80111",
   "officialEvaluatorSha256": "7bde27a93ee02740675b8c896151a0332d9a27aaf18ac13455b849a2ebd3fc25",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
   "benchmarkProviderSha256": "1dd875b4fb90df44b8bd6c9539cec8449a8e81ddf10a2ab5e8dcf56b84cb9f52"

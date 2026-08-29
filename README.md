@@ -1,6 +1,6 @@
 # best-agent-benchmarks
 
-Public macOS generation runner for `@best-agent/cli` on SWE-bench Verified.
+Public macOS generation runner for the pinned best-agent CLI on SWE-bench Verified.
 
 ## Evaluation boundary
 
@@ -26,12 +26,13 @@ It is not a second grader and cannot be reported as pass@1.
 - CLI candidate: the exact version in `config/best-agent-candidate.json`.
 - Dataset: SWE-bench Verified, pinned revision and JSONL hash in
   `config/swe-bench-verified.json`.
-- Workspace: plain backend with read/write/exec grants.
+- Workspace: macOS sandbox backend with read/write/exec grants.
 - Interaction and network ToolBindings: excluded.
-- Exec subprocesses: not claimed to be physically network-isolated.
+- Exec subprocesses: macOS Seatbelt denies network access.
 - Task selection: fixed before generation with offset/limit/shards or an explicit `--tasks`
   list.
 - Hosted diagnostic batches contain at most 10 predeclared tasks.
+- The formal 500-task run uses 100 predeclared batches of 5 to stay below the hosted job timeout.
 - Hidden tests, official logs, and verdicts never enter the model attempt.
 
 ## Hosted macOS generation
