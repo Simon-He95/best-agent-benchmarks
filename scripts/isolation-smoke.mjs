@@ -45,7 +45,7 @@ try {
     process.exitCode = 1;
   } else {
     process.stdout.write(
-      `${JSON.stringify({ ok: true, instanceId: task.instance_id, baseCommit: task.base_commit })}\n`,
+      `${JSON.stringify({ ok: true, instanceId: task.instance_id, baseCommit: task.base_commit, host: { platform: process.platform, arch: process.arch } })}\n`,
     );
   }
 } finally {

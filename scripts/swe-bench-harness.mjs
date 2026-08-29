@@ -1,8 +1,8 @@
 /**
  * SWE-bench harness (v3).
  *
- * Runs the v3 agent against a frozen SWE-bench corpus and scores the terminal patch with the
- * pinned official SWE-bench Docker evaluator. Each task runs through the v3 CLI
+ * Runs the v3 agent against a frozen SWE-bench corpus and freezes terminal predictions for
+ * later admission and official Docker evaluation. Each task runs through the v3 CLI
  * one-shot `run` command with the full-access, non-interactive composition:
  *   - full access: permission mode `full` + `--workspace-grant read write exec`;
  *   - no ask-user: the `run` command excludes the interaction ToolBindings, so the agent
@@ -18,7 +18,7 @@
  *   --limit <n>      Run only the first N tasks
  *   --task <id>      Run a single task by instance ID
  *   --tasks <ids>    Run a predeclared comma-separated task set
- *   --generation-only Freeze predictions without starting the Docker evaluator
+ *   --generation-only Required: freeze predictions without starting the Docker evaluator
  *   --timeout <ms>   Per-task timeout in ms (default: 300000 = 5 min)
  *   --output <path>  Output results JSON path (default: docs/benchmarks/swe-bench-results.json)
  *   --concurrency <n> Max parallel tasks (default: 1)
@@ -35,27 +35,30 @@
  */
 
 import { spawn, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
+  closeSync,
   existsSync,
+  fsyncSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
+  openSync,
+  readSync,
   readFileSync,
   rmSync,
+  statSync,
+  writeSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
 
 import { writeBenchmarkHistory, resolveCandidateId } from "./benchmark-history.mjs";
 import { describeBenchmarkProvider } from "./benchmark-provider.mjs";
 import {
-  createInfrastructureInconclusive,
   createFrozenPrediction,
-  evaluateFrozenPrediction,
-  freezeOfficialImageManifest,
   loadOfficialEvaluatorManifest,
   projectBenchmarkTaskDisposition,
   summarizeOfficialEvaluations,
@@ -89,7 +92,6 @@ export function parseBenchmarkArgs(argv) {
     offset: 0,
     shard: undefined,
     shardTotal: undefined,
-    mergeShards: false,
     outputPathWasSet: false,
     tag: undefined,
   };
@@ -128,9 +130,6 @@ export function parseBenchmarkArgs(argv) {
       case "--tag":
         parsed.tag = argv[++i];
         break;
-      case "--merge-shards":
-        parsed.mergeShards = true;
-        break;
       case "--timeout":
         parsed.taskTimeout = Number(argv[++i]);
         break;
@@ -152,7 +151,6 @@ export function parseBenchmarkArgs(argv) {
             "  --limit <n>         run the first n tasks (0 = all)\n" +
             "  --offset <n>        skip the first n tasks\n" +
             "  --shard <i> --shard-total <n>   run tasks where index % n == i (parallel shards)\n" +
-            "  --merge-shards      combine swe-bench-results.shard-*.json into the aggregate report\n" +
             "  --task <id>         run one task by instance id\n" +
             "  --tasks <ids>       run a predeclared comma-separated task set\n" +
             "  --generation-only   freeze predictions and defer official Docker evaluation\n" +
@@ -178,6 +176,11 @@ export function parseBenchmarkArgs(argv) {
   }
   if (parsed.taskId !== undefined && parsed.taskIds !== undefined) {
     throw new Error("--task and --tasks are mutually exclusive.");
+  }
+  if (!parsed.generationOnly) {
+    throw new Error(
+      "Generation is the only harness mode; use evaluate-official.mjs for admitted Docker evaluation.",
+    );
   }
   return parsed;
 }
@@ -216,11 +219,6 @@ async function main() {
   mkdirSync(benchmarksDir, { recursive: true });
 
   const args = parseBenchmarkArgs(process.argv.slice(2));
-
-  if (args.mergeShards) {
-    mergeShardReports(args.outputPath);
-    return;
-  }
 
   if (!args.officialManifestPath) {
     throw new Error(
@@ -271,7 +269,7 @@ async function main() {
   }
 
   // Model/shard runs write to tagged/shard-specific files so parallel CI jobs never
-  // overwrite each other; --merge-shards combines them into the aggregate report.
+  // overwrite each other; formal population admission consumes the immutable task receipts.
   if (args.tag && !args.outputPathWasSet) {
     args.outputPath = args.outputPath.replace(/\.json$/u, `.${sanitize(args.tag)}.json`);
   }
@@ -293,24 +291,22 @@ async function main() {
   );
   const outputStem = args.outputPath.replace(/\.json$/u, "");
   const predictionDir = `${outputStem}.predictions`;
-  const officialEvaluationDir = `${outputStem}.official-evaluation`;
-  if (
-    existsSync(args.outputPath) ||
-    existsSync(predictionDir) ||
-    existsSync(officialEvaluationDir)
-  ) {
-    throw new Error("Refusing to overwrite an existing benchmark result or evaluation artifact.");
+  const taskArtifactDir = `${outputStem}.tasks`;
+  if (existsSync(args.outputPath) || existsSync(predictionDir) || existsSync(taskArtifactDir)) {
+    throw new Error("Refusing to overwrite an existing benchmark generation artifact.");
   }
   mkdirSync(predictionDir, { recursive: true });
-  mkdirSync(officialEvaluationDir, { recursive: true });
+  mkdirSync(taskArtifactDir, { recursive: true });
+  const formalRunId = process.env.SWE_BENCH_FORMAL_RUN_ID ?? `diagnostic-${evaluationBatchId}`;
   const evaluationContext = Object.freeze({
+    candidateId,
     evaluationBatchId,
+    formalRunId,
     manifestPath: args.officialManifestPath,
     predictionDir,
-    officialEvaluationDir,
+    taskArtifactDir,
     modelNameOrPath: `${provider.kind}/${provider.model}`,
   });
-  const imageManifestPath = resolve(officialEvaluationDir, "image-manifest.json");
 
   process.stdout.write(
     `${officialManifest.dataset.profileId}: running ${tasks.length} / ${allTasks.length} tasks\n`,
@@ -330,60 +326,15 @@ async function main() {
     results.push(...batchResults);
 
     process.stderr.write(
-      `generation> ${results.length}/${tasks.length} attempts complete, ${results.filter((result) => result.predictionPath).length} frozen predictions\n`,
+      `generation> ${results.length}/${tasks.length} attempts complete, ${results.filter((result) => result.prediction !== undefined).length} frozen predictions\n`,
     );
-  }
-
-  const predictionPaths = results
-    .map((result) => result.predictionPath)
-    .filter((path) => typeof path === "string");
-  if (predictionPaths.length > 0 && !args.generationOnly) {
-    try {
-      await freezeOfficialImageManifest({
-        manifestPath: args.officialManifestPath,
-        predictionPaths,
-        outputPath: imageManifestPath,
-      });
-    } catch (error) {
-      process.stderr.write(
-        `Official image manifest admission failed: ${error instanceof Error ? error.message : String(error)}\n`,
-      );
-      for (let index = 0; index < results.length; index += 1) {
-        if (!results[index].predictionPath) continue;
-        const officialEvaluation = createInfrastructureInconclusive({
-          manifestPath: args.officialManifestPath,
-          predictionPath: results[index].predictionPath,
-        });
-        results[index] = {
-          ...results[index],
-          officialEvaluation,
-          evaluationError: officialEvaluation.reason,
-          verification: "official-evaluator-admission-failed",
-        };
-      }
-    }
-    if (existsSync(imageManifestPath)) {
-      for (let i = 0; i < results.length; i += args.concurrency) {
-        const batch = results.slice(i, i + args.concurrency);
-        const evaluated = await Promise.all(
-          batch.map((result) =>
-            evaluateGeneratedTaskSafe(result, evaluationContext, imageManifestPath),
-          ),
-        );
-        results.splice(i, evaluated.length, ...evaluated);
-        const progressSummary = summarizeOfficialEvaluations(results);
-        process.stderr.write(
-          `evaluation> ${Math.min(i + batch.length, results.length)}/${results.length} visited, ${progressSummary.officialResolved} official resolved, ${progressSummary.officialInconclusive} inconclusive\n`,
-        );
-      }
-    }
   }
 
   const wallMs = performance.now() - startTime;
   const errored = results.filter((r) => r.error).length;
   const environmentBlocked = results.filter((r) => r.environmentBlocked).length;
   const timedOut = results.filter((r) => r.timedOut).length;
-  const officialSummary = summarizeBenchmarkResults(results, args.generationOnly);
+  const officialSummary = summarizeBenchmarkResults(results, true);
 
   const report = {
     benchmark: officialManifest.dataset.profileId,
@@ -399,6 +350,7 @@ async function main() {
       networkToolSchemas: false,
       execNetworkIsolation: true,
       taskTimeoutMs: args.taskTimeout,
+      formalRunId,
       ...(args.shard !== undefined ? { shard: args.shard, shardTotal: args.shardTotal } : {}),
     },
     corpus: {
@@ -408,13 +360,10 @@ async function main() {
     },
     evaluation: {
       schemaVersion: 1,
-      method: args.generationOnly
-        ? "official-swe-bench-docker-deferred"
-        : "official-swe-bench-docker",
+      method: "official-swe-bench-docker-deferred",
       manifestPath: args.officialManifestPath,
       evaluationBatchId,
-      imageManifestPath:
-        predictionPaths.length > 0 && !args.generationOnly ? imageManifestPath : null,
+      imageManifestPath: null,
     },
     summary: {
       resolved: officialSummary.officialResolved,
@@ -431,8 +380,8 @@ async function main() {
   const jsonText = `${JSON.stringify(report, null, 2)}\n`;
   const markdownText = renderMarkdown(report);
   const markdownPath = args.outputPath.replace(/\.json$/u, ".md");
-  writeFileSync(args.outputPath, jsonText);
-  writeFileSync(markdownPath, markdownText);
+  writeJsonTextDurable(args.outputPath, jsonText);
+  writeFileSync(markdownPath, markdownText, { flag: "wx" });
 
   writeBenchmarkHistory({
     benchmarksDir,
@@ -453,176 +402,52 @@ export function summarizeBenchmarkResults(results, deferred = false) {
   return deferred ? { ...summary, passAt1: null } : summary;
 }
 
-/** Combines one complete, homogeneous shard set into a composite report. A shard set uses
- *  independent image snapshots, so its aggregate is never labeled pass@1. */
-function mergeShardReports(outputPath) {
-  const outputDir = dirname(outputPath);
-  const outputBase = basename(outputPath, ".json");
-  const fragments = readdirSync(outputDir)
-    .filter(
-      (entry) =>
-        entry.endsWith(".json") &&
-        entry.startsWith(`${outputBase}.`) &&
-        entry !== `${outputBase}.json`,
-    )
-    .sort();
-  if (fragments.length === 0) {
-    process.stderr.write(`merge-shards: no fragment files found for ${outputBase}.*.json\n`);
-    process.exit(1);
-  }
-
-  const reports = [];
-  for (const entry of fragments) {
-    try {
-      reports.push(JSON.parse(readFileSync(resolve(outputDir, entry), "utf8")));
-    } catch (error) {
-      throw new Error(
-        `merge-shards: cannot read fragment ${entry}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
-  assertCompleteShardReports(reports);
-
-  const tasks = reports.flatMap((report) => report.tasks ?? []);
-  if (new Set(tasks.map((task) => task.instance_id)).size !== tasks.length) {
-    throw new Error("merge-shards: duplicate task instance across fragments.");
-  }
-  const officialSummary = summarizeOfficialEvaluations(tasks);
-  const resolved = officialSummary.officialResolved;
-  const errored = tasks.filter((task) => task.error).length;
-  const environmentBlocked = tasks.filter((task) => task.environmentBlocked).length;
-  const timedOut = tasks.filter((task) => task.timedOut).length;
-  const byModel = {};
-  for (const report of reports) {
-    const key = `${report.provider?.kind ?? "?"}/${report.provider?.model ?? "?"}`;
-    byModel[key] ??= { resolved: 0, total: 0 };
-    byModel[key].total += (report.tasks ?? []).length;
-    byModel[key].resolved += summarizeOfficialEvaluations(report.tasks ?? []).officialResolved;
-  }
-
-  const deferred = reports[0].evaluation.method === "official-swe-bench-docker-deferred";
-  const aggregate = {
-    benchmark: reports[0]?.benchmark ?? "swe-bench",
-    candidateId: reports[0]?.candidateId ?? "workspace",
-    generatedAt: new Date().toISOString(),
-    mergedFrom: fragments,
-    composition: {
-      fullAccess: true,
-      permissionMode: "full",
-      interactionTools: false,
-      workspaceBackend: "sandbox",
-      excludedToolScopes: ["network"],
-      networkToolSchemas: false,
-      execNetworkIsolation: true,
-      fragments: reports.length,
-    },
-    corpus: {
-      totalTasks: reports[0].corpus.totalTasks,
-      tasksRun: tasks.length,
-    },
-    evaluation: {
-      schemaVersion: 1,
-      method: deferred
-        ? "official-swe-bench-docker-deferred-composite"
-        : "official-swe-bench-docker-composite",
-      evaluationBatchIds: reports.map((report) => report.evaluation.evaluationBatchId),
-    },
-    byModel,
-    summary: {
-      resolved,
-      errored,
-      environmentBlocked,
-      timedOut,
-      ...officialSummary,
-      passAt1: null,
-      avgTaskMs: Number(
-        (
-          tasks.reduce((sum, task) => sum + (task.wallMs ?? 0), 0) / Math.max(tasks.length, 1)
-        ).toFixed(1),
-      ),
-      wallMs: Number(
-        reports.reduce((sum, report) => sum + (report.summary?.wallMs ?? 0), 0).toFixed(1),
-      ),
-    },
-    tasks,
-  };
-
-  const jsonText = `${JSON.stringify(aggregate, null, 2)}\n`;
-  const markdownText = renderMarkdown(aggregate);
-  const jsonPath = resolve(outputDir, `${outputBase}.json`);
-  const markdownPath = resolve(outputDir, `${outputBase}.md`);
-  if (existsSync(jsonPath) || existsSync(markdownPath)) {
-    throw new Error("merge-shards: refusing to overwrite an existing aggregate report.");
-  }
-  writeFileSync(jsonPath, jsonText);
-  writeFileSync(markdownPath, markdownText);
-
-  writeBenchmarkHistory({
-    benchmarksDir,
-    candidateId: aggregate.candidateId,
-    family: "swe-bench",
-    generatedAt: aggregate.generatedAt,
-    jsonText,
-    markdownText,
-  });
-
-  process.stdout.write(jsonText);
-  process.stdout.write(`wrote> ${jsonPath}\n`);
-  process.stdout.write(`wrote> ${markdownPath}\n`);
-}
-
-function assertCompleteShardReports(reports) {
-  const first = reports[0];
-  const shardTotal = first?.composition?.shardTotal;
-  if (!Number.isInteger(shardTotal) || shardTotal <= 0 || reports.length !== shardTotal) {
-    throw new Error("merge-shards: fragment count does not match shardTotal.");
-  }
-  const expected = {
-    benchmark: first.benchmark,
-    candidateId: first.candidateId,
-    provider: JSON.stringify(first.provider),
-    corpusPath: first.corpus?.path,
-    corpusTotal: first.corpus?.totalTasks,
-    manifestPath: first.evaluation?.manifestPath,
-    workspaceBackend: first.composition?.workspaceBackend,
-    excludedToolScopes: JSON.stringify(first.composition?.excludedToolScopes),
-    networkToolSchemas: first.composition?.networkToolSchemas,
-    execNetworkIsolation: first.composition?.execNetworkIsolation,
-  };
-  const indices = [];
-  for (const report of reports) {
-    if (
-      report.evaluation?.schemaVersion !== 1 ||
-      !["official-swe-bench-docker", "official-swe-bench-docker-deferred"].includes(
-        report.evaluation?.method,
-      ) ||
-      report.evaluation?.method !== first.evaluation?.method ||
-      report.benchmark !== expected.benchmark ||
-      report.candidateId !== expected.candidateId ||
-      JSON.stringify(report.provider) !== expected.provider ||
-      report.corpus?.path !== expected.corpusPath ||
-      report.corpus?.totalTasks !== expected.corpusTotal ||
-      report.evaluation?.manifestPath !== expected.manifestPath ||
-      report.composition?.workspaceBackend !== expected.workspaceBackend ||
-      JSON.stringify(report.composition?.excludedToolScopes) !== expected.excludedToolScopes ||
-      report.composition?.networkToolSchemas !== expected.networkToolSchemas ||
-      report.composition?.execNetworkIsolation !== expected.execNetworkIsolation ||
-      report.composition?.shardTotal !== shardTotal ||
-      !Number.isInteger(report.composition?.shard)
-    ) {
-      throw new Error("merge-shards: fragments do not share one admitted configuration.");
-    }
-    indices.push(report.composition.shard);
-  }
-  indices.sort((left, right) => left - right);
-  if (indices.some((index, position) => index !== position)) {
-    throw new Error("merge-shards: shard set is incomplete or duplicated.");
-  }
-}
-
 async function runTask(task, timeoutMs, evaluationContext) {
   const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-${sanitize(task.instance_id)}-`);
   const startMs = performance.now();
+  const artifactDir = resolve(evaluationContext.taskArtifactDir, sanitize(task.instance_id));
+  mkdirSync(artifactDir, { recursive: false });
+  const claimPath = resolve(artifactDir, "claim.json");
+  const receiptPath = resolve(artifactDir, "receipt.json");
+  const evidencePath = resolve(artifactDir, "attempt-evidence.jsonl");
+  const stdoutPath = resolve(artifactDir, "stdout.txt");
+  const stderrPath = resolve(artifactDir, "stderr.txt");
+  const processReceiptPath = resolve(artifactDir, "process-receipt.json");
+  const diagnosticPatchPath = resolve(artifactDir, "diagnostic.patch");
+  writeJsonExclusive(claimPath, {
+    schemaVersion: 1,
+    instanceId: task.instance_id,
+    repo: task.repo,
+    baseCommit: task.base_commit,
+    candidateId: evaluationContext.candidateId,
+    evaluationBatchId: evaluationContext.evaluationBatchId,
+    formalRunId: evaluationContext.formalRunId,
+    timeoutMs,
+  });
+  const finish = (disposition, failureStage, extra = {}) => {
+    const result = taskResult(task, startMs, {
+      disposition,
+      ...(failureStage === undefined ? {} : { failureStage }),
+      claim: artifactReference(claimPath),
+      ...(existsSync(evidencePath) ? { evidence: artifactReference(evidencePath) } : {}),
+      ...(existsSync(stdoutPath) ? { stdout: artifactReference(stdoutPath) } : {}),
+      ...(existsSync(stderrPath) ? { stderr: artifactReference(stderrPath) } : {}),
+      ...(existsSync(processReceiptPath)
+        ? { processReceipt: artifactReference(processReceiptPath) }
+        : {}),
+      ...(existsSync(diagnosticPatchPath)
+        ? { diagnosticPatch: artifactReference(diagnosticPatchPath) }
+        : {}),
+      ...extra,
+    });
+    writeJsonExclusive(receiptPath, {
+      schemaVersion: 1,
+      ...result,
+      receiptPath: relative(repoRoot, receiptPath),
+    });
+    return { ...result, taskReceiptPath: relative(repoRoot, receiptPath) };
+  };
+  let failureStage = "clone";
   try {
     // Clone the repo at the base commit (shallow).
     const cloneResult = runGitCommand({
@@ -630,7 +455,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       cwd: taskDir,
     });
     if (cloneResult.status !== 0) {
-      return taskResult(task, startMs, {
+      return finish("generation-inconclusive", failureStage, {
         error: `Clone failed: ${describeGitFailure(cloneResult)}`,
         benchmarkInconclusive: true,
       });
@@ -638,42 +463,45 @@ async function runTask(task, timeoutMs, evaluationContext) {
 
     const repoDir = resolve(taskDir, "repo");
     if (task.base_commit) {
+      failureStage = "fetch";
       const fetchResult = runGitCommand({
         args: ["fetch", "--depth", "1", "origin", task.base_commit],
         cwd: repoDir,
       });
       if (fetchResult.status !== 0) {
-        return taskResult(task, startMs, {
+        return finish("generation-inconclusive", failureStage, {
           error: `Base commit fetch failed: ${describeGitFailure(fetchResult)}`,
           benchmarkInconclusive: true,
         });
       }
+      failureStage = "checkout";
       const checkout = spawnSync("git", ["checkout", task.base_commit], {
         cwd: repoDir,
         encoding: "utf8",
       });
       if (checkout.status !== 0) {
-        return taskResult(task, startMs, {
+        return finish("generation-inconclusive", failureStage, {
           error: `Base commit checkout failed: ${describeGitFailure(checkout)}`,
           benchmarkInconclusive: true,
         });
       }
       const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repoDir, encoding: "utf8" });
       if (head.status !== 0 || head.stdout.trim() !== task.base_commit) {
-        return taskResult(task, startMs, {
+        return finish("generation-inconclusive", failureStage, {
           error: "Checked-out HEAD does not match the frozen SWE-bench base commit.",
           benchmarkInconclusive: true,
         });
       }
+      failureStage = "isolation";
       const isolation = isolateFrozenGitCommit(repoDir);
       if (isolation.status !== 0) {
-        return taskResult(task, startMs, {
+        return finish("generation-inconclusive", failureStage, {
           error: `Frozen repository isolation failed: ${describeGitFailure(isolation)}`,
           benchmarkInconclusive: true,
         });
       }
     } else {
-      return taskResult(task, startMs, {
+      return finish("generation-inconclusive", "task-admission", {
         error: "Frozen SWE-bench task is missing base_commit.",
         benchmarkInconclusive: true,
       });
@@ -714,8 +542,11 @@ async function runTask(task, timeoutMs, evaluationContext) {
       "sandbox",
       "--tool-exclude",
       "network",
+      "--attempt-evidence",
+      evidencePath,
       prompt,
     ];
+    failureStage = "cli-run";
     const cliResult = await runCliProcess({
       // Run the CLI through node (the .js entrypoint is not directly executable).
       args: [...cliInvocation, ...cliArgs],
@@ -727,12 +558,78 @@ async function runTask(task, timeoutMs, evaluationContext) {
         BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
       },
     });
+    writeFileSync(stdoutPath, cliResult.stdout, { flag: "wx" });
+    writeFileSync(stderrPath, cliResult.stderr, { flag: "wx" });
+    writeJsonExclusive(processReceiptPath, {
+      schemaVersion: 1,
+      status: cliResult.status,
+      signal: cliResult.signal,
+      timedOut: cliResult.timedOut,
+      stdoutOverflow: cliResult.stdoutOverflow,
+      stderrOverflow: cliResult.stderrOverflow,
+      stdout: artifactReference(stdoutPath),
+      stderr: artifactReference(stderrPath),
+      ...(cliResult.error === undefined
+        ? {}
+        : {
+            spawnError:
+              cliResult.error instanceof Error ? cliResult.error.message : String(cliResult.error),
+          }),
+    });
+    if (cliResult.error !== undefined) {
+      return finish("generation-inconclusive", "cli-spawn", {
+        error: cliResult.error instanceof Error ? cliResult.error.message : String(cliResult.error),
+        benchmarkInconclusive: true,
+      });
+    }
+    if (cliResult.stdoutOverflow || cliResult.stderrOverflow) {
+      return finish("generation-inconclusive", "process-output", {
+        error: "CLI process output exceeded the admitted bound.",
+        benchmarkInconclusive: true,
+      });
+    }
+    const evidenceAdmission = inspectAttemptEvidence(evidencePath);
     if (cliResult.timedOut) {
-      return taskResult(task, startMs, { timedOut: true });
+      let diagnosticError;
+      try {
+        const diagnosticPatch = captureTerminalPatch({
+          repoDir,
+          baseCommit: task.base_commit,
+          temporaryIndexPath: resolve(taskDir, "timeout-diagnostic.index"),
+        });
+        if (diagnosticPatch.length > 0) {
+          writeFileSync(diagnosticPatchPath, diagnosticPatch, { flag: "wx" });
+        }
+      } catch (error) {
+        diagnosticError = error instanceof Error ? error.message : String(error);
+      }
+      if (!evidenceAdmission.prefixValid) {
+        return finish("generation-inconclusive", "evidence", {
+          error: `Timed-out attempt evidence is malformed: ${evidenceAdmission.reason}`,
+          benchmarkInconclusive: true,
+        });
+      }
+      return finish("model-timeout", undefined, {
+        timedOut: true,
+        ...(diagnosticError === undefined ? {} : { diagnosticError }),
+      });
+    }
+    if (cliResult.status !== 0 || cliResult.signal !== null) {
+      return finish("generation-inconclusive", "process", {
+        error: `CLI did not complete normally (status=${cliResult.status}, signal=${cliResult.signal}).`,
+        benchmarkInconclusive: true,
+      });
+    }
+    if (!evidenceAdmission.complete || evidenceAdmission.rootStatus !== "completed") {
+      return finish("generation-inconclusive", "evidence", {
+        error: `Completed CLI evidence was not admitted: ${evidenceAdmission.reason}, rootStatus=${evidenceAdmission.rootStatus ?? "missing"}`,
+        benchmarkInconclusive: true,
+      });
     }
 
     // Capture the exact base-to-terminal-worktree patch without trusting or mutating the
     // repository index, which the model may have staged or committed during the attempt.
+    failureStage = "patch-freeze";
     const agentPatch = captureTerminalPatch({
       repoDir,
       baseCommit: task.base_commit,
@@ -743,7 +640,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       // to stdout on a completed run) so a no-diff completion is diagnosable: did the model
       // give a textual fix, claim it edited, or stop for another reason?
       const finalAnswer = (cliResult.stdout ?? "").trim().slice(-1500);
-      return taskResult(task, startMs, {
+      return finish("no-diff", undefined, {
         error: "Agent produced no diff",
         cliExitCode: cliResult.status,
         ...(finalAnswer.length === 0 ? {} : { finalAnswer }),
@@ -767,15 +664,16 @@ async function runTask(task, timeoutMs, evaluationContext) {
       `${sanitize(task.instance_id)}.json`,
     );
     writeFrozenPrediction(predictionPath, prediction);
-    return taskResult(task, startMs, {
+    return finish("frozen-prediction", undefined, {
       patchLines: agentPatch.split("\n").length,
-      predictionPath,
+      prediction: artifactReference(predictionPath),
       patchSha256: prediction.modelPatchSha256,
       agentPatch:
         agentPatch.length > 10_000 ? agentPatch.slice(0, 10_000) + "\n... (truncated)" : agentPatch,
     });
   } catch (error) {
-    return taskResult(task, startMs, {
+    if (existsSync(receiptPath)) throw error;
+    return finish("generation-inconclusive", failureStage, {
       error: error instanceof Error ? error.message : String(error),
       benchmarkInconclusive: true,
     });
@@ -818,52 +716,11 @@ export function captureTerminalPatch(options) {
   return patch;
 }
 
-async function evaluateGeneratedTask(result, evaluationContext, imageManifestPath) {
-  if (!result.predictionPath) return result;
-  const officialOutputDir = resolve(
-    evaluationContext.officialEvaluationDir,
-    sanitize(result.instance_id),
-  );
-  const officialEvaluation = await evaluateFrozenPrediction({
-    manifestPath: evaluationContext.manifestPath,
-    predictionPath: result.predictionPath,
-    outputDir: officialOutputDir,
-    imageManifestPath,
-  });
-  return {
-    ...result,
-    wallMs: Number((result.wallMs + officialEvaluation.wallMs).toFixed(1)),
-    officialEvaluation,
-    verification: "official-swe-bench-docker",
-    ...(officialEvaluation.verdict === "inconclusive"
-      ? { evaluationError: officialEvaluation.reason }
-      : {}),
-  };
-}
-
-async function evaluateGeneratedTaskSafe(result, evaluationContext, imageManifestPath) {
-  try {
-    return await evaluateGeneratedTask(result, evaluationContext, imageManifestPath);
-  } catch (error) {
-    if (!result.predictionPath) return result;
-    const officialEvaluation = createInfrastructureInconclusive({
-      manifestPath: evaluationContext.manifestPath,
-      predictionPath: result.predictionPath,
-    });
-    return {
-      ...result,
-      officialEvaluation,
-      evaluationError: `${officialEvaluation.reason}: ${error instanceof Error ? error.message : String(error)}`,
-      verification: "official-swe-bench-docker",
-    };
-  }
-}
-
 /** Runs the CLI as a detached process group so a per-task timeout can kill the whole tree.
  *  spawnSync's timeout only signals the direct child; the CLI's sandbox grandchildren can
  *  keep the stdio pipe open and delay the return for a second full timeout (observed ~2x).
  *  Returns an async equivalent of the spawnSync result plus a timedOut flag. */
-function runCliProcess({ args, cwd, timeoutMs, env }) {
+export function runCliProcess({ args, cwd, timeoutMs, env }) {
   return new Promise((resolve) => {
     const child = spawn(args[0], args.slice(1), {
       cwd,
@@ -871,16 +728,29 @@ function runCliProcess({ args, cwd, timeoutMs, env }) {
       detached: true,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    let stdout = "";
-    let stderr = "";
+    const stdoutChunks = [];
+    const stderrChunks = [];
+    let stdoutBytes = 0;
+    let stderrBytes = 0;
+    let stdoutOverflow = false;
+    let stderrOverflow = false;
+    let timedOut = false;
     let settled = false;
     const settle = (value) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      resolve(value);
+      resolve({
+        ...value,
+        stdout: Buffer.concat(stdoutChunks).toString("utf8"),
+        stderr: Buffer.concat(stderrChunks).toString("utf8"),
+        stdoutOverflow,
+        stderrOverflow,
+        timedOut,
+      });
     };
     const timer = setTimeout(() => {
+      timedOut = true;
       try {
         // Kill the whole process group (negative pid) so sandbox grandchildren die too.
         process.kill(-child.pid, "SIGKILL");
@@ -891,20 +761,35 @@ function runCliProcess({ args, cwd, timeoutMs, env }) {
           // already gone
         }
       }
-      // The child may need a moment to die; resolve the timeout promptly regardless.
-      settle({ status: null, signal: "SIGTERM", stdout, stderr, timedOut: true });
     }, timeoutMs);
     child.stdout.on("data", (chunk) => {
-      if (stdout.length < 64 * 1024 * 1024) stdout += chunk;
+      const bytes = Buffer.from(chunk);
+      const remaining = 8 * 1024 * 1024 - stdoutBytes;
+      if (remaining <= 0) {
+        stdoutOverflow = true;
+        return;
+      }
+      stdoutChunks.push(bytes.subarray(0, remaining));
+      stdoutBytes += Math.min(bytes.byteLength, remaining);
+      if (bytes.byteLength > remaining) stdoutOverflow = true;
     });
     child.stderr.on("data", (chunk) => {
-      if (stderr.length < 64 * 1024 * 1024) stderr += chunk;
+      const bytes = Buffer.from(chunk);
+      const remaining = 8 * 1024 * 1024 - stderrBytes;
+      if (remaining <= 0) {
+        stderrOverflow = true;
+        return;
+      }
+      stderrChunks.push(bytes.subarray(0, remaining));
+      stderrBytes += Math.min(bytes.byteLength, remaining);
+      if (bytes.byteLength > remaining) stderrOverflow = true;
     });
     child.on("error", (error) => {
-      settle({ status: null, signal: null, stdout, stderr, timedOut: false, error });
+      if (timedOut) return;
+      settle({ status: null, signal: null, error });
     });
     child.on("close", (code, signal) => {
-      settle({ status: code, signal, stdout, stderr, timedOut: false });
+      settle({ status: code, signal });
     });
   });
 }
@@ -912,13 +797,33 @@ function runCliProcess({ args, cwd, timeoutMs, env }) {
 /** Catastrophic-failure wrapper: an unexpected throw inside runTask must still produce a
  *  per-task record instead of rejecting the batch (which would abort the whole CI job). */
 async function runTaskSafe(task, timeoutMs, evaluationContext) {
+  const started = performance.now();
   try {
     return await runTask(task, timeoutMs, evaluationContext);
   } catch (error) {
-    return taskResult(task, performance.now(), {
+    const artifactDir = resolve(evaluationContext.taskArtifactDir, sanitize(task.instance_id));
+    const receiptPath = resolve(artifactDir, "receipt.json");
+    if (existsSync(receiptPath)) {
+      return {
+        ...JSON.parse(readFileSync(receiptPath, "utf8")),
+        taskReceiptPath: relative(repoRoot, receiptPath),
+      };
+    }
+    const result = taskResult(task, started, {
+      disposition: "generation-inconclusive",
+      failureStage: "harness",
       error: `Harness failure: ${error instanceof Error ? error.message : String(error)}`,
       benchmarkInconclusive: true,
     });
+    if (existsSync(artifactDir)) {
+      writeJsonExclusive(receiptPath, {
+        schemaVersion: 1,
+        ...result,
+        receiptPath: relative(repoRoot, receiptPath),
+      });
+      return { ...result, taskReceiptPath: relative(repoRoot, receiptPath) };
+    }
+    return result;
   }
 }
 
@@ -935,9 +840,9 @@ export function isolateFrozenGitCommit(repoDir) {
     "git reflog expire --expire=now --all",
     "git prune --expire=now",
     "git gc --prune=now",
-    "test -z \"$(git remote)\"",
+    'test -z "$(git remote)"',
     "test -z \"$(git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags)\"",
-    "test -z \"$(git fsck --unreachable --no-reflogs 2>&1)\"",
+    'test -z "$(git fsck --unreachable --no-reflogs 2>&1)"',
   ].join("\n");
   return spawnSync("/bin/sh", ["-c", script], {
     cwd: repoDir,
@@ -950,12 +855,320 @@ function describeGitFailure(result) {
   return `${result?.stderr ?? ""}${result?.stdout ?? ""}`.slice(0, 500);
 }
 
-function taskResult(task, startMs, extra = {}) {
+function writeJsonExclusive(path, value) {
+  writeJsonTextDurable(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function writeJsonTextDurable(path, text) {
+  const descriptor = openSync(path, "wx");
+  try {
+    writeSync(descriptor, text);
+    fsyncSync(descriptor);
+  } finally {
+    closeSync(descriptor);
+  }
+  const directory = openSync(dirname(path), "r");
+  try {
+    fsyncSync(directory);
+  } finally {
+    closeSync(directory);
+  }
+}
+
+function artifactReference(path) {
+  return {
+    path: relative(repoRoot, path),
+    bytes: statSync(path).size,
+    sha256: sha256File(path),
+  };
+}
+
+function sha256File(path) {
+  const hash = createHash("sha256");
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+  const descriptor = openSync(path, "r");
+  try {
+    for (;;) {
+      const bytesRead = readSync(descriptor, buffer, 0, buffer.length, null);
+      if (bytesRead === 0) break;
+      hash.update(buffer.subarray(0, bytesRead));
+    }
+  } finally {
+    closeSync(descriptor);
+  }
+  return hash.digest("hex");
+}
+
+export function inspectAttemptEvidence(path) {
+  if (!existsSync(path)) return { prefixValid: false, complete: false, reason: "missing" };
+  const bytes = readFileSync(path);
+  if (bytes.byteLength > 1024 * 1024 * 1024) {
+    return { prefixValid: false, complete: false, reason: "oversized" };
+  }
+  const parts = bytes.toString("utf8").split("\n");
+  const partialTail = parts.pop();
+  const records = [];
+  try {
+    for (const line of parts) {
+      if (line.length === 0) continue;
+      records.push(JSON.parse(line));
+    }
+  } catch {
+    return { prefixValid: false, complete: false, reason: "malformed-record" };
+  }
+  for (let sequence = 0; sequence < records.length; sequence += 1) {
+    if (records[sequence]?.sequence !== sequence) {
+      return { prefixValid: false, complete: false, reason: "sequence-gap" };
+    }
+  }
+  if (records.length === 0) {
+    return { prefixValid: false, complete: false, reason: "empty-prefix" };
+  }
+  if (
+    !exactKeys(records[0], ["maxBytes", "rootRunId", "schemaVersion", "sequence", "type"]) ||
+    records[0].type !== "header" ||
+    records[0].schemaVersion !== 1 ||
+    records[0].maxBytes !== 1024 * 1024 * 1024 ||
+    typeof records[0].rootRunId !== "string"
+  ) {
+    return { prefixValid: false, complete: false, reason: "invalid-header" };
+  }
+  const requests = new Map();
+  const requestOrder = [];
+  const closures = new Set();
+  const terminals = new Set();
+  const resources = new Set();
+  let rootStatus;
+  const counts = { modelRequest: 0, modelOutcome: 0, modelFailure: 0, terminalSnapshot: 0 };
+  const footer = records.at(-1)?.type === "footer" ? records.at(-1) : undefined;
+  const body = footer === undefined ? records.slice(1) : records.slice(1, -1);
+  for (const record of body) {
+    if (record.type === "model-request") {
+      if (
+        !exactKeys(record, [
+          "invocationId",
+          "request",
+          "resourceId",
+          "runId",
+          "sequence",
+          "type",
+        ]) ||
+        typeof record.invocationId !== "string" ||
+        requests.has(record.invocationId) ||
+        record.resourceId !== record.runId ||
+        !validModelRequest(record.request, record.resourceId)
+      ) {
+        return { prefixValid: false, complete: false, reason: "invalid-model-request" };
+      }
+      requests.set(record.invocationId, record.resourceId);
+      requestOrder.push(record.invocationId);
+      resources.add(record.resourceId);
+      counts.modelRequest += 1;
+    } else if (record.type === "model-outcome" || record.type === "model-failure") {
+      const valueKey = record.type === "model-outcome" ? "outcome" : "failure";
+      if (
+        !exactKeys(record, ["invocationId", valueKey, "resourceId", "runId", "sequence", "type"]) ||
+        closures.has(record.invocationId) ||
+        record.resourceId !== record.runId ||
+        requests.get(record.invocationId) !== record.resourceId ||
+        !validModelClosure(record[valueKey], record.type)
+      ) {
+        return { prefixValid: false, complete: false, reason: "invalid-model-closure" };
+      }
+      closures.add(record.invocationId);
+      counts[record.type === "model-outcome" ? "modelOutcome" : "modelFailure"] += 1;
+    } else if (record.type === "terminal-snapshot") {
+      if (
+        !exactKeys(record, ["resourceId", "runId", "sequence", "snapshot", "type"]) ||
+        terminals.has(record.resourceId) ||
+        record.resourceId !== record.runId ||
+        !validTerminalSnapshot(record.snapshot, record.resourceId)
+      ) {
+        return { prefixValid: false, complete: false, reason: "invalid-terminal-snapshot" };
+      }
+      terminals.add(record.resourceId);
+      resources.add(record.resourceId);
+      if (record.resourceId === records[0].rootRunId) rootStatus = record.snapshot.status;
+      counts.terminalSnapshot += 1;
+    } else {
+      return { prefixValid: false, complete: false, reason: "unknown-record" };
+    }
+  }
+  if (footer === undefined) {
+    return {
+      prefixValid: true,
+      complete: false,
+      reason: partialTail.length === 0 ? "missing-footer" : "partial-tail",
+    };
+  }
+  const footerKeys = [
+    "complete",
+    "expectedCounts",
+    "invocationIds",
+    "prefixSha256",
+    "resourceIds",
+    "rootRunId",
+    "sequence",
+    "type",
+    "writtenCounts",
+    ...(footer.failureReason === undefined ? [] : ["failureReason"]),
+  ];
+  if (!exactKeys(footer, footerKeys)) {
+    return { prefixValid: false, complete: false, reason: "invalid-footer" };
+  }
+  const prefix = `${parts.slice(0, -1).join("\n")}\n`;
+  if (createHash("sha256").update(prefix).digest("hex") !== footer.prefixSha256) {
+    return { prefixValid: false, complete: false, reason: "prefix-hash-mismatch" };
+  }
+  const paired =
+    requests.size === closures.size &&
+    [...requests.keys()].every((invocationId) => closures.has(invocationId));
+  const countMatch =
+    JSON.stringify(counts) === JSON.stringify(footer.expectedCounts) &&
+    JSON.stringify(counts) === JSON.stringify(footer.writtenCounts);
+  const complete =
+    footer.complete === true &&
+    partialTail.length === 0 &&
+    requests.size > 0 &&
+    paired &&
+    countMatch &&
+    footer.rootRunId === records[0].rootRunId &&
+    JSON.stringify(footer.invocationIds) === JSON.stringify(requestOrder) &&
+    JSON.stringify(footer.resourceIds) === JSON.stringify([...resources]) &&
+    terminals.size === resources.size &&
+    rootStatus !== undefined;
+  return {
+    prefixValid: true,
+    complete,
+    reason: complete ? "complete" : "incomplete-footer",
+    ...(rootStatus === undefined ? {} : { rootStatus }),
+  };
+}
+
+function validModelRequest(request, resourceId) {
+  if (
+    !exactKeys(request, ["externalContext", "instructions", "messages", "tools"]) ||
+    !Array.isArray(request.externalContext) ||
+    !Array.isArray(request.instructions) ||
+    !Array.isArray(request.messages) ||
+    request.messages.length === 0 ||
+    !Array.isArray(request.tools)
+  ) {
+    return false;
+  }
+  return runKeyId(request.messages.at(-1)?.runKey) === resourceId;
+}
+
+function validModelClosure(value, recordType) {
+  if (recordType === "model-failure") {
+    return (
+      exactKeys(value, ["kind", "reason"]) &&
+      value.kind === "failure" &&
+      ["provider", "transport", "throw", "malformed"].includes(value.reason)
+    );
+  }
+  if (
+    !exactKeys(value, ["candidate", "kind"]) ||
+    value.kind !== "response" ||
+    !validAssistantMessage(value.candidate)
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function validAssistantMessage(value) {
+  const keys = ["content", "toolCalls", ...(value?.reasoning === undefined ? [] : ["reasoning"])];
+  return (
+    exactKeys(value, keys) &&
+    typeof value.content === "string" &&
+    (value.reasoning === undefined || typeof value.reasoning === "string") &&
+    Array.isArray(value.toolCalls) &&
+    value.toolCalls.every(
+      (call) =>
+        exactKeys(call, ["callId", "input", "name"]) &&
+        typeof call.callId === "string" &&
+        typeof call.name === "string",
+    )
+  );
+}
+
+function validTerminalSnapshot(snapshot, resourceId) {
+  return (
+    exactKeys(snapshot, [
+      "cycle",
+      "deadlineAt",
+      "key",
+      "status",
+      "stopFlag",
+      "terminalCause",
+      "transcript",
+    ]) &&
+    ["cancelled", "completed", "failed"].includes(snapshot.status) &&
+    typeof snapshot.terminalCause === "string" &&
+    [
+      "completed",
+      "context-unavailable",
+      "request-too-large",
+      "model-failure",
+      "invalid-model-response",
+      "model-output-too-large",
+      "max-accepted-tool-calls",
+      "max-model-cycles",
+      "tool-unknown",
+      "run-deadline",
+      "stopped",
+      "session-closed",
+      "agent-closed",
+    ].includes(snapshot.terminalCause) &&
+    (snapshot.status !== "completed" || snapshot.terminalCause === "completed") &&
+    typeof snapshot.stopFlag === "boolean" &&
+    Number.isSafeInteger(snapshot.cycle) &&
+    snapshot.cycle >= 0 &&
+    Number.isFinite(snapshot.deadlineAt) &&
+    Array.isArray(snapshot.transcript) &&
+    snapshot.transcript.length > 0 &&
+    snapshot.transcript.every(
+      (entry) =>
+        entry !== null &&
+        typeof entry === "object" &&
+        ["assistant", "tool", "user"].includes(entry.kind) &&
+        runKeyId(entry.runKey) === resourceId,
+    ) &&
+    runKeyId(snapshot.key) === resourceId
+  );
+}
+
+function runKeyId(key) {
+  if (
+    !exactKeys(key, ["kind", "sequence", "sessionKey"]) ||
+    key.kind !== "run" ||
+    !exactKeys(key.sessionKey, ["agentIdentity", "kind", "sequence"]) ||
+    key.sessionKey.kind !== "session" ||
+    typeof key.sessionKey.agentIdentity !== "string" ||
+    !Number.isSafeInteger(key.sessionKey.sequence) ||
+    !Number.isSafeInteger(key.sequence)
+  ) {
+    return undefined;
+  }
+  return JSON.stringify([key.sessionKey.agentIdentity, key.sessionKey.sequence, key.sequence]);
+}
+
+function exactKeys(value, keys) {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort())
+  );
+}
+
+export function taskResult(task, startMs, extra = {}) {
   return {
     instance_id: task.instance_id,
     repo: task.repo,
+    base_commit: task.base_commit,
+    problem_statement: task.problem_statement,
     wallMs: Number((performance.now() - startMs).toFixed(1)),
-    timedOut: false,
     error: undefined,
     ...extra,
   };

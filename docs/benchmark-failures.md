@@ -1,5 +1,17 @@
 # Benchmark Failure Ledger (final — all 500 tasks)
 
+> **Correction notice (official evaluator audit, 2026-08-21):** the counts below
+> are the preserved output of the retired local grader, not final official
+> pass@1. Its SymPy path sent 73 bare test names to pytest and never evaluated
+> them. Frozen official Docker re-evaluation of the complete 75-task SymPy
+> selection produced 57 resolved, 13 test-failed, 3 inconclusive, and 2
+> not-evaluated (`passAt1: null`; official coverage 70/75). A mechanical
+> replacement would raise the 500-task resolved count from 198 to 255 (51%), but
+> this is not published as official pass@1 until cross-repository controls are
+> complete. See
+> `results/official-audit/sympy-v1/official-transition-report.json` and
+> `results/official-audit/sympy-v1/failure-analysis.md`.
+
 - Generated: 2026-08-21T02:37:12.969Z
 - CLI: npm beta.8 — ALL batches complete (#67-#76 beta.8 rerun + #77-#83 b4 sphinx/sympy/sklearn)
 - Ledger: **500** tasks — **resolved 198 (40%)** | env-blocked 55 | model test-failed 239 | timeout 6 | no-diff 2 | transport-loss 0
@@ -13,7 +25,7 @@
 - **scikit-learn 15** — platform compile dead-ends on macos CI
 - **astropy 6** — platform compile dead-ends on macos CI
 
-### model test-failed (real capability failures) = 239
+### model test-failed (historical local-grader label; not established real failures) = 239
 - sympy 75 | django 53 | sphinx-doc 37 | pydata 21 | pytest-dev 19 | scikit-learn 17 | astropy 10 | pylint-dev 8 | psf 5 | mwaskom 1 | pallets 1
 - Full semantic-gap audit (gold test_patch assertions vs agent patch): docs/failure-gaps.md
 - Dominant pattern (deep-audited django 10999/11749/11532/12325 + sympy samples): agent executes the SWE-agent protocol correctly (reproduce→fix→existing tests pass→cleanup) but misses gold-test semantic boundaries (negative inputs, no-arg CommandError, punycode encoding, parent-model edge, subclass/type-preservation, unknown-type comparison, precise math values).
@@ -324,4 +336,3 @@
 | sympy__sympy-24539 | test-failed | |
 | sympy__sympy-24562 | test-failed | |
 | sympy__sympy-24661 | test-failed | |
-

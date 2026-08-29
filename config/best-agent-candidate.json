@@ -1,9 +1,10 @@
 {
-  "cliVersion": "0.0.3-beta.12",
+  "cliVersion": "0.0.3-beta.13",
   "packageName": "@best-agent/cli-darwin-arm64",
-  "packageIntegrity": "sha512-rosXZgI44vF2DsXGIvFM6etnAbroR71knZYi3xnsRPlr+yqi1yLgRf/5qkctAfjqtMvBkfHi/QPrIsu/oo9GAw==",
+  "packageIntegrity": "sha512-77+CEmM6vhNRVPSQSxTlcID148r7+DaFLY83ezQbBCOvYnbkQpoz3KAFreDgAwiEep7Iqyk/fpDMy4Piu0VgBg==",
   "sourceCommit": "ef72b37bbb00e66355d2f7dea9f80cb61aa4f795",
-  "formalBenchmarkReady": true,
+  "formalBenchmarkReady": false,
+  "taskTimeoutMs": 1800000,
   "provider": {
     "kind": "openai",
     "model": "deepseek-v4-flash",
@@ -12,8 +13,12 @@
     "reasoningEffort": "high",
     "transportProfile": "dim-oauth"
   },
-  "harnessSha256": "2baf9bf10582146e6bdc58ffe568d1f8e08fcabf413edf6183ff7d364cacffc8",
-  "officialEvaluatorSha256": "7bde27a93ee02740675b8c896151a0332d9a27aaf18ac13455b849a2ebd3fc25",
+  "harnessSha256": "462ac63a22fc8abf9edba28f2809310a141e0052d8cc70e7b126f6c3129db0ea",
+  "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
-  "benchmarkProviderSha256": "1dd875b4fb90df44b8bd6c9539cec8449a8e81ddf10a2ab5e8dcf56b84cb9f52"
+  "benchmarkProviderSha256": "0ebb8db3881e616e512620458944e8a4d8c663db553e2c0c53cae62226c064e1",
+  "admissionSha256": "b8d2c9c74e7e7522470a7493addc62ccc6be84e365f1ec6a408259974957ce7a",
+  "evaluatorEntrySha256": "7d0462c88bc4d16f0e899a87328ef0c304d2d2d02dbd2f3f8b8104a0a5aa2a52",
+  "workflowSha256": "dca2a8b97599bc4c51e769807c39a093e2a29a92f1c8bb1ded587b7f5bb19984",
+  "controlClosureSha256": "58031359181fbe6ae3d3285eebb0e9649d2f101e156272ae7a31a462939f7614"
 }

@@ -9,10 +9,10 @@ import { fileURLToPath } from "node:url";
 
 export const OFFICIAL_EVALUATOR_VERSION = "4.1.0";
 export const OFFICIAL_EVALUATOR_COMMIT = "726c5461e2ef52d83cf1ea2107870a8bb3328d57";
+export const OFFICIAL_IMAGE_PULL_RETRY_ATTEMPTS = 3;
 export const OFFICIAL_PLATFORM = "linux/amd64";
 export const OFFICIAL_EVALUATION_TIMEOUT_SECONDS = 1_800;
 export const OFFICIAL_IMAGE_PULL_TIMEOUT_SECONDS = 900;
-export const OFFICIAL_IMAGE_PULL_RETRY_ATTEMPTS = 3;
 export const OFFICIAL_DATASET_NAME = "princeton-nlp/SWE-bench_Verified";
 export const OFFICIAL_DATASET_SPLIT = "test";
 export const OFFICIAL_DATASET_REVISION = "c104f840cc67f8b6eec6f759ebc8b2693d585d4a";
@@ -827,16 +827,16 @@ async function preparePinnedImage({
   };
 }
 
-function loadImageManifest(path, prediction) {
+export function loadOfficialImageManifest(path) {
   const value = readJson(path, 256 * 1024, "official image manifest");
   exactRecord(
     value,
     ["schemaVersion", "evaluationBatchId", "platform", "entries"],
     "official image manifest",
   );
+  assertIdentifier(value.evaluationBatchId, "official image manifest evaluationBatchId");
   if (
     value.schemaVersion !== 1 ||
-    value.evaluationBatchId !== prediction.evaluationBatchId ||
     value.platform !== OFFICIAL_PLATFORM ||
     !Array.isArray(value.entries) ||
     value.entries.length === 0
@@ -857,12 +857,22 @@ function loadImageManifest(path, prediction) {
   const ids = entries.map((entry) => entry.instanceId);
   if (
     new Set(ids).size !== ids.length ||
-    ids.some((id, index) => index > 0 && ids[index - 1].localeCompare(id) >= 0) ||
-    !ids.includes(prediction.instanceId)
+    ids.some((id, index) => index > 0 && ids[index - 1].localeCompare(id) >= 0)
   ) {
     throw new EvaluationAdmissionError("digest-mismatch");
   }
   return Object.freeze({ ...value, entries: Object.freeze(entries) });
+}
+
+function loadImageManifest(path, prediction) {
+  const value = loadOfficialImageManifest(path);
+  if (
+    value.evaluationBatchId !== prediction.evaluationBatchId ||
+    !value.entries.some((entry) => entry.instanceId === prediction.instanceId)
+  ) {
+    throw new EvaluationAdmissionError("digest-mismatch");
+  }
+  return value;
 }
 
 async function dockerInspect(ref, format, manifest, runner) {
@@ -916,6 +926,7 @@ export function runBoundedCommand({ executable, args, cwd, env, timeoutMs, maxOu
     let stdout = Buffer.alloc(0);
     let stderr = Buffer.alloc(0);
     let settled = false;
+    let timedOut = false;
     const limit = maxOutputBytes ?? MAX_PROCESS_OUTPUT_BYTES;
     const append = (current, chunk) => {
       if (current.byteLength >= limit) return current;
@@ -933,6 +944,7 @@ export function runBoundedCommand({ executable, args, cwd, env, timeoutMs, maxOu
       });
     };
     const timer = setTimeout(() => {
+      timedOut = true;
       try {
         process.kill(-child.pid, "SIGKILL");
       } catch {
@@ -942,7 +954,6 @@ export function runBoundedCommand({ executable, args, cwd, env, timeoutMs, maxOu
           // already closed
         }
       }
-      settle({ status: null, signal: "SIGKILL", timedOut: true });
     }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       stdout = append(stdout, chunk);
@@ -951,10 +962,11 @@ export function runBoundedCommand({ executable, args, cwd, env, timeoutMs, maxOu
       stderr = append(stderr, chunk);
     });
     child.on("error", (error) => {
+      if (timedOut) return;
       settle({ status: null, signal: null, timedOut: false, error: error.message });
     });
     child.on("close", (status, signal) => {
-      settle({ status, signal, timedOut: false });
+      settle({ status, signal, timedOut });
     });
   });
 }
@@ -1106,10 +1118,6 @@ function boundedFallback(value, fallback) {
     : fallback;
 }
 
-function delay(ms) {
-  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
-}
-
 function evaluatorEnvironment(manifest) {
   return {
     ...process.env,
@@ -1180,6 +1188,10 @@ function assertDigest(value) {
   if (typeof value !== "string" || !/^sha256:[a-f0-9]{64}$/u.test(value)) {
     throw new EvaluationAdmissionError("digest-mismatch");
   }
+}
+
+function delay(ms) {
+  return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
 }
 
 function assertSelectedInstanceIds(value) {
@@ -1297,17 +1309,9 @@ function parseCliArgs(argv) {
       outputPath: parsed.outputDir,
     };
   }
-  if (
-    !parsed.manifestPath ||
-    parsed.predictionPaths.length !== 1 ||
-    !parsed.outputDir ||
-    !parsed.imageManifestPath
-  ) {
-    throw new Error(
-      "Usage: node scripts/swe-bench-official-evaluator.mjs --manifest <json> --prediction <json> --image-manifest <json> --output <dir>",
-    );
-  }
-  return { mode: "evaluate", ...parsed, predictionPath: parsed.predictionPaths[0] };
+  throw new Error(
+    "Direct Docker evaluation is unavailable; use evaluate-official.mjs --admission-receipt.",
+  );
 }
 
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
@@ -1347,10 +1351,6 @@ if (isMain) {
           2,
         )}\n`,
       );
-    } else {
-      const record = await evaluateFrozenPrediction(args);
-      process.stdout.write(`${JSON.stringify(record, null, 2)}\n`);
-      if (record.verdict === "inconclusive") process.exitCode = 2;
     }
   } catch (error) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);

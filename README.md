@@ -52,7 +52,9 @@ batch.
 
 ## Local official evaluation
 
-Download one generation artifact without changing its report or prediction files. Use a pinned
+Download the complete `swe-bench-terminal-evidence-<run-id>` artifact without changing its task,
+admission, or prediction files. Only an accepted `formal-admission.receipt.json` can enter Docker.
+Use a pinned
 SWE-bench v4.1.0 checkout at commit `726c5461e2ef52d83cf1ea2107870a8bb3328d57`:
 
 ```bash
@@ -60,14 +62,18 @@ node scripts/prepare-swe-bench.mjs \
   --evaluator-source /absolute/path/to/SWE-bench \
   --evaluator-python /absolute/path/to/swe-bench-venv/bin/python \
   --docker /usr/local/bin/docker \
-  --manifest /absolute/path/to/official-evaluator-manifest.json
+  --manifest "${PWD}/.tmp/official-evaluator-manifest.json"
 
 node scripts/evaluate-official.mjs \
-  --report /absolute/path/to/swe-bench-results.<tag>.shard-0.json \
-  --predictions /absolute/path/to/swe-bench-results.<tag>.shard-0.predictions \
-  --manifest /absolute/path/to/official-evaluator-manifest.json \
-  --output /absolute/path/to/swe-bench-results.<tag>.shard-0.official.json
+  --admission-receipt "${PWD}/results/formal-admission.receipt.json" \
+  --manifest "${PWD}/.tmp/official-evaluator-manifest.json" \
+  --output "${PWD}/results/official.json" \
+  --concurrency 1
+
+node scripts/evaluate-official.mjs \
+  --verify-report "${PWD}/results/official.json"
 ```
 
 `scripts/evaluate-official.mjs` imports the pinned evaluator directly. It never invokes the
-CLI, provider, or model and never parses raw test output itself.
+CLI, provider, or model and never parses raw test output itself. `--verify-report` does not rerun
+Docker; it rechecks the admission, claims, terminal receipts, task population, and aggregate score.

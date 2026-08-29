@@ -1,7 +1,15 @@
 # Benchmark Failure Audit (semantic gap: gold test vs agent patch)
 
+> **Correction notice (official evaluator audit, 2026-08-21):** “239 real model
+> failures” below is a superseded interpretation of local-grader labels. The
+> SymPy subset alone contained 57 official-resolved patches, 13 genuine
+> official-unresolved patches, 3 inconclusive selections, and 2 original
+> timeouts without patches. Gold comparisons are diagnostic material, not
+> verdicts: a patch that differs from gold can still resolve officially. See
+> `results/official-audit/sympy-v1/failure-analysis.md`.
+
 - Generated: 2026-08-21T02:37:01.912Z
-- Real model failures audited: 239
+- Historical local-grader `test-failed` rows audited: 239
 - Source: gold `test_patch` assertions vs agent `agentPatch` (from `.tmp/art-*` fragments)
 
 ## Legend

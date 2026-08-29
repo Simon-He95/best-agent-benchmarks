@@ -6,10 +6,8 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
-import {
-  isolateFrozenGitCommit,
-  resolveCliEntrypoint,
-} from "../scripts/swe-bench-harness.mjs";
+import { isolateFrozenGitCommit, resolveCliEntrypoint } from "../scripts/swe-bench-harness.mjs";
+import { benchmarkControlClosureSha256, parseAdmissionArgs } from "../scripts/admit-generation.mjs";
 import { parseEvaluationArgs } from "../scripts/evaluate-official.mjs";
 import { parsePrepareArgs } from "../scripts/prepare-swe-bench.mjs";
 
@@ -34,6 +32,19 @@ test("public benchmark artifacts match the pinned candidate record", () => {
     sha256(new URL("../scripts/benchmark-provider.mjs", import.meta.url)),
     candidate.benchmarkProviderSha256,
   );
+  assert.equal(
+    sha256(new URL("../scripts/admit-generation.mjs", import.meta.url)),
+    candidate.admissionSha256,
+  );
+  assert.equal(
+    sha256(new URL("../scripts/evaluate-official.mjs", import.meta.url)),
+    candidate.evaluatorEntrySha256,
+  );
+  assert.equal(
+    sha256(new URL("../.github/workflows/bench.yml", import.meta.url)),
+    candidate.workflowSha256,
+  );
+  assert.equal(benchmarkControlClosureSha256(), candidate.controlClosureSha256);
 });
 
 test("configuration paths are explicit and bounded at the process boundary", () => {
@@ -55,10 +66,8 @@ test("configuration paths are explicit and bounded at the process boundary", () 
   );
   assert.equal(
     parseEvaluationArgs([
-      "--report",
-      "/tmp/report.json",
-      "--predictions",
-      "/tmp/predictions",
+      "--admission-receipt",
+      "/tmp/admission.json",
       "--manifest",
       "/tmp/manifest.json",
       "--output",
@@ -66,11 +75,50 @@ test("configuration paths are explicit and bounded at the process boundary", () 
     ]).concurrency,
     1,
   );
+  assert.deepEqual(parseEvaluationArgs(["--verify-report", "/tmp/report.json"]), {
+    verifyReportPath: "/tmp/report.json",
+  });
+  assert.throws(
+    () => parseEvaluationArgs(["--verify-report", "/tmp/report.json", "--concurrency", "2"]),
+    /only evaluation mode/u,
+  );
+  assert.equal(
+    parseAdmissionArgs([
+      "--results",
+      "/tmp/results",
+      "--plan",
+      "/tmp/plan.json",
+      "--corpus",
+      "/tmp/corpus.jsonl",
+      "--output",
+      "/tmp/admission.json",
+    ]).outputPath,
+    "/tmp/admission.json",
+  );
+  assert.throws(
+    () =>
+      parseAdmissionArgs([
+        "--results",
+        "/tmp/results",
+        "--plan",
+        "/tmp/plan.json",
+        "--candidate",
+        "/tmp/candidate.json",
+        "--corpus",
+        "/tmp/corpus.jsonl",
+        "--output",
+        "/tmp/admission.json",
+      ]),
+    /Unknown admission argument/u,
+  );
 });
 
 test("repository contains no second SWE-bench grader", () => {
   const runner = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
-  const evaluator = readFileSync(new URL("../scripts/evaluate-official.mjs", import.meta.url), "utf8");
+  const evaluator = readFileSync(
+    new URL("../scripts/evaluate-official.mjs", import.meta.url),
+    "utf8",
+  );
   for (const source of [runner, evaluator]) {
     assert.doesNotMatch(source, /FAIL_TO_PASS/u);
     assert.doesNotMatch(source, /test_patch/u);
@@ -78,6 +126,24 @@ test("repository contains no second SWE-bench grader", () => {
   }
   assert.match(evaluator, /summarizeOfficialEvaluations/u);
   assert.match(evaluator, /projectBenchmarkTaskDisposition/u);
+  assert.match(evaluator, /--admission-receipt/u);
+  assert.match(evaluator, /--verify-report/u);
+  assert.match(evaluator, /localDatasetJsonlSha256 !== receipt\.corpus\.sha256/u);
+  assert.match(evaluator, /selectedInstanceIds\) !== JSON\.stringify\(selected\)/u);
+  assert.doesNotMatch(evaluator, /readdirSync/u);
+  assert.ok(
+    evaluator.indexOf("writeDurableJson(claimPath") <
+      evaluator.indexOf("evaluateFrozenPrediction({"),
+  );
+  assert.doesNotMatch(runner, /evaluateFrozenPrediction/u);
+  assert.doesNotMatch(
+    runner.match(/function taskResult[\s\S]*?\n\}/u)?.[0] ?? "",
+    /timedOut:\s*false/u,
+  );
+  assert.match(
+    readFileSync(new URL("../scripts/swe-bench-official-evaluator.mjs", import.meta.url), "utf8"),
+    /Direct Docker evaluation is unavailable/u,
+  );
 });
 
 test("hosted generation uses the public package and caps each batch at ten tasks", () => {
@@ -92,6 +158,15 @@ test("hosted generation uses the public package and caps each batch at ten tasks
   assert.match(workflow, /node scripts\/isolation-smoke\.mjs/u);
   assert.match(workflow, /brew install ripgrep/u);
   assert.match(workflow, /node scripts\/sandbox-network-smoke\.mjs/u);
+  assert.match(workflow, /if: always\(\)[\s\S]*swe-bench-results\.\*\.tasks/u);
+  assert.match(workflow, /node scripts\/admit-generation\.mjs/u);
+  assert.match(workflow, /github-jobs\.json/u);
+  assert.match(workflow, /benchmark-headless-smoke-/u);
+  assert.match(workflow, /benchmark-repository-isolation-/u);
+  assert.match(workflow, /if: \$\{\{ always\(\) && inputs\.run_full_verified \}\}/u);
+  assert.match(workflow, /Collect terminal benchmark evidence/u);
+  assert.match(workflow, /github-failures\.json/u);
+  assert.match(workflow, /github-failed-steps\.log/u);
 });
 
 test("the model workspace retains only the frozen base commit", () => {
@@ -99,17 +174,37 @@ test("the model workspace retains only the frozen base commit", () => {
   const repository = join(root, "repo");
   try {
     assert.equal(spawnSync("git", ["init", repository]).status, 0);
-    assert.equal(spawnSync("git", ["config", "user.email", "bench@example.invalid"], { cwd: repository }).status, 0);
-    assert.equal(spawnSync("git", ["config", "user.name", "Benchmark"], { cwd: repository }).status, 0);
+    assert.equal(
+      spawnSync("git", ["config", "user.email", "bench@example.invalid"], { cwd: repository })
+        .status,
+      0,
+    );
+    assert.equal(
+      spawnSync("git", ["config", "user.name", "Benchmark"], { cwd: repository }).status,
+      0,
+    );
     writeFileSync(join(repository, "value.txt"), "base\n");
     assert.equal(spawnSync("git", ["add", "value.txt"], { cwd: repository }).status, 0);
     assert.equal(spawnSync("git", ["commit", "-m", "base"], { cwd: repository }).status, 0);
-    const base = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim();
+    const base = spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: repository,
+      encoding: "utf8",
+    }).stdout.trim();
     writeFileSync(join(repository, "value.txt"), "future\n");
     assert.equal(spawnSync("git", ["commit", "-am", "future"], { cwd: repository }).status, 0);
-    const future = spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim();
-    assert.equal(spawnSync("git", ["remote", "add", "origin", repository], { cwd: repository }).status, 0);
-    assert.equal(spawnSync("git", ["update-ref", "refs/remotes/origin/main", future], { cwd: repository }).status, 0);
+    const future = spawnSync("git", ["rev-parse", "HEAD"], {
+      cwd: repository,
+      encoding: "utf8",
+    }).stdout.trim();
+    assert.equal(
+      spawnSync("git", ["remote", "add", "origin", repository], { cwd: repository }).status,
+      0,
+    );
+    assert.equal(
+      spawnSync("git", ["update-ref", "refs/remotes/origin/main", future], { cwd: repository })
+        .status,
+      0,
+    );
     assert.equal(
       spawnSync("git", ["symbolic-ref", "refs/remotes/origin/HEAD", "refs/remotes/origin/main"], {
         cwd: repository,
@@ -121,9 +216,18 @@ test("the model workspace retains only the frozen base commit", () => {
 
     const isolated = isolateFrozenGitCommit(repository);
     assert.equal(isolated.status, 0, isolated.stderr);
-    assert.equal(spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim(), base);
-    assert.equal(spawnSync("git", ["remote"], { cwd: repository, encoding: "utf8" }).stdout.trim(), "");
-    assert.equal(spawnSync("git", ["for-each-ref"], { cwd: repository, encoding: "utf8" }).stdout.trim(), "");
+    assert.equal(
+      spawnSync("git", ["rev-parse", "HEAD"], { cwd: repository, encoding: "utf8" }).stdout.trim(),
+      base,
+    );
+    assert.equal(
+      spawnSync("git", ["remote"], { cwd: repository, encoding: "utf8" }).stdout.trim(),
+      "",
+    );
+    assert.equal(
+      spawnSync("git", ["for-each-ref"], { cwd: repository, encoding: "utf8" }).stdout.trim(),
+      "",
+    );
     assert.equal(spawnSync("git", ["cat-file", "-e", "HEAD@{1}"], { cwd: repository }).status, 128);
     assert.equal(readFileSync(join(repository, ".git", "shallow"), "utf8").trim(), base);
   } finally {
@@ -134,11 +238,20 @@ test("the model workspace retains only the frozen base commit", () => {
 test("formal generation contains no automatic model or acquisition retry", () => {
   const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
   const smoke = readFileSync(new URL("../scripts/smoke.mjs", import.meta.url), "utf8");
-  const harness = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
+  const harness = readFileSync(
+    new URL("../scripts/swe-bench-harness.mjs", import.meta.url),
+    "utf8",
+  );
+  const evaluatorEntry = readFileSync(
+    new URL("../scripts/evaluate-official.mjs", import.meta.url),
+    "utf8",
+  );
   assert.doesNotMatch(workflow, /for attempt in/u);
   assert.doesNotMatch(workflow, /scripts\/relay-health\.mjs/u);
   assert.doesNotMatch(smoke, /MAX_RELAY_RETRIES|for \(let attempt/u);
   assert.doesNotMatch(harness, /GIT_NETWORK_RETRY|for \(let attempt/u);
+  assert.match(evaluatorEntry, /openSync\(path, "wx"\)/u);
+  assert.match(evaluatorEntry, /uncertain-external-effect/u);
 });
 
 test("beta.9 diagnostic plan is the frozen ledger's complete non-resolved population", () => {
@@ -188,20 +301,26 @@ test("full Verified plan is a candidate-independent exact 500-task population", 
 test("repository instructions forbid mixed-generation and evaluator-driven scoring", () => {
   const instructions = readFileSync(new URL("../AGENTS.md", import.meta.url), "utf8");
   assert.match(instructions, /one frozen candidate running all 500 frozen tasks/u);
-  assert.match(instructions, /Never combine candidates, rescue runs, or selected failure reruns into pass@1/u);
+  assert.match(
+    instructions,
+    /Never combine candidates, rescue runs, or selected failure reruns into pass@1/u,
+  );
   assert.match(instructions, /canonical record are the only grader/u);
   assert.match(instructions, /Do not retry or overwrite a canonical verdict/u);
   assert.match(instructions, /repository containing only the frozen `base_commit`/u);
   assert.match(instructions, /complete inference-time trajectory for every task/u);
-  assert.match(instructions, /closed-book claim requires a mechanically verified network boundary/u);
+  assert.match(
+    instructions,
+    /closed-book claim requires a mechanically verified network boundary/u,
+  );
 });
 
-test("the current candidate can start a formal full run only after fairness admission", () => {
+test("a candidate can start a formal full run only after fairness admission", () => {
   const candidate = JSON.parse(
     readFileSync(new URL("../config/best-agent-candidate.json", import.meta.url), "utf8"),
   );
   const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
-  assert.equal(candidate.formalBenchmarkReady, true);
+  assert.equal(typeof candidate.formalBenchmarkReady, "boolean");
   assert.match(workflow, /candidate\.formalBenchmarkReady !== true/u);
   assert.match(workflow, /has not passed the formal benchmark fairness gates/u);
 });

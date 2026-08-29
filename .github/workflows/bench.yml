@@ -57,6 +57,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: read
 
 env:
@@ -109,7 +110,8 @@ jobs:
           }
           if (runFullVerified) {
             const candidate = require("./config/best-agent-candidate.json");
-            if ((process.env.MODEL_OVERRIDE ?? "").trim() !== candidate.provider?.model) {
+            const override = (process.env.MODEL_OVERRIDE ?? "").trim();
+            if (override !== "" && override !== candidate.provider?.model) {
               throw new Error("Full Verified runs must pin the candidate provider model.");
             }
             if (candidate.formalBenchmarkReady !== true) {
@@ -241,7 +243,18 @@ jobs:
         run: node scripts/sandbox-network-smoke.mjs
 
       - name: Headless composition smoke
-        run: node scripts/smoke.mjs
+        run: |
+          mkdir -p results/gates
+          node scripts/smoke.mjs | tee results/gates/headless-smoke.json
+
+      - name: Upload headless smoke receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-headless-smoke-${{ github.run_id }}
+          path: results/gates/headless-smoke.json
+          if-no-files-found: warn
+          retention-days: 90
 
   corpus:
     name: Freeze SWE-bench corpus
@@ -296,7 +309,18 @@ jobs:
           path: results/corpora
 
       - name: Verify a real shallow clone closure
-        run: node scripts/isolation-smoke.mjs "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl"
+        run: |
+          mkdir -p results/gates
+          node scripts/isolation-smoke.mjs "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl" | tee results/gates/repository-isolation.json
+
+      - name: Upload repository isolation receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-repository-isolation-${{ github.run_id }}
+          path: results/gates/repository-isolation.json
+          if-no-files-found: warn
+          retention-days: 90
 
   swe-bench:
     name: macOS generation (${{ matrix.batch.id }})
@@ -366,7 +390,8 @@ jobs:
         env:
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
           BATCH_TASKS: ${{ matrix.batch.tasks }}
-          SWE_BENCH_EVALUATION_BATCH_ID: cli-${{ steps.candidate.outputs.version }}-${{ matrix.batch.id }}-${{ steps.model.outputs.model }}
+          SWE_BENCH_EVALUATION_BATCH_ID: ${{ inputs.run_full_verified && format('formal-{0}', github.run_id) || format('cli-{0}-{1}-{2}', steps.candidate.outputs.version, matrix.batch.id, steps.model.outputs.model) }}
+          SWE_BENCH_FORMAL_RUN_ID: ${{ inputs.run_full_verified && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}
         run: |
           ARGS=(
             --generation-only
@@ -386,6 +411,7 @@ jobs:
           node scripts/swe-bench-harness.mjs "${ARGS[@]}"
 
       - name: Upload immutable generation artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: swe-bench-generation-${{ matrix.batch.id }}
@@ -393,12 +419,13 @@ jobs:
             results/swe-bench-results.*.json
             results/swe-bench-results.*.md
             results/swe-bench-results.*.predictions/**
+            results/swe-bench-results.*.tasks/**
           if-no-files-found: error
           retention-days: 90
 
   swe-bench-merge:
-    name: Merge deferred generation reports
-    if: ${{ inputs.run_swe_bench }}
+    name: Admit deferred generation artifacts
+    if: ${{ always() && inputs.run_swe_bench }}
     needs: swe-bench
     runs-on: macos-15
     timeout-minutes: 30
@@ -411,20 +438,109 @@ jobs:
 
       - name: Download generation artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           pattern: swe-bench-generation-*
           path: results
           merge-multiple: true
 
-      - name: Merge canonical reports
-        run: node scripts/swe-bench-harness.mjs --merge-shards --output "${GITHUB_WORKSPACE}/results/swe-bench-results.json"
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
 
-      - name: Upload merged deferred report
+      - name: Download the headless smoke receipt
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: benchmark-headless-smoke-${{ github.run_id }}
+          path: results/gates
+
+      - name: Download the repository isolation receipt
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: benchmark-repository-isolation-${{ github.run_id }}
+          path: results/gates
+
+      - name: Capture GitHub job and step conclusions
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" > "$RUNNER_TEMP/job-pages.json"
+          node -e 'const fs=require("fs");const pages=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));fs.writeFileSync(process.argv[2],JSON.stringify({jobs:pages.flatMap(page=>page.jobs)},null,2)+"\n")' "$RUNNER_TEMP/job-pages.json" "${GITHUB_WORKSPACE}/results/github-jobs.json"
+
+      - name: Admit the exact formal population
+        if: ${{ always() && inputs.run_full_verified }}
+        run: |
+          node scripts/admit-generation.mjs \
+            --results "${GITHUB_WORKSPACE}/results" \
+            --plan "${GITHUB_WORKSPACE}/config/swe-bench-full-batches.json" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl" \
+            --output "${GITHUB_WORKSPACE}/results/formal-admission.json"
+
+      - name: Upload admission evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: swe-bench-results-deferred
-          path: |
-            results/swe-bench-results.json
-            results/swe-bench-results.md
-            results/swe-bench-results.*.predictions/**
+          name: swe-bench-formal-generation-evidence
+          path: results/**
+          if-no-files-found: error
+          retention-days: 90
+
+  swe-bench-evidence:
+    name: Collect terminal benchmark evidence
+    if: ${{ always() && inputs.run_swe_bench }}
+    needs: [plan, smoke, corpus, isolation, swe-bench, swe-bench-merge]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download admission and task evidence
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: swe-bench-formal-generation-evidence
+          path: results
+
+      - name: Capture terminal GitHub jobs, failed steps, and logs
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p results
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" > "$RUNNER_TEMP/job-pages.json"
+          node <<'NODE'
+          const fs = require("node:fs");
+          const pages = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/job-pages.json", "utf8"));
+          const jobs = pages.flatMap(page => page.jobs);
+          fs.writeFileSync("results/github-jobs-final.json", JSON.stringify({ jobs }, null, 2) + "\n");
+          const failures = jobs
+            .filter(job => job.name !== "Collect terminal benchmark evidence")
+            .map(job => ({
+                id: job.id,
+                name: job.name,
+                status: job.status,
+                conclusion: job.conclusion,
+                html_url: job.html_url,
+                failedSteps: (job.steps ?? [])
+                  .filter(step => !["success", "skipped"].includes(step.conclusion))
+                  .map(step => ({ name: step.name, status: step.status, conclusion: step.conclusion })),
+            }))
+            .filter(job => !["success", "skipped"].includes(job.conclusion) || job.failedSteps.length > 0);
+          fs.writeFileSync("results/github-failures.json", JSON.stringify({ jobs: failures }, null, 2) + "\n");
+          NODE
+          gh run view "$GITHUB_RUN_ID" --log-failed > results/github-failed-steps.log || true
+
+      - name: Upload terminal acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-terminal-evidence-${{ github.run_id }}
+          path: results/**
+          if-no-files-found: error
           retention-days: 90

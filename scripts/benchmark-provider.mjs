@@ -31,16 +31,22 @@ function readProviderFile(environment = process.env) {
   }
 }
 
-/** Bounded provider description: kind/model/compatibilityMode/baseURL only — no secrets. */
+/** Bounded provider description with the full non-secret request identity. */
 export function describeBenchmarkProvider(environment = process.env) {
   const file = readProviderFile(environment);
   const kind = environment.BEST_AGENT_PROVIDER_KIND ?? file?.kind ?? (file ? undefined : "unknown");
   const model = environment.BEST_AGENT_PROVIDER_MODEL ?? file?.model ?? "unconfigured";
   const compatibilityMode =
     environment.BEST_AGENT_PROVIDER_COMPATIBILITY_MODE ?? file?.compatibilityMode ?? undefined;
+  const baseURL = environment.BEST_AGENT_PROVIDER_BASE_URL ?? file?.baseURL ?? undefined;
+  const reasoningEffort = file?.reasoningEffort;
+  const transportProfile = file?.transportProfile;
   return Object.freeze({
     kind: String(kind ?? "unknown"),
     model: String(model),
     ...(compatibilityMode === undefined ? {} : { compatibilityMode }),
+    ...(baseURL === undefined ? {} : { baseURL }),
+    ...(reasoningEffort === undefined ? {} : { reasoningEffort }),
+    ...(transportProfile === undefined ? {} : { transportProfile }),
   });
 }

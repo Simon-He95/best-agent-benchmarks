@@ -140,6 +140,7 @@ async function main() {
     finalAnswer: stdout.trim().slice(-800),
     cliError: stderr.trim().slice(-800),
     workspace,
+    host: { platform: process.platform, arch: process.arch },
   };
 
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
