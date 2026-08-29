@@ -234,6 +234,9 @@ jobs:
       - name: Materialize the frozen provider identity
         run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
 
+      - name: Verify benchmark controls
+        run: npm test
+
       - name: Verify exec network isolation
         run: node scripts/sandbox-network-smoke.mjs
 
