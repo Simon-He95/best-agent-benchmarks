@@ -245,7 +245,7 @@ jobs:
 
   corpus:
     name: Freeze SWE-bench corpus
-    if: ${{ inputs.run_swe_bench }}
+    if: ${{ inputs.run_smoke || inputs.run_swe_bench }}
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -276,10 +276,32 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  isolation:
+    name: Verify frozen repository isolation
+    if: ${{ inputs.run_smoke || inputs.run_swe_bench }}
+    needs: corpus
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Verify a real shallow clone closure
+        run: node scripts/isolation-smoke.mjs "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl"
+
   swe-bench:
     name: macOS generation (${{ matrix.batch.id }})
     if: ${{ inputs.run_swe_bench }}
-    needs: [plan, smoke, corpus]
+    needs: [plan, smoke, corpus, isolation]
     runs-on: macos-15
     timeout-minutes: 480
     strategy:

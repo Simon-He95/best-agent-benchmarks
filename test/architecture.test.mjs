@@ -88,7 +88,8 @@ test("hosted generation uses the public package and caps each batch at ten tasks
   assert.match(workflow, /node_modules\/\$\{CLI_PACKAGE\}\/bin\/best-agent/u);
   assert.match(workflow, /count > 10/u);
   assert.match(workflow, /name: swe-bench-corpus-\$\{\{ github\.run_id \}\}/u);
-  assert.match(workflow, /needs: \[plan, smoke, corpus\]/u);
+  assert.match(workflow, /needs: \[plan, smoke, corpus, isolation\]/u);
+  assert.match(workflow, /node scripts\/isolation-smoke\.mjs/u);
   assert.match(workflow, /brew install ripgrep/u);
   assert.match(workflow, /node scripts\/sandbox-network-smoke\.mjs/u);
 });
