@@ -230,6 +230,20 @@ test("the model workspace retains only the frozen base commit", () => {
     );
     assert.equal(spawnSync("git", ["cat-file", "-e", "HEAD@{1}"], { cwd: repository }).status, 128);
     assert.equal(readFileSync(join(repository, ".git", "shallow"), "utf8").trim(), base);
+    assert.equal(
+      spawnSync("git", ["config", "--get", "gc.auto"], {
+        cwd: repository,
+        encoding: "utf8",
+      }).stdout.trim(),
+      "0",
+    );
+    assert.equal(
+      spawnSync("git", ["config", "--get", "maintenance.auto"], {
+        cwd: repository,
+        encoding: "utf8",
+      }).stdout.trim(),
+      "false",
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -250,6 +264,9 @@ test("formal generation contains no automatic model or acquisition retry", () =>
   assert.doesNotMatch(workflow, /scripts\/relay-health\.mjs/u);
   assert.doesNotMatch(smoke, /MAX_RELAY_RETRIES|for \(let attempt/u);
   assert.doesNotMatch(harness, /GIT_NETWORK_RETRY|for \(let attempt/u);
+  assert.match(harness, /fetch", "--no-auto-maintenance"/u);
+  assert.match(harness, /"-c", "gc\.auto=0", "-c", "maintenance\.auto=false"/u);
+  assert.doesNotMatch(harness, /git prune --expire=now/u);
   assert.match(evaluatorEntry, /openSync\(path, "wx"\)/u);
   assert.match(evaluatorEntry, /uncertain-external-effect/u);
 });

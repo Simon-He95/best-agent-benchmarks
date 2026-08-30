@@ -465,7 +465,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
     if (task.base_commit) {
       failureStage = "fetch";
       const fetchResult = runGitCommand({
-        args: ["fetch", "--depth", "1", "origin", task.base_commit],
+        args: ["fetch", "--no-auto-maintenance", "--depth", "1", "origin", task.base_commit],
         cwd: repoDir,
       });
       if (fetchResult.status !== 0) {
@@ -828,17 +828,22 @@ async function runTaskSafe(task, timeoutMs, evaluationContext) {
 }
 
 function runGitCommand({ args, cwd }) {
-  return spawnSync("git", args, { cwd, encoding: "utf8", timeout: 60_000 });
+  return spawnSync(
+    "git",
+    ["-c", "gc.auto=0", "-c", "maintenance.auto=false", ...args],
+    { cwd, encoding: "utf8", timeout: 60_000 },
+  );
 }
 
 export function isolateFrozenGitCommit(repoDir) {
   const script = [
     "set -eu",
+    "git config gc.auto 0",
+    "git config maintenance.auto false",
     "git remote remove origin",
     "git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags | while IFS= read -r ref; do git update-ref -d \"$ref\"; done",
     "if git symbolic-ref -q refs/remotes/origin/HEAD >/dev/null; then git symbolic-ref -d refs/remotes/origin/HEAD; fi",
     "git reflog expire --expire=now --all",
-    "git prune --expire=now",
     "git gc --prune=now",
     'test -z "$(git remote)"',
     "test -z \"$(git for-each-ref --format='%(refname)' refs/heads refs/remotes refs/tags)\"",
