@@ -3,7 +3,7 @@
   "packageName": "@best-agent/cli-darwin-arm64",
   "packageIntegrity": "sha512-77+CEmM6vhNRVPSQSxTlcID148r7+DaFLY83ezQbBCOvYnbkQpoz3KAFreDgAwiEep7Iqyk/fpDMy4Piu0VgBg==",
   "sourceCommit": "6d543478011a1107eca991b681167fcd2cbe8919",
-  "formalBenchmarkReady": false,
+  "formalBenchmarkReady": true,
   "taskTimeoutMs": 1800000,
   "provider": {
     "kind": "openai",
