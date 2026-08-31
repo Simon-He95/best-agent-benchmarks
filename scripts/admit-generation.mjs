@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { inspectAttemptEvidence } from "./swe-bench-harness.mjs";
 import { readFrozenPrediction } from "./swe-bench-official-evaluator.mjs";
+import { buildFormalRecovery } from "./plan-recovery.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const candidatePath = resolve(repoRoot, "config/best-agent-candidate.json");
@@ -28,6 +29,7 @@ const CONTROL_CLOSURE_PATHS = [
   "scripts/benchmark-provider.mjs",
   "scripts/isolation-smoke.mjs",
   "scripts/materialize-ci-provider.mjs",
+  "scripts/plan-recovery.mjs",
   "scripts/prepare-swe-bench.mjs",
   "scripts/sandbox-network-smoke.mjs",
   "scripts/smoke.mjs",
@@ -39,6 +41,8 @@ export function parseAdmissionArgs(argv) {
     if (argv[index] === "--results") parsed.resultsDir = resolve(argv[++index]);
     else if (argv[index] === "--plan") parsed.planPath = resolve(argv[++index]);
     else if (argv[index] === "--corpus") parsed.corpusPath = resolve(argv[++index]);
+    else if (argv[index] === "--recovery-manifest")
+      parsed.recoveryManifestPath = resolve(argv[++index]);
     else if (argv[index] === "--output") parsed.outputPath = resolve(argv[++index]);
     else throw new Error(`Unknown admission argument: ${argv[index]}`);
   }
@@ -101,10 +105,6 @@ export function inspectFormalGeneration(options) {
       reasons.push({ stage: "gate", reason: `${name}: ${gate.reason}` });
     }
   }
-  const githubJobs = admitGithubJobs(resolve(options.resultsDir, "github-jobs.json"));
-  if (githubJobs.accepted !== true) {
-    reasons.push({ stage: "ci-jobs", reason: githubJobs.reason });
-  }
   const reportsByShard = new Map();
   for (let shard = 0; shard < plan.batches.length; shard += 1) {
     const fragmentPath = resolve(options.resultsDir, `swe-bench-results.shard-${shard}.json`);
@@ -129,6 +129,15 @@ export function inspectFormalGeneration(options) {
   const formalRunId = formalRunIds.size === 1 ? [...formalRunIds][0] : undefined;
   if (typeof formalRunId !== "string" || !/^formal-[0-9]+$/u.test(formalRunId)) {
     reasons.push({ stage: "configuration", reason: "fragments do not share one formal run ID" });
+  }
+  const githubJobs = admitGithubJobs(
+    resolve(options.resultsDir, "github-jobs.json"),
+    undefined,
+    plan,
+    formalRunId,
+  );
+  if (githubJobs.accepted !== true) {
+    reasons.push({ stage: "ci-jobs", reason: githubJobs.reason });
   }
   if (reportsByShard.size !== 100) {
     reasons.push({
@@ -241,7 +250,7 @@ export function inspectFormalGeneration(options) {
     if (candidate[field] !== value)
       reasons.push({ stage: "candidate", reason: `${field} mismatch` });
   }
-  const report = {
+  let report = {
     schemaVersion: 1,
     accepted: reasons.length === 0,
     formalRunId: formalRunId ?? null,
@@ -253,13 +262,213 @@ export function inspectFormalGeneration(options) {
       Object.entries(gates).map(([name, gate]) => [name, gate.reference ?? null]),
     ),
     githubJobs: githubJobs.reference ?? null,
+    recovery: null,
     shards: [...reportsByShard.values()]
       .sort((left, right) => left.report.composition.shard - right.report.composition.shard)
       .map(({ fragmentPath }) => reference(fragmentPath)),
     tasks: taskRecords,
     reasons,
   };
+  if (options.recoveryManifestPath !== undefined) {
+    report = applyFormalRecovery(report, options, { candidate, corpusTasks, plan });
+  }
   return report;
+}
+
+function applyFormalRecovery(sourceReport, options, context) {
+  if (!existsSync(options.recoveryManifestPath)) {
+    return {
+      ...sourceReport,
+      accepted: false,
+      reasons: [
+        ...sourceReport.reasons,
+        { stage: "recovery", reason: "recovery manifest is missing" },
+      ],
+    };
+  }
+  const manifest = readJson(options.recoveryManifestPath);
+  const expectedManifest = buildFormalRecovery(sourceReport, options);
+  if (canonicalJson(manifest) !== canonicalJson(expectedManifest)) {
+    return {
+      ...sourceReport,
+      accepted: false,
+      reasons: [
+        ...sourceReport.reasons,
+        { stage: "recovery", reason: "recovery manifest does not reproduce source evidence" },
+      ],
+    };
+  }
+  const manifestReference = reference(options.recoveryManifestPath);
+  const recovered = new Map();
+  const recoveryShards = [];
+  const recoveryReasons = [];
+  for (const batch of manifest.batches) {
+    const fragmentPath = resolve(
+      options.resultsDir,
+      "recovery",
+      `swe-bench-recovery.shard-${batch.sourceShard}.json`,
+    );
+    if (!existsSync(fragmentPath)) {
+      recoveryReasons.push({
+        stage: "recovery-fragment",
+        shard: batch.sourceShard,
+        reason: "expected recovery artifact is missing",
+      });
+      continue;
+    }
+    const fragment = readJson(fragmentPath);
+    const actualTasks = fragment.tasks?.map((task) => task.instance_id) ?? [];
+    if (
+      fragment.composition?.shard !== batch.sourceShard ||
+      fragment.composition?.shardTotal !== 100 ||
+      fragment.composition?.recoveryManifestSha256 !== manifestReference.sha256 ||
+      JSON.stringify(actualTasks) !== JSON.stringify(batch.tasks) ||
+      fragment.candidateId !==
+        `cli-${context.candidate.cliVersion}-${context.candidate.sourceCommit}` ||
+      canonicalJson(fragment.provider) !== canonicalJson(context.candidate.provider) ||
+      fragment.composition?.formalRunId !== sourceReport.formalRunId ||
+      fragment.composition?.fullAccess !== true ||
+      fragment.composition?.permissionMode !== "full" ||
+      fragment.composition?.interactionTools !== false ||
+      fragment.composition?.workspaceBackend !== "sandbox" ||
+      fragment.composition?.execNetworkIsolation !== true ||
+      fragment.composition?.networkToolSchemas !== false ||
+      fragment.composition?.taskTimeoutMs !== context.candidate.taskTimeoutMs ||
+      fragment.evaluation?.method !== "official-swe-bench-docker-deferred" ||
+      fragment.evaluation?.evaluationBatchId !== sourceReport.formalRunId
+    ) {
+      recoveryReasons.push({
+        stage: "recovery-fragment",
+        shard: batch.sourceShard,
+        reason: "recovery fragment configuration or task identity mismatch",
+      });
+      continue;
+    }
+    recoveryShards.push(reference(fragmentPath));
+    for (const task of fragment.tasks) {
+      const taskArtifactDir = resolve(
+        options.resultsDir,
+        "recovery",
+        `swe-bench-recovery.shard-${batch.sourceShard}.tasks`,
+        safeId(task.instance_id),
+      );
+      const receiptPath = resolve(taskArtifactDir, "receipt.json");
+      if (
+        task.taskReceiptPath !== relative(repoRoot, receiptPath) ||
+        !existsSync(receiptPath)
+      ) {
+        recoveryReasons.push({
+          stage: "recovery-task-receipt",
+          instanceId: task.instance_id,
+          reason: "missing recovery task receipt",
+        });
+        continue;
+      }
+      const receipt = readJson(receiptPath);
+      const taskReason = admitTaskReceipt(receipt, {
+        expectedTask: context.corpusTasks.get(task.instance_id),
+        candidate: context.candidate,
+        formalRunId: sourceReport.formalRunId,
+        artifactRoot: taskArtifactDir,
+        expectedPredictionPath: resolve(
+          options.resultsDir,
+          "recovery",
+          `swe-bench-recovery.shard-${batch.sourceShard}.predictions`,
+          `${safeId(task.instance_id)}.json`,
+        ),
+      });
+      if (taskReason !== undefined) {
+        recoveryReasons.push({
+          stage: receipt.failureStage ?? "recovery-task",
+          instanceId: task.instance_id,
+          reason: taskReason,
+        });
+        continue;
+      }
+      recovered.set(task.instance_id, {
+        instanceId: task.instance_id,
+        disposition: receipt.disposition,
+        receipt: reference(receiptPath),
+        ...(receipt.prediction === undefined ? {} : { prediction: receipt.prediction }),
+      });
+    }
+  }
+  for (const task of manifest.tasks) {
+    if (!recovered.has(task.instanceId)) {
+      recoveryReasons.push({
+        stage: "recovery-population",
+        instanceId: task.instanceId,
+        reason: "eligible task has no accepted recovery receipt",
+      });
+    }
+  }
+  const recoveredShards = new Set(
+    context.plan.batches.flatMap((batch, shard) =>
+      batch.tasks.every((instanceId) => recovered.has(instanceId)) ? [shard] : [],
+    ),
+  );
+  const missingSourceShards = new Set(
+    sourceReport.reasons.flatMap((reason) =>
+      reason.stage === "fragment" &&
+      reason.reason === "expected shard artifact is missing" &&
+      Number.isInteger(reason.shard)
+        ? [reason.shard]
+        : [],
+    ),
+  );
+  const sourceTasks = new Map(sourceReport.tasks.map((task) => [task.instanceId, task]));
+  const tasks = context.plan.batches.flatMap((batch) =>
+    batch.tasks.flatMap((instanceId) => {
+      const task = recovered.get(instanceId) ?? sourceTasks.get(instanceId);
+      return task === undefined ? [] : [task];
+    }),
+  );
+  const reasons = sourceReport.reasons.filter((reason) => {
+    if (typeof reason.instanceId === "string" && recovered.has(reason.instanceId)) return false;
+    if (
+      reason.stage === "fragment" &&
+      reason.reason === "expected shard artifact is missing" &&
+      recoveredShards.has(reason.shard)
+    ) {
+      return false;
+    }
+    if (
+      reason.stage === "fragment" &&
+      /^expected 100 shards, received /u.test(reason.reason) &&
+      sourceReport.shards.length +
+        [...missingSourceShards].filter((shard) => recoveredShards.has(shard)).length ===
+        100
+    ) {
+      return false;
+    }
+    if (
+      reason.stage === "population" &&
+      tasks.length === 500 &&
+      new Set(tasks.map((task) => task.instanceId)).size === 500
+    ) {
+      return false;
+    }
+    return reason.stage !== "ci-jobs";
+  });
+  const githubJobs = admitGithubJobs(
+    resolve(options.resultsDir, "github-jobs.json"),
+    manifest,
+    context.plan,
+    sourceReport.formalRunId,
+  );
+  if (!githubJobs.accepted) reasons.push({ stage: "ci-jobs", reason: githubJobs.reason });
+  reasons.push(...recoveryReasons);
+  return {
+    ...sourceReport,
+    accepted: reasons.length === 0,
+    githubJobs: githubJobs.reference ?? sourceReport.githubJobs,
+    recovery: {
+      manifest: manifestReference,
+      shards: recoveryShards,
+    },
+    tasks,
+    reasons,
+  };
 }
 
 export function admitFormalGeneration(options) {
@@ -287,7 +496,7 @@ function admitGate(path, acceptedField) {
   return { accepted: true, reference: reference(path) };
 }
 
-function admitGithubJobs(path) {
+function admitGithubJobs(path, recoveryManifest, plan, formalRunId) {
   if (!existsSync(path)) return { accepted: false, reason: "GitHub job/step receipt missing" };
   const jobs = readJson(path).jobs;
   if (!Array.isArray(jobs)) return { accepted: false, reason: "GitHub jobs are malformed" };
@@ -297,23 +506,68 @@ function admitGithubJobs(path) {
     "Freeze SWE-bench corpus",
     "Verify frozen repository isolation",
   ];
-  const generationJobs = jobs.filter((job) => /^macOS generation \(.+\)$/u.test(job.name));
-  const requiredJobs = requiredNames.map((name) => jobs.find((job) => job.name === name));
-  if (generationJobs.length !== 100) {
+  const expectedGenerationNames = plan.batches.map((batch) => `macOS generation (${batch.id})`);
+  const generationJobs = jobs.filter((job) => expectedGenerationNames.includes(job.name));
+  const requiredJobs = requiredNames.map((name) => jobs.filter((job) => job.name === name));
+  const duplicateGeneration = expectedGenerationNames.filter(
+    (name) => generationJobs.filter((job) => job.name === name).length !== 1,
+  );
+  if (generationJobs.length !== 100 || duplicateGeneration.length > 0) {
     return {
       accepted: false,
-      reason: `expected 100 generation jobs, received ${generationJobs.length}`,
+      reason: `source generation jobs must each have one execution; received ${generationJobs.length}, invalid=${duplicateGeneration.join(",")}`,
     };
   }
-  const missing = requiredNames.filter((_, index) => requiredJobs[index] === undefined);
-  if (missing.length > 0) return { accepted: false, reason: `missing jobs: ${missing.join(", ")}` };
-  const failed = [...generationJobs, ...requiredJobs].flatMap((job) => {
+  const invalidRequired = requiredNames.filter((_, index) => requiredJobs[index].length !== 1);
+  if (invalidRequired.length > 0) {
+    return { accepted: false, reason: `jobs must have one execution: ${invalidRequired.join(", ")}` };
+  }
+  const expectedRunId = Number(String(formalRunId).replace(/^formal-/u, ""));
+  const identityJobs = [...generationJobs, ...requiredJobs.flat()];
+  if (
+    !Number.isSafeInteger(expectedRunId) ||
+    identityJobs.some((job) => job.run_id !== expectedRunId || job.run_attempt !== 1)
+  ) {
+    return { accepted: false, reason: "job run identity or attempt mismatch" };
+  }
+  const recoveredGenerationNames = new Set(
+    recoveryManifest === undefined
+      ? []
+      : recoveryManifest.batches
+          .filter((batch) => plan.batches[batch.sourceShard].tasks.length === batch.tasks.length)
+          .map((batch) => `macOS generation (${plan.batches[batch.sourceShard].id})`),
+  );
+  const failed = [...generationJobs, ...requiredJobs.flat()].flatMap((job) => {
+    if (job.conclusion === "failure" && recoveredGenerationNames.has(job.name)) return [];
     if (job.conclusion !== "success") return [`${job.name}: job=${job.conclusion}`];
     if (!Array.isArray(job.steps)) return [`${job.name}: steps malformed`];
     return job.steps
       .filter((step) => step.conclusion !== "success")
       .map((step) => `${job.name}/${step.name}: step=${step.conclusion}`);
   });
+  if (recoveryManifest !== undefined) {
+    const planJobs = jobs.filter((job) => job.name === "Build benchmark recovery plan");
+    if (
+      planJobs.length !== 1 ||
+      planJobs[0].run_id !== expectedRunId ||
+      planJobs[0].run_attempt !== 1 ||
+      planJobs[0].conclusion !== "success"
+    ) {
+      failed.push("Build benchmark recovery plan must have one successful attempt-1 execution");
+    }
+    for (const batch of recoveryManifest.batches) {
+      const name = `macOS recovery (${batch.id})`;
+      const executions = jobs.filter((job) => job.name === name);
+      if (
+        executions.length !== 1 ||
+        executions[0].run_id !== expectedRunId ||
+        executions[0].run_attempt !== 1 ||
+        executions[0].conclusion !== "success"
+      ) {
+        failed.push(`${name}: expected one successful attempt-1 execution`);
+      }
+    }
+  }
   if (failed.length > 0) return { accepted: false, reason: failed.join("; ") };
   return { accepted: true, reference: reference(path) };
 }

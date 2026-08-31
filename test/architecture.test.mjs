@@ -324,6 +324,8 @@ test("repository instructions forbid mixed-generation and evaluator-driven scori
   );
   assert.match(instructions, /canonical record are the only grader/u);
   assert.match(instructions, /Do not retry or overwrite a canonical verdict/u);
+  assert.match(instructions, /Freeze the recovery manifest before recovery/u);
+  assert.match(instructions, /never replace an existing prediction/u);
   assert.match(instructions, /repository containing only the frozen `base_commit`/u);
   assert.match(instructions, /complete inference-time trajectory for every task/u);
   assert.match(

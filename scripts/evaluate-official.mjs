@@ -375,6 +375,7 @@ export function verifyAdmissionReceipt(path) {
     "gates",
     "githubJobs",
     "plan",
+    "recovery",
     "reasons",
     "schemaVersion",
     "scriptHashes",
@@ -405,6 +406,9 @@ export function verifyAdmissionReceipt(path) {
     resultsDir: dirname(admissionReportPath),
     planPath: verifyReference(receipt.plan),
     corpusPath: verifyReference(receipt.corpus),
+    ...(receipt.recovery === null
+      ? {}
+      : { recoveryManifestPath: verifyReference(receipt.recovery.manifest) }),
   });
   if (canonicalJson(recomputed) !== canonicalJson(frozenReport)) {
     throw new Error("Admission evidence no longer reproduces the accepted report.");
@@ -415,9 +419,15 @@ export function verifyAdmissionReceipt(path) {
   }
   verifyReference(receipt.githubJobs);
   for (const reference of Object.values(receipt.gates)) verifyReference(reference);
-  if (receipt.shards.length !== 100)
-    throw new Error("Admission receipt must reference 100 shards.");
+  if (!Array.isArray(receipt.shards)) throw new Error("Admission shard references are malformed.");
   for (const reference of receipt.shards) verifyReference(reference);
+  if (receipt.recovery !== null) {
+    exactKeys(receipt.recovery, ["manifest", "shards"], "admission recovery");
+    if (!Array.isArray(receipt.recovery.shards)) {
+      throw new Error("Admission recovery shard references are malformed.");
+    }
+    for (const reference of receipt.recovery.shards) verifyReference(reference);
+  }
   const predictions = new Map();
   for (const task of receipt.tasks) {
     verifyReference(task.receipt);

@@ -298,6 +298,13 @@ async function main() {
   mkdirSync(predictionDir, { recursive: true });
   mkdirSync(taskArtifactDir, { recursive: true });
   const formalRunId = process.env.SWE_BENCH_FORMAL_RUN_ID ?? `diagnostic-${evaluationBatchId}`;
+  const recoveryManifestSha256 = process.env.SWE_BENCH_RECOVERY_MANIFEST_SHA256;
+  if (
+    recoveryManifestSha256 !== undefined &&
+    !/^[a-f0-9]{64}$/u.test(recoveryManifestSha256)
+  ) {
+    throw new Error("SWE_BENCH_RECOVERY_MANIFEST_SHA256 must be a SHA-256 digest.");
+  }
   const evaluationContext = Object.freeze({
     candidateId,
     evaluationBatchId,
@@ -306,6 +313,7 @@ async function main() {
     predictionDir,
     taskArtifactDir,
     modelNameOrPath: `${provider.kind}/${provider.model}`,
+    ...(recoveryManifestSha256 === undefined ? {} : { recoveryManifestSha256 }),
   });
 
   process.stdout.write(
@@ -351,6 +359,9 @@ async function main() {
       execNetworkIsolation: true,
       taskTimeoutMs: args.taskTimeout,
       formalRunId,
+      ...(evaluationContext.recoveryManifestSha256 === undefined
+        ? {}
+        : { recoveryManifestSha256: evaluationContext.recoveryManifestSha256 }),
       ...(args.shard !== undefined ? { shard: args.shard, shardTotal: args.shardTotal } : {}),
     },
     corpus: {
@@ -944,6 +955,8 @@ export function inspectAttemptEvidence(path) {
   const terminals = new Set();
   const resources = new Set();
   let rootStatus;
+  let rootTerminalCause;
+  let rootModelFailureReason;
   const counts = { modelRequest: 0, modelOutcome: 0, modelFailure: 0, terminalSnapshot: 0 };
   const footer = records.at(-1)?.type === "footer" ? records.at(-1) : undefined;
   const body = footer === undefined ? records.slice(1) : records.slice(1, -1);
@@ -982,6 +995,9 @@ export function inspectAttemptEvidence(path) {
       }
       closures.add(record.invocationId);
       counts[record.type === "model-outcome" ? "modelOutcome" : "modelFailure"] += 1;
+      if (record.type === "model-failure" && record.resourceId === records[0].rootRunId) {
+        rootModelFailureReason = record.failure.reason;
+      }
     } else if (record.type === "terminal-snapshot") {
       if (
         !exactKeys(record, ["resourceId", "runId", "sequence", "snapshot", "type"]) ||
@@ -993,7 +1009,10 @@ export function inspectAttemptEvidence(path) {
       }
       terminals.add(record.resourceId);
       resources.add(record.resourceId);
-      if (record.resourceId === records[0].rootRunId) rootStatus = record.snapshot.status;
+      if (record.resourceId === records[0].rootRunId) {
+        rootStatus = record.snapshot.status;
+        rootTerminalCause = record.snapshot.terminalCause;
+      }
       counts.terminalSnapshot += 1;
     } else {
       return { prefixValid: false, complete: false, reason: "unknown-record" };
@@ -1047,6 +1066,8 @@ export function inspectAttemptEvidence(path) {
     complete,
     reason: complete ? "complete" : "incomplete-footer",
     ...(rootStatus === undefined ? {} : { rootStatus }),
+    ...(rootTerminalCause === undefined ? {} : { rootTerminalCause }),
+    ...(rootModelFailureReason === undefined ? {} : { rootModelFailureReason }),
   };
 }
 

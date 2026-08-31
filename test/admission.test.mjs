@@ -15,6 +15,11 @@ import test from "node:test";
 
 import { admitFormalGeneration } from "../scripts/admit-generation.mjs";
 import {
+  buildFormalRecovery,
+  classifyMissingShardRecovery,
+  classifyTaskRecovery,
+} from "../scripts/plan-recovery.mjs";
+import {
   verifyAdmissionReceipt,
   verifyOfficialEvaluationReport,
 } from "../scripts/evaluate-official.mjs";
@@ -60,6 +65,131 @@ test("the official evaluator watchdog returns the killed process closure", async
   assert.equal(result.signal, "SIGKILL");
 });
 
+test("formal recovery admits only unscored environment and provider transport failures", () => {
+  mkdirSync(resolve(repoRoot, ".tmp"), { recursive: true });
+  const root = mkdtempSync(resolve(repoRoot, ".tmp", "formal-recovery-fixture-"));
+  try {
+    const stderrPath = resolve(root, "stderr.txt");
+    const stdoutPath = resolve(root, "stdout.txt");
+    const processReceiptPath = resolve(root, "process-receipt.json");
+    const evidencePath = resolve(root, "attempt-evidence.jsonl");
+    writeFileSync(stdoutPath, "");
+    writeFileSync(
+      stderrPath,
+      "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\n",
+    );
+    writeJson(processReceiptPath, {
+      status: 1,
+      signal: null,
+      timedOut: false,
+      stdoutOverflow: false,
+      stderrOverflow: false,
+      stdout: reference(stdoutPath),
+      stderr: reference(stderrPath),
+    });
+    writeCompleteEvidence(evidencePath, "transport");
+    const transport = {
+      disposition: "generation-inconclusive",
+      failureStage: "process",
+      stdout: reference(stdoutPath),
+      stderr: reference(stderrPath),
+      processReceipt: reference(processReceiptPath),
+      evidence: reference(evidencePath),
+    };
+    assert.deepEqual(classifyTaskRecovery(transport, root), {
+      kind: "provider-transport",
+      stderr: reference(stderrPath),
+    });
+    const otherRoot = resolve(root, "other-task");
+    mkdirSync(otherRoot);
+    for (const name of ["stdout.txt", "stderr.txt", "attempt-evidence.jsonl"]) {
+      writeFileSync(resolve(otherRoot, name), readFileSync(resolve(root, name)));
+    }
+    writeJson(resolve(otherRoot, "process-receipt.json"), {
+      ...JSON.parse(readFileSync(processReceiptPath, "utf8")),
+      stdout: reference(resolve(otherRoot, "stdout.txt")),
+      stderr: reference(resolve(otherRoot, "stderr.txt")),
+    });
+    assert.equal(
+      classifyTaskRecovery(
+        {
+          ...transport,
+          stdout: reference(resolve(otherRoot, "stdout.txt")),
+          stderr: reference(resolve(otherRoot, "stderr.txt")),
+          processReceipt: reference(resolve(otherRoot, "process-receipt.json")),
+          evidence: reference(resolve(otherRoot, "attempt-evidence.jsonl")),
+        },
+        root,
+        root,
+      ),
+      undefined,
+    );
+    assert.deepEqual(
+      classifyTaskRecovery(
+        { disposition: "generation-inconclusive", failureStage: "isolation" },
+        root,
+      ),
+      { kind: "task-environment-before-model", failureStage: "isolation" },
+    );
+    writeFileSync(stderrPath, "v3 run failed: tool-unknown\n");
+    transport.stderr = reference(stderrPath);
+    writeJson(processReceiptPath, {
+      ...JSON.parse(readFileSync(processReceiptPath, "utf8")),
+      stderr: transport.stderr,
+    });
+    transport.processReceipt = reference(processReceiptPath);
+    assert.equal(classifyTaskRecovery(transport, root), undefined);
+    writeFileSync(
+      stderrPath,
+      "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\nv3 run failed: tool-unknown\n",
+    );
+    transport.stderr = reference(stderrPath);
+    writeJson(processReceiptPath, {
+      ...JSON.parse(readFileSync(processReceiptPath, "utf8")),
+      stderr: transport.stderr,
+    });
+    transport.processReceipt = reference(processReceiptPath);
+    writeCompleteEvidence(evidencePath, undefined, "tool-unknown");
+    transport.evidence = reference(evidencePath);
+    assert.equal(classifyTaskRecovery(transport, root), undefined);
+    assert.equal(
+      classifyTaskRecovery({ ...transport, prediction: reference(stderrPath) }, root),
+      undefined,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a missing shard is recoverable only before generation starts", () => {
+  const failedBeforeGeneration = {
+    id: 42,
+    name: "macOS generation (verified-full-024)",
+    conclusion: "failure",
+    steps: [
+      { name: "Install benchmark dependencies and the exact CLI candidate", conclusion: "failure" },
+      { name: "Generate and freeze predictions", status: "pending", conclusion: null },
+    ],
+  };
+  assert.deepEqual(classifyMissingShardRecovery(failedBeforeGeneration), {
+    kind: "generation-job-failure-before-model",
+    job: {
+      id: 42,
+      name: "macOS generation (verified-full-024)",
+      conclusion: "failure",
+    },
+  });
+  assert.equal(
+    classifyMissingShardRecovery({
+      ...failedBeforeGeneration,
+      steps: [
+        { name: "Generate and freeze predictions", status: "completed", conclusion: "failure" },
+      ],
+    }),
+    undefined,
+  );
+});
+
 test("formal admission exact-covers 500 task receipts and rejects a mutated artifact", () => {
   mkdirSync(resolve(repoRoot, ".tmp"), { recursive: true });
   const root = mkdtempSync(resolve(repoRoot, ".tmp", "formal-admission-fixture-"));
@@ -82,7 +212,12 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
           "Freeze SWE-bench corpus",
           "Verify frozen repository isolation",
         ].map(successfulJob),
-        ...Array.from({ length: 100 }, (_, shard) => successfulJob(`macOS generation (${shard})`)),
+        ...Array.from({ length: 100 }, (_, shard) =>
+          successfulJob(
+            `macOS generation (verified-full-${String(shard + 1).padStart(3, "0")})`,
+          ),
+        ),
+        successfulJob("Build benchmark recovery plan"),
       ],
     });
     const corpusPath = resolve(repoRoot, "results/corpora/swe-bench-verified.jsonl");
@@ -217,6 +352,43 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
     assert.equal(existsSync(accepted.receiptPath), true);
     const verified = verifyAdmissionReceipt(accepted.receiptPath);
     assert.equal(verified.predictions.size, 1);
+    const githubJobsPath = resolve(resultsDir, "github-jobs.json");
+    const githubJobsBytes = readFileSync(githubJobsPath);
+    const duplicateExecutionJobs = JSON.parse(githubJobsBytes);
+    const sourceJobName = "macOS generation (verified-full-001)";
+    const sourceJob = duplicateExecutionJobs.jobs.find((job) => job.name === sourceJobName);
+    sourceJob.conclusion = "failure";
+    sourceJob.steps = [
+      {
+        name: "Generate and freeze predictions",
+        status: "completed",
+        conclusion: "failure",
+      },
+    ];
+    duplicateExecutionJobs.jobs.push({
+      ...successfulJob(sourceJobName),
+      run_attempt: 2,
+    });
+    writeJson(githubJobsPath, duplicateExecutionJobs);
+    const duplicateExecution = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "duplicate-execution.json"),
+    });
+    assert.equal(duplicateExecution.accepted, false);
+    assert.ok(duplicateExecution.reasons.some((reason) => reason.stage === "ci-jobs"));
+    assert.throws(
+      () =>
+        buildFormalRecovery(duplicateExecution, {
+          resultsDir,
+          planPath,
+          corpusPath,
+          requireNoRecoveryJobs: true,
+        }),
+      /exactly one attempt-1 execution/u,
+    );
+    writeFileSync(githubJobsPath, githubJobsBytes);
 
     const profile = JSON.parse(
       readFileSync(resolve(repoRoot, "config/swe-bench-verified.json"), "utf8"),
@@ -356,6 +528,149 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
     assert.throws(() => verifyOfficialEvaluationReport(reportPath), /summary/u);
     writeJson(reportPath, report);
 
+    const recoveryInstanceId = instanceIds[1];
+    const sourceTaskDir = resolve(
+      resultsDir,
+      "swe-bench-results.shard-0.tasks",
+      recoveryInstanceId,
+    );
+    const sourceReceiptPath = resolve(sourceTaskDir, "receipt.json");
+    const sourceReceiptBytes = readFileSync(sourceReceiptPath);
+    const sourceReceipt = JSON.parse(sourceReceiptBytes);
+    const sourceStderrPath = resolve(sourceTaskDir, "stderr.txt");
+    const sourceStderrBytes = readFileSync(sourceStderrPath);
+    const sourceProcessPath = resolve(sourceTaskDir, "process-receipt.json");
+    const sourceProcessBytes = readFileSync(sourceProcessPath);
+    const sourceEvidencePath = resolve(sourceTaskDir, "attempt-evidence.jsonl");
+    const sourceEvidenceBytes = readFileSync(sourceEvidencePath);
+    writeFileSync(
+      sourceStderrPath,
+      "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\n",
+    );
+    writeJson(sourceProcessPath, {
+      ...JSON.parse(sourceProcessBytes),
+      status: 1,
+      stderr: reference(sourceStderrPath),
+    });
+    writeCompleteEvidence(sourceEvidencePath, "transport");
+    writeJson(sourceReceiptPath, {
+      schemaVersion: 1,
+      instance_id: sourceReceipt.instance_id,
+      repo: sourceReceipt.repo,
+      base_commit: sourceReceipt.base_commit,
+      problem_statement: sourceReceipt.problem_statement,
+      disposition: "generation-inconclusive",
+      failureStage: "process",
+      error: "CLI did not complete normally",
+      benchmarkInconclusive: true,
+      wallMs: sourceReceipt.wallMs,
+      claim: sourceReceipt.claim,
+      processReceipt: reference(sourceProcessPath),
+      evidence: reference(sourceEvidencePath),
+      stdout: sourceReceipt.stdout,
+      stderr: reference(sourceStderrPath),
+      receiptPath: sourceReceipt.receiptPath,
+    });
+    const sourceInspection = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "source-with-transport-failure.json"),
+    });
+    assert.equal(sourceInspection.accepted, false);
+    const recoveryManifest = buildFormalRecovery(sourceInspection, {
+      resultsDir,
+      planPath,
+      corpusPath,
+    });
+    assert.deepEqual(recoveryManifest.tasks.map((task) => task.instanceId), [recoveryInstanceId]);
+    const jobs = JSON.parse(readFileSync(githubJobsPath, "utf8"));
+    jobs.jobs.push(successfulJob("macOS recovery (recovery-001)"));
+    writeJson(githubJobsPath, jobs);
+    const recoveryManifestPath = resolve(resultsDir, "recovery-plan/recovery-plan.json");
+    writeJson(recoveryManifestPath, recoveryManifest);
+    const recoveryTaskDir = resolve(
+      resultsDir,
+      "recovery/swe-bench-recovery.shard-0.tasks",
+      recoveryInstanceId,
+    );
+    mkdirSync(recoveryTaskDir, { recursive: true });
+    for (const name of ["claim.json", "process-receipt.json", "stdout.txt", "stderr.txt", "attempt-evidence.jsonl"]) {
+      writeFileSync(resolve(recoveryTaskDir, name), readFileSync(resolve(sourceTaskDir, name)));
+    }
+    writeFileSync(resolve(recoveryTaskDir, "stderr.txt"), sourceStderrBytes);
+    writeJson(resolve(recoveryTaskDir, "process-receipt.json"), {
+      ...JSON.parse(sourceProcessBytes),
+      stdout: reference(resolve(recoveryTaskDir, "stdout.txt")),
+      stderr: reference(resolve(recoveryTaskDir, "stderr.txt")),
+    });
+    writeFileSync(resolve(recoveryTaskDir, "attempt-evidence.jsonl"), sourceEvidenceBytes);
+    const recoveryReceiptPath = resolve(recoveryTaskDir, "receipt.json");
+    writeJson(recoveryReceiptPath, {
+      ...sourceReceipt,
+      claim: reference(resolve(recoveryTaskDir, "claim.json")),
+      processReceipt: reference(resolve(recoveryTaskDir, "process-receipt.json")),
+      evidence: reference(resolve(recoveryTaskDir, "attempt-evidence.jsonl")),
+      stdout: reference(resolve(recoveryTaskDir, "stdout.txt")),
+      stderr: reference(resolve(recoveryTaskDir, "stderr.txt")),
+      receiptPath: relative(repoRoot, recoveryReceiptPath),
+    });
+    writeJson(resolve(resultsDir, "recovery/swe-bench-recovery.shard-0.json"), {
+      candidateId: `cli-${candidate.cliVersion}-${candidate.sourceCommit}`,
+      provider: candidate.provider,
+      composition: {
+        shard: 0,
+        shardTotal: 100,
+        formalRunId: "formal-123",
+        fullAccess: true,
+        permissionMode: "full",
+        interactionTools: false,
+        workspaceBackend: "sandbox",
+        execNetworkIsolation: true,
+        networkToolSchemas: false,
+        taskTimeoutMs: candidate.taskTimeoutMs,
+        recoveryManifestSha256: sha256(recoveryManifestPath),
+      },
+      evaluation: {
+        method: "official-swe-bench-docker-deferred",
+        evaluationBatchId: "formal-123",
+      },
+      tasks: [
+        {
+          instance_id: recoveryInstanceId,
+          taskReceiptPath: relative(repoRoot, recoveryReceiptPath),
+        },
+      ],
+    });
+    const recovered = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      recoveryManifestPath,
+      outputPath: resolve(resultsDir, "recovered.json"),
+    });
+    assert.equal(recovered.accepted, true, JSON.stringify(recovered.reasons));
+    assert.equal(
+      recovered.tasks.find((task) => task.instanceId === recoveryInstanceId).receipt.path,
+      relative(repoRoot, recoveryReceiptPath),
+    );
+    assert.equal(verifyAdmissionReceipt(recovered.receiptPath).receipt.accepted, true);
+    const tamperedManifestPath = resolve(resultsDir, "recovery-plan/tampered.json");
+    writeJson(tamperedManifestPath, { ...recoveryManifest, maxRecoveryAttempts: 2 });
+    const tampered = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      recoveryManifestPath: tamperedManifestPath,
+      outputPath: resolve(resultsDir, "tampered-admission.json"),
+    });
+    assert.equal(tampered.accepted, false);
+    assert.ok(tampered.reasons.some((reason) => reason.stage === "recovery"));
+    writeFileSync(sourceReceiptPath, sourceReceiptBytes);
+    writeFileSync(sourceStderrPath, sourceStderrBytes);
+    writeFileSync(sourceProcessPath, sourceProcessBytes);
+    writeFileSync(sourceEvidencePath, sourceEvidenceBytes);
+
     const firstPredictionPath = resolve(
       resultsDir,
       "swe-bench-results.shard-0.predictions",
@@ -449,7 +764,13 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
 });
 
 function successfulJob(name) {
-  return { name, conclusion: "success", steps: [{ name: "fixture", conclusion: "success" }] };
+  return {
+    name,
+    run_id: 123,
+    run_attempt: 1,
+    conclusion: "success",
+    steps: [{ name: "fixture", conclusion: "success" }],
+  };
 }
 
 test("admission command preserves its own fatal reason as a rejected report", () => {
@@ -482,7 +803,11 @@ test("admission command preserves its own fatal reason as a rejected report", ()
   }
 });
 
-function writeCompleteEvidence(path) {
+function writeCompleteEvidence(
+  path,
+  failureReason,
+  terminalCause = failureReason === undefined ? "completed" : "model-failure",
+) {
   const runKey = {
     kind: "run",
     sessionKey: { kind: "session", agentIdentity: "agent", sequence: 1 },
@@ -511,11 +836,13 @@ function writeCompleteEvidence(path) {
     sequence: 1,
   });
   const outcome = JSON.stringify({
-    type: "model-outcome",
+    type: failureReason === undefined ? "model-outcome" : "model-failure",
     resourceId,
     runId: resourceId,
     invocationId,
-    outcome: { kind: "response", candidate: { content: "done", toolCalls: [] } },
+    ...(failureReason === undefined
+      ? { outcome: { kind: "response", candidate: { content: "done", toolCalls: [] } } }
+      : { failure: { kind: "failure", reason: failureReason } }),
     sequence: 2,
   });
   const terminal = JSON.stringify({
@@ -524,11 +851,11 @@ function writeCompleteEvidence(path) {
     runId: resourceId,
     snapshot: {
       key: runKey,
-      status: "completed",
+      status: terminalCause === "completed" ? "completed" : "failed",
       stopFlag: false,
       deadlineAt: 123,
       cycle: 1,
-      terminalCause: "completed",
+      terminalCause,
       transcript: [{ kind: "user", runKey, message: { content: "fixture" } }],
     },
     sequence: 3,
@@ -536,8 +863,8 @@ function writeCompleteEvidence(path) {
   const prefix = `${header}\n${request}\n${outcome}\n${terminal}\n`;
   const counts = {
     modelRequest: 1,
-    modelOutcome: 1,
-    modelFailure: 0,
+    modelOutcome: failureReason === undefined ? 1 : 0,
+    modelFailure: failureReason === undefined ? 0 : 1,
     terminalSnapshot: 1,
   };
   const footer = JSON.stringify({

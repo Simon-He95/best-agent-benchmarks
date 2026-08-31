@@ -423,10 +423,189 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+  swe-bench-recovery-plan:
+    name: Build benchmark recovery plan
+    if: ${{ always() && inputs.run_full_verified }}
+    needs: [plan, smoke, corpus, isolation, swe-bench]
+    runs-on: macos-15
+    timeout-minutes: 30
+    outputs:
+      has_recovery: ${{ steps.recovery.outputs.has_recovery }}
+      batches: ${{ steps.recovery.outputs.batches }}
+      manifest_sha256: ${{ steps.recovery.outputs.manifest_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download original generation artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: swe-bench-generation-*
+          path: results
+          merge-multiple: true
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Download formal gates
+        uses: actions/download-artifact@v4
+        with:
+          pattern: benchmark-*-${{ github.run_id }}
+          path: results/gates
+          merge-multiple: true
+
+      - name: Capture completed source job conclusions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?filter=all&per_page=100" > "$RUNNER_TEMP/job-pages.json"
+          node -e 'const fs=require("fs");const pages=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));fs.writeFileSync(process.argv[2],JSON.stringify({jobs:pages.flatMap(page=>page.jobs)},null,2)+"\n")' "$RUNNER_TEMP/job-pages.json" "${GITHUB_WORKSPACE}/results/github-jobs.json"
+
+      - name: Freeze evaluator-blind recovery manifest
+        id: recovery
+        run: |
+          node scripts/plan-recovery.mjs \
+            --results "${GITHUB_WORKSPACE}/results" \
+            --plan "${GITHUB_WORKSPACE}/config/swe-bench-full-batches.json" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl" \
+            --output "${GITHUB_WORKSPACE}/results/recovery-plan.json"
+          node <<'NODE'
+          const fs = require("node:fs");
+          const crypto = require("node:crypto");
+          const plan = JSON.parse(fs.readFileSync("results/recovery-plan.json", "utf8"));
+          const batches = plan.batches.map(batch => ({
+            ...batch,
+            taskList: batch.tasks.join(","),
+            limit: batch.tasks.length,
+          }));
+          const sha256 = crypto.createHash("sha256").update(fs.readFileSync("results/recovery-plan.json")).digest("hex");
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `has_recovery=${batches.length > 0}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `batches=${JSON.stringify(batches)}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `manifest_sha256=${sha256}\n`);
+          NODE
+
+      - name: Upload immutable recovery decision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-recovery-plan-${{ github.run_id }}
+          path: |
+            results/recovery-plan.json
+            results/github-jobs.json
+          if-no-files-found: error
+          retention-days: 90
+
+  swe-bench-recovery:
+    name: macOS recovery (${{ matrix.batch.id }})
+    if: ${{ needs.swe-bench-recovery-plan.outputs.has_recovery == 'true' }}
+    needs: [corpus, swe-bench-recovery-plan]
+    runs-on: macos-15
+    timeout-minutes: 480
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        batch: ${{ fromJSON(needs.swe-bench-recovery-plan.outputs.batches) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the single candidate record
+        id: candidate
+        run: |
+          echo "version=$(node -p 'require("./config/best-agent-candidate.json").cliVersion')" >> "$GITHUB_OUTPUT"
+          echo "source_commit=$(node -p 'require("./config/best-agent-candidate.json").sourceCommit')" >> "$GITHUB_OUTPUT"
+          node -e "import('./scripts/swe-bench-official-evaluator.mjs').then(m => console.log('evaluator_commit=' + m.OFFICIAL_EVALUATOR_COMMIT))" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: SWE-bench/SWE-bench
+          ref: ${{ steps.candidate.outputs.evaluator_commit }}
+          path: tools/swe-bench-source
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Download the frozen recovery manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: swe-bench-recovery-plan-${{ github.run_id }}
+          path: results/recovery-plan
+
+      - name: Install the search runtime
+        run: brew install ripgrep
+
+      - name: Install benchmark dependencies and the exact CLI candidate
+        run: |
+          npm ci
+          CLI_PACKAGE="$(node -p 'require("./config/best-agent-candidate.json").packageName')"
+          EXPECTED_INTEGRITY="$(node -p 'require("./config/best-agent-candidate.json").packageIntegrity')"
+          test "$(uname -m)" = "arm64"
+          test "$(npm view "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}" dist.integrity)" = "$EXPECTED_INTEGRITY"
+          npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}"
+          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
+          echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
+
+      - name: Materialize the frozen provider identity
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+
+      - name: Prepare pinned SWE-bench Verified corpus
+        run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"
+
+      - name: Resolve effective model
+        id: model
+        run: |
+          MODEL="${{ inputs.swe_bench_model }}"
+          if [ -z "$MODEL" ]; then MODEL="$(node -p 'require("./config/best-agent-candidate.json").provider.model')"; fi
+          echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+
+      - name: Recover only predeclared evidence gaps
+        env:
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+          SWE_BENCH_EVALUATION_BATCH_ID: formal-${{ github.run_id }}
+          SWE_BENCH_FORMAL_RUN_ID: formal-${{ github.run_id }}
+          SWE_BENCH_RECOVERY_MANIFEST_SHA256: ${{ needs.swe-bench-recovery-plan.outputs.manifest_sha256 }}
+        run: |
+          mkdir -p results/recovery
+          node scripts/swe-bench-harness.mjs \
+            --generation-only \
+            --official-manifest "${GITHUB_WORKSPACE}/.tmp/official-evaluator-manifest.json" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl" \
+            --tasks "${{ matrix.batch.taskList }}" \
+            --limit "${{ matrix.batch.limit }}" \
+            --offset 0 \
+            --concurrency 1 \
+            --timeout "${{ inputs.swe_bench_timeout }}" \
+            --shard "${{ matrix.batch.sourceShard }}" \
+            --shard-total 100 \
+            --output "${GITHUB_WORKSPACE}/results/recovery/swe-bench-recovery.shard-${{ matrix.batch.sourceShard }}.json"
+
+      - name: Upload immutable recovery artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swe-bench-recovery-${{ matrix.batch.id }}
+          path: results/recovery/**
+          if-no-files-found: error
+          retention-days: 90
+
   swe-bench-merge:
     name: Admit deferred generation artifacts
     if: ${{ always() && inputs.run_swe_bench }}
-    needs: swe-bench
+    needs: [swe-bench, swe-bench-recovery-plan, swe-bench-recovery]
     runs-on: macos-15
     timeout-minutes: 30
     steps:
@@ -443,6 +622,21 @@ jobs:
           pattern: swe-bench-generation-*
           path: results
           merge-multiple: true
+
+      - name: Download recovery artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: swe-bench-recovery-recovery-*
+          path: results/recovery
+          merge-multiple: true
+
+      - name: Download the frozen recovery manifest
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: swe-bench-recovery-plan-${{ github.run_id }}
+          path: results/recovery-plan
 
       - name: Download the frozen corpus
         uses: actions/download-artifact@v4
@@ -470,7 +664,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" > "$RUNNER_TEMP/job-pages.json"
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?filter=all&per_page=100" > "$RUNNER_TEMP/job-pages.json"
           node -e 'const fs=require("fs");const pages=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));fs.writeFileSync(process.argv[2],JSON.stringify({jobs:pages.flatMap(page=>page.jobs)},null,2)+"\n")' "$RUNNER_TEMP/job-pages.json" "${GITHUB_WORKSPACE}/results/github-jobs.json"
 
       - name: Admit the exact formal population
@@ -480,6 +674,7 @@ jobs:
             --results "${GITHUB_WORKSPACE}/results" \
             --plan "${GITHUB_WORKSPACE}/config/swe-bench-full-batches.json" \
             --corpus "${GITHUB_WORKSPACE}/results/corpora/swe-bench-verified.jsonl" \
+            --recovery-manifest "${GITHUB_WORKSPACE}/results/recovery-plan/recovery-plan.json" \
             --output "${GITHUB_WORKSPACE}/results/formal-admission.json"
 
       - name: Upload admission evidence
@@ -494,7 +689,7 @@ jobs:
   swe-bench-evidence:
     name: Collect terminal benchmark evidence
     if: ${{ always() && inputs.run_swe_bench }}
-    needs: [plan, smoke, corpus, isolation, swe-bench, swe-bench-merge]
+    needs: [plan, smoke, corpus, isolation, swe-bench, swe-bench-recovery-plan, swe-bench-recovery, swe-bench-merge]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -513,7 +708,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p results
-          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" > "$RUNNER_TEMP/job-pages.json"
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?filter=all&per_page=100" > "$RUNNER_TEMP/job-pages.json"
           node <<'NODE'
           const fs = require("node:fs");
           const pages = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/job-pages.json", "utf8"));

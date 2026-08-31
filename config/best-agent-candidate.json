@@ -13,12 +13,12 @@
     "reasoningEffort": "high",
     "transportProfile": "dim-oauth"
   },
-  "harnessSha256": "cff77de6d826336585ab775e27a46857a5712b5f405b5ce9c8a959bd797f5e27",
+  "harnessSha256": "6c4126adf5af6acdb45b196ff06da23097bf6648ed1f4db7926eaddd8b623ffd",
   "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
   "benchmarkProviderSha256": "0ebb8db3881e616e512620458944e8a4d8c663db553e2c0c53cae62226c064e1",
-  "admissionSha256": "b8d2c9c74e7e7522470a7493addc62ccc6be84e365f1ec6a408259974957ce7a",
-  "evaluatorEntrySha256": "7d0462c88bc4d16f0e899a87328ef0c304d2d2d02dbd2f3f8b8104a0a5aa2a52",
-  "workflowSha256": "dca2a8b97599bc4c51e769807c39a093e2a29a92f1c8bb1ded587b7f5bb19984",
-  "controlClosureSha256": "58031359181fbe6ae3d3285eebb0e9649d2f101e156272ae7a31a462939f7614"
+  "admissionSha256": "391b2ea2cc54ea55d5dd2ebda219d67b5417b1e924fc6dda14d1c8242f6a5570",
+  "evaluatorEntrySha256": "eb7516e85977c03a408d0c1d918590f2da9ce2848e6a44b4142500ad74af3640",
+  "workflowSha256": "94f4cbfed4b966ebbd08212c0f6be7358838e1b49bf0cd78db2a0e939116ff1d",
+  "controlClosureSha256": "7cbe025099705186e81ce0332d47a1e1ca6d78fb8bc76394a0c143171efc8948"
 }
