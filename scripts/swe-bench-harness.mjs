@@ -7,8 +7,8 @@
  *   - full access: permission mode `full` + `--workspace-grant read write exec`;
  *   - no ask-user: the `run` command excludes the interaction ToolBindings, so the agent
  *     never stalls on a human prompt during a task;
- *   - closed tool surface: network ToolBindings are excluded and macOS Seatbelt denies
- *     network access from exec subprocesses.
+ *   - closed tool surface: network ToolBindings are excluded and macOS Seatbelt confines
+ *     exec and external-process descendants to the task workspace without network access.
  *
  * Usage:
  *   node scripts/swe-bench-harness.mjs [options]
@@ -201,6 +201,21 @@ export function resolveCliInvocation(environment = process.env) {
   return /\.[cm]?js$/u.test(entrypoint) ? [process.execPath, entrypoint] : [entrypoint];
 }
 
+export function buildTaskPrompt(problemStatement) {
+  return [
+    "You are fixing a bug in a Python repository. Here is the issue description:",
+    "",
+    problemStatement,
+    "",
+    "Use the issue description above as the full problem statement. Make reasonable assumptions and continue.",
+    "Use the dedicated workspace tools and the executable catalog supplied by the agent to inspect the repository and implement the fix. You have no web access.",
+    "Implement the production fix rather than stopping at reproduction, investigation, documentation, or a test-only change. You may add or update focused regression tests when appropriate, but do not weaken or delete tests to make them pass.",
+    "Before finishing, inspect git status and the production diff. Remove reproducer, debug, dependency, vendor, build, cache, and other temporary artifacts that are not part of the fix.",
+    "Run relevant focused tests when available. Inspect the exact failures and continue correcting your work until you are satisfied with the fix or are genuinely blocked.",
+    "Make the minimal correct change, then finish with a non-empty summary of what changed, what you verified, and any genuine blocker.",
+  ].join("\n");
+}
+
 function argsShardInvalid(parsed) {
   const hasShard = parsed.shard !== undefined;
   const hasShardTotal = parsed.shardTotal !== undefined;
@@ -354,6 +369,7 @@ async function main() {
       permissionMode: "full",
       interactionTools: false,
       workspaceBackend: "sandbox",
+      processIsolation: "workspace-sandbox",
       excludedToolScopes: ["network"],
       networkToolSchemas: false,
       execNetworkIsolation: true,
@@ -518,19 +534,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       });
     }
 
-    // Build the prompt from the issue description.
-    const prompt = [
-      "You are fixing a bug in a Python repository. Here is the issue description:",
-      "",
-      task.problem_statement,
-      "",
-      "Use the issue description above as the full problem statement. Make reasonable assumptions and continue.",
-      "You have these workspace tools available: read, write, edit, search, stat, list, mkdir, remove, exec, apply_patch.",
-      "Use the exact tool names above to inspect the repository and edit the necessary source files. Do not modify test files.",
-      "You have no web access: do not call web_search, web_fetch, or any other web tool. Solve the bug by reading the repository code directly and applying the fix yourself.",
-      "You MUST actually edit the source files with the write/edit/apply_patch tools — never respond with only a textual description of the fix. Inspect the code, apply the minimal correct change, then verify it.",
-      "After making your changes, explain what you changed and why.",
-    ].join("\n");
+    const prompt = buildTaskPrompt(task.problem_statement);
 
     // Run the v3 CLI one-shot `run` with the task repo as the workspace, full access grants,
     // and no interaction tools (the `run` command excludes ask_user/tool_approve).
@@ -551,6 +555,8 @@ async function runTask(task, timeoutMs, evaluationContext) {
       ...FULL_ACCESS_GRANTS.flatMap((grant) => ["--workspace-grant", grant]),
       "--workspace-backend",
       "sandbox",
+      "--process-isolation",
+      "workspace-sandbox",
       "--tool-exclude",
       "network",
       "--attempt-evidence",
@@ -576,6 +582,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       status: cliResult.status,
       signal: cliResult.signal,
       timedOut: cliResult.timedOut,
+      timeoutClosure: cliResult.timeoutClosure,
       stdoutOverflow: cliResult.stdoutOverflow,
       stderrOverflow: cliResult.stderrOverflow,
       stdout: artifactReference(stdoutPath),
@@ -614,10 +621,17 @@ async function runTask(task, timeoutMs, evaluationContext) {
       } catch (error) {
         diagnosticError = error instanceof Error ? error.message : String(error);
       }
-      if (!evidenceAdmission.prefixValid) {
+      if (!evidenceAdmission.prefixValid || !evidenceAdmission.complete) {
         return finish("generation-inconclusive", "evidence", {
-          error: `Timed-out attempt evidence is malformed: ${evidenceAdmission.reason}`,
+          error: `Timed-out attempt evidence is incomplete: ${evidenceAdmission.reason}`,
           benchmarkInconclusive: true,
+        });
+      }
+      if (cliResult.timeoutClosure !== "graceful") {
+        return finish("generation-inconclusive", "process", {
+          error: "The CLI did not complete Application shutdown within the watchdog grace.",
+          benchmarkInconclusive: true,
+          ...(diagnosticError === undefined ? {} : { diagnosticError }),
         });
       }
       return finish("model-timeout", undefined, {
@@ -747,10 +761,24 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
     let stderrOverflow = false;
     let timedOut = false;
     let settled = false;
-    const settle = (value) => {
+    let forceTimer;
+    let closurePollTimer;
+    let directClosure;
+    let forceUsed = false;
+    const processGroupExists = () => {
+      try {
+        process.kill(-child.pid, 0);
+        return true;
+      } catch (error) {
+        return error?.code !== "ESRCH";
+      }
+    };
+    const settle = (value, timeoutClosure = "not-applicable") => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (forceTimer !== undefined) clearTimeout(forceTimer);
+      if (closurePollTimer !== undefined) clearInterval(closurePollTimer);
       resolve({
         ...value,
         stdout: Buffer.concat(stdoutChunks).toString("utf8"),
@@ -758,20 +786,46 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
         stdoutOverflow,
         stderrOverflow,
         timedOut,
+        timeoutClosure,
       });
+    };
+    const finishTimedOutClosure = () => {
+      if (directClosure === undefined || processGroupExists()) return;
+      settle(
+        directClosure,
+        forceUsed || directClosure.status === null || directClosure.signal !== null
+          ? "forced"
+          : "graceful",
+      );
     };
     const timer = setTimeout(() => {
       timedOut = true;
       try {
-        // Kill the whole process group (negative pid) so sandbox grandchildren die too.
-        process.kill(-child.pid, "SIGKILL");
+        process.kill(-child.pid, "SIGTERM");
       } catch {
         try {
-          child.kill("SIGKILL");
+          child.kill("SIGTERM");
         } catch {
           // already gone
         }
       }
+      closurePollTimer = setInterval(finishTimedOutClosure, 25);
+      forceTimer = setTimeout(() => {
+        if (!processGroupExists()) {
+          finishTimedOutClosure();
+          return;
+        }
+        forceUsed = true;
+        try {
+          process.kill(-child.pid, "SIGKILL");
+        } catch {
+          try {
+            child.kill("SIGKILL");
+          } catch {
+            // already gone
+          }
+        }
+      }, 5_000);
     }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       const bytes = Buffer.from(chunk);
@@ -800,7 +854,9 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
       settle({ status: null, signal: null, error });
     });
     child.on("close", (code, signal) => {
-      settle({ status: code, signal });
+      directClosure = { status: code, signal };
+      if (timedOut) finishTimedOutClosure();
+      else settle(directClosure);
     });
   });
 }

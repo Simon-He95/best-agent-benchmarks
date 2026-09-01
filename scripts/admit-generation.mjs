@@ -94,6 +94,10 @@ export function inspectFormalGeneration(options) {
     reasons.push({ stage: "plan", reason: "plan does not match the frozen full plan" });
   }
   const gates = {
+    sandboxNetworkSmoke: admitGate(
+      resolve(options.resultsDir, "gates/sandbox-network-smoke.json"),
+      "ok",
+    ),
     headlessSmoke: admitGate(resolve(options.resultsDir, "gates/headless-smoke.json"), "ok"),
     repositoryIsolation: admitGate(
       resolve(options.resultsDir, "gates/repository-isolation.json"),
@@ -163,6 +167,7 @@ export function inspectFormalGeneration(options) {
       entry.report.composition?.permissionMode !== "full" ||
       entry.report.composition?.interactionTools !== false ||
       entry.report.composition?.workspaceBackend !== "sandbox" ||
+      entry.report.composition?.processIsolation !== "workspace-sandbox" ||
       entry.report.composition?.execNetworkIsolation !== true ||
       entry.report.composition?.networkToolSchemas !== false ||
       entry.report.composition?.taskTimeoutMs !== candidate.taskTimeoutMs ||
@@ -331,6 +336,7 @@ function applyFormalRecovery(sourceReport, options, context) {
       fragment.composition?.permissionMode !== "full" ||
       fragment.composition?.interactionTools !== false ||
       fragment.composition?.workspaceBackend !== "sandbox" ||
+      fragment.composition?.processIsolation !== "workspace-sandbox" ||
       fragment.composition?.execNetworkIsolation !== true ||
       fragment.composition?.networkToolSchemas !== false ||
       fragment.composition?.taskTimeoutMs !== context.candidate.taskTimeoutMs ||
@@ -637,6 +643,7 @@ function admitTaskReceipt(receipt, context) {
       "stderrOverflow",
       "stdout",
       "stdoutOverflow",
+      "timeoutClosure",
       "timedOut",
     ]) ||
     processReceipt.schemaVersion !== 1 ||
@@ -648,12 +655,14 @@ function admitTaskReceipt(receipt, context) {
   if (receipt.disposition === "model-timeout") {
     if (
       processReceipt.timedOut !== true ||
-      processReceipt.status !== null ||
-      processReceipt.signal !== "SIGKILL" ||
+      processReceipt.timeoutClosure !== "graceful" ||
+      !Number.isInteger(processReceipt.status) ||
+      processReceipt.signal !== null ||
       processReceipt.stdoutOverflow !== false ||
       processReceipt.stderrOverflow !== false ||
       receipt.prediction !== undefined ||
-      !evidence.prefixValid
+      !evidence.prefixValid ||
+      !evidence.complete
     ) {
       return "model-timeout closure is invalid";
     }
@@ -663,6 +672,7 @@ function admitTaskReceipt(receipt, context) {
     !evidence.complete ||
     evidence.rootStatus !== "completed" ||
     processReceipt.timedOut !== false ||
+    processReceipt.timeoutClosure !== "not-applicable" ||
     processReceipt.status !== 0 ||
     processReceipt.signal !== null ||
     processReceipt.stdoutOverflow !== false ||

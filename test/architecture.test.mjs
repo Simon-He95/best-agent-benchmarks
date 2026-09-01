@@ -6,7 +6,11 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
-import { isolateFrozenGitCommit, resolveCliEntrypoint } from "../scripts/swe-bench-harness.mjs";
+import {
+  buildTaskPrompt,
+  isolateFrozenGitCommit,
+  resolveCliEntrypoint,
+} from "../scripts/swe-bench-harness.mjs";
 import { benchmarkControlClosureSha256, parseAdmissionArgs } from "../scripts/admit-generation.mjs";
 import { parseEvaluationArgs } from "../scripts/evaluate-official.mjs";
 import { parsePrepareArgs } from "../scripts/prepare-swe-bench.mjs";
@@ -146,6 +150,41 @@ test("repository contains no second SWE-bench grader", () => {
   );
 });
 
+test("benchmark composition uses workspace-sandbox and one public completion checklist", () => {
+  const harness = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
+  const smoke = readFileSync(
+    new URL("../scripts/sandbox-network-smoke.mjs", import.meta.url),
+    "utf8",
+  );
+  const problem = "PUBLIC ISSUE MARKER";
+  const prompt = buildTaskPrompt(problem);
+
+  assert.equal(prompt.match(new RegExp(problem, "gu"))?.length, 1);
+  assert.match(prompt, /production fix/u);
+  assert.match(prompt, /focused regression tests/u);
+  assert.match(prompt, /git status and the production diff/u);
+  assert.match(prompt, /temporary artifacts/u);
+  assert.match(prompt, /Run relevant focused tests/u);
+  assert.match(prompt, /non-empty summary/u);
+  assert.doesNotMatch(prompt, /Do not modify test files/u);
+  assert.doesNotMatch(prompt, /read, write, edit, search/u);
+  assert.doesNotMatch(
+    prompt,
+    /test_patch|FAIL_TO_PASS|PASS_TO_PASS|gold patch|reference patch|official (?:command|log|verdict)/u,
+  );
+  assert.match(
+    harness,
+    /"--workspace-backend",\s*"sandbox",\s*"--process-isolation",\s*"workspace-sandbox"/u,
+  );
+  assert.match(harness, /processIsolation: "workspace-sandbox"/u);
+  assert.match(smoke, /name: "process-start"/u);
+  assert.match(smoke, /name: "process-read"/u);
+  assert.match(smoke, /unixProbeConnections/u);
+  assert.match(smoke, /hostPrivateBlocked/u);
+  assert.match(smoke, /processDescendant/u);
+  assert.match(smoke, /host: \{ platform: process\.platform, arch: process\.arch \}/u);
+});
+
 test("hosted generation uses the public package and caps each batch at ten tasks", () => {
   const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
   assert.doesNotMatch(workflow, /repository:\s*Simon-He95\/best-agent(?:\s|$)/u);
@@ -158,6 +197,8 @@ test("hosted generation uses the public package and caps each batch at ten tasks
   assert.match(workflow, /node scripts\/isolation-smoke\.mjs/u);
   assert.match(workflow, /brew install ripgrep/u);
   assert.match(workflow, /node scripts\/sandbox-network-smoke\.mjs/u);
+  assert.match(workflow, /results\/gates\/sandbox-network-smoke\.json/u);
+  assert.match(workflow, /benchmark-sandbox-network-smoke-/u);
   assert.match(workflow, /if: always\(\)[\s\S]*swe-bench-results\.\*\.tasks/u);
   assert.match(workflow, /node scripts\/admit-generation\.mjs/u);
   assert.match(workflow, /github-jobs\.json/u);

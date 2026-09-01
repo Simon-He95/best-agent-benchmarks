@@ -49,7 +49,80 @@ test("the CLI watchdog returns only after the killed process closes", async () =
   });
   assert.equal(result.timedOut, true);
   assert.equal(result.status, null);
-  assert.equal(result.signal, "SIGKILL");
+  assert.equal(result.signal, "SIGTERM");
+  assert.equal(result.timeoutClosure, "forced");
+});
+
+test("the CLI watchdog admits a graceful Application shutdown only after owned process cleanup", async () => {
+  mkdirSync(resolve(repoRoot, ".tmp"), { recursive: true });
+  const root = mkdtempSync(resolve(repoRoot, ".tmp", "watchdog-graceful-fixture-"));
+  const pidPath = resolve(root, "child.pid");
+  try {
+    const source = [
+      'const {spawn}=require("node:child_process");',
+      'const {writeFileSync}=require("node:fs");',
+      `const child=spawn(process.execPath,["-e","setInterval(()=>{},1000)"],{detached:true,stdio:"ignore"});`,
+      `writeFileSync(${JSON.stringify(pidPath)},String(child.pid));`,
+      'process.on("SIGTERM",()=>{process.kill(-child.pid,"SIGTERM");child.once("close",()=>process.exit(1));});',
+      "setInterval(()=>{},1000);",
+    ].join("");
+    const result = await runCliProcess({
+      args: [process.execPath, "-e", source],
+      cwd: repoRoot,
+      timeoutMs: 50,
+      env: process.env,
+    });
+    assert.equal(result.timedOut, true);
+    assert.equal(result.status, 1);
+    assert.equal(result.signal, null);
+    assert.equal(result.timeoutClosure, "graceful");
+    const childPid = Number(readFileSync(pidPath, "utf8"));
+    assert.throws(() => process.kill(childPid, 0), /ESRCH/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("the CLI watchdog force-closes a surviving member before returning", async () => {
+  mkdirSync(resolve(repoRoot, ".tmp"), { recursive: true });
+  const root = mkdtempSync(resolve(repoRoot, ".tmp", "watchdog-survivor-fixture-"));
+  const pidPath = resolve(root, "child.pid");
+  let childPid;
+  try {
+    const childSource = [
+      'const {writeFileSync}=require("node:fs");',
+      'process.on("SIGTERM",()=>{});',
+      `writeFileSync(${JSON.stringify(pidPath)},String(process.pid));`,
+      "setInterval(()=>{},1000);",
+    ].join("");
+    const source = [
+      'const {spawn}=require("node:child_process");',
+      `spawn(process.execPath,["-e",${JSON.stringify(childSource)}],{stdio:"ignore"});`,
+      'process.on("SIGTERM",()=>process.exit(1));',
+      "setInterval(()=>{},1000);",
+    ].join("");
+    const result = await runCliProcess({
+      args: [process.execPath, "-e", source],
+      cwd: repoRoot,
+      timeoutMs: 300,
+      env: process.env,
+    });
+    childPid = Number(readFileSync(pidPath, "utf8"));
+    assert.equal(result.timedOut, true);
+    assert.equal(result.status, 1);
+    assert.equal(result.signal, null);
+    assert.equal(result.timeoutClosure, "forced");
+    assert.throws(() => process.kill(childPid, 0), /ESRCH/u);
+  } finally {
+    if (childPid !== undefined) {
+      try {
+        process.kill(childPid, "SIGKILL");
+      } catch {
+        // already gone
+      }
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("the official evaluator watchdog returns the killed process closure", async () => {
@@ -82,6 +155,7 @@ test("formal recovery admits only unscored environment and provider transport fa
       status: 1,
       signal: null,
       timedOut: false,
+      timeoutClosure: "not-applicable",
       stdoutOverflow: false,
       stderrOverflow: false,
       stdout: reference(stdoutPath),
@@ -200,6 +274,10 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
       ok: true,
       host: { platform: "darwin", arch: "arm64" },
     });
+    writeJson(resolve(resultsDir, "gates/sandbox-network-smoke.json"), {
+      ok: true,
+      host: { platform: "darwin", arch: "arm64" },
+    });
     writeJson(resolve(resultsDir, "gates/repository-isolation.json"), {
       ok: true,
       host: { platform: "darwin", arch: "arm64" },
@@ -269,6 +347,7 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
           status: 0,
           signal: null,
           timedOut: false,
+          timeoutClosure: "not-applicable",
           stdoutOverflow: false,
           stderrOverflow: false,
           stdout: reference(stdoutPath),
@@ -330,6 +409,7 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
           permissionMode: "full",
           interactionTools: false,
           workspaceBackend: "sandbox",
+          processIsolation: "workspace-sandbox",
           execNetworkIsolation: true,
           networkToolSchemas: false,
           taskTimeoutMs: candidate.taskTimeoutMs,
@@ -350,8 +430,70 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
     });
     assert.equal(accepted.accepted, true, JSON.stringify(accepted.reasons));
     assert.equal(existsSync(accepted.receiptPath), true);
+    const sandboxGatePath = resolve(resultsDir, "gates/sandbox-network-smoke.json");
+    const sandboxGateBytes = readFileSync(sandboxGatePath);
+    rmSync(sandboxGatePath);
+    const missingSandboxGate = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "missing-sandbox-gate.json"),
+    });
+    assert.equal(missingSandboxGate.accepted, false);
+    assert.ok(missingSandboxGate.reasons.some((reason) => reason.reason.includes("receipt missing")));
+    writeFileSync(sandboxGatePath, sandboxGateBytes);
+    writeJson(sandboxGatePath, { ok: true, host: { platform: "linux", arch: "arm64" } });
+    const wrongSandboxHost = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "wrong-sandbox-host.json"),
+    });
+    assert.equal(wrongSandboxHost.accepted, false);
+    assert.ok(wrongSandboxHost.reasons.some((reason) => reason.reason.includes("host is not")));
+    writeFileSync(sandboxGatePath, sandboxGateBytes);
+    const firstFragmentPath = resolve(resultsDir, "swe-bench-results.shard-0.json");
+    const firstFragment = JSON.parse(readFileSync(firstFragmentPath, "utf8"));
+    writeJson(firstFragmentPath, {
+      ...firstFragment,
+      composition: { ...firstFragment.composition, processIsolation: "host" },
+    });
+    const hostProcessAdmission = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "host-process-isolation.json"),
+    });
+    assert.equal(hostProcessAdmission.accepted, false);
+    assert.ok(
+      hostProcessAdmission.reasons.some(
+        (reason) => reason.stage === "configuration" && reason.shard === 0,
+      ),
+    );
+    const compositionWithoutProcessIsolation = { ...firstFragment.composition };
+    delete compositionWithoutProcessIsolation.processIsolation;
+    writeJson(firstFragmentPath, {
+      ...firstFragment,
+      composition: compositionWithoutProcessIsolation,
+    });
+    const missingProcessAdmission = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "missing-process-isolation.json"),
+    });
+    assert.equal(missingProcessAdmission.accepted, false);
+    assert.ok(
+      missingProcessAdmission.reasons.some(
+        (reason) => reason.stage === "configuration" && reason.shard === 0,
+      ),
+    );
+    writeJson(firstFragmentPath, firstFragment);
     const verified = verifyAdmissionReceipt(accepted.receiptPath);
     assert.equal(verified.predictions.size, 1);
+    writeFileSync(sandboxGatePath, `${sandboxGateBytes.toString("utf8")} `);
+    assert.throws(() => verifyAdmissionReceipt(accepted.receiptPath), /no longer reproduces|changed/u);
+    writeFileSync(sandboxGatePath, sandboxGateBytes);
     const githubJobsPath = resolve(resultsDir, "github-jobs.json");
     const githubJobsBytes = readFileSync(githubJobsPath);
     const duplicateExecutionJobs = JSON.parse(githubJobsBytes);
@@ -626,6 +768,7 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
         permissionMode: "full",
         interactionTools: false,
         workspaceBackend: "sandbox",
+        processIsolation: "workspace-sandbox",
         execNetworkIsolation: true,
         networkToolSchemas: false,
         taskTimeoutMs: candidate.taskTimeoutMs,
@@ -655,6 +798,27 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
       relative(repoRoot, recoveryReceiptPath),
     );
     assert.equal(verifyAdmissionReceipt(recovered.receiptPath).receipt.accepted, true);
+    const recoveryFragmentPath = resolve(
+      resultsDir,
+      "recovery/swe-bench-recovery.shard-0.json",
+    );
+    const recoveryFragment = JSON.parse(readFileSync(recoveryFragmentPath, "utf8"));
+    writeJson(recoveryFragmentPath, {
+      ...recoveryFragment,
+      composition: { ...recoveryFragment.composition, processIsolation: "host" },
+    });
+    const hostRecovery = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      recoveryManifestPath,
+      outputPath: resolve(root, "host-recovery-process-isolation.json"),
+    });
+    assert.equal(hostRecovery.accepted, false);
+    assert.ok(
+      hostRecovery.reasons.some((reason) => reason.stage === "recovery-fragment"),
+    );
+    writeJson(recoveryFragmentPath, recoveryFragment);
     const tamperedManifestPath = resolve(resultsDir, "recovery-plan/tampered.json");
     writeJson(tamperedManifestPath, { ...recoveryManifest, maxRecoveryAttempts: 2 });
     const tampered = admitFormalGeneration({
@@ -720,7 +884,12 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
       "process-receipt.json",
     );
     const firstProcess = JSON.parse(readFileSync(firstProcessPath, "utf8"));
-    writeJson(firstProcessPath, { ...firstProcess, timedOut: true });
+    writeJson(firstProcessPath, {
+      ...firstProcess,
+      status: 1,
+      timedOut: true,
+      timeoutClosure: "forced",
+    });
     const invalidTimeoutReceipt = JSON.parse(readFileSync(firstReceiptPath, "utf8"));
     invalidTimeoutReceipt.disposition = "model-timeout";
     invalidTimeoutReceipt.timedOut = true;
@@ -740,6 +909,98 @@ test("formal admission exact-covers 500 task receipts and rejects a mutated arti
     assert.ok(
       invalidTimeout.reasons.some((reason) => reason.reason.includes("model-timeout closure")),
     );
+
+    writeJson(firstProcessPath, {
+      ...firstProcess,
+      status: "1",
+      signal: null,
+      timedOut: true,
+      timeoutClosure: "graceful",
+    });
+    writeJson(firstReceiptPath, {
+      ...invalidTimeoutReceipt,
+      processReceipt: reference(firstProcessPath),
+      evidence: reference(firstEvidencePath),
+    });
+    const nonNumericTimeoutStatus = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "non-numeric-timeout-status.json"),
+    });
+    assert.equal(nonNumericTimeoutStatus.accepted, false);
+    assert.ok(
+      nonNumericTimeoutStatus.reasons.some((reason) =>
+        reason.reason.includes("model-timeout closure"),
+      ),
+    );
+
+    writeJson(firstProcessPath, {
+      ...firstProcess,
+      status: 1,
+      signal: null,
+      timedOut: true,
+      timeoutClosure: "graceful",
+    });
+    const originalEvidenceRecords = sourceEvidenceBytes
+      .toString("utf8")
+      .trimEnd()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    const evidenceWithoutFooter = originalEvidenceRecords.slice(0, -1);
+    writeFileSync(
+      firstEvidencePath,
+      `${evidenceWithoutFooter.map((record) => JSON.stringify(record)).join("\n")}\n`,
+    );
+    writeJson(firstReceiptPath, {
+      ...invalidTimeoutReceipt,
+      processReceipt: reference(firstProcessPath),
+      evidence: reference(firstEvidencePath),
+    });
+    const missingFooterTimeout = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "missing-footer-timeout.json"),
+    });
+    assert.equal(missingFooterTimeout.accepted, false);
+    assert.ok(
+      missingFooterTimeout.reasons.some((reason) =>
+        reason.reason.includes("model-timeout closure"),
+      ),
+    );
+
+    writeFileSync(
+      firstEvidencePath,
+      `${originalEvidenceRecords
+        .map((record, index) =>
+          JSON.stringify(
+            index === originalEvidenceRecords.length - 1
+              ? { ...record, complete: false }
+              : record,
+          ),
+        )
+        .join("\n")}\n`,
+    );
+    writeJson(firstReceiptPath, {
+      ...invalidTimeoutReceipt,
+      processReceipt: reference(firstProcessPath),
+      evidence: reference(firstEvidencePath),
+    });
+    const incompleteFooterTimeout = admitFormalGeneration({
+      resultsDir,
+      planPath,
+      corpusPath,
+      outputPath: resolve(root, "incomplete-footer-timeout.json"),
+    });
+    assert.equal(incompleteFooterTimeout.accepted, false);
+    assert.ok(
+      incompleteFooterTimeout.reasons.some((reason) =>
+        reason.reason.includes("model-timeout closure"),
+      ),
+    );
+
+    writeFileSync(firstEvidencePath, sourceEvidenceBytes);
     writeJson(firstProcessPath, firstProcess);
     writeJson(firstReceiptPath, {
       ...firstReceipt,
