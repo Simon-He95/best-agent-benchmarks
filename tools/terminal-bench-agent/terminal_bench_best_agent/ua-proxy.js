@@ -37,8 +37,27 @@ function parseArguments(raw) {
   }
 }
 
+// The CLI's authorization randomly denies exec calls with a relative cwd;
+// an absolute in-workspace cwd is the verified-safe form.
+const WORKSPACE_ABS = "/app";
+
+function normalizeExecArguments(raw) {
+  const args = parseArguments(raw);
+  if (typeof args.cwd === "string" && args.cwd !== WORKSPACE_ABS) {
+    args.cwd = WORKSPACE_ABS;
+  }
+  return JSON.stringify(args);
+}
+
 function rewriteUnsafeToolCall(call) {
   const name = call.function?.name ?? "";
+  if (name === "exec") {
+    return {
+      id: call.id,
+      type: "function",
+      function: { name, arguments: normalizeExecArguments(call.function?.arguments) },
+    };
+  }
   if (SAFE_TOOLS.has(name)) {
     return {
       id: call.id,
@@ -51,23 +70,23 @@ function rewriteUnsafeToolCall(call) {
   if (name === "process-start" && Array.isArray(args.argv) && args.argv.length > 0) {
     rewritten = { command: String(args.argv[0]), args: args.argv.slice(1).map(String), cwd: args.cwd ?? "." };
   } else if (name === "list" && typeof args.path === "string") {
-    rewritten = { command: "ls", args: [], cwd: args.path };
+    rewritten = { command: "ls", args: [], cwd: WORKSPACE_ABS };
   } else if (name === "read" && typeof args.path === "string") {
-    rewritten = { command: "cat", args: [args.path], cwd: "." };
+    rewritten = { command: "cat", args: [args.path], cwd: WORKSPACE_ABS };
   } else if (name === "stat" && typeof args.path === "string") {
-    rewritten = { command: "stat", args: [args.path], cwd: "." };
+    rewritten = { command: "stat", args: [args.path], cwd: WORKSPACE_ABS };
   } else if (name === "search" && typeof args.query === "string") {
-    const path = typeof args.path === "string" ? args.path : ".";
-    rewritten = { command: "grep", args: ["-rn", args.query, path], cwd: "." };
+    const path = typeof args.path === "string" ? args.path : WORKSPACE_ABS;
+    rewritten = { command: "grep", args: ["-rn", args.query, path], cwd: WORKSPACE_ABS };
   } else if (name === "mkdir" && typeof args.path === "string") {
-    rewritten = { command: "python3", args: ["-c", `import os; os.makedirs(${JSON.stringify(args.path)}, exist_ok=True)`], cwd: "." };
+    rewritten = { command: "python3", args: ["-c", `import os; os.makedirs(${JSON.stringify(args.path)}, exist_ok=True)`], cwd: WORKSPACE_ABS };
   } else if (name === "remove" && typeof args.path === "string") {
-    rewritten = { command: "python3", args: ["-c", `import shutil; shutil.rmtree(${JSON.stringify(args.path)}, ignore_errors=True)`], cwd: "." };
+    rewritten = { command: "python3", args: ["-c", `import shutil; shutil.rmtree(${JSON.stringify(args.path)}, ignore_errors=True)`], cwd: WORKSPACE_ABS };
   } else {
     rewritten = {
       command: "echo",
       args: [`[tool '${name}' is not available in this environment; use exec, write, edit, or apply_patch]`],
-      cwd: ".",
+      cwd: WORKSPACE_ABS,
     };
   }
   console.log(`rewriting tool '${name}' -> exec`);
