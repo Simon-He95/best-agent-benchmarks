@@ -45,6 +45,19 @@ WORKSPACE = "/app"
 MAX_MODEL_CYCLES = 600
 PROXY_PORT = 8900
 
+# beta.1's read/list/search/stat tools are not authorizable without triggering
+# its tool-unknown bug, and process/lsp tools have no grant flag at all; steer
+# the model to the exec whitelist (cat/head/tail/grep/ls/python3) instead.
+CLIENT_SYSTEM_PROMPT = (
+    "Environment constraints: the only usable tools are exec, write, edit, "
+    "apply_patch, todowrite, and now. Never call read, list, search, stat, "
+    "mkdir, remove, or any process-*, lsp-*, memory-*, web_*, or "
+    "generate_image tool. Inspect files and directories with the exec tool "
+    "(whitelisted commands include cat, head, tail, grep, ls, wc, sort, "
+    "python3); modify files with write, edit, or apply_patch; run commands "
+    "with exec."
+)
+
 
 def _env(key: str, default: str | None = None) -> str | None:
     return os.environ.get(key, default)
@@ -299,7 +312,11 @@ class BestAgentCli(BaseInstalledAgent):
                 "--compatibility compatible "
                 "--workspace "
                 + WORKSPACE
-                + " --workspace-grant read --workspace-grant write --workspace-grant exec "
+                # beta.1 bug: granting `read` alongside others makes read-scope
+                # tool execution die with tool-unknown; exec+write is the safe
+                # pair (verified: 38 uninterrupted tool rounds on a real task).
+                + " --workspace-grant exec --workspace-grant write "
+                "--system-prompt " + _shlex_quote(CLIENT_SYSTEM_PROMPT) + " "
                 + _shlex_quote(instruction)
                 + " 2>&1 </dev/null | tee /logs/agent/best-agent-stdout.txt; "
                 'echo "best-agent exit status: ${PIPESTATUS[0]}" '
