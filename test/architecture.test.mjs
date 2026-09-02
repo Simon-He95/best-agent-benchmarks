@@ -1,14 +1,15 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 import {
   buildTaskPrompt,
   isolateFrozenGitCommit,
+  projectTaskCliEnvironment,
   resolveCliEntrypoint,
 } from "../scripts/swe-bench-harness.mjs";
 import { benchmarkControlClosureSha256, parseAdmissionArgs } from "../scripts/admit-generation.mjs";
@@ -117,6 +118,51 @@ test("configuration paths are explicit and bounded at the process boundary", () 
   );
 });
 
+test("each benchmark task projects one private child runtime namespace", () => {
+  const firstTaskDir = mkdtempSync(join(tmpdir(), "best-agent-task-runtime-a-"));
+  const secondTaskDir = mkdtempSync(join(tmpdir(), "best-agent-task-runtime-b-"));
+  const sourceEnvironment = Object.freeze({
+    BEST_AGENT_PROVIDER_CONFIG: "/tmp/provider.json",
+    BEST_AGENT_PROVIDER_KIND: "openai",
+    BEST_AGENT_PROVIDER_MODEL: "model",
+    DIMCODE_HOME: "/tmp/dimcode",
+  });
+  try {
+    const first = projectTaskCliEnvironment(firstTaskDir, 1234, sourceEnvironment);
+    const second = projectTaskCliEnvironment(secondTaskDir, 1234, sourceEnvironment);
+
+    assert.equal(isAbsolute(first.BEST_AGENT_STORAGE_ROOT), true);
+    assert.equal(relative(firstTaskDir, first.BEST_AGENT_STORAGE_ROOT), "best-agent-runtime");
+    assert.equal(
+      relative(resolve(firstTaskDir, "repo"), first.BEST_AGENT_STORAGE_ROOT),
+      "../best-agent-runtime",
+    );
+    assert.notEqual(first.BEST_AGENT_STORAGE_ROOT, second.BEST_AGENT_STORAGE_ROOT);
+    assert.equal(first.BEST_AGENT_PROVIDER_TIMEOUT_MS, "1234");
+    assert.equal(first.BEST_AGENT_PROVIDER_CONFIG, sourceEnvironment.BEST_AGENT_PROVIDER_CONFIG);
+    assert.equal(first.BEST_AGENT_PROVIDER_KIND, sourceEnvironment.BEST_AGENT_PROVIDER_KIND);
+    assert.equal(first.BEST_AGENT_PROVIDER_MODEL, sourceEnvironment.BEST_AGENT_PROVIDER_MODEL);
+    assert.equal(first.DIMCODE_HOME, sourceEnvironment.DIMCODE_HOME);
+    assert.equal(sourceEnvironment.BEST_AGENT_STORAGE_ROOT, undefined);
+    assert.equal(Object.isFrozen(first), true);
+    assert.throws(
+      () =>
+        projectTaskCliEnvironment(firstTaskDir, 1234, {
+          ...sourceEnvironment,
+          BEST_AGENT_PROVIDER_SYSTEM_PROMPT: "hidden instruction",
+        }),
+      /Benchmark admission rejects BEST_AGENT_PROVIDER_SYSTEM_PROMPT/u,
+    );
+
+    mkdirSync(first.BEST_AGENT_STORAGE_ROOT);
+  } finally {
+    rmSync(firstTaskDir, { recursive: true, force: true });
+    rmSync(secondTaskDir, { recursive: true, force: true });
+  }
+  assert.equal(existsSync(firstTaskDir), false);
+  assert.equal(existsSync(secondTaskDir), false);
+});
+
 test("repository contains no second SWE-bench grader", () => {
   const runner = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
   const evaluator = readFileSync(
@@ -150,8 +196,11 @@ test("repository contains no second SWE-bench grader", () => {
   );
 });
 
-test("benchmark composition uses workspace-sandbox and one public completion checklist", () => {
-  const harness = readFileSync(new URL("../scripts/swe-bench-harness.mjs", import.meta.url), "utf8");
+test("benchmark composition uses workspace-sandbox and one public task message", () => {
+  const harness = readFileSync(
+    new URL("../scripts/swe-bench-harness.mjs", import.meta.url),
+    "utf8",
+  );
   const smoke = readFileSync(
     new URL("../scripts/sandbox-network-smoke.mjs", import.meta.url),
     "utf8",
@@ -160,13 +209,13 @@ test("benchmark composition uses workspace-sandbox and one public completion che
   const prompt = buildTaskPrompt(problem);
 
   assert.equal(prompt.match(new RegExp(problem, "gu"))?.length, 1);
-  assert.match(prompt, /production fix/u);
-  assert.match(prompt, /focused regression tests/u);
-  assert.match(prompt, /git status and the production diff/u);
-  assert.match(prompt, /temporary artifacts/u);
-  assert.match(prompt, /Run relevant focused tests/u);
-  assert.match(prompt, /non-empty summary/u);
-  assert.doesNotMatch(prompt, /Do not modify test files/u);
+  assert.match(prompt, /complete public issue/u);
+  assert.match(prompt, /selected workspace tools and executable surface/u);
+  assert.match(prompt, /no web access/u);
+  assert.doesNotMatch(
+    prompt,
+    /production fix|focused regression tests|git status|temporary artifacts|Run relevant focused tests|non-empty summary|acceptance checks|Make reasonable assumptions/u,
+  );
   assert.doesNotMatch(prompt, /read, write, edit, search/u);
   assert.doesNotMatch(
     prompt,

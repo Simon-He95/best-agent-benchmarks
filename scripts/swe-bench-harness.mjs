@@ -203,17 +203,24 @@ export function resolveCliInvocation(environment = process.env) {
 
 export function buildTaskPrompt(problemStatement) {
   return [
-    "You are fixing a bug in a Python repository. Here is the issue description:",
+    "Here is the complete public issue for the repository:",
     "",
     problemStatement,
     "",
-    "Use the issue description above as the full problem statement. Make reasonable assumptions and continue.",
-    "Use the dedicated workspace tools and the executable catalog supplied by the agent to inspect the repository and implement the fix. You have no web access.",
-    "Implement the production fix rather than stopping at reproduction, investigation, documentation, or a test-only change. You may add or update focused regression tests when appropriate, but do not weaken or delete tests to make them pass.",
-    "Before finishing, inspect git status and the production diff. Remove reproducer, debug, dependency, vendor, build, cache, and other temporary artifacts that are not part of the fix.",
-    "Run relevant focused tests when available. Inspect the exact failures and continue correcting your work until you are satisfied with the fix or are genuinely blocked.",
-    "Make the minimal correct change, then finish with a non-empty summary of what changed, what you verified, and any genuine blocker.",
+    "Use the issue description above as the full problem statement.",
+    "Use the selected workspace tools and executable surface. You have no web access.",
   ].join("\n");
+}
+
+export function projectTaskCliEnvironment(taskDir, timeoutMs, environment = process.env) {
+  if (environment.BEST_AGENT_PROVIDER_SYSTEM_PROMPT !== undefined) {
+    throw new Error("Benchmark admission rejects BEST_AGENT_PROVIDER_SYSTEM_PROMPT.");
+  }
+  return Object.freeze({
+    ...environment,
+    BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
+    BEST_AGENT_STORAGE_ROOT: resolve(taskDir, "best-agent-runtime"),
+  });
 }
 
 function argsShardInvalid(parsed) {
@@ -314,10 +321,7 @@ async function main() {
   mkdirSync(taskArtifactDir, { recursive: true });
   const formalRunId = process.env.SWE_BENCH_FORMAL_RUN_ID ?? `diagnostic-${evaluationBatchId}`;
   const recoveryManifestSha256 = process.env.SWE_BENCH_RECOVERY_MANIFEST_SHA256;
-  if (
-    recoveryManifestSha256 !== undefined &&
-    !/^[a-f0-9]{64}$/u.test(recoveryManifestSha256)
-  ) {
+  if (recoveryManifestSha256 !== undefined && !/^[a-f0-9]{64}$/u.test(recoveryManifestSha256)) {
     throw new Error("SWE_BENCH_RECOVERY_MANIFEST_SHA256 must be a SHA-256 digest.");
   }
   const evaluationContext = Object.freeze({
@@ -569,11 +573,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       args: [...cliInvocation, ...cliArgs],
       cwd: repoDir,
       timeoutMs,
-      env: {
-        ...process.env,
-        // Align the plan run-duration cap with the harness per-task timeout.
-        BEST_AGENT_PROVIDER_TIMEOUT_MS: String(timeoutMs),
-      },
+      env: projectTaskCliEnvironment(taskDir, timeoutMs),
     });
     writeFileSync(stdoutPath, cliResult.stdout, { flag: "wx" });
     writeFileSync(stderrPath, cliResult.stderr, { flag: "wx" });
@@ -895,11 +895,11 @@ async function runTaskSafe(task, timeoutMs, evaluationContext) {
 }
 
 function runGitCommand({ args, cwd }) {
-  return spawnSync(
-    "git",
-    ["-c", "gc.auto=0", "-c", "maintenance.auto=false", ...args],
-    { cwd, encoding: "utf8", timeout: 60_000 },
-  );
+  return spawnSync("git", ["-c", "gc.auto=0", "-c", "maintenance.auto=false", ...args], {
+    cwd,
+    encoding: "utf8",
+    timeout: 60_000,
+  });
 }
 
 export function isolateFrozenGitCommit(repoDir) {

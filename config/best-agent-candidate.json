@@ -1,8 +1,8 @@
 {
-  "cliVersion": "0.0.3-beta.16",
+  "cliVersion": "0.0.3-beta.17",
   "packageName": "@best-agent/cli-darwin-arm64",
-  "packageIntegrity": "sha512-FOcN5TOLpmRpJtCS2hVswKlMt3/9K82u13OM5rpM7+bsMWRPpAsbDLUymEu/AxkjDS86/IdHtI0Np1EuL1I1og==",
-  "sourceCommit": "d7b2c0873f9720d390259c5df39c26a236003be4",
+  "packageIntegrity": "sha512-e9aRmqtPYWkr/2T1jhhFMrpL6nGiDU8N40twY7wbv6PtwyVZGjvU9DxBL4kRGZ3he3nvMBYw+2TLKWbUWhS48g==",
+  "sourceCommit": "ee65a368879437546d182283e6844db4f1d42755",
   "formalBenchmarkReady": false,
   "taskTimeoutMs": 1800000,
   "provider": {
@@ -13,7 +13,7 @@
     "reasoningEffort": "high",
     "transportProfile": "dim-oauth"
   },
-  "harnessSha256": "861316598d46d76c522110286f24e721aba64133ff2001d08eb24e9e0997c508",
+  "harnessSha256": "4ed7c8801f340c618afa80d89df428ffa92733076a2225ff153aa3bc27ce3bcf",
   "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
   "benchmarkProviderSha256": "0ebb8db3881e616e512620458944e8a4d8c663db553e2c0c53cae62226c064e1",
