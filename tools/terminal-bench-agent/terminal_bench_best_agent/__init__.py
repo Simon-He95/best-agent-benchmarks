@@ -76,6 +76,21 @@ def _runtime_dependencies() -> dict[str, str]:
     return dict(config.get("cli", {}).get("runtimeDependencies", {}) or {})
 
 
+def _provider_payload_for_cli(provider_config: str) -> str:
+    """Base64 provider.json payload restricted to fields the pinned CLI accepts.
+
+    CLI 0.0.3-beta.1 (newest Linux build) rejects the newer `credentialRef` and
+    `transportProfile` fields; strip them before materializing in the container.
+    """
+    try:
+        provider = json.loads(Path(provider_config).read_text())
+        for legacy_field in ("credentialRef", "transportProfile"):
+            provider.pop(legacy_field, None)
+        return base64.b64encode(json.dumps(provider).encode("utf-8")).decode("ascii")
+    except (OSError, ValueError):
+        return _b64(provider_config)
+
+
 def _b64(path: str) -> str:
     return base64.b64encode(Path(path).read_bytes()).decode("ascii")
 
@@ -168,15 +183,17 @@ class BestAgentCli(BaseInstalledAgent):
         Reads the same JSON files the host CLI would resolve and stores them at
         ``$HOME/.best-agent/provider.json`` + ``$HOME/.dimcode`` so the CLI's
         normal resolution (``~/.best-agent/provider.json``, then dimcode OAuth
-        persistence) works unchanged inside the container.
+        persistence) works unchanged inside the container. Newer provider
+        fields the pinned Linux CLI (0.0.3-beta.1) rejects are stripped.
         """
         commands: list[str] = [
             'mkdir -p "$HOME/.best-agent" "$HOME/.dimcode/dimcode"',
         ]
         provider_config = _env("BEST_AGENT_PROVIDER_CONFIG")
         if provider_config and Path(provider_config).is_file():
+            payload = _provider_payload_for_cli(provider_config)
             commands.append(
-                "printf '%s' '" + _b64(provider_config) + "' | base64 -d "
+                "printf '%s' '" + payload + "' | base64 -d "
                 '> "$HOME/.best-agent/provider.json"; '
                 'chmod 600 "$HOME/.best-agent/provider.json"'
             )
@@ -210,6 +227,14 @@ class BestAgentCli(BaseInstalledAgent):
 
         # Materialize the provider identity, then run the CLI headlessly with the
         # instruction passed as the positional prompt (shell-escaped).
+        #
+        # CLI 0.0.3-beta.1 (the newest Linux build on npm) only supports the
+        # argument subset below: --workspace/--workspace-grant plus the provider
+        # flags. It has no --no-base-instructions, --attempt-evidence,
+        # --process-isolation, --tool-exclude or --max-model-cycles yet; the
+        # full stdout under /logs/agent is the preserved trajectory, and the
+        # container network stays open (documented deviation from the SWE-bench
+        # closed-book boundary).
         command = "\n".join(
             [
                 "set -o pipefail;",
@@ -223,34 +248,18 @@ class BestAgentCli(BaseInstalledAgent):
                 "cd "
                 + WORKSPACE
                 + ' || { echo "workspace not found" >&2; exit 1; };',
-                # Headless non-interactive run, full workspace grants, no network
-                # ToolBinding (container network stays open for task needs).
                 "(best-agent run "
-                "--no-base-instructions "
                 "--workspace "
                 + WORKSPACE
                 + " --workspace-grant read --workspace-grant write --workspace-grant exec "
-                "--workspace-backend plain --process-isolation host "
-                "--max-model-cycles "
-                + str(MAX_MODEL_CYCLES)
-                + " --tool-exclude network "
-                "--attempt-evidence /logs/agent/best-agent-evidence.jsonl "
                 + _shlex_quote(instruction)
                 + " 2>&1 </dev/null | tee /logs/agent/best-agent-stdout.txt; "
-                "echo \"best-agent exit status: ${PIPESTATUS[0]}\" "
+                'echo "best-agent exit status: ${PIPESTATUS[0]}" '
                 "| tee -a /logs/agent/best-agent-stdout.txt; "
                 "exit ${PIPESTATUS[0]});",
             ]
         )
         await self.exec_as_agent(environment, command=command)
-
-        evidence = "/logs/agent/best-agent-evidence.jsonl"
-        result = await self.exec_as_agent(
-            environment,
-            command=f"test -s {evidence} && echo present || echo missing",
-        )
-        if "present" not in (result.stdout or ""):
-            self.logger.warning("best-agent evidence file is missing or empty: %s", evidence)
 
     def populate_context_post_run(self, context: AgentContext) -> None:
         """Expose a bounded CLI stdout tail in the trial context.
