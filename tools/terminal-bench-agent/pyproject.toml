@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "terminal-bench-best-agent"
+version = "0.1.0"
+description = "Harbor installed-agent plugin driving the pinned best-agent CLI inside terminal-bench task environments."
+requires-python = ">=3.11"
+dependencies = ["harbor==0.14.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["terminal_bench_best_agent"]

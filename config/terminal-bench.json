@@ -1,0 +1,60 @@
+{
+  "benchmarkName": "terminal-bench-4.0",
+  "profileId": "terminal-bench-4.0-v4.0.0",
+  "dataset": {
+    "name": "terminal-bench/terminal-bench",
+    "version": "4.0.0",
+    "sourceRepository": "harbor-framework/terminal-bench",
+    "sourceTag": "v4.0.0",
+    "sourceCommit": "452bf305c6daa62fc59061d22133a7cbc7c1572e",
+    "datasetTomlSha256": "ecd296ba053840bd4c0068e8f84e8a6fa829d184d0fd9852becdc19f4c895fcf",
+    "taskCount": 66
+  },
+  "harbor": {
+    "version": "0.14.0",
+    "environment": "docker"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.1",
+    "packageIntegrity": "sha512-JSstNlAcLuZ2EuIuIaqwLxW31ikgscrKtG5aDCNl1M4Uawyac6y3k/SgyXsluRR/XOsp7uGbStraiQZEmlMm+Q==",
+    "runtimeDependencies": {
+      "@arcships/light-ocr": "0.5.7",
+      "node-notifier": "10.0.1"
+    }
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "transportProfile": "dim-oauth"
+  },
+  "workspace": "/app",
+  "generation": {
+    "maxBatchTasks": 10,
+    "defaultAgentTimeoutMultiplier": 0.1875,
+    "agentSetupTimeoutMultiplier": 3,
+    "defaultHarnessTimeoutMs": 4800000,
+    "hostCpus": 4,
+    "hostMemoryMb": 16384,
+    "resourceEnforcement": "ignored",
+    "toolExcludeNetwork": true
+  },
+  "gpuTasks": [
+    "terminal-bench/fp8-rmsnorm-gemm",
+    "terminal-bench/jax-speedrun-gpu",
+    "terminal-bench/math-eval-grader"
+  ],
+  "resourceExceededTasks": [
+    "terminal-bench/distributed-dedup",
+    "terminal-bench/formal-crypto",
+    "terminal-bench/jax-speedrun-gpu",
+    "terminal-bench/lake-temp-glm",
+    "terminal-bench/live-database-cutover",
+    "terminal-bench/math-eval-grader",
+    "terminal-bench/shadow-relay",
+    "terminal-bench/wdm-design"
+  ]
+}

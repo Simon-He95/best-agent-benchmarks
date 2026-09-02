@@ -1,0 +1,444 @@
+name: Terminal-Bench 4.0
+
+# Additive benchmark harness for terminal-bench 4.0 (harbor, docker env). This
+# workflow is completely separate from the SWE-bench `Benchmark` workflow and
+# never modifies its logic or artifacts.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_tb_smoke:
+        description: Run a single-task plumbing smoke (batched-eval-parity)
+        required: false
+        type: boolean
+        default: false
+      run_tb:
+        description: Generate frozen terminal-bench 4.0 predictions
+        required: false
+        type: boolean
+        default: false
+      tb_tasks:
+        description: Predeclared comma-separated task names; overrides offset/limit
+        required: false
+        default: ""
+      tb_limit:
+        description: Number of tasks after offset (0 = Docker-eligible population)
+        required: false
+        default: "1"
+      tb_offset:
+        description: Skip the first N corpus tasks
+        required: false
+        default: "0"
+      tb_batch:
+        description: Immutable diagnostic batch label
+        required: false
+        default: "diagnostic"
+      tb_model:
+        description: Model override; empty uses config/terminal-bench.json
+        required: false
+        default: ""
+      tb_run_full:
+        description: One frozen attempt for every Docker-eligible task in tracked batches
+        required: false
+        type: boolean
+        default: false
+      tb_agent_timeout_multiplier:
+        description: Multiplier over each task's agent timeout (28800s * 0.1875 = 90min)
+        required: false
+        default: "0.1875"
+      tb_timeout_ms:
+        description: Per-task provider timeout in ms (empty = derived from multiplier)
+        required: false
+        default: ""
+
+concurrency:
+  group: terminal-bench-${{ inputs.tb_batch || 'default' }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+
+jobs:
+  tb-corpus:
+    name: Freeze terminal-bench corpus
+    if: ${{ inputs.run_tb_smoke || inputs.run_tb }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Resolve the pinned dataset commit
+        id: dataset
+        run: |
+          node -e "const c=require('./config/terminal-bench.json');console.log('commit='+c.dataset.sourceCommit);console.log('tag='+c.dataset.sourceTag)" >> "$GITHUB_OUTPUT"
+
+      - name: Sparse-checkout task metadata at the pinned commit
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            --branch "${{ steps.dataset.outputs.tag }}" \
+            https://github.com/harbor-framework/terminal-bench.git \
+            tools/terminal-bench-source
+          cd tools/terminal-bench-source
+          git rev-parse HEAD > /tmp/tb-head.txt
+          git ls-tree -r --name-only "v${{ steps.dataset.outputs.tag }}" tasks \
+            | grep -E '(task\.toml|instruction\.md|dataset\.toml)$' > /tmp/tb-files.txt
+          xargs git checkout "v${{ steps.dataset.outputs.tag }}" -- < /tmp/tb-files.txt
+          test "$(cat /tmp/tb-head.txt)" = "${{ steps.dataset.outputs.commit }}"
+
+      - name: Freeze the task manifest
+        run: |
+          mkdir -p results/corpora
+          node scripts/prepare-terminal-bench.mjs \
+            --source "${GITHUB_WORKSPACE}/tools/terminal-bench-source" \
+            --output "${GITHUB_WORKSPACE}/results/corpora/terminal-bench-4.0.json" \
+            --task-list "${GITHUB_WORKSPACE}/results/corpora/terminal-bench-4.0.tasks.txt"
+
+      - name: Upload frozen corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-bench-corpus-${{ github.run_id }}
+          path: |
+            results/corpora/terminal-bench-4.0.json
+            results/corpora/terminal-bench-4.0.tasks.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  tb-plan:
+    name: Freeze terminal-bench batches
+    if: ${{ inputs.run_tb_smoke || inputs.run_tb }}
+    needs: tb-corpus
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.plan.outputs.batches }}
+      tasks: ${{ steps.plan.outputs.tasks }}
+      expected_list: ${{ steps.plan.outputs.expected_list }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: terminal-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Build bounded plan
+        id: plan
+        env:
+          RUN_SMOKE: ${{ inputs.run_tb_smoke }}
+          RUN_FULL: ${{ inputs.tb_run_full }}
+          BATCH_LABEL: ${{ inputs.tb_batch }}
+          TASK_IDS: ${{ inputs.tb_tasks }}
+          TASK_LIMIT: ${{ inputs.tb_limit }}
+          TASK_OFFSET: ${{ inputs.tb_offset }}
+          MODEL_OVERRIDE: ${{ inputs.tb_model }}
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const config = require("./config/terminal-bench.json");
+          const manifest = JSON.parse(
+            fs.readFileSync("./results/corpora/terminal-bench-4.0.json", "utf8"),
+          );
+          const corpus = manifest.tasks.map((task) => task.name);
+          const corpusSet = new Set(corpus);
+          const gpuSet = new Set(manifest.gpuTasks);
+          const eligible = corpus.filter((name) => !gpuSet.has(name));
+          const runSmoke = process.env.RUN_SMOKE === "true";
+          const runFull = process.env.RUN_FULL === "true";
+          const override = (process.env.MODEL_OVERRIDE ?? "").trim();
+          const id = process.env.BATCH_LABEL ?? "";
+          const output = (key, value) =>
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
+          if (runSmoke && runFull) {
+            throw new Error("Select either the smoke gate or the full run, not both.");
+          }
+          if (runFull) {
+            if (override !== "" && override !== config.provider.model) {
+              throw new Error("Full terminal-bench runs must pin the config provider model.");
+            }
+            const plan = require("./config/terminal-bench-batches.json");
+            if (
+              plan.profileId !== manifest.profileId ||
+              plan.datasetCommit !== manifest.dataset.sourceCommit
+            ) {
+              throw new Error("Tracked plan does not match the frozen corpus.");
+            }
+            const planned = plan.batches.flatMap((batch) => batch.tasks);
+            if (
+              !Number.isInteger(plan.maxBatchSize) ||
+              plan.maxBatchSize < 1 ||
+              plan.maxBatchSize > 10 ||
+              planned.length !== eligible.length ||
+              new Set(planned).size !== planned.length ||
+              planned.some((name, index) => name !== eligible[index])
+            ) {
+              throw new Error(
+                "Full plan must exact-cover the Docker-eligible corpus in corpus order.",
+              );
+            }
+            const batches = plan.batches.map((batch) => ({
+              id: batch.id,
+              tasks: batch.tasks.join(","),
+            }));
+            output("expected_list", eligible.join(","));
+            output("batches", JSON.stringify(batches));
+          } else {
+            const taskIds = (process.env.TASK_IDS ?? "")
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean);
+            const limit = Number(process.env.TASK_LIMIT);
+            const offset = Number(process.env.TASK_OFFSET);
+            if (!/^[a-zA-Z0-9._-]+$/.test(id)) {
+              throw new Error("Batch label must be filesystem-safe.");
+            }
+            const preselect = runSmoke ? ["terminal-bench/batched-eval-parity"] : taskIds;
+            const count = preselect.length || limit;
+            if (!Number.isInteger(count) || count < 1 || count > 10) {
+              throw new Error("Each workflow run must preselect between 1 and 10 tasks.");
+            }
+            if (new Set(preselect).size !== preselect.length) {
+              throw new Error("Task IDs must be unique.");
+            }
+            for (const taskId of preselect) {
+              if (!corpusSet.has(taskId)) {
+                throw new Error(
+                  `Predeclared task is outside the frozen corpus: ${taskId}`,
+                );
+              }
+              if (gpuSet.has(taskId)) {
+                throw new Error(
+                  `Task ${taskId} requires a GPU and cannot run in the Docker environment.`,
+                );
+              }
+            }
+            if (!Number.isInteger(offset) || offset < 0 || offset + count > corpus.length) {
+              throw new Error("Task offset/limit must stay inside the frozen corpus.");
+            }
+            const selected = preselect.length
+              ? preselect
+              : corpus.slice(offset, offset + count);
+            output("expected_list", selected.join(","));
+            output("batches", JSON.stringify([{ id, tasks: selected.join(",") }]));
+          }
+          NODE
+
+      - name: Flatten per-task matrix
+        id: tasks
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const batches = JSON.parse(process.env.PLAN_BATCHES);
+          const tasks = [];
+          for (const batch of batches) {
+            for (const name of batch.tasks.split(",")) {
+              tasks.push({ task: name, batchId: batch.id });
+            }
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `tasks=${JSON.stringify(tasks)}\n`);
+          NODE
+        env:
+          PLAN_BATCHES: ${{ steps.plan.outputs.batches }}
+
+  tb-generate:
+    name: Generate (${{ matrix.entry.task }})
+    if: ${{ (inputs.run_tb_smoke || inputs.run_tb) && needs.tb-plan.outputs.tasks != '[]' }}
+    needs: [tb-corpus, tb-plan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 480
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        entry: ${{ fromJSON(needs.tb-plan.outputs.tasks) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the single candidate record
+        id: candidate
+        env:
+          TASK_NAME: ${{ matrix.entry.task }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const config = require("./config/terminal-bench.json");
+          const cli = config.cli;
+          const name = process.env.TASK_NAME.split("/").pop();
+          console.log(`package=${cli.packageName}`);
+          console.log(`version=${cli.cliVersion}`);
+          console.log(`integrity=${cli.packageIntegrity}`);
+          console.log(`model=${config.provider.model}`);
+          console.log(`commit=${config.dataset.sourceCommit}`);
+          console.log(`tag=${config.dataset.sourceTag}`);
+          console.log(`candidate_id=cli-${cli.cliVersion}-${config.dataset.sourceCommit.slice(0, 7)}`);
+          console.log(`task_short=${name}`);
+          NODE
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install pinned Harbor with the agent plugin
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv tool install harbor==0.14.0
+          uv pip install --python "$(uv tool dir)/harbor/bin/python" -e ./tools/terminal-bench-agent
+          harbor --version
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: terminal-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Sparse-checkout the single task at the pinned commit
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            --branch "${{ steps.candidate.outputs.tag }}" \
+            https://github.com/harbor-framework/terminal-bench.git \
+            tools/terminal-bench-source
+          cd tools/terminal-bench-source
+          test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.commit }}"
+          git checkout "v${{ steps.candidate.outputs.tag }}" -- "tasks/${{ steps.candidate.outputs.task_short }}"
+
+      - name: Verify provider credential
+        run: test -n "$BENCHMARK_PROVIDER_API_KEY"
+
+      - name: Materialize the frozen provider identity
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+
+      - name: Resolve effective model
+        id: model
+        run: |
+          MODEL="${{ inputs.tb_model }}"
+          if [ -z "$MODEL" ]; then MODEL="$(node -p 'require("./config/terminal-bench.json").provider.model')"; fi
+          echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+
+      - name: Generate and freeze the task attempt
+        env:
+          BEST_AGENT_CLI_PACKAGE: ${{ steps.candidate.outputs.package }}
+          BEST_AGENT_CLI_VERSION: ${{ steps.candidate.outputs.version }}
+          BEST_AGENT_CLI_INTEGRITY: ${{ steps.candidate.outputs.integrity }}
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          TASK_SHORT="${{ steps.candidate.outputs.task_short }}"
+          mkdir -p "results/terminal-bench/results" "results/terminal-bench/jobs"
+          node scripts/terminal-bench-harness.mjs \
+            --task "${{ matrix.entry.task }}" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/terminal-bench-4.0.json" \
+            --source "${GITHUB_WORKSPACE}/tools/terminal-bench-source" \
+            --output "${GITHUB_WORKSPACE}/results/terminal-bench/results/terminal-bench-results.${TASK_SHORT}.json" \
+            --jobs-dir "${GITHUB_WORKSPACE}/results/terminal-bench/jobs/${TASK_SHORT}" \
+            --job-name "tb-${{ github.run_id }}-${TASK_SHORT}" \
+            --model "${{ steps.model.outputs.model }}" \
+            --agent-timeout-multiplier "${{ inputs.tb_agent_timeout_multiplier }}" \
+            --timeout-ms "${{ inputs.tb_timeout_ms }}" \
+            --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
+            --batch-id "${{ matrix.entry.batchId }}" \
+            --formal-run-id "${{ inputs.tb_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"
+
+      - name: Upload immutable generation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-bench-task-${{ github.run_id }}-${{ steps.candidate.outputs.task_short }}
+          path: |
+            results/terminal-bench/**
+            results/corpora/terminal-bench-4.0.json
+          if-no-files-found: error
+          retention-days: 90
+
+  tb-report:
+    name: Aggregate terminal-bench report
+    if: ${{ always() && (inputs.run_tb_smoke || inputs.run_tb) }}
+    needs: [tb-corpus, tb-plan, tb-generate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download frozen corpus
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: terminal-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Download per-task artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: terminal-bench-task-${{ github.run_id }}-*
+          path: results
+          merge-multiple: true
+
+      - name: Rebuild the expected task list
+        env:
+          EXP_EXPLICIT: ${{ needs.tb-plan.outputs.expected_list }}
+        run: |
+          if [ -n "$EXP_EXPLICIT" ]; then
+            echo "$EXP_EXPLICIT" | tr ',' '\n' > results/terminal-bench/expected-tasks.txt
+          else
+            node -e '
+              const fs = require("node:fs");
+              const manifest = JSON.parse(
+                fs.readFileSync("results/corpora/terminal-bench-4.0.json", "utf8"),
+              );
+              const gpu = new Set(manifest.gpuTasks);
+              const lines = manifest.tasks
+                .map((t) => t.name)
+                .filter((name) => !gpu.has(name))
+                .join("\n");
+              fs.mkdirSync("results/terminal-bench", { recursive: true });
+              fs.writeFileSync("results/terminal-bench/expected-tasks.txt", lines + "\n");
+            '
+          fi
+
+      - name: Build aggregate report
+        run: |
+          node scripts/terminal-bench-report.mjs \
+            --results "${GITHUB_WORKSPACE}/results/terminal-bench/results" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/terminal-bench-4.0.json" \
+            --expected-tasks "${GITHUB_WORKSPACE}/results/terminal-bench/expected-tasks.txt" \
+            --output "${GITHUB_WORKSPACE}/results/terminal-bench/report.json" \
+            ${{ inputs.tb_run_full && '--formal' || '' }}
+
+      - name: Build failure analysis
+        continue-on-error: true
+        run: |
+          node scripts/terminal-bench-failures.mjs \
+            --results "${GITHUB_WORKSPACE}/results/terminal-bench/results" \
+            --jobs "${GITHUB_WORKSPACE}/results/terminal-bench/jobs" \
+            --output "${GITHUB_WORKSPACE}/results/terminal-bench/failures.md" \
+            --json "${GITHUB_WORKSPACE}/results/terminal-bench/failures.json"
+
+      - name: Write job summary
+        run: |
+          cat results/terminal-bench/report.json.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f results/terminal-bench/failures.md ]; then
+            head -40 results/terminal-bench/failures.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload terminal report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-bench-report-${{ github.run_id }}
+          path: results/terminal-bench/**
+          if-no-files-found: error
+          retention-days: 90
