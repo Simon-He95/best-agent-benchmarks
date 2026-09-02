@@ -25,8 +25,9 @@ CLI_RUNTIME_DEPS="${CLI_RUNTIME_DEPS:-}"
 NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmjs.org}"
 NODE_MIRROR="${NODE_MIRROR:-https://nodejs.org/dist}"
 
-if command -v best-agent >/dev/null 2>&1 &&
-  best-agent --version 2>/dev/null | grep -Fq "${CLI_VERSION}"; then
+MARKER="${HOME}/.best-agent-cli/.cli-installed-${CLI_VERSION}"
+
+if [ -f "${MARKER}" ] && command -v best-agent >/dev/null 2>&1; then
   echo "best-agent ${CLI_VERSION} already installed"
   exit 0
 fi
@@ -111,9 +112,15 @@ if [ -n "${CLI_RUNTIME_DEPS}" ]; then
   done
 fi
 
-if ! best-agent --version >/dev/null 2>&1; then
+# The CLI's --version/--help print usage and exit non-zero by design, so
+# verify by output content instead of exit code: a started SEA prints its
+# usage banner; a broken one dies with "Cannot find module".
+START_OUTPUT="$(best-agent --version 2>&1 || true)"
+if ! printf '%s' "${START_OUTPUT}" | grep -q "Usage: best-agent"; then
   echo "best-agent failed to start after installation" >&2
+  printf '%s\n' "${START_OUTPUT}" | tail -5 >&2
   exit 1
 fi
 echo "best-agent ${CLI_VERSION} ready"
+touch "${MARKER}"
 best-agent --version 2>&1 || true
