@@ -43,6 +43,7 @@ CLI_INTEGRITY_DEFAULT = (
 )
 WORKSPACE = "/app"
 MAX_MODEL_CYCLES = 600
+PROXY_PORT = 8900
 
 
 def _env(key: str, default: str | None = None) -> str | None:
@@ -74,6 +75,24 @@ def _runtime_dependencies() -> dict[str, str]:
     except (OSError, ValueError):
         return {}
     return dict(config.get("cli", {}).get("runtimeDependencies", {}) or {})
+
+
+def _provider_upstream_origin() -> str:
+    """Upstream origin (scheme://host) from the frozen provider baseURL."""
+    provider_config = _env("BEST_AGENT_PROVIDER_CONFIG")
+    default = "https://dimagent.cn"
+    if not provider_config or not Path(provider_config).is_file():
+        return default
+    try:
+        provider = json.loads(Path(provider_config).read_text())
+        base_url = provider.get("baseURL")
+        if not isinstance(base_url, str) or "://" not in base_url:
+            return default
+        scheme, rest = base_url.split("://", 1)
+        host = rest.rstrip("/").split("/")[0]
+        return f"{scheme}://{host}"
+    except (OSError, ValueError):
+        return default
 
 
 def _provider_payload_for_cli(provider_config: str) -> str:
@@ -177,6 +196,26 @@ class BestAgentCli(BaseInstalledAgent):
     def _script_path(self) -> Path:
         return Path(__file__).resolve().parent / "install-cli.sh"
 
+    def _proxy_path(self) -> Path:
+        return Path(__file__).resolve().parent / "ua-proxy.js"
+
+    def _proxy_startup_command(self) -> str:
+        """Start the local UA-rewriting proxy and wait until it accepts requests."""
+        upstream = _provider_upstream_origin()
+        return "\n".join(
+            [
+                "UPSTREAM_ORIGIN=" + shlex.quote(upstream) + " "
+                f"PORT={PROXY_PORT} nohup node /tmp/best-agent-ua-proxy.js "
+                ">/logs/agent/ua-proxy.log 2>&1 &",
+                "for i in 1 2 3 4 5; do",
+                "  node -e \"require('http').get('http://127.0.0.1:"
+                + str(PROXY_PORT)
+                + "/healthz', r => process.exit(r.statusCode ? 0 : 1)).on('error', () => process.exit(1))\" && break;",
+                "  sleep 1;",
+                "done;",
+            ]
+        )
+
     def _materialize_provider_command(self) -> str:
         """Commands that write the frozen provider identity into the container.
 
@@ -228,13 +267,17 @@ class BestAgentCli(BaseInstalledAgent):
         # Materialize the provider identity, then run the CLI headlessly with the
         # instruction passed as the positional prompt (shell-escaped).
         #
-        # CLI 0.0.3-beta.1 (the newest Linux build on npm) only supports the
-        # argument subset below: --workspace/--workspace-grant plus the provider
-        # flags. It has no --no-base-instructions, --attempt-evidence,
-        # --process-isolation, --tool-exclude or --max-model-cycles yet; the
-        # full stdout under /logs/agent is the preserved trajectory, and the
-        # container network stays open (documented deviation from the SWE-bench
-        # closed-book boundary).
+        # CLI 0.0.3-beta.1 (newest Linux build) quirks, found by replaying the
+        # full provider round trip inside the task container:
+        #  1. its provider.json/env resolution fails before any HTTP request,
+        #     so provider identity must be passed as explicit flags;
+        #  2. it sends the Vercel AI SDK user agent ("ai/6.0.184 ..."), which
+        #     the provider rejects with 403 unsupported client, so requests go
+        #     through the local ua-proxy.js which rewrites the UA;
+        #  3. it has no --no-base-instructions/--attempt-evidence/
+        #     --process-isolation/--tool-exclude/--max-model-cycles; the full
+        #     stdout under /logs/agent is the preserved trajectory, and the
+        #     container network stays open (documented deviation).
         command = "\n".join(
             [
                 "set -o pipefail;",
@@ -248,7 +291,12 @@ class BestAgentCli(BaseInstalledAgent):
                 "cd "
                 + WORKSPACE
                 + ' || { echo "workspace not found" >&2; exit 1; };',
+                self._proxy_startup_command(),
                 "(best-agent run "
+                "--provider openai "
+                "--model " + shlex.quote(model) + " "
+                "--base-url http://127.0.0.1:" + str(PROXY_PORT) + "/v1 "
+                "--compatibility compatible "
                 "--workspace "
                 + WORKSPACE
                 + " --workspace-grant read --workspace-grant write --workspace-grant exec "
@@ -259,6 +307,7 @@ class BestAgentCli(BaseInstalledAgent):
                 "exit ${PIPESTATUS[0]});",
             ]
         )
+        await environment.upload_file(str(self._proxy_path()), "/tmp/best-agent-ua-proxy.js")
         await self.exec_as_agent(environment, command=command)
 
     def populate_context_post_run(self, context: AgentContext) -> None:

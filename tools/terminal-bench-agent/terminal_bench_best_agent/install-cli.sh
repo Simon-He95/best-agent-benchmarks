@@ -65,7 +65,18 @@ echo "cli.tgz sha512 verified"
 tar xzf "${INSTALL_DIR}/cli.tgz" -C "${INSTALL_DIR}" --strip-components=1
 chmod +x "${INSTALL_DIR}/bin/best-agent"
 BIN="$(readlink -f "${INSTALL_DIR}/bin/best-agent")"
-ln -sf "${BIN}" /usr/local/bin/best-agent
+
+# Best-effort system-wide symlinks so later exec sessions (non-interactive
+# bash does not read .bashrc, so nvm's PATH is not active) can find the CLI
+# and node. /usr/local/bin writes require root; tasks that run the agent as a
+# non-root user keep the binaries under $HOME/.best-agent-cli and $HOME/.nvm.
+ln -sf "${BIN}" /usr/local/bin/best-agent 2>/dev/null || true
+for bin in node npm npx; do
+  if command -v "${bin}" >/dev/null 2>&1; then
+    ln -sf "$(readlink -f "$(command -v "${bin}")")" "/usr/local/bin/${bin}" \
+      2>/dev/null || true
+  fi
+done
 
 # Runtime deps for the SEA (see config/terminal-bench.json cli.runtimeDependencies).
 if [ -n "${CLI_RUNTIME_DEPS}" ]; then
@@ -115,7 +126,7 @@ fi
 # The CLI's --version/--help print usage and exit non-zero by design, so
 # verify by output content instead of exit code: a started SEA prints its
 # usage banner; a broken one dies with "Cannot find module".
-START_OUTPUT="$(best-agent --version 2>&1 || true)"
+START_OUTPUT="$("${INSTALL_DIR}/bin/best-agent" --version 2>&1 || true)"
 if ! printf '%s' "${START_OUTPUT}" | grep -q "Usage: best-agent"; then
   echo "best-agent failed to start after installation" >&2
   printf '%s\n' "${START_OUTPUT}" | tail -5 >&2
