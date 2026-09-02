@@ -65,18 +65,21 @@ echo "cli.tgz sha512 verified"
 tar xzf "${INSTALL_DIR}/cli.tgz" -C "${INSTALL_DIR}" --strip-components=1
 chmod +x "${INSTALL_DIR}/bin/best-agent"
 BIN="$(readlink -f "${INSTALL_DIR}/bin/best-agent")"
+ln -sf "${BIN}" /usr/local/bin/best-agent 2>/dev/null || true
 
 # Best-effort system-wide symlinks so later exec sessions (non-interactive
-# bash does not read .bashrc, so nvm's PATH is not active) can find the CLI
-# and node. /usr/local/bin writes require root; tasks that run the agent as a
+# bash does not read .bashrc, so nvm's PATH is not active) can find node and
+# the CLI. /usr/local/bin writes require root; tasks that run the agent as a
 # non-root user keep the binaries under $HOME/.best-agent-cli and $HOME/.nvm.
-ln -sf "${BIN}" /usr/local/bin/best-agent 2>/dev/null || true
-for bin in node npm npx; do
-  if command -v "${bin}" >/dev/null 2>&1; then
-    ln -sf "$(readlink -f "$(command -v "${bin}")")" "/usr/local/bin/${bin}" \
-      2>/dev/null || true
-  fi
-done
+link_system_bins() {
+  ln -sf "${BIN}" /usr/local/bin/best-agent 2>/dev/null || true
+  for bin in node npm npx; do
+    if command -v "${bin}" >/dev/null 2>&1; then
+      ln -sf "$(readlink -f "$(command -v "${bin}")")" "/usr/local/bin/${bin}" \
+        2>/dev/null || true
+    fi
+  done
+}
 
 # Runtime deps for the SEA (see config/terminal-bench.json cli.runtimeDependencies).
 if [ -n "${CLI_RUNTIME_DEPS}" ]; then
@@ -121,6 +124,9 @@ if [ -n "${CLI_RUNTIME_DEPS}" ]; then
     npm install --prefix "${INSTALL_DIR}" --no-audit --no-fund --loglevel=error \
       --registry "${NPM_REGISTRY}" "${dep}"
   done
+  # node/npm exist now (possibly just installed via nvm); link them system-wide
+  # so the later run-phase exec sessions can start the UA proxy with `node`.
+  link_system_bins
 fi
 
 # The CLI's --version/--help print usage and exit non-zero by design, so
