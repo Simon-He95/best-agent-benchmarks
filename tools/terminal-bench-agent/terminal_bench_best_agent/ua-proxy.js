@@ -23,6 +23,61 @@ const port = Number(process.env.PORT || 8899);
 const upstream = new URL(upstreamOrigin);
 const client = upstream.protocol === "http:" ? http : https;
 
+// Tools the pinned CLI can execute safely with exec+write grants. Every
+// other tool call is rewritten into an equivalent exec call so the model
+// keeps a working loop instead of tripping the CLI's fatal tool-unknown.
+const SAFE_TOOLS = new Set(["exec", "write", "edit", "apply_patch", "todowrite", "now"]);
+
+function parseArguments(raw) {
+  try {
+    const parsed = JSON.parse(raw ?? "{}");
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function rewriteUnsafeToolCall(call) {
+  const name = call.function?.name ?? "";
+  if (SAFE_TOOLS.has(name)) {
+    return {
+      id: call.id,
+      type: "function",
+      function: { name, arguments: call.function?.arguments ?? "{}" },
+    };
+  }
+  const args = parseArguments(call.function?.arguments);
+  let rewritten;
+  if (name === "process-start" && Array.isArray(args.argv) && args.argv.length > 0) {
+    rewritten = { command: String(args.argv[0]), args: args.argv.slice(1).map(String), cwd: args.cwd ?? "." };
+  } else if (name === "list" && typeof args.path === "string") {
+    rewritten = { command: "ls", args: [], cwd: args.path };
+  } else if (name === "read" && typeof args.path === "string") {
+    rewritten = { command: "cat", args: [args.path], cwd: "." };
+  } else if (name === "stat" && typeof args.path === "string") {
+    rewritten = { command: "stat", args: [args.path], cwd: "." };
+  } else if (name === "search" && typeof args.query === "string") {
+    const path = typeof args.path === "string" ? args.path : ".";
+    rewritten = { command: "grep", args: ["-rn", args.query, path], cwd: "." };
+  } else if (name === "mkdir" && typeof args.path === "string") {
+    rewritten = { command: "python3", args: ["-c", `import os; os.makedirs(${JSON.stringify(args.path)}, exist_ok=True)`], cwd: "." };
+  } else if (name === "remove" && typeof args.path === "string") {
+    rewritten = { command: "python3", args: ["-c", `import shutil; shutil.rmtree(${JSON.stringify(args.path)}, ignore_errors=True)`], cwd: "." };
+  } else {
+    rewritten = {
+      command: "echo",
+      args: [`[tool '${name}' is not available in this environment; use exec, write, edit, or apply_patch]`],
+      cwd: ".",
+    };
+  }
+  console.log(`rewriting tool '${name}' -> exec`);
+  return {
+    id: call.id,
+    type: "function",
+    function: { name: "exec", arguments: JSON.stringify(rewritten) },
+  };
+}
+
 function normalizeResponse(payload) {
   // Rebuild the response as the minimal strict OpenAI shape the pinned CLI's
   // schema accepts: no tool_calls[].index, no provider-specific extras at any
@@ -45,11 +100,7 @@ function normalizeResponse(payload) {
             ? {
                 // The CLI sends parallel_tool_calls: false; the provider ignores
                 // it and may emit several calls. Keep only the first.
-                tool_calls: toolCalls.slice(0, 1).map((call) => ({
-                  id: call.id,
-                  type: "function",
-                  function: { name: call.function?.name, arguments: call.function?.arguments },
-                })),
+                tool_calls: toolCalls.map((call) => rewriteUnsafeToolCall(call)),
               }
             : {}),
         },
