@@ -89,9 +89,9 @@ jobs:
             tools/terminal-bench-source
           cd tools/terminal-bench-source
           git rev-parse HEAD > /tmp/tb-head.txt
-          git ls-tree -r --name-only "v${{ steps.dataset.outputs.tag }}" tasks \
+          git ls-tree -r --name-only "${{ steps.dataset.outputs.tag }}" tasks \
             | grep -E '(task\.toml|instruction\.md|dataset\.toml)$' > /tmp/tb-files.txt
-          xargs git checkout "v${{ steps.dataset.outputs.tag }}" -- < /tmp/tb-files.txt
+          xargs git checkout "${{ steps.dataset.outputs.tag }}" -- < /tmp/tb-files.txt
           test "$(cat /tmp/tb-head.txt)" = "${{ steps.dataset.outputs.commit }}"
 
       - name: Freeze the task manifest
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       batches: ${{ steps.plan.outputs.batches }}
-      tasks: ${{ steps.plan.outputs.tasks }}
+      tasks: ${{ steps.tasks.outputs.tasks }}
       expected_list: ${{ steps.plan.outputs.expected_list }}
     steps:
       - uses: actions/checkout@v4
@@ -233,6 +233,8 @@ jobs:
 
       - name: Flatten per-task matrix
         id: tasks
+        env:
+          PLAN_BATCHES: ${{ steps.plan.outputs.batches }}
         run: |
           node <<'NODE'
           const fs = require("node:fs");
@@ -245,8 +247,6 @@ jobs:
           }
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `tasks=${JSON.stringify(tasks)}\n`);
           NODE
-        env:
-          PLAN_BATCHES: ${{ steps.plan.outputs.batches }}
 
   tb-generate:
     name: Generate (${{ matrix.entry.task }})
@@ -309,7 +309,7 @@ jobs:
             tools/terminal-bench-source
           cd tools/terminal-bench-source
           test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.commit }}"
-          git checkout "v${{ steps.candidate.outputs.tag }}" -- "tasks/${{ steps.candidate.outputs.task_short }}"
+          git checkout "${{ steps.candidate.outputs.tag }}" -- "tasks/${{ steps.candidate.outputs.task_short }}"
 
       - name: Verify provider credential
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
@@ -391,6 +391,7 @@ jobs:
         env:
           EXP_EXPLICIT: ${{ needs.tb-plan.outputs.expected_list }}
         run: |
+          mkdir -p results/terminal-bench
           if [ -n "$EXP_EXPLICIT" ]; then
             echo "$EXP_EXPLICIT" | tr ',' '\n' > results/terminal-bench/expected-tasks.txt
           else
