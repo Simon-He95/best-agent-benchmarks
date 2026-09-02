@@ -148,6 +148,14 @@ const server = http.createServer(async (req, res) => {
     if (Array.isArray(parsedBody.tools)) {
       console.log(logLine, "tools:", parsedBody.tools.map((tool) => tool.function?.name ?? tool.name).join(","));
     }
+    const messages = Array.isArray(parsedBody.messages) ? parsedBody.messages : [];
+    const lastToolResults = messages
+      .filter((m) => m.role === "tool")
+      .slice(-2)
+      .map((m) => String(m.content ?? "").slice(0, 300));
+    if (lastToolResults.length > 0) {
+      console.log(logLine, "last tool results:", JSON.stringify(lastToolResults));
+    }
     const summary = { ...parsedBody, messages: `<${parsedBody.messages?.length ?? 0} messages>`, tools: `<${parsedBody.tools?.length ?? 0} tools>` };
     console.log(logLine, "params:", JSON.stringify(summary));
   } catch {}
