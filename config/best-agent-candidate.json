@@ -1,8 +1,8 @@
 {
-  "cliVersion": "0.0.3-beta.17",
+  "cliVersion": "0.0.3-beta.18",
   "packageName": "@best-agent/cli-darwin-arm64",
-  "packageIntegrity": "sha512-e9aRmqtPYWkr/2T1jhhFMrpL6nGiDU8N40twY7wbv6PtwyVZGjvU9DxBL4kRGZ3he3nvMBYw+2TLKWbUWhS48g==",
-  "sourceCommit": "ee65a368879437546d182283e6844db4f1d42755",
+  "packageIntegrity": "sha512-XgICCeZgYYa2wutiSiSo/9Lgt6w/WCuFIDBPzV+/T2M8se8LRbeHC1yWXbuMZsY4z+54HOOg6G/lr4mOjUADig==",
+  "sourceCommit": "9f276cc2ee919b67b1cf59958275a0705c587c18",
   "formalBenchmarkReady": false,
   "taskTimeoutMs": 1800000,
   "provider": {
