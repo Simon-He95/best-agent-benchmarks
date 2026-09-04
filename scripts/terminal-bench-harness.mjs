@@ -28,8 +28,7 @@
  * Environment:
  *   BEST_AGENT_PROVIDER_CONFIG / DIMCODE_HOME  frozen provider identity files
  *   BEST_AGENT_PROVIDER_MODEL / BENCHMARK_PROVIDER_API_KEY  credential context
- *   BEST_AGENT_CLI_PACKAGE / BEST_AGENT_CLI_VERSION / BEST_AGENT_CLI_INTEGRITY
- *                                          pinned CLI identity (must match config)
+ *   BEST_AGENT_CLI_CANDIDATE_DIR            pre-attempt Linux candidate artifact
  *   TB_HARBOR_BIN                            harbor binary (default: harbor)
  */
 
@@ -45,6 +44,8 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { inspectAttemptEvidence } from "./swe-bench-harness.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const config = JSON.parse(
@@ -142,28 +143,44 @@ function parseArgs(argv) {
   return parsed;
 }
 
-function verifyFrozenIdentity() {
+export function verifyFrozenIdentity() {
   const cli = config.cli;
-  const packageName = process.env.BEST_AGENT_CLI_PACKAGE ?? cli.packageName;
-  const cliVersion = process.env.BEST_AGENT_CLI_VERSION ?? cli.cliVersion;
-  const integrity = process.env.BEST_AGENT_CLI_INTEGRITY ?? cli.packageIntegrity;
+  const candidateDir = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
+  if (!candidateDir) {
+    throw new Error("BEST_AGENT_CLI_CANDIDATE_DIR is required.");
+  }
+  const candidatePath = join(candidateDir, "candidate.json");
+  const tarballPath = join(candidateDir, "best-agent-cli.tgz");
+  const buildReportPath = join(candidateDir, "build-report.json");
+  if (!existsSync(candidatePath) || !existsSync(tarballPath) || !existsSync(buildReportPath)) {
+    throw new Error("Current Linux candidate artifact is incomplete.");
+  }
+  const candidate = JSON.parse(readFileSync(candidatePath, "utf8"));
   if (
-    packageName !== cli.packageName ||
-    cliVersion !== cli.cliVersion ||
-    integrity !== cli.packageIntegrity
+    candidate.schemaVersion !== 1 ||
+    candidate.packageName !== cli.packageName ||
+    candidate.cliVersion !== cli.cliVersion ||
+    candidate.sourceRepository !== cli.sourceRepository ||
+    candidate.sourceCommit !== cli.sourceCommit ||
+    candidate.target !== cli.target ||
+    candidate.tarballSha256 !== sha256File(tarballPath) ||
+    candidate.buildReportSha256 !== sha256File(buildReportPath) ||
+    !/^[0-9a-f]{64}$/u.test(candidate.binarySha256) ||
+    !/^[0-9a-f]{64}$/u.test(candidate.lockfileSha256) ||
+    !/^[0-9a-f]{64}$/u.test(candidate.runtimeLockSha256) ||
+    typeof candidate.runtimeDependencies !== "object" ||
+    candidate.runtimeDependencies === null
   ) {
-    throw new Error(
-      "CLI identity environment does not match config/terminal-bench.json.",
-    );
+    throw new Error("Current Linux candidate identity does not match config/terminal-bench.json.");
   }
   const provider = config.provider;
-  const providerOverride = process.env.BEST_AGENT_PROVIDER_CONFIG;
   const model = process.env.BEST_AGENT_PROVIDER_MODEL ?? provider.model;
   if (model !== provider.model) {
     throw new Error(
       `BEST_AGENT_PROVIDER_MODEL ${model} does not match the frozen provider model ${provider.model}.`,
     );
   }
+  const providerOverride = process.env.BEST_AGENT_PROVIDER_CONFIG;
   if (!providerOverride || !existsSync(providerOverride)) {
     throw new Error("BEST_AGENT_PROVIDER_CONFIG must point to the frozen provider.json.");
   }
@@ -171,7 +188,63 @@ function verifyFrozenIdentity() {
   if (!dimcodeHome || !existsSync(join(dimcodeHome, "config.json"))) {
     throw new Error("DIMCODE_HOME must point to the frozen dimcode home.");
   }
-  return { packageName, cliVersion, integrity, model };
+  process.env.BEST_AGENT_CLI_TARBALL = tarballPath;
+  process.env.BEST_AGENT_CLI_TARBALL_SHA256 = candidate.tarballSha256;
+  process.env.BEST_AGENT_CLI_BINARY_SHA256 = candidate.binarySha256;
+  process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
+  process.env.BEST_AGENT_CLI_VERSION = candidate.cliVersion;
+  process.env.BEST_AGENT_CLI_WORKSPACE = config.workspace;
+  const execution = config.generation.executionProfile;
+  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
+    "--workspace",
+    config.workspace,
+    "--workspace-backend",
+    execution.workspaceBackend,
+    "--workspace-authorization",
+    execution.workspaceAuthorization,
+    "--process-isolation",
+    execution.processIsolation,
+    "--command-policy",
+    execution.commandPolicy,
+    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
+    ...(config.generation.toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
+  ]);
+  return {
+    packageName: candidate.packageName,
+    cliVersion: candidate.cliVersion,
+    target: candidate.target,
+    binarySha256: candidate.binarySha256,
+    candidateManifestSha256: sha256File(candidatePath),
+    candidatePath,
+    model,
+  };
+}
+
+export function projectTrialResult(trialResult) {
+  const verifier = trialResult.verifier_result;
+  const rewardValues =
+    verifier?.rewards && Object.keys(verifier.rewards).length > 0
+      ? verifier.rewards
+      : undefined;
+  const sourceException = trialResult.exception_info;
+  const exception = sourceException
+    ? {
+        type: String(sourceException.exception_type ?? sourceException.type ?? "error"),
+        message: String(sourceException.exception_message ?? sourceException.message ?? ""),
+      }
+    : undefined;
+  if (exception) return { disposition: "error", rewardValues, exception };
+  if (rewardValues) {
+    if (rewardValues.reward !== 0 && rewardValues.reward !== 1) {
+      return { disposition: "inconclusive", rewardValues, exception: undefined };
+    }
+    return {
+      disposition: rewardValues.reward === 1 ? "passed" : "failed",
+      rewardValues,
+      exception: undefined,
+    };
+  }
+  return { disposition: "inconclusive", rewardValues: undefined, exception: undefined };
 }
 
 function runHarbor(harborBin, args, env, stdioBase) {
@@ -192,6 +265,7 @@ function runHarbor(harborBin, args, env, stdioBase) {
     });
     child.on("error", reject);
     child.on("close", (code, signal) => {
+      mkdirSync(dirname(stdoutPath), { recursive: true });
       writeFileSync(stdoutPath, stdout);
       writeFileSync(stderrPath, stderr);
       resolvePromise({ code, signal, stdout, stderr });
@@ -231,7 +305,8 @@ async function main() {
     throw new Error(`task.toml missing under ${taskDir}.`);
   }
 
-  const { packageName, cliVersion, integrity, model } = verifyFrozenIdentity();
+  const candidate = verifyFrozenIdentity();
+  const { packageName, cliVersion, model } = candidate;
 
   if (existsSync(args.output)) {
     throw new Error(`Refusing to overwrite ${args.output}.`);
@@ -274,45 +349,41 @@ async function main() {
   ];
 
   const startMs = Date.now();
-  const result = await runHarbor(harborBin, harborArgs, process.env, args.output);
+  const harborEnv = { ...process.env };
+  delete harborEnv.BENCHMARK_PROVIDER_API_KEY;
+  const result = await runHarbor(harborBin, harborArgs, harborEnv, args.output);
   const durationMs = Date.now() - startMs;
 
   const trialDir = findResultJson(args.jobsDir, args.jobName);
-  let disposition;
-  let rewardValues;
-  let exception;
+  let projected = {
+    disposition: "not-evaluated",
+    rewardValues: undefined,
+    exception: undefined,
+  };
   if (!trialDir) {
-    disposition = "not-evaluated";
+    projected = { ...projected, disposition: "not-evaluated" };
   } else {
     const trialResult = JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8"));
-    const verifier = trialResult.verifier_result;
-    if (verifier && verifier.rewards && Object.keys(verifier.rewards).length > 0) {
-      rewardValues = verifier.rewards;
-      disposition = Object.values(verifier.rewards).some((value) => Number(value) >= 1)
-        ? "passed"
-        : "failed";
-    } else if (trialResult.exception_info) {
-      exception = {
-        type: String(
-          trialResult.exception_info.exception_type ??
-            trialResult.exception_info.type ??
-            "error",
-        ),
-        message: String(
-          trialResult.exception_info.exception_message ??
-            trialResult.exception_info.message ??
-            "",
-        ).slice(0, 2000),
-      };
-      disposition = "error";
-    } else {
-      disposition = "inconclusive";
-    }
+    projected = projectTrialResult(trialResult);
   }
+  const { disposition, rewardValues, exception } = projected;
 
-  const evidencePath = trialDir ? join(trialDir, "agent", "best-agent-evidence.jsonl") : undefined;
+  const evidencePath =
+    trialDir && existsSync(join(trialDir, "agent", "best-agent-evidence.jsonl"))
+      ? join(trialDir, "agent", "best-agent-evidence.jsonl")
+      : undefined;
   const stdoutPath = trialDir ? join(trialDir, "agent", "best-agent-stdout.txt") : undefined;
+  const stderrPath = trialDir ? join(trialDir, "agent", "best-agent-stderr.txt") : undefined;
+  const processReceiptPath = trialDir
+    ? join(trialDir, "agent", "best-agent-process-receipt.json")
+    : undefined;
+  const harborResultPath = trialDir ? join(trialDir, "result.json") : undefined;
+  const harborStdoutPath = `${args.output}.stdout.txt`;
+  const harborStderrPath = `${args.output}.stderr.txt`;
   const evidenceSha256 = evidencePath ? sha256File(evidencePath) : undefined;
+  const evidenceAdmission = evidencePath
+    ? inspectAttemptEvidence(evidencePath)
+    : { prefixValid: false, complete: false, reason: "missing" };
   const record = {
     schemaVersion: 1,
     task: {
@@ -320,10 +391,14 @@ async function main() {
       digest: task.digest,
       instructionSha256: task.instructionSha256,
       datasetOrder: task.datasetOrder,
+      resourceExceededOnHostedRunner: config.resourceExceededTasks.includes(task.name),
     },
     candidateId: args.candidateId,
     cliPackage: packageName,
     cliVersion,
+    cliTarget: candidate.target,
+    cliBinarySha256: candidate.binarySha256,
+    candidateManifestSha256: candidate.candidateManifestSha256,
     model,
     batchId: args.batchId,
     formalRunId: args.formalRunId,
@@ -338,19 +413,38 @@ async function main() {
       ...(rewardValues === undefined ? {} : { rewards: rewardValues }),
       ...(exception === undefined ? {} : { exception }),
     },
+    evidenceAdmission,
     artifacts: {
       ...(evidencePath && existsSync(evidencePath)
         ? { evidence: relative(repoRoot, evidencePath), evidenceSha256 }
         : {}),
       ...(stdoutPath && existsSync(stdoutPath)
-        ? { stdout: relative(repoRoot, stdoutPath) }
+        ? { stdout: relative(repoRoot, stdoutPath), stdoutSha256: sha256File(stdoutPath) }
         : {}),
+      ...(stderrPath && existsSync(stderrPath)
+        ? { stderr: relative(repoRoot, stderrPath), stderrSha256: sha256File(stderrPath) }
+        : {}),
+      ...(processReceiptPath && existsSync(processReceiptPath)
+        ? {
+            processReceipt: relative(repoRoot, processReceiptPath),
+            processReceiptSha256: sha256File(processReceiptPath),
+          }
+        : {}),
+      ...(harborResultPath && existsSync(harborResultPath)
+        ? {
+            harborResult: relative(repoRoot, harborResultPath),
+            harborResultSha256: sha256File(harborResultPath),
+          }
+        : {}),
+      candidate: relative(repoRoot, candidate.candidatePath),
     },
     durationMs,
     harborExitCode: result.code,
     harborSignal: result.signal,
-    harborStdout: relative(repoRoot, `${args.output}.stdout.txt`),
-    harborStderr: relative(repoRoot, `${args.output}.stderr.txt`),
+    harborStdout: relative(repoRoot, harborStdoutPath),
+    harborStdoutSha256: sha256File(harborStdoutPath),
+    harborStderr: relative(repoRoot, harborStderrPath),
+    harborStderrSha256: sha256File(harborStderrPath),
   };
   writeFileSync(args.output, `${JSON.stringify(record, null, 2)}\n`);
 
@@ -376,7 +470,9 @@ async function main() {
   process.stdout.write(`${JSON.stringify(record.result)}\n`);
 }
 
-main().catch((error) => {
-  process.stderr.write(`terminal-bench-harness: ${error.stack ?? error}\n`);
-  process.exit(1);
-});
+if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    process.stderr.write(`terminal-bench-harness: ${error.stack ?? error}\n`);
+    process.exit(1);
+  });
+}

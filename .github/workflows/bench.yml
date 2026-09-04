@@ -234,7 +234,7 @@ jobs:
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/best-agent-candidate.json
 
       - name: Verify formal benchmark controls
         run: node --test --test-name-pattern='^(public benchmark artifacts|configuration paths|repository contains no second|hosted generation|the model workspace|formal generation|full Verified plan|repository instructions|the current candidate)' test/architecture.test.mjs
@@ -385,7 +385,7 @@ jobs:
           echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/best-agent-candidate.json
 
       - name: Prepare pinned SWE-bench Verified corpus
         run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"
@@ -571,7 +571,7 @@ jobs:
           echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/best-agent-candidate.json
 
       - name: Prepare pinned SWE-bench Verified corpus
         run: node scripts/prepare-swe-bench.mjs --evaluator-source "${GITHUB_WORKSPACE}/tools/swe-bench-source"

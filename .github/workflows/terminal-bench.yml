@@ -22,7 +22,7 @@ on:
         required: false
         default: ""
       tb_limit:
-        description: Number of tasks after offset (0 = Docker-eligible population)
+        description: Number of Docker-eligible tasks after offset (1-10)
         required: false
         default: "1"
       tb_offset:
@@ -33,10 +33,6 @@ on:
         description: Immutable diagnostic batch label
         required: false
         default: "diagnostic"
-      tb_model:
-        description: Model override; empty uses config/terminal-bench.json
-        required: false
-        default: ""
       tb_run_full:
         description: One frozen attempt for every Docker-eligible task in tracked batches
         required: false
@@ -63,6 +59,98 @@ env:
   BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
 
 jobs:
+  tb-candidate:
+    name: Freeze current Linux candidate
+    if: ${{ inputs.run_tb_smoke || inputs.run_tb }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the candidate source
+        id: source
+        run: |
+          node -e "const c=require('./config/terminal-bench.json').cli; console.log('repository='+c.sourceRepository); console.log('commit='+c.sourceCommit)" >> "$GITHUB_OUTPUT"
+
+      - name: Require private source access
+        env:
+          BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+        run: test -n "$BEST_AGENT_SOURCE_TOKEN"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.source.outputs.repository }}
+          ref: ${{ steps.source.outputs.commit }}
+          path: tools/best-agent-source
+          persist-credentials: false
+          token: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: tools/best-agent-source/.nvmrc
+
+      - name: Validate Terminal-Bench contracts
+        run: node --test test/terminal-bench.test.mjs
+
+      - name: Build the exact Linux SEA
+        working-directory: tools/best-agent-source
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ steps.source.outputs.commit }}"
+          corepack enable
+          corepack install
+          pnpm install --frozen-lockfile
+          pnpm pack:tui
+          node --input-type=module -e 'import path from "node:path"; import { stageCliSeaPackages } from "./scripts/stage-cli-sea-packages.mjs"; stageCliSeaPackages({ artifactRoot: path.resolve(".tmp/sea"), stageRoot: path.resolve(".tmp/npm/release-stage"), targetIds: ["linux-x64-gnu"] });'
+          npm install --prefix .tmp/npm/release-stage/linux-x64-gnu \
+            --omit=dev --ignore-scripts --no-audit --no-fund
+
+      - name: Freeze the candidate receipt
+        env:
+          SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
+        run: |
+          mkdir -p results/candidate
+          tar -czf results/candidate/best-agent-cli.tgz \
+            -C tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu .
+          cp tools/best-agent-source/.tmp/sea/linux-x64-gnu/build-report.json \
+            results/candidate/build-report.json
+          node <<'NODE'
+          const { createHash } = require("node:crypto");
+          const { readFileSync, writeFileSync } = require("node:fs");
+          const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+          const config = require("./config/terminal-bench.json");
+          const report = require("./results/candidate/build-report.json");
+          const staged = require("./tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/package.json");
+          if (
+            report.artifact.target !== config.cli.target ||
+            report.artifact.version !== config.cli.cliVersion ||
+            staged.name !== config.cli.packageName ||
+            staged.version !== config.cli.cliVersion
+          ) throw new Error("Built Linux candidate does not match the frozen config.");
+          const receipt = {
+            schemaVersion: 1,
+            packageName: staged.name,
+            cliVersion: staged.version,
+            sourceRepository: process.env.SOURCE_REPOSITORY,
+            sourceCommit: process.env.SOURCE_COMMIT,
+            target: report.artifact.target,
+            lockfileSha256: sha256("tools/best-agent-source/pnpm-lock.yaml"),
+            runtimeLockSha256: sha256("tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/package-lock.json"),
+            binarySha256: sha256("tools/best-agent-source/.tmp/sea/linux-x64-gnu/best-agent"),
+            buildReportSha256: sha256("results/candidate/build-report.json"),
+            tarballSha256: sha256("results/candidate/best-agent-cli.tgz"),
+            runtimeDependencies: staged.dependencies,
+          };
+          writeFileSync("results/candidate/candidate.json", JSON.stringify(receipt, null, 2) + "\n");
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terminal-bench-candidate-${{ github.run_id }}
+          path: results/candidate
+          if-no-files-found: error
+          retention-days: 90
+
   tb-corpus:
     name: Freeze terminal-bench corpus
     if: ${{ inputs.run_tb_smoke || inputs.run_tb }}
@@ -139,7 +227,6 @@ jobs:
           TASK_IDS: ${{ inputs.tb_tasks }}
           TASK_LIMIT: ${{ inputs.tb_limit }}
           TASK_OFFSET: ${{ inputs.tb_offset }}
-          MODEL_OVERRIDE: ${{ inputs.tb_model }}
         run: |
           node <<'NODE'
           const fs = require("node:fs");
@@ -153,7 +240,6 @@ jobs:
           const eligible = corpus.filter((name) => !gpuSet.has(name));
           const runSmoke = process.env.RUN_SMOKE === "true";
           const runFull = process.env.RUN_FULL === "true";
-          const override = (process.env.MODEL_OVERRIDE ?? "").trim();
           const id = process.env.BATCH_LABEL ?? "";
           const output = (key, value) =>
             fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
@@ -161,9 +247,6 @@ jobs:
             throw new Error("Select either the smoke gate or the full run, not both.");
           }
           if (runFull) {
-            if (override !== "" && override !== config.provider.model) {
-              throw new Error("Full terminal-bench runs must pin the config provider model.");
-            }
             const plan = require("./config/terminal-bench-batches.json");
             if (
               plan.profileId !== manifest.profileId ||
@@ -220,12 +303,15 @@ jobs:
                 );
               }
             }
-            if (!Number.isInteger(offset) || offset < 0 || offset + count > corpus.length) {
-              throw new Error("Task offset/limit must stay inside the frozen corpus.");
+            if (
+              preselect.length === 0 &&
+              (!Number.isInteger(offset) || offset < 0 || offset + count > eligible.length)
+            ) {
+              throw new Error("Task offset/limit must stay inside the Docker-eligible corpus.");
             }
             const selected = preselect.length
               ? preselect
-              : corpus.slice(offset, offset + count);
+              : eligible.slice(offset, offset + count);
             output("expected_list", selected.join(","));
             output("batches", JSON.stringify([{ id, tasks: selected.join(",") }]));
           }
@@ -251,7 +337,7 @@ jobs:
   tb-generate:
     name: Generate (${{ matrix.entry.task }})
     if: ${{ (inputs.run_tb_smoke || inputs.run_tb) && needs.tb-plan.outputs.tasks != '[]' }}
-    needs: [tb-corpus, tb-plan]
+    needs: [tb-candidate, tb-corpus, tb-plan]
     runs-on: ubuntu-latest
     timeout-minutes: 480
     strategy:
@@ -262,6 +348,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download the frozen current candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: terminal-bench-candidate-${{ github.run_id }}
+          path: results/candidate
+
       - name: Resolve the single candidate record
         id: candidate
         env:
@@ -269,15 +361,14 @@ jobs:
         run: |
           node <<'NODE' >> "$GITHUB_OUTPUT"
           const config = require("./config/terminal-bench.json");
-          const cli = config.cli;
+          const cli = require("./results/candidate/candidate.json");
           const name = process.env.TASK_NAME.split("/").pop();
           console.log(`package=${cli.packageName}`);
           console.log(`version=${cli.cliVersion}`);
-          console.log(`integrity=${cli.packageIntegrity}`);
           console.log(`model=${config.provider.model}`);
           console.log(`commit=${config.dataset.sourceCommit}`);
           console.log(`tag=${config.dataset.sourceTag}`);
-          console.log(`candidate_id=cli-${cli.cliVersion}-${config.dataset.sourceCommit.slice(0, 7)}`);
+          console.log(`candidate_id=cli-${cli.cliVersion}-${cli.sourceCommit.slice(0, 7)}-${cli.binarySha256.slice(0, 12)}-${cli.tarballSha256.slice(0, 12)}`);
           console.log(`task_short=${name}`);
           NODE
 
@@ -315,21 +406,12 @@ jobs:
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV"
-
-      - name: Resolve effective model
-        id: model
-        run: |
-          MODEL="${{ inputs.tb_model }}"
-          if [ -z "$MODEL" ]; then MODEL="$(node -p 'require("./config/terminal-bench.json").provider.model')"; fi
-          echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/terminal-bench.json
 
       - name: Generate and freeze the task attempt
         env:
-          BEST_AGENT_CLI_PACKAGE: ${{ steps.candidate.outputs.package }}
-          BEST_AGENT_CLI_VERSION: ${{ steps.candidate.outputs.version }}
-          BEST_AGENT_CLI_INTEGRITY: ${{ steps.candidate.outputs.integrity }}
-          BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
+          BEST_AGENT_CLI_CANDIDATE_DIR: ${{ github.workspace }}/results/candidate
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.candidate.outputs.model }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           TASK_SHORT="${{ steps.candidate.outputs.task_short }}"
@@ -341,7 +423,7 @@ jobs:
             --output "${GITHUB_WORKSPACE}/results/terminal-bench/results/terminal-bench-results.${TASK_SHORT}.json" \
             --jobs-dir "${GITHUB_WORKSPACE}/results/terminal-bench/jobs/${TASK_SHORT}" \
             --job-name "tb-${{ github.run_id }}-${TASK_SHORT}" \
-            --model "${{ steps.model.outputs.model }}" \
+            --model "${{ steps.candidate.outputs.model }}" \
             --agent-timeout-multiplier "${{ inputs.tb_agent_timeout_multiplier }}" \
             --timeout-ms "${{ inputs.tb_timeout_ms }}" \
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
@@ -356,6 +438,7 @@ jobs:
           path: |
             results/terminal-bench/**
             results/corpora/terminal-bench-4.0.json
+            results/candidate/**
           if-no-files-found: error
           retention-days: 90
 

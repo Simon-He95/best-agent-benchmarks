@@ -10,13 +10,8 @@
  *   node scripts/terminal-bench-failures.mjs \
  *     --results <dir> --jobs <dir> --output <report.md> [--json <summary.json>]
  *
- * Failure stages:
- *   environment-build  Harbor could not build/start the task container
- *   agent-install      The CLI could not be installed into the container
- *   agent-run          The CLI crashed or exited non-zero during the attempt
- *   timeout            The attempt was killed by the agent-timeout budget
- *   verifier-failed    The agent finished but the official verifier scored 0
- *   not-evaluated      No canonical trial record exists (infra gap)
+ * Categories are evidence-backed derived views. They never replace Harbor's
+ * canonical disposition or trigger another attempt.
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -53,12 +48,8 @@ function parseArgs(argv) {
 
 function readTextSafe(path, limitBytes = 200_000) {
   if (!existsSync(path)) return undefined;
-  try {
-    const text = readFileSync(path, "utf8");
-    return text.length > limitBytes ? text.slice(-limitBytes) : text;
-  } catch {
-    return undefined;
-  }
+  const text = readFileSync(path, "utf8");
+  return text.length > limitBytes ? text.slice(-limitBytes) : text;
 }
 
 function tail(text, lines) {
@@ -94,45 +85,63 @@ function findTrialDir(jobsRoot, taskShort, jobName) {
   return candidates.sort().pop();
 }
 
-function classifyFailure(record) {
+function classifyFailure(record, evidence) {
   const disposition = record.result?.disposition;
   const exception = record.result?.exception;
   const message = `${exception?.type ?? ""} ${exception?.message ?? ""}`;
-  if (disposition === "not-evaluated") return "not-evaluated";
+  if (disposition === "not-evaluated") return "inconclusive";
   if (disposition === "passed") return "passed";
-  if (record.result?.rewards !== undefined) return "verifier-failed";
-  if (/Docker compose command failed/iu.test(message)) return "environment-build";
-  if (/install-cli\.sh/iu.test(message)) return "agent-install";
-  if (/timed? ?out|TimeoutError|deadline/iu.test(message)) return "timeout";
-  if (/best-agent|NonZeroAgentExitCodeError/iu.test(message)) return "agent-run";
-  return "unknown";
+  if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
+  if (exception?.type === "AgentTimeoutError") return "agent-timeout";
+  if (exception?.type === "VerifierTimeoutError") return "verifier";
+  if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
+    return "provider";
+  }
+  if (evidence.terminalCause === "tool-unknown") return "tool";
+  if (evidence.terminalCause === "run-deadline") return "harness";
+  if (record.result?.rewards !== undefined && evidence.terminalCause === "completed") {
+    return "model";
+  }
+  if (/verifier|grader/iu.test(message)) return "verifier";
+  return "inconclusive";
 }
 
 function analyzeEvidence(evidencePath) {
   if (!existsSync(evidencePath)) return { present: false };
-  let lines = [];
-  try {
-    lines = readFileSync(evidencePath, "utf8").split("\n").filter((line) => line.trim());
-  } catch {
-    return { present: true, readable: false };
-  }
+  const lines = readFileSync(evidencePath, "utf8").split("\n").filter((line) => line.trim());
   const entries = [];
-  let errorCount = 0;
+  let modelFailureCount = 0;
+  let terminalCause;
+  const failedTools = [];
   for (const line of lines) {
-    try {
-      const parsed = JSON.parse(line);
-      entries.push(parsed);
-      const text = JSON.stringify(parsed);
-      if (/"error"|"isError":\s*true|"status":\s*"(failed|error)"/iu.test(text)) errorCount++;
-    } catch {
-      entries.push({ unparsable: line.slice(0, 200) });
+    const parsed = JSON.parse(line);
+    entries.push(parsed);
+    if (parsed.type === "model-failure") modelFailureCount += 1;
+    if (parsed.type === "terminal-snapshot") {
+      terminalCause = parsed.snapshot?.terminalCause;
+      for (const item of parsed.snapshot?.transcript ?? []) {
+        const closure = item?.kind === "tool" ? item.result?.closure : undefined;
+        if (
+          closure &&
+          (closure.kind !== "known" || closure.status === "failed")
+        ) {
+          failedTools.push({
+            sequence: parsed.sequence,
+            callId: item.result?.callId,
+            name: item.result?.name,
+            closure,
+          });
+        }
+      }
     }
   }
   const last = entries[entries.length - 1];
   return {
     present: true,
     entries: entries.length,
-    errorEntries: errorCount,
+    modelFailureCount,
+    terminalCause,
+    failedTools,
     lastEntry: last === undefined ? undefined : JSON.stringify(last).slice(0, 600),
   };
 }
@@ -156,11 +165,7 @@ function main() {
   for (const file of readdirSync(args.results)) {
     if (!file.startsWith("terminal-bench-results.")) continue;
     if (!file.endsWith(".json")) continue;
-    try {
-      records.push(JSON.parse(readFileSync(join(args.results, file), "utf8")));
-    } catch {
-      // skip unparsable partial records
-    }
+    records.push(JSON.parse(readFileSync(join(args.results, file), "utf8")));
   }
   const failed = records
     .filter((record) => record.result?.disposition !== "passed")
@@ -170,7 +175,6 @@ function main() {
   const sections = [];
   for (const record of failed) {
     const taskShort = record.task.name.split("/").pop();
-    const stage = classifyFailure(record);
     const trialDir = findTrialDir(args.jobs, taskShort, record.jobName);
     const verifierStdout = trialDir
       ? readTextSafe(join(trialDir, "verifier", "test-stdout.txt"))
@@ -182,9 +186,13 @@ function main() {
     const agentStdout = trialDir
       ? readTextSafe(join(trialDir, "agent", "best-agent-stdout.txt"))
       : undefined;
+    const agentStderr = trialDir
+      ? readTextSafe(join(trialDir, "agent", "best-agent-stderr.txt"))
+      : undefined;
     const evidence = trialDir
       ? analyzeEvidence(join(trialDir, "agent", "best-agent-evidence.jsonl"))
       : { present: false };
+    const stage = classifyFailure(record, evidence);
 
     summaries.push({
       task: record.task.name,
@@ -193,6 +201,11 @@ function main() {
       rewards: record.result.rewards ?? undefined,
       durationMs: record.durationMs,
       exceptionType: record.result.exception?.type,
+      terminalCause: evidence.terminalCause,
+      resourceExceededOnHostedRunner:
+        record.task?.resourceExceededOnHostedRunner ?? false,
+      evidenceSha256: record.artifacts?.evidenceSha256,
+      failedTools: evidence.failedTools ?? [],
     });
 
     const rewardLine =
@@ -220,7 +233,7 @@ function main() {
           )
         : "",
       exceptionText ? fenced(exceptionText, 40, "Harbor exception.txt (tail)") : "",
-      stage === "verifier-failed" && verifierStdout
+      record.result.disposition === "failed" && verifierStdout
         ? fenced(verifierStdout, 60, "Verifier test-stdout (tail) — where the task failed")
         : "",
       verifierStderr && verifierStderr.trim()
@@ -229,11 +242,17 @@ function main() {
       agentStdout
         ? fenced(agentStdout, 40, "best-agent stdout (tail)")
         : "_no agent stdout captured_",
+      agentStderr && agentStderr.trim()
+        ? fenced(agentStderr, 40, "best-agent stderr (tail)")
+        : "",
       evidence.present
         ? fenced(
             [
               `entries: ${evidence.entries ?? "?"}`,
-              `error-flagged entries: ${evidence.errorEntries ?? "?"}`,
+              `terminal cause: ${evidence.terminalCause ?? "?"}`,
+              `model failures: ${evidence.modelFailureCount ?? "?"}`,
+              `failed tool closures: ${evidence.failedTools?.length ?? "?"}`,
+              `evidence sha256: ${record.artifacts?.evidenceSha256 ?? "?"}`,
               evidence.lastEntry ? `last entry: ${evidence.lastEntry}` : "",
             ].join("\n"),
             10,
@@ -262,13 +281,14 @@ function main() {
       .map(
         ([stage, count]) =>
           `| ${stage} | ${count} | ${{
-            "environment-build": "task container build/start failed",
-            "agent-install": "CLI install into the container failed",
-            "agent-run": "CLI crashed / exited non-zero during the attempt",
-            timeout: "attempt exceeded the agent timeout budget",
-            "verifier-failed": "agent finished; official verifier scored 0",
-            "not-evaluated": "no canonical trial record (infra gap)",
-            unknown: "unclassified",
+            infra: "task container, image, setup, or candidate installation failed",
+            "agent-timeout": "Harbor stopped the agent at its task timeout",
+            provider: "model provider invocation failed",
+            harness: "Harness terminal cause prevented completion",
+            tool: "a Tool terminal cause prevented completion",
+            model: "Harness completed; official verifier returned reward 0",
+            verifier: "official verifier or grader execution failed",
+            inconclusive: "available evidence does not prove one cause",
           }[stage] ?? ""} |`,
       ),
     "",

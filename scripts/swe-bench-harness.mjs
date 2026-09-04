@@ -1115,6 +1115,8 @@ export function inspectAttemptEvidence(path) {
     footer.rootRunId === records[0].rootRunId &&
     JSON.stringify(footer.invocationIds) === JSON.stringify(requestOrder) &&
     JSON.stringify(footer.resourceIds) === JSON.stringify([...resources]) &&
+    resources.size === 1 &&
+    resources.has(records[0].rootRunId) &&
     terminals.size === resources.size &&
     rootStatus !== undefined;
   return {

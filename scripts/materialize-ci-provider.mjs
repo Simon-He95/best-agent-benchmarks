@@ -2,15 +2,17 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const [rootInput, githubEnvInput] = process.argv.slice(2);
-if (!rootInput || !githubEnvInput) {
-  throw new Error("Usage: materialize-ci-provider.mjs <root> <github-env-file>");
+const [rootInput, githubEnvInput, configInput] = process.argv.slice(2);
+if (!rootInput || !githubEnvInput || !configInput) {
+  throw new Error(
+    "Usage: materialize-ci-provider.mjs <root> <github-env-file> <provider-config>",
+  );
 }
 const apiKey = process.env.BENCHMARK_PROVIDER_API_KEY;
 if (!apiKey) throw new Error("BENCHMARK_PROVIDER_API_KEY is required.");
 
 const candidate = JSON.parse(
-  readFileSync(new URL("../config/best-agent-candidate.json", import.meta.url), "utf8"),
+  readFileSync(resolve(configInput), "utf8"),
 );
 const provider = candidate.provider;
 if (

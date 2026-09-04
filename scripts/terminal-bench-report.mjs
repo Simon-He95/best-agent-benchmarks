@@ -76,11 +76,14 @@ function main() {
   if (expectedSet.size === 0) throw new Error("--expected-tasks list is empty.");
 
   const gpuTasks = new Set(frozen.gpuTasks ?? []);
+  const dockerEligible = frozen.tasks
+    .map((task) => task.name)
+    .filter((name) => !gpuTasks.has(name));
   const expectedEligible = [...expectedSet].filter((name) => !gpuTasks.has(name));
   if (expectedEligible.length === 0) throw new Error("Expected set has no eligible tasks.");
 
   const records = [];
-  for (const file of readdirSync(args.results)) {
+  for (const file of existsSync(args.results) ? readdirSync(args.results) : []) {
     if (!/^terminal-bench-results\./u.test(file)) continue;
     if (!file.endsWith(".json")) continue;
     records.push(JSON.parse(readFileSync(join(args.results, file), "utf8")));
@@ -96,9 +99,21 @@ function main() {
   const notEvaluated = counted.filter((r) =>
     ["not-evaluated", "inconclusive"].includes(r.result.disposition),
   ).length;
+  const incompleteEvidence = counted
+    .filter((record) => record.evidenceAdmission?.complete !== true)
+    .map((record) => record.task.name);
 
   const complete = missing.length === 0;
-  const passRate = present.length > 0 ? passed / present.length : 0;
+  const fullExpected =
+    expectedSet.size === dockerEligible.length &&
+    dockerEligible.every((name) => expectedSet.has(name));
+  const passRate = passed / expectedEligible.length;
+  const scoreable =
+    fullExpected &&
+    complete &&
+    errors === 0 &&
+    notEvaluated === 0 &&
+    incompleteEvidence.length === 0;
 
   const report = {
     schemaVersion: 1,
@@ -114,6 +129,9 @@ function main() {
       expectedEligible: expectedEligible.length,
       present: present.length,
       missing,
+      evidenceComplete: counted.length - incompleteEvidence.length,
+      incompleteEvidence,
+      fullExpected,
     },
     results: {
       passed,
@@ -122,7 +140,7 @@ function main() {
       notEvaluated,
     },
     passRate,
-    passAt1: args.formal && complete ? passRate : null,
+    passAt1: args.formal && scoreable ? passRate : null,
     perTask: expectedEligible.map((name) => {
       const record = byTask.get(name);
       if (!record) {
@@ -135,6 +153,7 @@ function main() {
         exception: record.result.exception ?? undefined,
         durationMs: record.durationMs,
         evidenceSha256: record.artifacts.evidenceSha256 ?? undefined,
+        evidenceAdmission: record.evidenceAdmission,
         batchId: record.batchId,
       };
     }),
@@ -170,6 +189,8 @@ function main() {
     `| expected tasks | ${report.coverage.expected} (${report.coverage.expectedEligible} eligible in Docker, ${report.gpuExcludedTasks.length} GPU-excluded) |`,
     `| present | ${report.coverage.present} |`,
     `| missing | ${report.coverage.missing.length} |`,
+    `| complete attempt evidence | ${report.coverage.evidenceComplete} |`,
+    `| incomplete attempt evidence | ${report.coverage.incompleteEvidence.length} |`,
     `| passed | ${passed} |`,
     `| failed | ${failed} |`,
     `| error | ${errors} |`,

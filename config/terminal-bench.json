@@ -16,12 +16,10 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.1",
-    "packageIntegrity": "sha512-JSstNlAcLuZ2EuIuIaqwLxW31ikgscrKtG5aDCNl1M4Uawyac6y3k/SgyXsluRR/XOsp7uGbStraiQZEmlMm+Q==",
-    "runtimeDependencies": {
-      "@arcships/light-ocr": "0.5.7",
-      "node-notifier": "10.0.1"
-    }
+    "cliVersion": "0.0.3-beta.17",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "f98a9bf53f166d80bf0133484b74f2273e0d5495",
+    "target": "linux-x64-gnu"
   },
   "provider": {
     "kind": "openai",
@@ -40,7 +38,15 @@
     "hostCpus": 4,
     "hostMemoryMb": 16384,
     "resourceEnforcement": "ignored",
-    "toolExcludeNetwork": true
+    "toolExcludeNetwork": true,
+    "executionProfile": {
+      "source": "explicit-custom",
+      "workspaceBackend": "plain",
+      "workspaceAuthorization": "unrestricted",
+      "processIsolation": "host",
+      "commandPolicy": "path",
+      "workspaceGrants": ["read", "write", "exec"]
+    }
   },
   "gpuTasks": [
     "terminal-bench/fp8-rmsnorm-gemm",

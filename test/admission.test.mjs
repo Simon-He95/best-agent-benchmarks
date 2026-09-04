@@ -10,6 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
@@ -23,7 +24,11 @@ import {
   verifyAdmissionReceipt,
   verifyOfficialEvaluationReport,
 } from "../scripts/evaluate-official.mjs";
-import { runCliProcess, taskResult } from "../scripts/swe-bench-harness.mjs";
+import {
+  inspectAttemptEvidence,
+  runCliProcess,
+  taskResult,
+} from "../scripts/swe-bench-harness.mjs";
 import {
   OFFICIAL_DATASET_NAME,
   OFFICIAL_DATASET_REVISION,
@@ -1059,6 +1064,67 @@ test("admission command preserves its own fatal reason as a rejected report", ()
     assert.equal(report.accepted, false);
     assert.equal(report.reasons[0].stage, "admission");
     assert.match(report.reasons[0].reason, /ENOENT/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("attempt evidence admits only the one-shot root resource", () => {
+  const root = mkdtempSync(resolve(tmpdir(), "attempt-evidence-root-"));
+  try {
+    const evidencePath = resolve(root, "evidence.jsonl");
+    writeCompleteEvidence(evidencePath);
+    const records = readFileSync(evidencePath, "utf8")
+      .trimEnd()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    const footer = records.pop();
+    const childRunKey = {
+      kind: "run",
+      sessionKey: { kind: "session", agentIdentity: "agent", sequence: 1 },
+      sequence: 2,
+    };
+    const childResourceId = JSON.stringify(["agent", 1, 2]);
+    const childInvocationId = JSON.stringify(["model", childResourceId, 1]);
+    const childRequest = structuredClone(records[1]);
+    childRequest.resourceId = childResourceId;
+    childRequest.runId = childResourceId;
+    childRequest.invocationId = childInvocationId;
+    childRequest.request.messages[0].runKey = childRunKey;
+    const childOutcome = structuredClone(records[2]);
+    childOutcome.resourceId = childResourceId;
+    childOutcome.runId = childResourceId;
+    childOutcome.invocationId = childInvocationId;
+    const childTerminal = structuredClone(records[3]);
+    childTerminal.resourceId = childResourceId;
+    childTerminal.runId = childResourceId;
+    childTerminal.snapshot.key = childRunKey;
+    childTerminal.snapshot.transcript[0].runKey = childRunKey;
+    records.push(childRequest, childOutcome, childTerminal);
+    records.forEach((record, sequence) => {
+      record.sequence = sequence;
+    });
+    const prefix = `${records.map((record) => JSON.stringify(record)).join("\n")}\n`;
+    const counts = {
+      modelRequest: 2,
+      modelOutcome: 2,
+      modelFailure: 0,
+      terminalSnapshot: 2,
+    };
+    footer.sequence = records.length;
+    footer.resourceIds = [footer.rootRunId, childResourceId];
+    footer.invocationIds = [records[1].invocationId, childInvocationId];
+    footer.expectedCounts = counts;
+    footer.writtenCounts = counts;
+    footer.prefixSha256 = createHash("sha256").update(prefix).digest("hex");
+    writeFileSync(evidencePath, `${prefix}${JSON.stringify(footer)}\n`);
+    assert.deepEqual(inspectAttemptEvidence(evidencePath), {
+      prefixValid: true,
+      complete: false,
+      reason: "incomplete-footer",
+      rootStatus: "completed",
+      rootTerminalCause: "completed",
+    });
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
