@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "batchLabel": "beta19-resume-001",
+  "targetCandidate": "@best-agent/cli-linux-x64-gnu@0.0.3-beta.19",
+  "targetSourceCommit": "4bdb7623e0cf531f1079a2134340acc0093c1219",
+  "datasetCommit": "452bf305c6daa62fc59061d22133a7cbc7c1572e",
+  "model": "deepseek-v4-flash",
+  "reasoningEffort": "high",
+  "modelAttemptsPerTask": 1,
+  "retry": false,
+  "tasks": [
+    {
+      "name": "terminal-bench/batched-eval-parity",
+      "sourceRunId": 33903340558,
+      "sourceArtifactId": 9949136518,
+      "sourceDisposition": "error",
+      "sourceTerminalCause": "tool-unknown",
+      "sourceRecordSha256": "cd042d894b1e705eaf940e7a17dc245485867c4f95f1cbf0e938018623e726fd"
+    }
+  ],
+  "scope": "First bounded beta.19 continuation; existing evidence preserved. No bulk dispatch before candidate packaging reaches generation."
+}

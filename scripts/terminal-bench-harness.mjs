@@ -168,6 +168,8 @@ export function verifyFrozenIdentity() {
     !/^[0-9a-f]{64}$/u.test(candidate.binarySha256) ||
     !/^[0-9a-f]{64}$/u.test(candidate.lockfileSha256) ||
     !/^[0-9a-f]{64}$/u.test(candidate.runtimeLockSha256) ||
+    !/^[0-9a-f]{64}$/u.test(candidate.nodeBinarySha256) ||
+    !/^v\d+\.\d+\.\d+$/u.test(candidate.nodeVersion) ||
     typeof candidate.runtimeDependencies !== "object" ||
     candidate.runtimeDependencies === null
   ) {
@@ -191,6 +193,8 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_TARBALL = tarballPath;
   process.env.BEST_AGENT_CLI_TARBALL_SHA256 = candidate.tarballSha256;
   process.env.BEST_AGENT_CLI_BINARY_SHA256 = candidate.binarySha256;
+  process.env.BEST_AGENT_CLI_NODE_SHA256 = candidate.nodeBinarySha256;
+  process.env.BEST_AGENT_CLI_NODE_VERSION = candidate.nodeVersion;
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_VERSION = candidate.cliVersion;
   process.env.BEST_AGENT_CLI_WORKSPACE = config.workspace;

@@ -457,15 +457,15 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   assert.doesNotMatch(agent, /get_version_command|2>\/dev\/null|\|\| true/u);
   const setupStrict = agent.indexOf('"set -e"');
   const providerSetup = agent.indexOf(
-    'cp /tmp/best-agent-provider.json "$HOME/.best-agent/provider.json"',
-    setupStrict,
+    'await self._prepare_provider(environment)',
   );
   const attemptRelaxed = agent.indexOf('"set +e"');
   const cliAttempt = agent.indexOf("best-agent\" run");
   const receiptStrict = agent.indexOf('"set -e"', setupStrict + 1);
   assert.ok(
-    setupStrict < providerSetup &&
-      providerSetup < attemptRelaxed &&
+    providerSetup >= 0 &&
+      providerSetup < setupStrict &&
+      setupStrict < attemptRelaxed &&
       attemptRelaxed < cliAttempt &&
       cliAttempt < receiptStrict,
     "setup must fail closed; only the single CLI attempt may return non-zero before its receipt",
@@ -477,7 +477,9 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   assert.doesNotMatch(failureAnalysis, /skip unparsable|catch \{\s*\/\/ skip/u);
   assert.doesNotMatch(agent, /ua-proxy|CLIENT_SYSTEM_PROMPT|docker cp/u);
   assert.doesNotMatch(agent, /base64|BEST_AGENT_PROVIDER_API_KEY/u);
-  assert.match(agent, /upload_file\(str\(provider_config\)/u);
+  assert.match(agent, /upload_file\(str\(source\), target\)/u);
+  assert.match(agent, /chmod 600/u);
+  assert.match(agent, /CLI_NODE_SHA256/u);
   assert.match(agent, /best-agent-stdout\.txt/iu);
   assert.match(agent, /best-agent-stderr\.txt/iu);
   assert.match(harness, /"--cpus",\s*"ignore"/u);

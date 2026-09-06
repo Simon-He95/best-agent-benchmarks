@@ -16,9 +16,9 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.18",
+    "cliVersion": "0.0.3-beta.19",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "9f276cc2ee919b67b1cf59958275a0705c587c18",
+    "sourceCommit": "4bdb7623e0cf531f1079a2134340acc0093c1219",
     "target": "linux-x64-gnu"
   },
   "provider": {

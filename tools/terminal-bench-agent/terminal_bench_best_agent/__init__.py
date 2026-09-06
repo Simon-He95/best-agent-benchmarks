@@ -23,6 +23,30 @@ class BestAgentCli(BaseInstalledAgent):
     def name() -> str:
         return "best-agent-cli"
 
+    async def _prepare_provider(self, environment: BaseEnvironment) -> None:
+        identity = await self.exec_as_agent(
+            environment, command='set -e; printf \'%s\\0\' "$HOME"; id -u; id -g'
+        )
+        home, ids = identity.stdout.split("\0", 1)
+        uid, gid = ids.splitlines()
+        files = [(Path(_required_env("BEST_AGENT_PROVIDER_CONFIG")), f"{home}/.best-agent/provider.json")]
+        dimcode_home = Path(_required_env("DIMCODE_HOME"))
+        for relative in ("config.json", "dimcode/auth.json"):
+            source = dimcode_home / relative
+            if source.is_file():
+                files.append((source, f"{home}/.dimcode/{relative}"))
+        await self.exec_as_agent(
+            environment,
+            command="set -e; mkdir -p -- " + shlex.quote(f"{home}/.best-agent") + " " + shlex.quote(f"{home}/.dimcode/dimcode"),
+        )
+        for source, target in files:
+            await environment.upload_file(str(source), target)
+        targets = " ".join(shlex.quote(target) for _, target in files)
+        await self.exec_as_root(
+            environment,
+            command=f"set -e; chown {shlex.quote(uid + ':' + gid)} -- {targets}; chmod 600 -- {targets}",
+        )
+
     @override
     async def install(self, environment: BaseEnvironment) -> None:
         tarball = Path(_required_env("BEST_AGENT_CLI_TARBALL"))
@@ -34,11 +58,6 @@ class BestAgentCli(BaseInstalledAgent):
         await environment.upload_file(
             str(Path(__file__).resolve().parent / "install-cli.sh"), remote_script
         )
-        await self.exec_as_root(
-            environment,
-            command="apt-get update && apt-get install -y ca-certificates coreutils",
-            env={"DEBIAN_FRONTEND": "noninteractive"},
-        )
         await self.exec_as_agent(
             environment,
             command=f"bash {remote_script}",
@@ -46,10 +65,9 @@ class BestAgentCli(BaseInstalledAgent):
                 "CLI_TARBALL": remote_tarball,
                 "CLI_TARBALL_SHA256": _required_env("BEST_AGENT_CLI_TARBALL_SHA256"),
                 "CLI_BINARY_SHA256": _required_env("BEST_AGENT_CLI_BINARY_SHA256"),
-                "CLI_RUNTIME_LOCK_SHA256": _required_env(
-                    "BEST_AGENT_CLI_RUNTIME_LOCK_SHA256"
-                ),
-                "CLI_VERSION": _required_env("BEST_AGENT_CLI_VERSION"),
+                "CLI_NODE_SHA256": _required_env("BEST_AGENT_CLI_NODE_SHA256"),
+                "CLI_NODE_VERSION": _required_env("BEST_AGENT_CLI_NODE_VERSION"),
+                "CLI_RUNTIME_LOCK_SHA256": _required_env("BEST_AGENT_CLI_RUNTIME_LOCK_SHA256"),
             },
         )
 
@@ -65,34 +83,11 @@ class BestAgentCli(BaseInstalledAgent):
         timeout_ms = _required_env("BEST_AGENT_TIMEOUT_MS")
         workspace = _required_env("BEST_AGENT_CLI_WORKSPACE")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
-        provider_config = Path(_required_env("BEST_AGENT_PROVIDER_CONFIG"))
-        dimcode_home = Path(_required_env("DIMCODE_HOME"))
-        await environment.upload_file(str(provider_config), "/tmp/best-agent-provider.json")
-        await environment.upload_file(
-            str(dimcode_home / "config.json"), "/tmp/best-agent-dimcode-config.json"
-        )
-        auth_config = dimcode_home / "dimcode" / "auth.json"
-        if auth_config.is_file():
-            await environment.upload_file(
-                str(auth_config), "/tmp/best-agent-dimcode-auth.json"
-            )
+        await self._prepare_provider(environment)
         command = "\n".join(
             [
                 "set -e",
-                'mkdir -p "$HOME/.best-agent" "$HOME/.dimcode/dimcode"',
-                'cp /tmp/best-agent-provider.json "$HOME/.best-agent/provider.json"',
-                'cp /tmp/best-agent-dimcode-config.json "$HOME/.dimcode/config.json"',
-                *(
-                    ['cp /tmp/best-agent-dimcode-auth.json "$HOME/.dimcode/dimcode/auth.json"']
-                    if auth_config.is_file()
-                    else []
-                ),
-                'chmod 600 "$HOME/.best-agent/provider.json" "$HOME/.dimcode/config.json"',
-                *(
-                    ['chmod 600 "$HOME/.dimcode/dimcode/auth.json"']
-                    if auth_config.is_file()
-                    else []
-                ),
+                'export PATH="$HOME/.best-agent-cli/runtime/bin:$PATH"',
                 "mkdir -p /logs/agent/best-agent-runtime",
                 "cd " + shlex.quote(workspace) + " || exit 1",
                 'export BEST_AGENT_PROVIDER_CONFIG="$HOME/.best-agent/provider.json"',

@@ -103,6 +103,9 @@ jobs:
           node --input-type=module -e 'import path from "node:path"; import { stageCliSeaPackages } from "./scripts/stage-cli-sea-packages.mjs"; stageCliSeaPackages({ artifactRoot: path.resolve(".tmp/sea"), stageRoot: path.resolve(".tmp/npm/release-stage"), targetIds: ["linux-x64-gnu"] });'
           npm install --prefix .tmp/npm/release-stage/linux-x64-gnu \
             --omit=dev --ignore-scripts --no-audit --no-fund
+          npm ls --prefix .tmp/npm/release-stage/linux-x64-gnu --omit=dev --all
+          mkdir -p .tmp/npm/release-stage/linux-x64-gnu/runtime/bin
+          cp "$(command -v node)" .tmp/npm/release-stage/linux-x64-gnu/runtime/bin/node
 
       - name: Freeze the candidate receipt
         env:
@@ -140,6 +143,8 @@ jobs:
             buildReportSha256: sha256("results/candidate/build-report.json"),
             tarballSha256: sha256("results/candidate/best-agent-cli.tgz"),
             runtimeDependencies: staged.dependencies,
+            nodeVersion: process.version,
+            nodeBinarySha256: sha256("tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/runtime/bin/node"),
           };
           writeFileSync("results/candidate/candidate.json", JSON.stringify(receipt, null, 2) + "\n");
           NODE

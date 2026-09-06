@@ -2,7 +2,7 @@
   "profileId": "terminal-bench-4.0-v4.0.0",
   "datasetTag": "v4.0.0",
   "datasetCommit": "452bf305c6daa62fc59061d22133a7cbc7c1572e",
-  "cliVersion": "0.0.3-beta.18",
+  "cliVersion": "0.0.3-beta.19",
   "maxBatchSize": 10,
   "taskCount": 63,
   "batchCount": 7,
