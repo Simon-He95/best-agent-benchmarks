@@ -28,4 +28,27 @@ if (recovery.candidateId !== candidate.candidateId || recovery.diagnosticOnly !=
     recovery.batch.tasks.some(id => !ids.includes(id) || id === recovery.excludedPrediction.instanceId) ||
     recovery.evidence.some(t => t.failureStage !== "preparation" ||
       ![t.receiptSha256, t.claimSha256, t.preparationSha256].every(h => /^[a-f0-9]{64}$/.test(h)))) throw new Error("Frozen environment recovery mismatch");
-console.log(JSON.stringify({ candidateId: candidate.candidateId, sourceCommit: null, verified: true, tasks: ids.length }));
+const residual = JSON.parse(readFileSync(resolve(root, "config/beta20-residual-environment-recovery.json")));
+const remainingIds = residual.batches.flatMap(b => b.tasks);
+if (residual.candidateId !== candidate.candidateId || residual.diagnosticOnly !== true || residual.passAt1 !== null ||
+    remainingIds.length !== 19 || new Set(remainingIds).size !== 19 || residual.batches.some(b => b.tasks.length > 10) ||
+    JSON.stringify(remainingIds) !== JSON.stringify(residual.evidence.map(t => t.instanceId)) ||
+    remainingIds.some(id => !ids.includes(id) || recovery.batch.tasks.includes(id) || id === recovery.excludedPrediction.instanceId) ||
+    residual.evidence.some(t => t.failureStage !== "preparation" || t.hasPrediction !== false || t.hasModelEvidence !== false ||
+      !residual.sources[t.sourceWave] || ![t.receiptSha256, t.claimSha256, t.preparationSha256].every(h => /^[a-f0-9]{64}$/.test(h)))) {
+  throw new Error("Frozen residual environment recovery mismatch");
+}
+const profile = JSON.parse(readFileSync(resolve(root, "config/swe-python-environments.json")))["pytest-setuptools-scm"];
+const proofs = ["pytest-public-ancestor-probe.json", "pytest-public-ancestor-7324-5.4.0.json"].map(name => {
+  const path = "config/public-python-evidence/" + name;
+  const proof = JSON.parse(readFileSync(resolve(root, path)));
+  return { sha256: hash(path), rows: proof.rows ?? [proof] };
+});
+for (const [base, ancestor] of Object.entries(profile.ancestors)) {
+  const row = proofs.find(p => p.sha256 === ancestor.evidenceSha256)?.rows.find(r => r.baseCommit === base && r.tag === ancestor.release);
+  if (!row || row.evidence.behind_by !== 0 || row.evidence.status !== "ahead" || row.evidence.ahead_by !== ancestor.aheadBy ||
+      row.evidence.base_commit.sha !== ancestor.commit || row.evidence.merge_base_commit.sha !== ancestor.commit) {
+    throw new Error("Unverified public pytest ancestor: " + base);
+  }
+}
+console.log(JSON.stringify({ candidateId: candidate.candidateId, sourceCommit: null, verified: true, tasks: ids.length, residualEnvironmentTasks: remainingIds.length }));

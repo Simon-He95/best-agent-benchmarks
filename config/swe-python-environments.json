@@ -1,4 +1,58 @@
 {
+  "astropy-ah-bootstrap": {
+    "bootstrap": ["pip==24.0", "setuptools==68.2.2", "wheel==0.45.1", "numpy==1.23.5", "Cython==3.3.0", "Jinja2==3.1.6"],
+    "runtimeConstraints": ["pip==24.0", "setuptools==68.2.2", "numpy==1.23.5", "pytest==7.4.4"],
+    "buildConstraints": [],
+    "noBuildIsolation": true,
+    "env": {"CFLAGS": "-Wno-error=incompatible-function-pointer-types -DHAVE_UNISTD_H=1"}
+  },
+  "astropy-setuptools-dep-util": {
+    "bootstrap": [],
+    "runtimeConstraints": ["numpy==1.26.4"],
+    "buildConstraints": ["setuptools==68.2.2"],
+    "noBuildIsolation": false,
+    "env": {"CFLAGS": "-Wno-error=incompatible-function-pointer-types"}
+  },
+  "astropy-cfitsio42": {
+    "bootstrap": [],
+    "runtimeConstraints": ["numpy==1.26.4"],
+    "buildConstraints": ["setuptools==68.2.2"],
+    "noBuildIsolation": false,
+    "env": {"CFLAGS": "-Wno-error=incompatible-function-pointer-types", "ASTROPY_USE_SYSTEM_CFITSIO": "1"},
+    "systemLibrary": {"pkgConfig": "cfitsio", "version": "4.7.0", "dylib": "libcfitsio.10.dylib"}
+  },
+  "matplotlib-numpy1": {
+    "bootstrap": [],
+    "runtimeConstraints": ["numpy==1.26.4"],
+    "buildConstraints": ["numpy==1.26.4"],
+    "noBuildIsolation": false,
+    "systemLibrary": {"pkgConfig": "freetype2", "version": "26.6.20", "dylib": "libfreetype.6.dylib", "release": "2.14.3"}
+  },
+  "matplotlib-oldest-supported-numpy": {
+    "bootstrap": [],
+    "runtimeConstraints": ["numpy==1.26.4"],
+    "buildConstraints": [],
+    "noBuildIsolation": false,
+    "systemLibrary": {"pkgConfig": "freetype2", "version": "26.6.20", "dylib": "libfreetype.6.dylib", "release": "2.14.3"}
+  },
+  "pytest-setuptools-scm": {
+    "bootstrap": [],
+    "runtimeConstraints": [],
+    "buildConstraints": ["setuptools==82.0.1", "setuptools-scm==10.2.3", "vcs-versioning==2.3.4", "wheel==0.48.0"],
+    "noBuildIsolation": false,
+    "versionMeaning": "ancestor-anchored private build version; exact upstream version unknown; nearest tag not proven",
+    "ancestors": {
+      "73c5b7f4b11a81e971f7d1bb18072e06a87060f4": {"release": "5.1.2", "commit": "e56544cb587e8f288bea12aff01355b31aec92f7", "aheadBy": 14, "evidenceSha256": "80a12c7656514542b77aca34fa5732770e73a39a9932b619d90fe9b5aee117b9"},
+      "e856638ba086fcf5bebf1bebea32d5cf78de87b4": {"release": "5.2.3", "commit": "dd9a27cf543c39f91039ecd7aa6aa595b3e79330", "aheadBy": 6, "evidenceSha256": "80a12c7656514542b77aca34fa5732770e73a39a9932b619d90fe9b5aee117b9"},
+      "19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd": {"release": "5.4.0", "commit": "c9fd1bdbd6d25917d33b27511d8ebc2a65538899", "aheadBy": 457, "evidenceSha256": "d48ae0570e9cac6c8fe93813c92d32b6e41a2d8001b81bb13cc93cb138730ac9"}
+    }
+  },
+  "xarray-numpy1": {
+    "bootstrap": [],
+    "runtimeConstraints": ["numpy==1.26.4", "pandas==1.5.3"],
+    "buildConstraints": [],
+    "noBuildIsolation": false
+  },
   "sphinx-pkg-resources": {
     "bootstrap": ["setuptools==80.9.0"],
     "runtimeConstraints": ["setuptools==80.9.0", "Jinja2==3.0.3", "docutils==0.16", "alabaster==0.7.12", "sphinxcontrib-applehelp==1.0.2", "sphinxcontrib-devhelp==1.0.2", "sphinxcontrib-jsmath==1.0.1", "sphinxcontrib-htmlhelp==2.0.0", "sphinxcontrib-serializinghtml==1.1.5", "sphinxcontrib-qthelp==1.0.3"],

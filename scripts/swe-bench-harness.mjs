@@ -564,7 +564,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
     }
     failureStage = "worker-probe";
     const probe = await probeWorker({ repoDir, taskDir, artifactDir: resolve(artifactDir, "worker-probe"),
-      cliInvocation, env: prepared.env, runWorkerProcess, inspectEvidence: inspectAttemptEvidence });
+      cliInvocation, env: prepared.env, projectModule: prepared.module, runWorkerProcess, inspectEvidence: inspectAttemptEvidence });
     writeJsonExclusive(resolve(artifactDir, "worker-probe", "receipt.json"), probe);
     if (evaluationContext.preflightOnly) return finish("environment-prepared", undefined, { benchmarkAttempt: false });
     const providerEnv = taskProviderEnvironment(taskDir, timeoutMs);

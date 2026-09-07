@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-09-07T14:47:00Z",
+  "engineeringOnly": true,
+  "usedEvaluatorData": false,
+  "modelWorkspaceUpdated": false,
+  "exactVersionClaim": false,
+  "rows": [
+    {
+      "instanceId": "pytest-dev__pytest-5840",
+      "tag": "5.1.2",
+      "baseCommit": "73c5b7f4b11a81e971f7d1bb18072e06a87060f4",
+      "api": "repos/pytest-dev/pytest/compare/5.1.2...73c5b7f4b11a81e971f7d1bb18072e06a87060f4",
+      "exitCode": 0,
+      "evidence": {
+        "ahead_by": 14,
+        "base_commit": {
+          "sha": "e56544cb587e8f288bea12aff01355b31aec92f7"
+        },
+        "behind_by": 0,
+        "merge_base_commit": {
+          "sha": "e56544cb587e8f288bea12aff01355b31aec92f7"
+        },
+        "status": "ahead",
+        "total_commits": 14
+      }
+    },
+    {
+      "instanceId": "pytest-dev__pytest-6197",
+      "tag": "5.2.3",
+      "baseCommit": "e856638ba086fcf5bebf1bebea32d5cf78de87b4",
+      "api": "repos/pytest-dev/pytest/compare/5.2.3...e856638ba086fcf5bebf1bebea32d5cf78de87b4",
+      "exitCode": 0,
+      "evidence": {
+        "ahead_by": 6,
+        "base_commit": {
+          "sha": "dd9a27cf543c39f91039ecd7aa6aa595b3e79330"
+        },
+        "behind_by": 0,
+        "merge_base_commit": {
+          "sha": "dd9a27cf543c39f91039ecd7aa6aa595b3e79330"
+        },
+        "status": "ahead",
+        "total_commits": 6
+      }
+    },
+    {
+      "instanceId": "pytest-dev__pytest-7324",
+      "tag": "5.4.3",
+      "baseCommit": "19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd",
+      "api": "repos/pytest-dev/pytest/compare/5.4.3...19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd",
+      "exitCode": 0,
+      "evidence": {
+        "ahead_by": 457,
+        "base_commit": {
+          "sha": "b322004047774f4b0992bfc8b9b1123069a6d0f1"
+        },
+        "behind_by": 44,
+        "merge_base_commit": {
+          "sha": "c9fd1bdbd6d25917d33b27511d8ebc2a65538899"
+        },
+        "status": "diverged",
+        "total_commits": 457
+      }
+    }
+  ]
+}

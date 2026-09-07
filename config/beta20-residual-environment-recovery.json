@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidateId": "cli-0.0.3-beta.20-npm-f395c2ff3b0e5f45",
+  "sourceEvidenceSha256": "4a94937c7a8a992c6c50850493dc931402cfc463a907861498705789655b5e01",
+  "sources": {
+    "001": {
+      "runId": 34098965544,
+      "runAttempt": 1,
+      "headSha": "08695fb33972c265ac4a9eb190693f26b926f789",
+      "artifactId": 10011388331,
+      "artifactSha256": "5271bd97c8482390e1f2e41cc42d28ece11196d65f921fc240a0b3168fc69778",
+      "resultSha256": "7a2e2da2b1176bc81b0da1cf21c80ccf1f06b5cb1571e5a80c1c1196356da552"
+    },
+    "005": {
+      "runId": 34099267435,
+      "runAttempt": 1,
+      "headSha": "08695fb33972c265ac4a9eb190693f26b926f789",
+      "artifactId": 10011454188,
+      "artifactSha256": "24710ecc6fa060577ca462fb1180b82822d7e52c24b4ed445bee39a58d842351",
+      "resultSha256": "18e9aa7fc3ed0f3ddf3df4974d3b5e42b0625e6dd698645045b6069c294b814e"
+    },
+    "006": {
+      "runId": 34099272925,
+      "runAttempt": 1,
+      "headSha": "08695fb33972c265ac4a9eb190693f26b926f789",
+      "artifactId": 10011441241,
+      "artifactSha256": "599673b0e717647c6f9abcad5a5c1f4acd05bb255db98d2f5cfa2904f5eca3d7",
+      "resultSha256": "9e007e07cd5b06b5e93a0f8f383f1033875a847c5d484b954fdb297c87972f2b"
+    }
+  },
+  "batches": [
+    {
+      "id": "beta20-env-recovery-002",
+      "tasks": [
+        "astropy__astropy-13033",
+        "astropy__astropy-13398",
+        "astropy__astropy-13977",
+        "astropy__astropy-14365",
+        "astropy__astropy-14598",
+        "astropy__astropy-7606",
+        "matplotlib__matplotlib-21568",
+        "matplotlib__matplotlib-23476",
+        "matplotlib__matplotlib-24870",
+        "matplotlib__matplotlib-25479"
+      ]
+    },
+    {
+      "id": "beta20-env-recovery-003",
+      "tasks": [
+        "pydata__xarray-4687",
+        "pydata__xarray-6599",
+        "pydata__xarray-6938",
+        "pydata__xarray-6992",
+        "pydata__xarray-7229",
+        "pytest-dev__pytest-5840",
+        "pytest-dev__pytest-6197",
+        "pytest-dev__pytest-7324",
+        "scikit-learn__scikit-learn-14087"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "instanceId": "astropy__astropy-13033",
+      "repo": "astropy/astropy",
+      "baseCommit": "298ccb478e6bf092953bca67a3d29dc6c35f6752",
+      "sourceWave": "001",
+      "receiptSha256": "dec5c5a03e67e785d083e8b2e4d793afb8ab07ff030e5e42ab323f704291efb6",
+      "claimSha256": "e32de9bd00f0752b40fda03aa1c4a37fb53300536df62e5f497b4dd4f070da3a",
+      "preparationSha256": "0b9d5d44e5a91f8ee7c79b33f01675e45e6aecd1dd45c7263e5e7c61c855c46b",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "astropy__astropy-13398",
+      "repo": "astropy/astropy",
+      "baseCommit": "6500928dc0e57be8f06d1162eacc3ba5e2eff692",
+      "sourceWave": "001",
+      "receiptSha256": "c51618eb6b808bbe23354fd911978395cefb4c9f55760a859d14de8a014c67d6",
+      "claimSha256": "64c1b254cb62e3835d3d98e7a74c07f807ef2422ec2347e13c77722addcb2149",
+      "preparationSha256": "845231c47bc173de8e926acdc9e5d85b4e4fc9b2358b0c5fd9d232515a8e541c",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "astropy__astropy-13977",
+      "repo": "astropy/astropy",
+      "baseCommit": "5250b2442501e6c671c6b380536f1edb352602d1",
+      "sourceWave": "001",
+      "receiptSha256": "6a3e57896a97eaab1eb67dba71594d306fe0c96aa6fd4ce4e98eb6fca59a7c20",
+      "claimSha256": "38d1550e2eb498a45632757f209d9a89f6473f10c16c104251de745db7cf5880",
+      "preparationSha256": "09188c174bc410d8e9dadceb8b8a4d0e0f28c3d3a78585f63ed7c8708dd6ad6f",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "astropy__astropy-14365",
+      "repo": "astropy/astropy",
+      "baseCommit": "7269fa3e33e8d02485a647da91a5a2a60a06af61",
+      "sourceWave": "001",
+      "receiptSha256": "15d2734efeb4cdc112b8af51c3e1282e24b3a7937c16d990c404cf91345d5c5c",
+      "claimSha256": "c3266425bb1c4c8242f7a9bb037f594d5e5cd2e5c0751f2110fe9d27289d2a09",
+      "preparationSha256": "0cdca4cb95eda215d8b7ff0cd1829eebd9a2258530101c6c53ebd399057c55de",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "astropy__astropy-14598",
+      "repo": "astropy/astropy",
+      "baseCommit": "80c3854a5f4f4a6ab86c03d9db7854767fcd83c1",
+      "sourceWave": "001",
+      "receiptSha256": "19ca432d92aa9fd002d47febec66c6cce877b5665c3545b8067cb4007e6a56f4",
+      "claimSha256": "983f682b2447038c0bd86871b319b096861dc1f36d8d707f01384df369309445",
+      "preparationSha256": "c6535597627825c0f9103d275efee317cfbe882af1f6235ead0bea61317e6ade",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "astropy__astropy-7606",
+      "repo": "astropy/astropy",
+      "baseCommit": "3cedd79e6c121910220f8e6df77c54a0b344ea94",
+      "sourceWave": "001",
+      "receiptSha256": "67b4e327853020108dce3febcb4399fe8becc9a0f3ce318ce947e1341b181041",
+      "claimSha256": "25d2fc5788443ae53e2388b6d7963874a812a2a11af56c8bdb36bdd10b22b065",
+      "preparationSha256": "1cec76125815669ffd90dddd2e1928dbe6f6c39ee3586c485e987e8e31d6b64b",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-21568",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "f0632c0fc7339f68e992ed63ae4cfac76cd41aad",
+      "sourceWave": "005",
+      "receiptSha256": "dafa53ec46bbf6da422bcadf1486fa6e92fa130f7253bb33dc39ca1b7f18dbce",
+      "claimSha256": "bb248b807ff657e39fd777b877523a23ce8a3ee65000f29b18273a7c30336b3b",
+      "preparationSha256": "2e39c89c72ce17188b5ad182d51791e3ab990e16cd1f45103f30cc15892012fd",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-23476",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "33a0599711d26dc2b79f851c6daed4947df7c167",
+      "sourceWave": "005",
+      "receiptSha256": "34c47ed57421fd13077341bbcb374ded7c0d54118183ca08f37f95ab4faf4101",
+      "claimSha256": "9c077653083c46fa8d0a28b388b34edf2217c41ac2e353f70c9016da43172230",
+      "preparationSha256": "21133099462379fafa72ae518f5c35c74f68b684634291484e4d1dc06ddfe10a",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-24870",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "6091437be9776139d3672cde28a19cbe6c09dcd5",
+      "sourceWave": "005",
+      "receiptSha256": "eb3f0e38419d05bea52795021fae1ec2aa117e6094394cbf78cf2b8437f6fda8",
+      "claimSha256": "13336671fcf84fe40600e054faaf35a81e31d019643ba9e74c3f850a941e45e8",
+      "preparationSha256": "6b1840e55e268fb24e925b09ee2f19dde59d4dc3175c0280b7a756edae9404a3",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-25479",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "7fdf772201e4c9bafbc16dfac23b5472d6a53fa2",
+      "sourceWave": "005",
+      "receiptSha256": "896c5f0ef651086d5e390e1c2242de703581409de105f4c04df55432d82243c5",
+      "claimSha256": "ecbaccbab291bc08f22751352377fb9e765a2a9a9602136b72c3e4f8cdb67235",
+      "preparationSha256": "f1590465c505369e5b92703c5d204ed173c9bc2e907778bb21ad12897ef98f74",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pydata__xarray-4687",
+      "repo": "pydata/xarray",
+      "baseCommit": "d3b6aa6d8b997df115a53c001d00222a0f92f63a",
+      "sourceWave": "005",
+      "receiptSha256": "e9fc87e541764f6d53b105cd723a81823a3d8c18b42e50711d9f44e518d88a27",
+      "claimSha256": "0d90fa2a1950ead405a36c4160cb86e86986449dc394871b2c3955e96ad27d61",
+      "preparationSha256": "7bda52525210243fedef832c5ab00812f8d410822795e63b658e986786da09b2",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pydata__xarray-6599",
+      "repo": "pydata/xarray",
+      "baseCommit": "6bb2b855498b5c68d7cca8cceb710365d58e6048",
+      "sourceWave": "006",
+      "receiptSha256": "1a6cfd80438465ae8a2578181d7f4f82a26b8fcd05ff2e642292543be72cd7c4",
+      "claimSha256": "c5c2316c484cfb0b530c98b59b1c2b2b3ffbfe12ebf06aa950f9d66ca675d8cb",
+      "preparationSha256": "b6579d97efb9def85343134919cfea81bec80aa7c876506d86a85a45234e16fa",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pydata__xarray-6938",
+      "repo": "pydata/xarray",
+      "baseCommit": "c4e40d991c28be51de9ac560ce895ac7f9b14924",
+      "sourceWave": "006",
+      "receiptSha256": "8facdd1bb4ab5743f0ec8bb36dbcb2e348efc71125379c9b7245bcc3d654395f",
+      "claimSha256": "d46197c183f1dd474bee08659cc4529c18f5b03243f03db6a733cf43997f3a08",
+      "preparationSha256": "50b9fb83971ebfb9723dc5d4be38f4a7249b88dbf8b196a6ef53c052ffad8314",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pydata__xarray-6992",
+      "repo": "pydata/xarray",
+      "baseCommit": "45c0a114e2b7b27b83c9618bc05b36afac82183c",
+      "sourceWave": "006",
+      "receiptSha256": "ba4136e032fcb449f268d4e2a7cb9b2aaf5a304bdecd6046c7bd08793984812f",
+      "claimSha256": "259a491fa10b2ee55f92a3d088ed33976c78a2a605f5ffdd7f803cb4fe936f64",
+      "preparationSha256": "577d250b0bcdaaa52605da17955fc23331340a43c81f9f8c2316d3c463e2318b",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pydata__xarray-7229",
+      "repo": "pydata/xarray",
+      "baseCommit": "3aa75c8d00a4a2d4acf10d80f76b937cadb666b7",
+      "sourceWave": "006",
+      "receiptSha256": "d8130dfeb3132c8e60957c3d405868caab61ca60e5ed0402784b02a0f9b9630a",
+      "claimSha256": "581bf062ae3935914db90e1c7618da1c46fa76f9d2207c52c18d2ba26f8768fc",
+      "preparationSha256": "cb84830c00b9f296870d64c46bf0e6e233496d197c89b08ded9ca8441c253b89",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pytest-dev__pytest-5840",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "73c5b7f4b11a81e971f7d1bb18072e06a87060f4",
+      "sourceWave": "006",
+      "receiptSha256": "4e8d3d7130a4f5fc1ec4918c64d913811c8e1f5dbdcce6a801e6e4a2c41cde31",
+      "claimSha256": "176d6bee7cdb7c3e28e6ea3e4cec5ae125ecaf87a776a2e27e13385ae088dc74",
+      "preparationSha256": "a786ebaff0ad1dc560c65f1b9225f4022c1a9cc68b6b62537faff405d0ab172b",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pytest-dev__pytest-6197",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "e856638ba086fcf5bebf1bebea32d5cf78de87b4",
+      "sourceWave": "006",
+      "receiptSha256": "c7019535099669f3a37b27b74146518360e2395459174b62a1c7620a9fd93c8f",
+      "claimSha256": "43a26e7bab7ba6718ec42380874385fb4d5f56c7c9fc3aa028dbf4a149b106a9",
+      "preparationSha256": "37ad9292e64348df726a073bda177d09c8b85b139700678aeb64772c16eceb6a",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "pytest-dev__pytest-7324",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd",
+      "sourceWave": "006",
+      "receiptSha256": "1942fdf95dcede9c79d422f2e9010d44e64f5855d660a4cf7eb8f5f7ef37cbcc",
+      "claimSha256": "a3794ec9c5df7f96cee50c0b8808753af13c4ae20edfba934af23a28f366c8e8",
+      "preparationSha256": "79224f4812c5703a1f4fca09f544dd73d2f4dbd4230f123f569dadab7b395b70",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-14087",
+      "repo": "scikit-learn/scikit-learn",
+      "baseCommit": "a5743ed36fbd3fbc8e351bdab16561fbfca7dfa1",
+      "sourceWave": "006",
+      "receiptSha256": "620c53273ed0a178ad4f2fd7619796491ef1a11a7805bec51be4a85e316d8795",
+      "claimSha256": "432d02e7746a8dbbc16104310850fae73ac4a1988cb4b33e00d7bac223dce6d3",
+      "preparationSha256": "0ff26dce58f8ce09e8c5545666c69482c0a28ae4966d9125137c7665458c8f36",
+      "failureStage": "preparation",
+      "hasPrediction": false,
+      "hasModelEvidence": false
+    }
+  ]
+}
