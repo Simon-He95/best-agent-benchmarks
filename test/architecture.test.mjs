@@ -233,6 +233,20 @@ test("benchmark composition uses an unrestricted OS worker and one public task m
   assert.match(smoke, /host: \{ platform: process\.platform, arch: process\.arch \}/u);
 });
 
+test("controller evidence is handed to uploader after generation even on failure", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
+  const start = workflow.indexOf("- name: Hand off controller artifacts to uploader");
+  const end = workflow.indexOf("- name: Upload immutable generation artifacts", start);
+  assert.ok(start > workflow.indexOf("- name: Generate and freeze predictions"));
+  assert.ok(end > start);
+  const handoff = workflow.slice(start, end);
+  assert.match(handoff, /if: always\(\)/u);
+  assert.ok(handoff.includes('sudo -n chown -R -P -h "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/results"'));
+  assert.doesNotMatch(handoff, /chmod|writeFile|rm /u);
+  assert.match(handoff, /cat results\/generation-controller\.stderr\.txt/u);
+  assert.match(handoff, /console\.error\(task\.instanceId, task\.failureStage, task\.error\)/u);
+});
+
 test("hosted generation uses the public package and caps each batch at ten tasks", () => {
   const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
   assert.doesNotMatch(workflow, /repository:\s*Simon-He95\/best-agent(?:\s|$)/u);

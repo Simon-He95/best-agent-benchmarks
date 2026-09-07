@@ -413,6 +413,23 @@ jobs:
             node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!r.tasks.length || r.tasks.some(t=>t.disposition!=="environment-prepared"))process.exit(1)' "${GITHUB_WORKSPACE}/results/swe-bench-results.shard-${{ matrix.batch.shard }}.json"
           fi
 
+      - name: Hand off controller artifacts to uploader
+        if: always()
+        run: |
+          sudo -n chown -R -P -h "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/results"
+          if [ -f results/generation-controller.stderr.txt ]; then
+            cat results/generation-controller.stderr.txt
+          fi
+          node <<'NODE'
+          const fs = require("node:fs");
+          for (const name of fs.readdirSync("results").filter(n => /^swe-bench-results\..*\.json$/.test(n))) {
+            const report = JSON.parse(fs.readFileSync(`results/${name}`, "utf8"));
+            for (const task of report.tasks) {
+              if (task.error) console.error(task.instanceId, task.failureStage, task.error);
+            }
+          }
+          NODE
+
       - name: Upload immutable generation artifacts
         if: always()
         uses: actions/upload-artifact@v4
