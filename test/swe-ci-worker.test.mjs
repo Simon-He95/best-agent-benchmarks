@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createWorkerRunner, MAX_MODEL_CYCLES, publicPreparationPlan, prepareTaskEnvironment, taskWorkspaceCliArgs, workerEnvironment } from "../scripts/swe-ci-worker.mjs";
+import { createWorkerRunner, MAX_MODEL_CYCLES, publicPreparationPlan, prepareTaskEnvironment, probeWorker, taskWorkspaceCliArgs, workerEnvironment } from "../scripts/swe-ci-worker.mjs";
 import { runCliProcess, captureTerminalPatch } from "../scripts/swe-bench-harness.mjs";
 
 function fixture(t) {
@@ -92,6 +92,48 @@ test("watchdog closes an owned detached descendant holding output pipes", async 
   assert.equal(result.timedOut, true); assert.equal(result.timeoutClosure, "forced");
   assert.ok(Date.now() - start < 8000); assert.ok(result.stdout.length > 0);
 });
+
+for (const stream of [undefined, false, true]) {
+  test(`scripted probe HTTP contract respects stream=${stream}`, async t => {
+    const f = fixture(t);
+    mkdirSync(join(f.root, "staging"));
+    const result = await probeWorker({ repoDir: f.repo, taskDir: f.root,
+      artifactDir: join(f.root, "probe"), cliInvocation: ["http-contract-test"], env: {},
+      inspectEvidence: () => ({ complete: true, rootStatus: "completed" }),
+      runWorkerProcess: async ({ env }) => {
+        for (let round = 0; round < 2; round++) {
+          const response = await fetch(`${env.BEST_AGENT_PROVIDER_BASE_URL}/chat/completions`, {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ stream, messages: round === 0 ? [] : [{ role: "tool", content: "WORKER_PROBE_OK" }] }),
+          });
+          assert.equal(response.status, 200);
+          const text = await response.text();
+          if (stream === true) {
+            assert.match(response.headers.get("content-type"), /text\/event-stream/);
+            const chunks = text.split("\n\n").filter(x => x && x !== "data: [DONE]").map(x => JSON.parse(x.slice(6)));
+            assert.equal(chunks[0].object, "chat.completion.chunk");
+            assert.equal(chunks.at(-1).choices[0].finish_reason, round === 0 ? "tool_calls" : "stop");
+          } else {
+            assert.match(response.headers.get("content-type"), /application\/json/);
+            const payload = JSON.parse(text);
+            assert.equal(payload.object, "chat.completion");
+            assert.equal(payload.choices[0].finish_reason, round === 0 ? "tool_calls" : "stop");
+            assert.ok(payload.choices[0].message);
+            if (round === 0) {
+              const toolArgs = JSON.parse(payload.choices[0].message.tool_calls[0].function.arguments);
+              assert.deepEqual(toolArgs.args, ["-B", join(f.root, "worker-probe.py")]);
+              assert.ok(toolArgs.args.every(arg => !/[\r\n\0]/.test(arg)));
+              assert.match(readFileSync(toolArgs.args[1], "utf8"), /WORKER_PROBE_OK/);
+            }
+          }
+        }
+        writeFileSync(join(f.root, "staging/probe.evidence.jsonl"), "HTTP-contract-only\n");
+        return { status: 0 };
+      },
+    });
+    assert.equal(result.requests, 2);
+  });
+}
 
 test("frozen beta20 selection is 82 unique tasks in mutually exclusive bounded waves", () => {
   const s = JSON.parse(readFileSync(new URL("../config/beta20-swe-remaining.json", import.meta.url)));

@@ -144,6 +144,8 @@ export async function probeWorker({ repoDir, taskDir, artifactDir, cliInvocation
   const stagedEvidence = join(taskDir, "staging", "probe.evidence.jsonl");
   const requests = [];
   const source = `from pathlib import Path\nimport subprocess,sys,os\np=Path(${JSON.stringify(outside)})\np.write_text('outside-ok')\nassert p.read_text()=='outside-ok'\ntry:\n Path(${JSON.stringify(privateCanary)}).read_bytes()\nexcept PermissionError:\n pass\nelse:\n raise AssertionError('controller-private material was readable')\nr=subprocess.run(['sh','-c','printf child-ok'],capture_output=True,text=True)\nassert r.returncode==0 and r.stdout=='child-ok', (r.returncode,r.stderr)\nprint('WORKER_PROBE_OK')`;
+  const scriptPath = join(taskDir, "worker-probe.py");
+  writeFileSync(scriptPath, source, { flag: "wx", mode: 0o644 });
   const server = createServer(async (req, res) => {
     try {
       const chunks = [];
@@ -152,9 +154,15 @@ export async function probeWorker({ repoDir, taskDir, artifactDir, cliInvocation
       requests.push(body);
       const call = requests.length === 1;
       const message = call ? { role: "assistant", content: "", tool_calls: [{ id: "worker-probe", type: "function",
-        function: { name: "exec", arguments: JSON.stringify({ command: "python3", args: ["-B", "-c", source], cwd: repoDir }) } }] }
+        function: { name: "exec", arguments: JSON.stringify({ command: "python3", args: ["-B", scriptPath], cwd: repoDir }) } }] }
         : { role: "assistant", content: "worker probe complete" };
       if (requests.length > 2) throw new Error("Unexpected worker probe model request");
+      if (body.stream !== true) {
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ id: "probe", model: "scripted-probe", object: "chat.completion",
+          choices: [{ index: 0, message, finish_reason: call ? "tool_calls" : "stop" }] }));
+        return;
+      }
       res.writeHead(200, { "content-type": "text/event-stream" });
       const delta = call ? { ...message, tool_calls: message.tool_calls.map(t => ({ ...t, index: 0 })) } : message;
       res.end([{ id: "probe", model: "scripted-probe", object: "chat.completion.chunk", choices: [{ index: 0, delta, finish_reason: null }] },

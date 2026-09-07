@@ -244,7 +244,7 @@ test("controller evidence is handed to uploader after generation even on failure
   assert.ok(handoff.includes('sudo -n chown -R -P -h "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/results"'));
   assert.doesNotMatch(handoff, /chmod|writeFile|rm /u);
   assert.match(handoff, /cat results\/generation-controller\.stderr\.txt/u);
-  assert.match(handoff, /console\.error\(task\.instanceId, task\.failureStage, task\.error\)/u);
+  assert.match(handoff, /console\.error\(task\.instance_id, task\.failureStage, task\.error\)/u);
 });
 
 test("hosted generation uses the public package and caps each batch at ten tasks", () => {

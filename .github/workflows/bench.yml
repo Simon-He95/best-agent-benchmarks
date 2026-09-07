@@ -425,7 +425,7 @@ jobs:
           for (const name of fs.readdirSync("results").filter(n => /^swe-bench-results\..*\.json$/.test(n))) {
             const report = JSON.parse(fs.readFileSync(`results/${name}`, "utf8"));
             for (const task of report.tasks) {
-              if (task.error) console.error(task.instanceId, task.failureStage, task.error);
+              if (task.error) console.error(task.instance_id, task.failureStage, task.error);
             }
           }
           NODE
