@@ -21,4 +21,11 @@ const ids = selection.batches.flatMap(b => b.tasks);
 if (ids.length !== 82 || new Set(ids).size !== 82 || selection.batches.some(b => b.tasks.length > 10) ||
     selection.candidate !== `${candidate.packageName}@${candidate.cliVersion}` || selection.packageIntegrity !== candidate.packageIntegrity) throw new Error("Frozen 82 selection mismatch");
 if (process.argv[2] && hash(process.argv[2]) !== candidate.executableSha256) throw new Error("Published executable hash mismatch");
+const recovery = JSON.parse(readFileSync(resolve(root, "config/beta20-environment-recovery.json")));
+if (recovery.candidateId !== candidate.candidateId || recovery.diagnosticOnly !== true || recovery.passAt1 !== null ||
+    recovery.batch.tasks.length !== 9 || new Set(recovery.batch.tasks).size !== 9 ||
+    JSON.stringify(recovery.batch.tasks) !== JSON.stringify(recovery.evidence.map(t => t.instanceId)) ||
+    recovery.batch.tasks.some(id => !ids.includes(id) || id === recovery.excludedPrediction.instanceId) ||
+    recovery.evidence.some(t => t.failureStage !== "preparation" ||
+      ![t.receiptSha256, t.claimSha256, t.preparationSha256].every(h => /^[a-f0-9]{64}$/.test(h)))) throw new Error("Frozen environment recovery mismatch");
 console.log(JSON.stringify({ candidateId: candidate.candidateId, sourceCommit: null, verified: true, tasks: ids.length }));

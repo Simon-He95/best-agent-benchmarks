@@ -72,6 +72,73 @@ test("complete process files survive bounded in-memory excerpts and real nonzero
   assert.equal(readFileSync(stderrPath, "utf8"), "exact-error");
 });
 
+for (const [module, metadata, pyproject, id] of [
+  ["sphinx", "extras_require = {\n    'test': ['pytest']\n}", undefined, "sphinx-pkg-resources"],
+  ["sklearn", "from numpy.distutils.core import setup", undefined, "sklearn-numpy-distutils"],
+  ["sklearn", "setup()", '[build-system]\nrequires = ["oldest-supported-numpy"]', "sklearn-oldest-supported-numpy"],
+  ["sklearn", "setup()", '[build-system]\nrequires = ["meson-python"]', undefined],
+]) {
+  test(`public packaging selects ${id ?? "no legacy profile"} without task identity`, async t => {
+    const root = mkdtempSync(join(tmpdir(), "swe-public-profile-"));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    mkdirSync(join(root, module)); writeFileSync(join(root, module, "__init__.py"), "");
+    writeFileSync(join(root, "setup.py"), metadata);
+    if (pyproject) writeFileSync(join(root, "pyproject.toml"), pyproject);
+    const plan = publicPreparationPlan(root);
+    assert.equal(plan.dependencyProfile?.id, id);
+    if (!id) return;
+    if (module === "sphinx") assert.equal(plan.extras, ".[test]");
+    const calls = [];
+    await assert.rejects(prepareTaskEnvironment({ repoDir: root, baseCommit: "unused", runtimeDir: join(root, "venv"),
+      artifactDir: join(root, "preparation"), runWorkerProcess: async options => {
+        calls.push(options);
+        return { status: calls.length === 3 ? 23 : 0, signal: null, timedOut: false, stderr: "original install failure" };
+      } }), /original install failure/);
+    assert.equal(calls.length, 3);
+    const install = calls[2].args;
+    assert.deepEqual(calls[1].args.slice(5), plan.dependencyProfile.bootstrap);
+    assert.equal(readFileSync(install[install.indexOf("--constraint") + 1], "utf8"), plan.dependencyProfile.runtimeConstraints.join("\n") + "\n");
+    assert.equal(install.includes("--no-build-isolation"), id === "sklearn-numpy-distutils");
+    assert.equal(install.includes("--build-constraint"), module === "sphinx");
+    if (id === "sklearn-numpy-distutils") assert.equal(calls[2].env.CPPFLAGS, "-Xpreprocessor -fopenmp");
+    if (id === "sklearn-oldest-supported-numpy") assert.ok(!("PIP_CONSTRAINT" in calls[2].env));
+    const saved = JSON.parse(readFileSync(join(root, "preparation/manifest.json")));
+    assert.deepEqual(saved.publicPlan.dependencyProfile, plan.dependencyProfile);
+    assert.equal(saved.status, "preparation-failed");
+  });
+}
+
+test("environment recovery is exactly nine pre-model failures and never the existing prediction", () => {
+  const recovery = JSON.parse(readFileSync(new URL("../config/beta20-environment-recovery.json", import.meta.url)));
+  const frozen = JSON.parse(readFileSync(new URL("../config/beta20-swe-remaining.json", import.meta.url)));
+  assert.equal(recovery.diagnosticOnly, true); assert.equal(recovery.passAt1, null);
+  assert.equal(recovery.source.runId, 34099277572); assert.equal(recovery.source.artifactId, 10010795951);
+  assert.equal(recovery.batch.tasks.length, 9); assert.equal(new Set(recovery.batch.tasks).size, 9);
+  assert.deepEqual(recovery.batch.tasks, recovery.evidence.map(t => t.instanceId));
+  assert.ok(recovery.batch.tasks.every(id => frozen.batches.flatMap(b => b.tasks).includes(id)));
+  assert.ok(!recovery.batch.tasks.includes(recovery.excludedPrediction.instanceId));
+  assert.ok(recovery.evidence.every(t => t.failureStage === "preparation"));
+});
+
+test("Sphinx is not prepared when imports pass but the default builder rejects its extension versions", async t => {
+  const root = mkdtempSync(join(tmpdir(), "swe-sphinx-builder-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(join(root, "sphinx")); writeFileSync(join(root, "sphinx/__init__.py"), "");
+  writeFileSync(join(root, "setup.py"), "setup()");
+  let builder;
+  const calls = [];
+  await assert.rejects(prepareTaskEnvironment({ repoDir: root, baseCommit: "unused", runtimeDir: join(root, "venv"),
+    artifactDir: join(root, "preparation"), runWorkerProcess: async options => {
+      calls.push(options.args);
+      if (options.args.at(-1).includes("from sphinx.application import Sphinx")) builder = options.args.at(-1);
+      return { status: builder ? 2 : 0, signal: null, timedOut: false, stderr: builder ? "Extension requires Sphinx v5.0" : "" };
+    } }), /Extension requires Sphinx v5.0/);
+  assert.match(builder, /TemporaryDirectory/); assert.match(builder, /app\.build\(force_all=True\)/);
+  assert.ok(calls.some(args => args.includes("pytest") && args.includes("--help")));
+  assert.ok(!calls.some(args => args[0] === "/usr/bin/git"));
+  assert.equal(JSON.parse(readFileSync(join(root, "preparation/manifest.json"))).status, "preparation-failed");
+});
+
 test("terminal patch includes actual source changes without preparation exclusions", t => {
   const f = fixture(t);
   writeFileSync(join(f.repo, "django/__init__.py"), "changed = True\n");

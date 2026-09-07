@@ -1,0 +1,26 @@
+{
+  "sphinx-pkg-resources": {
+    "bootstrap": ["setuptools==80.9.0"],
+    "runtimeConstraints": ["setuptools==80.9.0", "Jinja2==3.0.3", "docutils==0.16", "alabaster==0.7.12", "sphinxcontrib-applehelp==1.0.2", "sphinxcontrib-devhelp==1.0.2", "sphinxcontrib-jsmath==1.0.1", "sphinxcontrib-htmlhelp==2.0.0", "sphinxcontrib-serializinghtml==1.1.5", "sphinxcontrib-qthelp==1.0.3"],
+    "buildConstraints": ["setuptools==80.9.0"],
+    "noBuildIsolation": false
+  },
+  "sklearn-numpy-distutils": {
+    "bootstrap": ["pip==24.0", "setuptools==59.8.0", "wheel==0.45.1", "numpy==1.23.5", "scipy==1.9.3", "Cython==0.29.37"],
+    "runtimeConstraints": ["pip==24.0", "setuptools==59.8.0", "wheel==0.45.1", "numpy==1.23.5", "scipy==1.9.3", "Cython==0.29.37"],
+    "buildConstraints": [],
+    "noBuildIsolation": true,
+    "env": {
+      "CPPFLAGS": "-Xpreprocessor -fopenmp",
+      "CFLAGS": "-I/opt/homebrew/opt/libomp/include",
+      "CXXFLAGS": "-I/opt/homebrew/opt/libomp/include",
+      "LDFLAGS": "-L/opt/homebrew/opt/libomp/lib -lomp"
+    }
+  },
+  "sklearn-oldest-supported-numpy": {
+    "bootstrap": ["numpy==1.26.4"],
+    "runtimeConstraints": ["numpy==1.26.4"],
+    "buildConstraints": [],
+    "noBuildIsolation": false
+  }
+}

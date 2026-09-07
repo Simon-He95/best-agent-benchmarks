@@ -36,6 +36,8 @@ const CONTROL_CLOSURE_PATHS = [
   "scripts/swe-ci-worker.mjs",
   "scripts/verify-swe-ci-candidate.mjs",
   "config/beta20-swe-remaining.json",
+  "config/swe-python-environments.json",
+  "config/beta20-environment-recovery.json",
 ];
 
 export function parseAdmissionArgs(argv) {

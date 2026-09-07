@@ -194,11 +194,12 @@ jobs:
             }
             if (concurrency !== 1) throw new Error("This worker profile requires concurrency 1.");
             const frozen = require("./config/beta20-swe-remaining.json");
+            const recovery = require("./config/beta20-environment-recovery.json");
             const candidate = require("./config/best-agent-candidate.json");
             const eligible = new Set(frozen.batches.flatMap(b => b.tasks));
             if (eligible.size !== 82 || taskIds.some(t => !eligible.has(t))) throw new Error("Task is outside the frozen 82.");
             if (process.env.MODEL_OVERRIDE && process.env.MODEL_OVERRIDE !== candidate.provider.model) throw new Error("Model must match candidate.");
-            if (process.env.PREFLIGHT_ONLY !== "true" && !frozen.batches.some(b => b.id === id && JSON.stringify(b.tasks) === JSON.stringify(taskIds))) throw new Error("Generation must exactly match a frozen wave.");
+            if (process.env.PREFLIGHT_ONLY !== "true" && ![...frozen.batches, recovery.batch].some(b => b.id === id && JSON.stringify(b.tasks) === JSON.stringify(taskIds))) throw new Error("Generation must exactly match a frozen wave.");
             const offset = Number(process.env.TASK_OFFSET);
             if (!Number.isInteger(offset) || offset < 0 || offset + count > corpusIds.length) {
               throw new Error("Task offset/limit must stay inside the frozen corpus.");
@@ -345,7 +346,7 @@ jobs:
           path: results/corpora
 
       - name: Install the search runtime
-        run: brew install ripgrep uv
+        run: brew install ripgrep uv libomp
 
       - name: Install benchmark dependencies and the exact CLI candidate
         run: |

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidateId": "cli-0.0.3-beta.20-npm-f395c2ff3b0e5f45",
+  "source": {
+    "runId": 34099277572,
+    "runAttempt": 1,
+    "headSha": "08695fb33972c265ac4a9eb190693f26b926f789",
+    "artifactId": 10010795951,
+    "artifactSha256": "f3e9be668312a3416b2d87d9a728aa23b95780d711ea4ba0161bba145ac6b91b"
+  },
+  "batch": {
+    "id": "beta20-env-recovery-001",
+    "tasks": [
+      "scikit-learn__scikit-learn-14629",
+      "scikit-learn__scikit-learn-25747",
+      "sphinx-doc__sphinx-7462",
+      "sphinx-doc__sphinx-7748",
+      "sphinx-doc__sphinx-7985",
+      "sphinx-doc__sphinx-8548",
+      "sphinx-doc__sphinx-9229",
+      "sphinx-doc__sphinx-9258",
+      "sphinx-doc__sphinx-9461"
+    ]
+  },
+  "evidence": [
+    {
+      "instanceId": "scikit-learn__scikit-learn-14629",
+      "repo": "scikit-learn/scikit-learn",
+      "baseCommit": "4aded39b5663d943f6a4809abacfa9cae3d7fb6a",
+      "receiptSha256": "ac77a5eb3188ec58d10b4a327576a278ce8938e6ffce62189be3eac179d1d518",
+      "claimSha256": "0289348f7820e7e858fc8815a426d049b47b7acffd36b92a7c5e3637e80fce13",
+      "preparationSha256": "34951bf64e1076d294f9a0154b7c224a5289358c1281ef8df6450f0b6bb55a09",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-25747",
+      "repo": "scikit-learn/scikit-learn",
+      "baseCommit": "2c867b8f822eb7a684f0d5c4359e4426e1c9cfe0",
+      "receiptSha256": "fd8a2cfd412d3dfbe3305c70f0ebc535c4bb3c617568cd7e4f9f81b01c713143",
+      "claimSha256": "4dde046d7dc56561b584ee5fa879f9f5e4ca5b8a5cea206b8a75860dbddc0a13",
+      "preparationSha256": "5959f71eccfd0b5ff274f976d07965eaf4a0422193c81e723acbe7e2ef6bb2ee",
+      "failureStage": "preparation",
+      "cause": "numpy.dtype size changed: expected96 got88"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7462",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "b3e26a6c851133b82b50f4b68b53692076574d13",
+      "receiptSha256": "889526833ff315e69506d2c062ad851826eba187c9ef9051684c2c67becddca2",
+      "claimSha256": "242c36298a78105ae9979a8143edab2a790efc0edec605cdfcfcb1dab04d0a49",
+      "preparationSha256": "1e52db0514ef59cc68e34e6cf9bdd556cdb1849785803431d29209ae49af7054",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7748",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "9988d5ce267bf0df4791770b469431b1fb00dcdd",
+      "receiptSha256": "e1a0c05b82162f1c611200a119d87b25ec49da2c7621ff24e8dcaf736877b2f8",
+      "claimSha256": "902d13ae905bb413ed141d1b9dcc161ca0ec0a548017de1fbdf73c8ccd4b7bbe",
+      "preparationSha256": "8b99e348499df3ef1ab0809f1dca68e6608a283f1bb4d1e70595f45a5eae0a8c",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7985",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "f30284ef926ebaf04b176f21b421e2dffc679792",
+      "receiptSha256": "2380c9a8b31f348e797e82bb79d9d62b16f398e3a895a5599d16c2d5c89a9135",
+      "claimSha256": "3baea19ffd2217bb95b3e9f56cf726c53695ead2bebf11709280adaa732e4b16",
+      "preparationSha256": "1bca32f74b226d339de1160525ac760fc671b68a086409399e4bba57709f23d2",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-8548",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "dd1615c59dc6fff633e27dbb3861f2d27e1fb976",
+      "receiptSha256": "ecbdf861d98fe400a93d8c14ac868bd2040d69f411fab25835239831840b5794",
+      "claimSha256": "335a98f1439e68312abff8a84ba3663d2d3dc0487babc8ecfe51685bf0fdc48a",
+      "preparationSha256": "a73af31280c9214ed92b8fc4fa6f97846e8e4058c7691cc2d78361dbd291005e",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9229",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "receiptSha256": "1a32cbe714b61787e4591d3c67f8128ccb7948fce0fb01d3ac8b2924e237ebf4",
+      "claimSha256": "a20dee7955274eceaec7aaddba49f41f2bec5e50b9228a7982de28b2e8e41ff6",
+      "preparationSha256": "da4590873318be8f678279cb1cf8d96f0fa116a2fd7daf9bea19ea642e27e417",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9258",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "06107f838c28ab6ca6bfc2cc208e15997fcb2146",
+      "receiptSha256": "fb4fb4fd1a584e411fdbe2fe01d3844f20c79662ae2eda36a1b764a766498606",
+      "claimSha256": "555c57837f153f741f58d45f208435e71510803cd6bf071a04c4d69bdd477094",
+      "preparationSha256": "f09216cae1bd55cc23f0ae7c38359538bd5fbd48246d653a58515fc70c033c78",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9461",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "939c7bb7ff7c53a4d27df067cea637540f0e1dad",
+      "receiptSha256": "180860787d277e8604a175699263f35c1f1b317cc597d49456be8f202ea2405e",
+      "claimSha256": "0a7f15d5a622d83bef279c0779ac0c3e265e8766b0a860f8f8fbce9981f02cdc",
+      "preparationSha256": "633aeefc7ec3ccbe34c161c8afcafb598d58a9527972122dad06948c7d1c9822",
+      "failureStage": "preparation",
+      "cause": "No module named 'pkg_resources'"
+    }
+  ],
+  "excludedPrediction": {
+    "instanceId": "sphinx-doc__sphinx-10614",
+    "sha256": "1e0e1c18e3bbf0cd02d5ef723d64b16b21cc88a7d3d13a38f8432c22e36739d7"
+  }
+}

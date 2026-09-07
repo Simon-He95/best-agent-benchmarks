@@ -72,14 +72,20 @@ export function publicPreparationPlan(repoDir) {
     .map(f => readFileSync(join(repoDir, f.path), "utf8")).join("\n");
   if (!metadata) throw new Error("Public checkout has no Python package metadata");
   const python = /(?:python_requires|requires-python)\s*=\s*["']?>=3\.(?:10|11)\b/.test(metadata) ? "3.11.16" : "3.9.25";
-  const extras = /(?:^|\n)test\s*=\s*(?:\[|#|\n)/.test(metadata) ? ".[test]" : ".";
+  const extras = /(?:^|\n)\s*(?:test\s*=\s*(?:\[|#|\n)|['"]test['"]\s*:\s*\[)/.test(metadata) ? ".[test]" : ".";
   const requirements = ["requirements/test.txt", "requirements/tests.txt", "tests/requirements/py3.txt"]
     .filter(p => existsSync(join(repoDir, p)));
   const module = ["django", "astropy", "matplotlib", "requests", "xarray", "pylint", "sklearn", "sphinx", "sympy"]
     .find(name => existsSync(join(repoDir, name, "__init__.py")) || existsSync(join(repoDir, "lib", name, "__init__.py")) || existsSync(join(repoDir, "src", name, "__init__.py")))
     ?? (existsSync(join(repoDir, "src", "_pytest")) ? "pytest" : undefined);
   if (!module) throw new Error("Cannot determine public project import entry");
-  return { python, extras, requirements, module, support };
+  const profileId = module === "sphinx" ? "sphinx-pkg-resources"
+    : module === "sklearn" && !existsSync(join(repoDir, "pyproject.toml")) && metadata.includes("numpy.distutils") ? "sklearn-numpy-distutils"
+    : module === "sklearn" && metadata.includes("oldest-supported-numpy") ? "sklearn-oldest-supported-numpy" : undefined;
+  const profileBytes = readFileSync(new URL("../config/swe-python-environments.json", import.meta.url));
+  const dependencyProfile = profileId === undefined ? undefined : { id: profileId,
+    configSha256: createHash("sha256").update(profileBytes).digest("hex"), ...JSON.parse(profileBytes)[profileId] };
+  return { python, extras, requirements, module, support, dependencyProfile };
 }
 
 export async function prepareTaskEnvironment({ repoDir, baseCommit, runtimeDir, artifactDir, runWorkerProcess }) {
@@ -90,16 +96,36 @@ export async function prepareTaskEnvironment({ repoDir, baseCommit, runtimeDir, 
   try {
     const plan = publicPreparationPlan(repoDir);
     manifest.publicPlan = plan;
-    const env = { VIRTUAL_ENV: runtimeDir, PATH: `${runtimeDir}/bin:${WORKER_PATH}` };
+    const profile = plan.dependencyProfile;
+    const env = { VIRTUAL_ENV: runtimeDir, PATH: `${runtimeDir}/bin:${WORKER_PATH}`, ...profile?.env };
+    const constraints = [];
+    if (profile) {
+      for (const [kind, flag] of [["runtimeConstraints", "--constraint"], ["buildConstraints", "--build-constraint"]]) {
+        if (!profile[kind].length) continue;
+        const path = join(dirname(runtimeDir), `public-${kind}.txt`);
+        writeFileSync(path, profile[kind].join("\n") + "\n", { flag: "wx", mode: 0o644 });
+        constraints.push(flag, path);
+      }
+    }
     const commands = [
       ["uv", "venv", "--seed", "--python", plan.python, runtimeDir],
+      ...(profile ? [[join(runtimeDir, "bin/python"), "-m", "pip", "install", "--no-compile", ...profile.bootstrap]] : []),
       [join(runtimeDir, "bin/python"), "-m", "pip", "install", "--no-compile", "-e", plan.extras,
+        ...constraints, ...(profile?.noBuildIsolation ? ["--no-build-isolation"] : []),
         ...(plan.module === "pytest" ? [] : ["pytest"]), ...plan.requirements.flatMap(p => ["-r", p])],
       [join(runtimeDir, "bin/python"), "-m", "pip", "check"],
       [join(runtimeDir, "bin/python"), "-m", "pip", "freeze", "--all"],
       [join(runtimeDir, "bin/python"), "-B", "-c", `import ${plan.module}; import sys,ssl,sqlite3; print(sys.version); print(${plan.module}.__file__); print(ssl.OPENSSL_VERSION); print(sqlite3.sqlite_version)`],
       plan.module === "django" ? [join(runtimeDir, "bin/python"), "-B", "tests/runtests.py", "--help"]
         : [join(runtimeDir, "bin/python"), "-B", "-m", "pytest", "--help"],
+      ...(plan.module === "sphinx" ? [[join(runtimeDir, "bin/python"), "-B", "-c", [
+        "from pathlib import Path", "from tempfile import TemporaryDirectory", "from sphinx.application import Sphinx",
+        "with TemporaryDirectory() as tmp:", " p = Path(tmp)",
+        " (p / 'conf.py').write_text(\"project = 'Environment probe'\\nmaster_doc = 'index'\\n\")",
+        " (p / 'index.rst').write_text('Environment probe\\n=================\\n')",
+        " app = Sphinx(str(p), str(p), str(p / 'out'), str(p / 'doctrees'), 'html', warningiserror=True)",
+        " app.build(force_all=True)", " raise SystemExit(app.statuscode)",
+      ].join("\n")]] : []),
     ];
     for (const [index, args] of commands.entries()) {
       const prefix = join(artifactDir, `step-${index}`);
