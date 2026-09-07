@@ -32,6 +32,7 @@
   "workspace": "/app",
   "generation": {
     "maxBatchTasks": 10,
+    "maxModelCycles": 2251799813685247,
     "defaultAgentTimeoutMultiplier": 0.1875,
     "agentSetupTimeoutMultiplier": 3,
     "defaultHarnessTimeoutMs": 4800000,

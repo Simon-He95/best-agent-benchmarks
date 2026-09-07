@@ -202,6 +202,8 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
     "--workspace",
     config.workspace,
+    "--max-model-cycles",
+    String(config.generation.maxModelCycles),
     "--workspace-backend",
     execution.workspaceBackend,
     "--workspace-authorization",

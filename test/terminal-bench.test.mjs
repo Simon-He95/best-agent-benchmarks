@@ -22,6 +22,57 @@ test("terminal-bench config pins a real dataset record", () => {
   assert.equal(config.dataset.taskCount, 66);
   assert.equal(config.generation.maxBatchTasks, 10);
   assert.ok(config.generation.maxBatchTasks <= 10);
+  assert.equal(config.generation.maxModelCycles, Math.floor(Number.MAX_SAFE_INTEGER / 4));
+  assert.ok(Number.isSafeInteger(config.generation.maxModelCycles * 4));
+});
+
+test("candidate preparation passes the frozen maximum budget and unrestricted profile to CLI", async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { createHash } = await import("node:crypto");
+  const dir = mkdtempSync(join(tmpdir(), "tb-budget-"));
+  const environment = { ...process.env };
+  const hash = (text) => createHash("sha256").update(text).digest("hex");
+  try {
+    writeFileSync(join(dir, "best-agent-cli.tgz"), "fixture");
+    writeFileSync(join(dir, "build-report.json"), "{}");
+    writeFileSync(join(dir, "provider.json"), "{}");
+    writeFileSync(join(dir, "config.json"), "{}");
+    writeFileSync(join(dir, "candidate.json"), JSON.stringify({
+      schemaVersion: 1,
+      packageName: config.cli.packageName,
+      cliVersion: config.cli.cliVersion,
+      sourceRepository: config.cli.sourceRepository,
+      sourceCommit: config.cli.sourceCommit,
+      target: config.cli.target,
+      tarballSha256: hash("fixture"),
+      buildReportSha256: hash("{}"),
+      binarySha256: "1".repeat(64),
+      lockfileSha256: "2".repeat(64),
+      runtimeLockSha256: "3".repeat(64),
+      nodeBinarySha256: "4".repeat(64),
+      nodeVersion: "v24.15.0",
+      runtimeDependencies: {},
+    }));
+    process.env.BEST_AGENT_CLI_CANDIDATE_DIR = dir;
+    process.env.BEST_AGENT_PROVIDER_CONFIG = join(dir, "provider.json");
+    process.env.DIMCODE_HOME = dir;
+    process.env.BEST_AGENT_PROVIDER_MODEL = config.provider.model;
+    const { verifyFrozenIdentity } = await import("../scripts/terminal-bench-harness.mjs");
+    verifyFrozenIdentity();
+    const args = JSON.parse(process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON);
+    assert.equal(args.filter((arg) => arg === "--max-model-cycles").length, 1);
+    assert.equal(args[args.indexOf("--max-model-cycles") + 1], String(config.generation.maxModelCycles));
+    for (const [option, value] of [["--workspace-backend", "plain"], ["--workspace-authorization", "unrestricted"], ["--process-isolation", "host"], ["--command-policy", "path"]]) {
+      assert.equal(args[args.indexOf(option) + 1], value);
+    }
+    assert.deepEqual(args.flatMap((arg, index) => arg === "--workspace-grant" ? [args[index + 1]] : []), ["read", "write", "exec"]);
+  } finally {
+    for (const key of Object.keys(process.env)) if (!(key in environment)) delete process.env[key];
+    Object.assign(process.env, environment);
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("terminal-bench pins a current Linux x64 source candidate", () => {
