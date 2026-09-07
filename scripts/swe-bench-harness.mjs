@@ -3,12 +3,9 @@
  *
  * Runs the v3 agent against a frozen SWE-bench corpus and freezes terminal predictions for
  * later admission and official Docker evaluation. Each task runs through the v3 CLI
- * one-shot `run` command with the full-access, non-interactive composition:
- *   - full access: permission mode `full` + `--workspace-grant read write exec`;
- *   - no ask-user: the `run` command excludes the interaction ToolBindings, so the agent
- *     never stalls on a human prompt during a task;
- *   - closed tool surface: network ToolBindings are excluded and macOS Seatbelt confines
- *     exec and external-process descendants to the task workspace without network access.
+ * one-shot `run` command with explicit unrestricted/plain/PATH/host execution.
+ * The non-admin OS worker cannot read controller grading/history files. This is a
+ * diagnostic, network-enabled profile, not a closed-book or formal pass@1 claim.
  *
  * Usage:
  *   node scripts/swe-bench-harness.mjs [options]
@@ -38,9 +35,11 @@ import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   closeSync,
+  cpSync,
   existsSync,
   fsyncSync,
   mkdirSync,
+  lstatSync,
   mkdtempSync,
   openSync,
   readSync,
@@ -65,6 +64,9 @@ import {
   verifyOfficialDatasetManifest,
   writeFrozenPrediction,
 } from "./swe-bench-official-evaluator.mjs";
+import { taskWorkspaceCliArgs, createWorkerRunner, prepareWorkerDirectory,
+  prepareTaskEnvironment, probeWorker, stopWorkerProcesses, taskProviderEnvironment, workerGitRunner } from "./swe-ci-worker.mjs";
+export { taskWorkspaceCliArgs } from "./swe-ci-worker.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const cliInvocation = resolveCliInvocation(process.env);
@@ -79,7 +81,6 @@ const DEFAULTS = {
       ? undefined
       : resolve(process.env.SWE_BENCH_OFFICIAL_MANIFEST),
 };
-const FULL_ACCESS_GRANTS = ["read", "write", "exec"];
 const PATCH_CAPTURE_MAX_BUFFER_BYTES = 17 * 1024 * 1024;
 
 export function parseBenchmarkArgs(argv) {
@@ -94,9 +95,13 @@ export function parseBenchmarkArgs(argv) {
     shardTotal: undefined,
     outputPathWasSet: false,
     tag: undefined,
+    preflightOnly: false,
   };
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
+      case "--preflight-only":
+        parsed.preflightOnly = true;
+        break;
       case "--corpus":
         parsed.corpusPath = resolve(argv[++i]);
         break;
@@ -208,7 +213,8 @@ export function buildTaskPrompt(problemStatement) {
     problemStatement,
     "",
     "Use the issue description above as the full problem statement.",
-    "Use the selected workspace tools and executable surface. You have no web access.",
+    "Use the selected workspace tools and executable surface.",
+    "Use this frozen checkout and public package dependencies. Do not retrieve upstream fixes, task solutions, or benchmark answer material.",
   ].join("\n");
 }
 
@@ -325,6 +331,7 @@ async function main() {
     throw new Error("SWE_BENCH_RECOVERY_MANIFEST_SHA256 must be a SHA-256 digest.");
   }
   const evaluationContext = Object.freeze({
+    preflightOnly: args.preflightOnly,
     candidateId,
     evaluationBatchId,
     formalRunId,
@@ -369,14 +376,18 @@ async function main() {
     generatedAt: new Date().toISOString(),
     provider,
     composition: {
-      fullAccess: true,
-      permissionMode: "full",
+      profile: "explicit-custom",
+      workspaceAuthorization: "unrestricted",
+      commandPolicy: "path",
+      maxModelCycles: 2251799813685247,
+      baseInstructions: true,
       interactionTools: false,
-      workspaceBackend: "sandbox",
-      processIsolation: "workspace-sandbox",
-      excludedToolScopes: ["network"],
-      networkToolSchemas: false,
-      execNetworkIsolation: true,
+      workspaceBackend: "plain",
+      processIsolation: "host",
+      controllerIsolation: "os-worker-account",
+      execNetworkIsolation: false,
+      diagnosticOnly: true,
+      preflightOnly: args.preflightOnly,
       taskTimeoutMs: args.taskTimeout,
       formalRunId,
       ...(evaluationContext.recoveryManifestSha256 === undefined
@@ -434,7 +445,8 @@ export function summarizeBenchmarkResults(results, deferred = false) {
 }
 
 async function runTask(task, timeoutMs, evaluationContext) {
-  const taskDir = mkdtempSync(`${tmpdir()}/swe-bench-${sanitize(task.instance_id)}-`);
+  const taskDir = mkdtempSync(`/private/tmp/swe-bench-${sanitize(task.instance_id)}-`);
+  const repoDir = resolve(taskDir, "repo");
   const startMs = performance.now();
   const artifactDir = resolve(evaluationContext.taskArtifactDir, sanitize(task.instance_id));
   mkdirSync(artifactDir, { recursive: false });
@@ -445,6 +457,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
   const stderrPath = resolve(artifactDir, "stderr.txt");
   const processReceiptPath = resolve(artifactDir, "process-receipt.json");
   const diagnosticPatchPath = resolve(artifactDir, "diagnostic.patch");
+  let taskEnvironment;
   writeJsonExclusive(claimPath, {
     schemaVersion: 1,
     instanceId: task.instance_id,
@@ -460,6 +473,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
       disposition,
       ...(failureStage === undefined ? {} : { failureStage }),
       claim: artifactReference(claimPath),
+      ...(taskEnvironment === undefined ? {} : { taskEnvironment }),
       ...(existsSync(evidencePath) ? { evidence: artifactReference(evidencePath) } : {}),
       ...(existsSync(stdoutPath) ? { stdout: artifactReference(stdoutPath) } : {}),
       ...(existsSync(stderrPath) ? { stderr: artifactReference(stderrPath) } : {}),
@@ -492,7 +506,6 @@ async function runTask(task, timeoutMs, evaluationContext) {
       });
     }
 
-    const repoDir = resolve(taskDir, "repo");
     if (task.base_commit) {
       failureStage = "fetch";
       const fetchResult = runGitCommand({
@@ -538,45 +551,51 @@ async function runTask(task, timeoutMs, evaluationContext) {
       });
     }
 
+    failureStage = "preparation";
+    prepareWorkerDirectory(taskDir);
+    const runWorkerProcess = createWorkerRunner(runCliProcess, taskDir);
+    const preparationDir = resolve(artifactDir, "preparation");
+    let prepared;
+    try {
+      prepared = await prepareTaskEnvironment({ repoDir, baseCommit: task.base_commit,
+        runtimeDir: resolve(taskDir, "environment"), artifactDir: preparationDir, runWorkerProcess });
+    } finally {
+      if (existsSync(resolve(preparationDir, "manifest.json"))) taskEnvironment = artifactReference(resolve(preparationDir, "manifest.json"));
+    }
+    failureStage = "worker-probe";
+    const probe = await probeWorker({ repoDir, taskDir, artifactDir: resolve(artifactDir, "worker-probe"),
+      cliInvocation, env: prepared.env, runWorkerProcess, inspectEvidence: inspectAttemptEvidence });
+    writeJsonExclusive(resolve(artifactDir, "worker-probe", "receipt.json"), probe);
+    if (evaluationContext.preflightOnly) return finish("environment-prepared", undefined, { benchmarkAttempt: false });
+    const providerEnv = taskProviderEnvironment(taskDir, timeoutMs);
+    const stagedEvidence = resolve(taskDir, "staging", "attempt-evidence.jsonl");
     const prompt = buildTaskPrompt(task.problem_statement);
-
-    // Run the v3 CLI one-shot `run` with the task repo as the workspace, full access grants,
-    // and no interaction tools (the `run` command excludes ask_user/tool_approve).
-    //
-    // The agent runs FIRST on the clean base-commit checkout: creating the evaluation venv
-    // before the agent would pollute the workspace (`.swe-bench-venv/` etc.) and destabilize
-    // the model's tool use. Test-environment setup happens after the agent's diff is captured.
     const cliArgs = [
-      "run",
-      "--no-base-instructions",
-      "--workspace",
-      repoDir,
-      // SWE-bench tasks on complex repos (astropy) routinely need hundreds of model cycles;
-      // raise the anti-runaway guard well above the CLI default of 200 so a hard task is not
-      // killed at max-model-cycles before the agent finishes editing.
-      "--max-model-cycles",
-      "600",
-      ...FULL_ACCESS_GRANTS.flatMap((grant) => ["--workspace-grant", grant]),
-      "--workspace-backend",
-      "sandbox",
-      "--process-isolation",
-      "workspace-sandbox",
-      "--tool-exclude",
-      "network",
+      ...taskWorkspaceCliArgs(repoDir),
       "--attempt-evidence",
-      evidencePath,
+      stagedEvidence,
       prompt,
     ];
     failureStage = "cli-run";
-    const cliResult = await runCliProcess({
-      // Run the CLI through node (the .js entrypoint is not directly executable).
+    const cliResult = await runWorkerProcess({
       args: [...cliInvocation, ...cliArgs],
       cwd: repoDir,
       timeoutMs,
-      env: projectTaskCliEnvironment(taskDir, timeoutMs),
+      env: { ...prepared.env, ...providerEnv }, stdoutPath, stderrPath,
     });
-    writeFileSync(stdoutPath, cliResult.stdout, { flag: "wx" });
-    writeFileSync(stderrPath, cliResult.stderr, { flag: "wx" });
+    stopWorkerProcesses();
+    if (existsSync(stagedEvidence)) {
+      if (!lstatSync(stagedEvidence).isFile()) throw new Error("Attempt evidence is not a regular file");
+      cpSync(stagedEvidence, evidencePath, { errorOnExist: true, force: false });
+    }
+    let terminalPatch;
+    let diagnosticError;
+    try {
+      terminalPatch = captureTerminalPatch({ repoDir, baseCommit: task.base_commit,
+        temporaryIndexPath: resolve(taskDir, "terminal-patch.index"), commandRunner: workerGitRunner(taskDir) });
+      if (terminalPatch) writeFileSync(diagnosticPatchPath, terminalPatch, { flag: "wx" });
+    } catch (error) { diagnosticError = String(error); }
+    if (diagnosticError) writeJsonExclusive(resolve(artifactDir, "patch-freeze-error.json"), { error: diagnosticError });
     writeJsonExclusive(processReceiptPath, {
       schemaVersion: 1,
       status: cliResult.status,
@@ -600,27 +619,8 @@ async function runTask(task, timeoutMs, evaluationContext) {
         benchmarkInconclusive: true,
       });
     }
-    if (cliResult.stdoutOverflow || cliResult.stderrOverflow) {
-      return finish("generation-inconclusive", "process-output", {
-        error: "CLI process output exceeded the admitted bound.",
-        benchmarkInconclusive: true,
-      });
-    }
     const evidenceAdmission = inspectAttemptEvidence(evidencePath);
     if (cliResult.timedOut) {
-      let diagnosticError;
-      try {
-        const diagnosticPatch = captureTerminalPatch({
-          repoDir,
-          baseCommit: task.base_commit,
-          temporaryIndexPath: resolve(taskDir, "timeout-diagnostic.index"),
-        });
-        if (diagnosticPatch.length > 0) {
-          writeFileSync(diagnosticPatchPath, diagnosticPatch, { flag: "wx" });
-        }
-      } catch (error) {
-        diagnosticError = error instanceof Error ? error.message : String(error);
-      }
       if (!evidenceAdmission.prefixValid || !evidenceAdmission.complete) {
         return finish("generation-inconclusive", "evidence", {
           error: `Timed-out attempt evidence is incomplete: ${evidenceAdmission.reason}`,
@@ -655,11 +655,8 @@ async function runTask(task, timeoutMs, evaluationContext) {
     // Capture the exact base-to-terminal-worktree patch without trusting or mutating the
     // repository index, which the model may have staged or committed during the attempt.
     failureStage = "patch-freeze";
-    const agentPatch = captureTerminalPatch({
-      repoDir,
-      baseCommit: task.base_commit,
-      temporaryIndexPath: resolve(taskDir, "terminal-patch.index"),
-    });
+    if (diagnosticError !== undefined) return finish("generation-inconclusive", failureStage, { error: diagnosticError, benchmarkInconclusive: true });
+    const agentPatch = terminalPatch;
     if (!agentPatch.trim()) {
       // Record what the model actually "answered" (the CLI prints the final assistant text
       // to stdout on a completed run) so a no-diff completion is diagnosable: did the model
@@ -703,12 +700,14 @@ async function runTask(task, timeoutMs, evaluationContext) {
       benchmarkInconclusive: true,
     });
   } finally {
+    stopWorkerProcesses();
     rmSync(taskDir, { recursive: true, force: true });
   }
 }
 
 export function captureTerminalPatch(options) {
-  const env = { ...process.env, GIT_INDEX_FILE: resolve(options.temporaryIndexPath) };
+  const env = { ...process.env, GIT_INDEX_FILE: resolve(options.temporaryIndexPath),
+    GIT_CONFIG_COUNT: "1", GIT_CONFIG_KEY_0: "safe.directory", GIT_CONFIG_VALUE_0: options.repoDir };
   const commandRunner = options.commandRunner ?? spawnSync;
   const commands = [
     ["read-tree", options.baseCommit],
@@ -745,8 +744,10 @@ export function captureTerminalPatch(options) {
  *  spawnSync's timeout only signals the direct child; the CLI's sandbox grandchildren can
  *  keep the stdio pipe open and delay the return for a second full timeout (observed ~2x).
  *  Returns an async equivalent of the spawnSync result plus a timedOut flag. */
-export function runCliProcess({ args, cwd, timeoutMs, env }) {
+export function runCliProcess({ args, cwd, timeoutMs, env, stdoutPath, stderrPath, forceCleanup }) {
   return new Promise((resolve) => {
+    const stdoutFd = stdoutPath === undefined ? undefined : openSync(stdoutPath, "wx");
+    const stderrFd = stderrPath === undefined ? undefined : openSync(stderrPath, "wx");
     const child = spawn(args[0], args.slice(1), {
       cwd,
       env,
@@ -765,6 +766,7 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
     let closurePollTimer;
     let directClosure;
     let forceUsed = false;
+    let cleanupError;
     const processGroupExists = () => {
       try {
         process.kill(-child.pid, 0);
@@ -779,8 +781,11 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
       clearTimeout(timer);
       if (forceTimer !== undefined) clearTimeout(forceTimer);
       if (closurePollTimer !== undefined) clearInterval(closurePollTimer);
+      if (stdoutFd !== undefined) { fsyncSync(stdoutFd); closeSync(stdoutFd); }
+      if (stderrFd !== undefined) { fsyncSync(stderrFd); closeSync(stderrFd); }
       resolve({
         ...value,
+        ...(cleanupError === undefined ? {} : { error: cleanupError }),
         stdout: Buffer.concat(stdoutChunks).toString("utf8"),
         stderr: Buffer.concat(stderrChunks).toString("utf8"),
         stdoutOverflow,
@@ -811,6 +816,10 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
       }
       closurePollTimer = setInterval(finishTimedOutClosure, 25);
       forceTimer = setTimeout(() => {
+        if (forceCleanup !== undefined) {
+          forceUsed = true;
+          try { forceCleanup(); } catch (error) { cleanupError = error; }
+        }
         if (!processGroupExists()) {
           finishTimedOutClosure();
           return;
@@ -829,6 +838,7 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
     }, timeoutMs);
     child.stdout.on("data", (chunk) => {
       const bytes = Buffer.from(chunk);
+      if (stdoutFd !== undefined) writeSync(stdoutFd, bytes);
       const remaining = 8 * 1024 * 1024 - stdoutBytes;
       if (remaining <= 0) {
         stdoutOverflow = true;
@@ -840,6 +850,7 @@ export function runCliProcess({ args, cwd, timeoutMs, env }) {
     });
     child.stderr.on("data", (chunk) => {
       const bytes = Buffer.from(chunk);
+      if (stderrFd !== undefined) writeSync(stderrFd, bytes);
       const remaining = 8 * 1024 * 1024 - stderrBytes;
       if (remaining <= 0) {
         stderrOverflow = true;
@@ -924,7 +935,7 @@ export function isolateFrozenGitCommit(repoDir) {
 }
 
 function describeGitFailure(result) {
-  return `${result?.stderr ?? ""}${result?.stdout ?? ""}`.slice(0, 500);
+  return `${result?.stderr ?? ""}${result?.stdout ?? ""}`;
 }
 
 function writeJsonExclusive(path, value) {

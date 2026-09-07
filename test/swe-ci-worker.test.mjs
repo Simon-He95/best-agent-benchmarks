@@ -1,0 +1,103 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { createWorkerRunner, MAX_MODEL_CYCLES, publicPreparationPlan, prepareTaskEnvironment, taskWorkspaceCliArgs, workerEnvironment } from "../scripts/swe-ci-worker.mjs";
+import { runCliProcess, captureTerminalPatch } from "../scripts/swe-bench-harness.mjs";
+
+function fixture(t) {
+  const root = mkdtempSync(join(tmpdir(), "swe-ci-test-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const repo = join(root, "repo"); mkdirSync(join(repo, "django"), { recursive: true });
+  writeFileSync(join(repo, "django/__init__.py"), "");
+  writeFileSync(join(repo, "setup.cfg"), '[metadata]\nname = Django\n[options]\npython_requires = >=3.10\n');
+  const git = args => {
+    const r = spawnSync("git", args, { cwd: repo, encoding: "utf8" });
+    assert.equal(r.status, 0, r.stderr); return r.stdout.trim();
+  };
+  git(["init", "-b", "main"]); git(["config", "user.name", "Fixture"]); git(["config", "user.email", "fixture@example.test"]);
+  git(["add", "."]); git(["commit", "-m", "public base"]);
+  return { root, repo, baseCommit: git(["rev-parse", "HEAD"]) };
+}
+
+test("unrestricted CLI profile retains product instructions and maximizes legal cycle budget", () => {
+  const args = taskWorkspaceCliArgs("/task/repo");
+  for (const [flag, value] of [["--workspace-backend", "plain"], ["--workspace-authorization", "unrestricted"],
+    ["--command-policy", "path"], ["--process-isolation", "host"], ["--max-model-cycles", String(MAX_MODEL_CYCLES)]]) {
+    assert.equal(args[args.indexOf(flag) + 1], value);
+  }
+  assert.equal(MAX_MODEL_CYCLES, Math.floor(Number.MAX_SAFE_INTEGER / 4));
+  assert.ok(!args.includes("--no-base-instructions"));
+  assert.ok(!args.includes("--tool-exclude"));
+  assert.deepEqual(args.flatMap((v, i) => v === "--workspace-grant" ? [args[i + 1]] : []), ["read", "write", "exec"]);
+});
+
+test("OS worker invocation clears controller secrets and does not inherit controller HOME", async () => {
+  let invocation;
+  const run = createWorkerRunner(async options => { invocation = options; return { status: 0 }; }, "/task");
+  await run({ args: ["python3", "-V"], cwd: "/task/repo", timeoutMs: 1000 });
+  assert.deepEqual(invocation.args.slice(0, 9), ["sudo", "-n", "-H", "-u", "benchworker", "--", "/usr/bin/env", "-i", `PATH=${workerEnvironment("/task").PATH}`]);
+  assert.ok(invocation.args.includes("HOME=/task/home"));
+  assert.ok(!invocation.args.some(a => a.startsWith("GITHUB_TOKEN=") || a.startsWith("BENCHMARK_PROVIDER_API_KEY=")));
+});
+
+test("public preparation selects only base metadata and preserves setup failure before model entry", async t => {
+  const f = fixture(t);
+  const p = publicPreparationPlan(f.repo);
+  assert.equal(p.python, "3.11.16"); assert.equal(p.module, "django");
+  assert.deepEqual(p.support.map(x => x.path), ["setup.cfg"]);
+  const calls = [];
+  const artifactDir = join(f.root, "preparation");
+  await assert.rejects(prepareTaskEnvironment({ repoDir: f.repo, baseCommit: f.baseCommit,
+    runtimeDir: join(f.root, "runtime"), artifactDir,
+    runWorkerProcess: async options => {
+      calls.push(options.args);
+      return runCliProcess({ ...options, args: ["/bin/sh", "-c", "printf exact-dependency-error >&2; exit 23"] });
+    } }), /exact-dependency-error/);
+  assert.equal(calls.length, 1); assert.equal(calls[0][0], "uv");
+  const receipt = JSON.parse(readFileSync(join(artifactDir, "manifest.json")));
+  assert.equal(receipt.status, "preparation-failed"); assert.equal(receipt.steps[0].status, 23);
+  assert.equal(readFileSync(join(artifactDir, "step-0.stderr.txt"), "utf8"), "exact-dependency-error");
+  assert.ok(!existsSync(join(artifactDir, "attempt-evidence.jsonl")));
+});
+
+test("complete process files survive bounded in-memory excerpts and real nonzero exit", async t => {
+  const f = fixture(t); const stdoutPath = join(f.root, "stdout"); const stderrPath = join(f.root, "stderr");
+  const result = await runCliProcess({ args: [process.execPath, "-e", "process.stdout.write('x'.repeat(9*1024*1024));process.stderr.write('exact-error');process.exitCode=7"],
+    cwd: f.root, timeoutMs: 15000, stdoutPath, stderrPath });
+  assert.equal(result.status, 7); assert.equal(result.stdoutOverflow, true);
+  assert.equal(statSync(stdoutPath).size, 9 * 1024 * 1024);
+  assert.equal(readFileSync(stderrPath, "utf8"), "exact-error");
+});
+
+test("terminal patch includes actual source changes without preparation exclusions", t => {
+  const f = fixture(t);
+  writeFileSync(join(f.repo, "django/__init__.py"), "changed = True\n");
+  writeFileSync(join(f.repo, "test_regression.py"), "assert True\n");
+  const patch = captureTerminalPatch({ repoDir: f.repo, baseCommit: f.baseCommit, temporaryIndexPath: join(f.root, "capture.index") });
+  assert.match(patch, /changed = True/); assert.match(patch, /test_regression.py/);
+});
+
+test("watchdog closes an owned detached descendant holding output pipes", async t => {
+  const f = fixture(t);
+  const pidFile = join(f.root, "child.pid");
+  let childPid;
+  t.after(() => { if (childPid) { try { process.kill(-childPid, "SIGKILL"); } catch {} } });
+  const script = `const cp=require('node:child_process'),fs=require('node:fs');const child=cp.spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>process.stdout.write('.'),50)"],{detached:true,stdio:['ignore','inherit','inherit']});fs.writeFileSync(${JSON.stringify(pidFile)},String(child.pid));process.on('SIGTERM',()=>process.exit(0));setInterval(()=>{},1000);`;
+  const start = Date.now();
+  const result = await runCliProcess({ args: [process.execPath, "-e", script], cwd: f.root, timeoutMs: 250,
+    forceCleanup: () => { childPid = Number(readFileSync(pidFile, "utf8")); process.kill(-childPid, "SIGKILL"); } });
+  assert.equal(result.timedOut, true); assert.equal(result.timeoutClosure, "forced");
+  assert.ok(Date.now() - start < 8000); assert.ok(result.stdout.length > 0);
+});
+
+test("frozen beta20 selection is 82 unique tasks in mutually exclusive bounded waves", () => {
+  const s = JSON.parse(readFileSync(new URL("../config/beta20-swe-remaining.json", import.meta.url)));
+  const ids = s.batches.flatMap(b => b.tasks);
+  assert.equal(ids.length, 82); assert.equal(new Set(ids).size, 82);
+  assert.equal(s.historicalResolved, 418); assert.equal(s.passAt1, null);
+  assert.ok(ids.includes("django__django-13794")); assert.ok(ids.includes("django__django-16667"));
+  assert.ok(s.batches.every(b => b.tasks.length > 0 && b.tasks.length <= 10));
+});

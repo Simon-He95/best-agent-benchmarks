@@ -1,0 +1,773 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidate": "@best-agent/cli-darwin-arm64@0.0.3-beta.20",
+  "packageIntegrity": "sha512-3ecnPTZas7bAAqjcw77eivA/RvrtZmM+Ul83L42pNBhiLH2Ax7bG/Cr8aq9D6URq4OvBivNCdmRgXf+jTK64MA==",
+  "historicalResolved": 418,
+  "taskCount": 82,
+  "selectionSource": {
+    "path": "/tmp/best-agent-beta19-swe-remaining-selection.json",
+    "sha256": "ba04e0ef958907c704dbaa10b6c4c2f2a86d61210348089d293be8a3b15f1663"
+  },
+  "sourceReports": [
+    {
+      "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/composite/composite-report.json",
+      "bytes": 225529,
+      "sha256": "28336821752915e42607f1ad61bf3f3c2cea6d4273bd67ebefb4f697edb7f8c6"
+    },
+    {
+      "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-001/report.json",
+      "bytes": 16654,
+      "sha256": "f98ba40206fc333a3fb41f12cfc4282e01f74c1315356f90cfdc50d4b12be123"
+    },
+    {
+      "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-002/report.json",
+      "bytes": 16547,
+      "sha256": "7faefe7a7b70f876df3fdc632acf48da144d7ca8adea9e7ba1c776acda76956a"
+    },
+    {
+      "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-003/report.json",
+      "bytes": 7908,
+      "sha256": "9747570b0a1a9261e1a8ba9f520f7ec708b1bfd67e0266094dc6f8b82efee047"
+    },
+    {
+      "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/report.json",
+      "bytes": 48757,
+      "sha256": "1e0b54371bee0c9a99dd678aa20debd695f933f9a8a6461bd7cefcf7086b9df7"
+    }
+  ],
+  "batches": [
+    {
+      "id": "beta20-swe-remaining-001",
+      "tasks": [
+        "astropy__astropy-13033",
+        "astropy__astropy-13398",
+        "astropy__astropy-13977",
+        "astropy__astropy-14365",
+        "astropy__astropy-14598",
+        "astropy__astropy-7606",
+        "django__django-10097",
+        "django__django-10554",
+        "django__django-10999",
+        "django__django-11141"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-002",
+      "tasks": [
+        "django__django-11400",
+        "django__django-11477",
+        "django__django-11532",
+        "django__django-11820",
+        "django__django-11848",
+        "django__django-12325",
+        "django__django-13195",
+        "django__django-13212",
+        "django__django-13297",
+        "django__django-13344"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-003",
+      "tasks": [
+        "django__django-13513",
+        "django__django-13794",
+        "django__django-13807",
+        "django__django-14034",
+        "django__django-14140",
+        "django__django-14155",
+        "django__django-14170",
+        "django__django-14315",
+        "django__django-14376",
+        "django__django-14792"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-004",
+      "tasks": [
+        "django__django-15098",
+        "django__django-15127",
+        "django__django-15629",
+        "django__django-15695",
+        "django__django-15732",
+        "django__django-16256",
+        "django__django-16263",
+        "django__django-16502",
+        "django__django-16631",
+        "django__django-16667"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-005",
+      "tasks": [
+        "matplotlib__matplotlib-21568",
+        "matplotlib__matplotlib-23476",
+        "matplotlib__matplotlib-24870",
+        "matplotlib__matplotlib-25479",
+        "psf__requests-1921",
+        "psf__requests-2317",
+        "psf__requests-2931",
+        "psf__requests-5414",
+        "psf__requests-6028",
+        "pydata__xarray-4687"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-006",
+      "tasks": [
+        "pydata__xarray-6599",
+        "pydata__xarray-6938",
+        "pydata__xarray-6992",
+        "pydata__xarray-7229",
+        "pylint-dev__pylint-4604",
+        "pylint-dev__pylint-4661",
+        "pytest-dev__pytest-5840",
+        "pytest-dev__pytest-6197",
+        "pytest-dev__pytest-7324",
+        "scikit-learn__scikit-learn-14087"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-007",
+      "tasks": [
+        "scikit-learn__scikit-learn-14629",
+        "scikit-learn__scikit-learn-25747",
+        "sphinx-doc__sphinx-10614",
+        "sphinx-doc__sphinx-7462",
+        "sphinx-doc__sphinx-7748",
+        "sphinx-doc__sphinx-7985",
+        "sphinx-doc__sphinx-8548",
+        "sphinx-doc__sphinx-9229",
+        "sphinx-doc__sphinx-9258",
+        "sphinx-doc__sphinx-9461"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-008",
+      "tasks": [
+        "sphinx-doc__sphinx-9711",
+        "sympy__sympy-13091",
+        "sympy__sympy-13798",
+        "sympy__sympy-13852",
+        "sympy__sympy-16597",
+        "sympy__sympy-18199",
+        "sympy__sympy-18698",
+        "sympy__sympy-18763",
+        "sympy__sympy-20438",
+        "sympy__sympy-21596"
+      ]
+    },
+    {
+      "id": "beta20-swe-remaining-009",
+      "tasks": [
+        "sympy__sympy-21930",
+        "sympy__sympy-22080"
+      ]
+    }
+  ],
+  "provenance": [
+    {
+      "instanceId": "astropy__astropy-13033",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-13033/terminal.json",
+        "bytes": 1777,
+        "sha256": "cc0df87f6c0543b3016f7d50c54572ae9c17562ddce44f8e4ebe9ba4a9d97941"
+      }
+    },
+    {
+      "instanceId": "astropy__astropy-13398",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-13398/terminal.json",
+        "bytes": 1778,
+        "sha256": "3bc539c4d7bbefe443ad9df210a95c4579ec823309d94beb293c50538077bd44"
+      }
+    },
+    {
+      "instanceId": "astropy__astropy-13977",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-13977/terminal.json",
+        "bytes": 1777,
+        "sha256": "a151c8f2b3858d1a9123fb7be0ceae238d50254ee1cef9ffaba63ca089662f4e"
+      }
+    },
+    {
+      "instanceId": "astropy__astropy-14365",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-14365/terminal.json",
+        "bytes": 1777,
+        "sha256": "118157f84e1bb1015ed5a8502f55e0e2ae300f3a0723ca60599b0e97ee3a538d"
+      }
+    },
+    {
+      "instanceId": "astropy__astropy-14598",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-14598/terminal.json",
+        "bytes": 1777,
+        "sha256": "82e09387a24b0467061b57e3b7a7bed46808aaf17236b8342689e0732bd74332"
+      }
+    },
+    {
+      "instanceId": "astropy__astropy-7606",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/astropy__astropy-7606/terminal.json",
+        "bytes": 1771,
+        "sha256": "cc80aaf8e355e502fb314d50567bb76829ddb83ae208d87dc07c86a5c8095406"
+      }
+    },
+    {
+      "instanceId": "django__django-10097",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-10097/terminal.json",
+        "bytes": 1767,
+        "sha256": "e098fea9a5b9f60d6d881033a4243efa6e9e5fe83a67215db84aaf9e82586f09"
+      }
+    },
+    {
+      "instanceId": "django__django-10554",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-001/tasks/django__django-10554/terminal.json",
+        "bytes": 1766,
+        "sha256": "545f00ddf0fd53e158401e700273842f8a2863de9bb3a27b61ccbfea5f63b494"
+      }
+    },
+    {
+      "instanceId": "django__django-10999",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-10999/terminal.json",
+        "bytes": 1766,
+        "sha256": "b0dabd4066eb18e6b424c8c5734d3c241b4ffd4725407a582a690121a56d372f"
+      }
+    },
+    {
+      "instanceId": "django__django-11141",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-003/tasks/django__django-11141/terminal.json",
+        "bytes": 1771,
+        "sha256": "29be5544b4d44d778ecf0f5847aaed2aa964f36f164dd56e5358f80170eca3d2"
+      }
+    },
+    {
+      "instanceId": "django__django-11400",
+      "source": "beta14-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta14-local-official/evaluations/batch-001/tasks/django__django-11400/terminal.json",
+        "bytes": 1764,
+        "sha256": "a2826935c1c45e45bffe21d7692ba7720b23bd853d598031953b57cb8592e254"
+      }
+    },
+    {
+      "instanceId": "django__django-11477",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-005/tasks/django__django-11477/terminal.json",
+        "bytes": 1780,
+        "sha256": "047f0713667121dc551a323f2a49286813182ecc82a38165248972525084eaad"
+      }
+    },
+    {
+      "instanceId": "django__django-11532",
+      "source": "beta14-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta14-local-official/evaluations/batch-001/tasks/django__django-11532/terminal.json",
+        "bytes": 1764,
+        "sha256": "b48985be3adf4336f048c796c0a4cb67f86fec5a327ad04549a9436feb409b93"
+      }
+    },
+    {
+      "instanceId": "django__django-11820",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-003/tasks/django__django-11820/terminal.json",
+        "bytes": 1772,
+        "sha256": "8600006f4003e85962dd235b9553248ae1a1f56701d5d354b897b53a9cf477b1"
+      }
+    },
+    {
+      "instanceId": "django__django-11848",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-003/tasks/django__django-11848/terminal.json",
+        "bytes": 1773,
+        "sha256": "31cdc75f56a3d33445e8d0c348298aa88811b38b13de0b12d08a52e58677112d"
+      }
+    },
+    {
+      "instanceId": "django__django-12325",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-003/tasks/django__django-12325/terminal.json",
+        "bytes": 1773,
+        "sha256": "4eec11797a698c019f8e09d271277b28b46e1047d95dc3787da25012c0d04610"
+      }
+    },
+    {
+      "instanceId": "django__django-13195",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-003/tasks/django__django-13195/terminal.json",
+        "bytes": 1773,
+        "sha256": "afc21b851a56440458767fac1060015f079bd2598915eb0000d0fe639dd121e7"
+      }
+    },
+    {
+      "instanceId": "django__django-13212",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-001/tasks/django__django-13212/terminal.json",
+        "bytes": 1766,
+        "sha256": "8abeb39f10b45bccaced604a808a71bb1f756d6920319c79217a7a7348a8924a"
+      }
+    },
+    {
+      "instanceId": "django__django-13297",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-001/tasks/django__django-13297/terminal.json",
+        "bytes": 1766,
+        "sha256": "e505c8d035209157e3c27660ac2bca27d08362049c77a62d2709a513092dcc75"
+      }
+    },
+    {
+      "instanceId": "django__django-13344",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-13344/terminal.json",
+        "bytes": 1767,
+        "sha256": "43746734958f222c0319f395f82d3051acc520b3fe97927d94bf5dd525a7b4f4"
+      }
+    },
+    {
+      "instanceId": "django__django-13513",
+      "source": "not-evaluated",
+      "terminal": null
+    },
+    {
+      "instanceId": "django__django-13794",
+      "source": "beta19-local",
+      "report": {
+        "path": "/tmp/best-agent-beta19-swe.vHF5UQ/official/report.json",
+        "bytes": 918,
+        "sha256": "44a27dcf7b3eb19825a238e1341409fee40aa3774f167feb19707e7560d10ecf"
+      }
+    },
+    {
+      "instanceId": "django__django-13807",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-13807/terminal.json",
+        "bytes": 1766,
+        "sha256": "1759ce3a3da5c5c656697b1eedaf59709cb7dc9623c74c3f589a56169cf83117"
+      }
+    },
+    {
+      "instanceId": "django__django-14034",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-14034/terminal.json",
+        "bytes": 1766,
+        "sha256": "77189c85f9daf69d0a74c39c4601c01ca790fd02b78f1a3df856d07ff297b455"
+      }
+    },
+    {
+      "instanceId": "django__django-14140",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-14140/terminal.json",
+        "bytes": 1766,
+        "sha256": "a246e45d3d97b496f7b5c75e92ac0c97da27a007893128a9af4a6f5e7c1b35b4"
+      }
+    },
+    {
+      "instanceId": "django__django-14155",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-003/tasks/django__django-14155/terminal.json",
+        "bytes": 1773,
+        "sha256": "4dc8c1bc524016168faede84fc5368026e1981dc0c9d3c417bdccc38de969ae3"
+      }
+    },
+    {
+      "instanceId": "django__django-14170",
+      "source": "beta14-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta14-local-official/evaluations/batch-001/tasks/django__django-14170/terminal.json",
+        "bytes": 1764,
+        "sha256": "d411e9596aa13b350d17bf5a5e31343ed2817b5b9cccb07d58b1605578aee39d"
+      }
+    },
+    {
+      "instanceId": "django__django-14315",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-14315/terminal.json",
+        "bytes": 1766,
+        "sha256": "6fec1d3f86718fbb06177cbe8217f86f70bc13e38eef28713a3e4e63f49807a4"
+      }
+    },
+    {
+      "instanceId": "django__django-14376",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-14376/terminal.json",
+        "bytes": 1766,
+        "sha256": "d1705406e5e88c7a71ca7ff9fc89e1954da4431fc1d1ef61011fcbd0f500d76d"
+      }
+    },
+    {
+      "instanceId": "django__django-14792",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-14792/terminal.json",
+        "bytes": 1766,
+        "sha256": "323c7ec456362eef479a83f757c39e5d0efec3516c6a93eb899140e405e95132"
+      }
+    },
+    {
+      "instanceId": "django__django-15098",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-005/tasks/django__django-15098/terminal.json",
+        "bytes": 1782,
+        "sha256": "5789d9a90b562d172734650319821a6102ef8082d78f673d3e89ab96dc064179"
+      }
+    },
+    {
+      "instanceId": "django__django-15127",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-15127/terminal.json",
+        "bytes": 1766,
+        "sha256": "94b49c045f8a100c46333c7ae615ae9083ef4cc0817da471d12d583c01da9601"
+      }
+    },
+    {
+      "instanceId": "django__django-15629",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-005/tasks/django__django-15629/terminal.json",
+        "bytes": 1782,
+        "sha256": "fe86e71f90e25269565e3e592a29e592267979fc652867b6318b2e5a1ce52e19"
+      }
+    },
+    {
+      "instanceId": "django__django-15695",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-15695/terminal.json",
+        "bytes": 1766,
+        "sha256": "47e5cccdf9707f0d8276d699399c19f21b5dba11788fec068675cd38587b36ea"
+      }
+    },
+    {
+      "instanceId": "django__django-15732",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-15732/terminal.json",
+        "bytes": 1766,
+        "sha256": "d6756d6a013726d579065dbace8c8452afd5e48190c0ecf3cbf772953f26e7af"
+      }
+    },
+    {
+      "instanceId": "django__django-16256",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-16256/terminal.json",
+        "bytes": 1766,
+        "sha256": "a4761e6a6e12e42e22143d4311b0088061900982e6cb0805c193d194410c099d"
+      }
+    },
+    {
+      "instanceId": "django__django-16263",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-002/tasks/django__django-16263/terminal.json",
+        "bytes": 1772,
+        "sha256": "973fc6dc34a52ce5429e18864663f47743177f41ed451254e2768cfee0379a3b"
+      }
+    },
+    {
+      "instanceId": "django__django-16502",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-16502/terminal.json",
+        "bytes": 1766,
+        "sha256": "08709e37f254e832ff9ce34d88bdc3aa45df5914fdff7af0e1e1d9cf6559c8c4"
+      }
+    },
+    {
+      "instanceId": "django__django-16631",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/django__django-16631/terminal.json",
+        "bytes": 1766,
+        "sha256": "0e1881bcb27ab638fcb1008d85e7f89bfc208bdb3cb64152094ac756159cecc4"
+      }
+    },
+    {
+      "instanceId": "django__django-16667",
+      "source": "beta19-local",
+      "report": {
+        "path": "/tmp/best-agent-beta19-swe.vHF5UQ/official/report.json",
+        "bytes": 918,
+        "sha256": "44a27dcf7b3eb19825a238e1341409fee40aa3774f167feb19707e7560d10ecf"
+      }
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-21568",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/matplotlib__matplotlib-21568/terminal.json",
+        "bytes": 1806,
+        "sha256": "fd6e041ec6e8c393a9e9245cc453ad669051ea0020298157d970cabfbca33e36"
+      }
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-23476",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-002/tasks/matplotlib__matplotlib-23476/terminal.json",
+        "bytes": 1813,
+        "sha256": "2e5c614a0abb74a9f41325c7780853eec44667101654d67f99f9aff209acfb60"
+      }
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-24870",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/matplotlib__matplotlib-24870/terminal.json",
+        "bytes": 1807,
+        "sha256": "21284b7961b181f99e5d4ac3cc21d949fd65fa2df4dde04a5c4f52fa8d4cb733"
+      }
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-25479",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/matplotlib__matplotlib-25479/terminal.json",
+        "bytes": 1807,
+        "sha256": "0fe5abfada87f28db5354bb93a4002cfda0f2b953d6e7bc4f66ba68ae1299a71"
+      }
+    },
+    {
+      "instanceId": "psf__requests-1921",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "psf__requests-2317",
+      "source": "beta18",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta18-local-official/evaluations/batch-001/tasks/psf__requests-2317/terminal.json",
+        "bytes": 1757,
+        "sha256": "8fbdfb9643a44535d0105102c26c55c146722ed01bbd83c6cfbf684ce4951896"
+      }
+    },
+    {
+      "instanceId": "psf__requests-2931",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "psf__requests-5414",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "psf__requests-6028",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pydata__xarray-4687",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pydata__xarray-6599",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pydata__xarray-6938",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pydata__xarray-6992",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pydata__xarray-7229",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pylint-dev__pylint-4604",
+      "source": "beta17",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta17-local-official/evaluations/batch-003/tasks/pylint-dev__pylint-4604/terminal.json",
+        "bytes": 1788,
+        "sha256": "971b255a858ea9b3954454f724f0390220ab251e1ab9d8f891016f910218eec4"
+      }
+    },
+    {
+      "instanceId": "pylint-dev__pylint-4661",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pytest-dev__pytest-5840",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "pytest-dev__pytest-6197",
+      "source": "beta13-original",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/diagnostic-official/tasks/pytest-dev__pytest-6197/terminal.json",
+        "bytes": 1534,
+        "sha256": "a824658bb3a2ba4bc39bc959fe654a5f785cad1f7c8e0dc8a009bd5ed74f72d8"
+      }
+    },
+    {
+      "instanceId": "pytest-dev__pytest-7324",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-14087",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-14629",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-25747",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-10614",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7462",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7748",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7985",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-8548",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9229",
+      "source": "not-evaluated",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9258",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9461",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9711",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-13091",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-13798",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-13852",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-002/tasks/sympy__sympy-13852/terminal.json",
+        "bytes": 1761,
+        "sha256": "71facd5bff68cfd5fed94238cdd64d3cfa5d5242512c9f2b1cf4961f7da2ace4"
+      }
+    },
+    {
+      "instanceId": "sympy__sympy-16597",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-18199",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-18698",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-18763",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-20438",
+      "source": "beta16-recovery",
+      "terminal": {
+        "path": "/Users/Simon/Github/best-agent-benchmarks/.tmp/beta13-local-eval.0xB6JZ/beta16-local-official/evaluations/batch-004/tasks/sympy__sympy-20438/terminal.json",
+        "bytes": 1763,
+        "sha256": "b4e07dc43f468d17b6b13e4ef578d6e84a98ca10b9430bfb5cefbcf31f4dcd14"
+      }
+    },
+    {
+      "instanceId": "sympy__sympy-21596",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-21930",
+      "source": "beta18",
+      "terminal": null
+    },
+    {
+      "instanceId": "sympy__sympy-22080",
+      "source": "beta18",
+      "terminal": null
+    }
+  ]
+}

@@ -1,8 +1,11 @@
 {
-  "cliVersion": "0.0.3-beta.18",
+  "cliVersion": "0.0.3-beta.20",
   "packageName": "@best-agent/cli-darwin-arm64",
-  "packageIntegrity": "sha512-XgICCeZgYYa2wutiSiSo/9Lgt6w/WCuFIDBPzV+/T2M8se8LRbeHC1yWXbuMZsY4z+54HOOg6G/lr4mOjUADig==",
-  "sourceCommit": "9f276cc2ee919b67b1cf59958275a0705c587c18",
+  "packageIntegrity": "sha512-3ecnPTZas7bAAqjcw77eivA/RvrtZmM+Ul83L42pNBhiLH2Ax7bG/Cr8aq9D6URq4OvBivNCdmRgXf+jTK64MA==",
+  "sourceCommit": null,
+  "sourceProvenance": "unverified; published npm artifact is the candidate",
+  "executableSha256": "f395c2ff3b0e5f45c951e9e7013afdf8e3b2aa8bf992309f1f2a47c88ac41bd4",
+  "candidateId": "cli-0.0.3-beta.20-npm-f395c2ff3b0e5f45",
   "formalBenchmarkReady": false,
   "taskTimeoutMs": 1800000,
   "provider": {
@@ -13,12 +16,12 @@
     "reasoningEffort": "high",
     "transportProfile": "dim-oauth"
   },
-  "harnessSha256": "26027eca6efb933ddebb66e1433dadc236be33b72fcf7c452734336b7c67e052",
+  "harnessSha256": "e985c78b69679ce170404355cbe6c323b207a20b612d8dfb6905da93b8c314dd",
   "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
   "benchmarkHistorySha256": "299b2c09195435d7b9282b5d6766cefb9251f97001dcfe2da90702c18f112adc",
   "benchmarkProviderSha256": "0ebb8db3881e616e512620458944e8a4d8c663db553e2c0c53cae62226c064e1",
-  "admissionSha256": "b04bffc1d2cd99ac90a570b2fcf24543006cb612da69baefe5436b8e58ab1afa",
+  "admissionSha256": "308808f3527cc634f4425230a51d9e048c928753dcc76842c1a9eca70a0768fc",
   "evaluatorEntrySha256": "eb7516e85977c03a408d0c1d918590f2da9ce2848e6a44b4142500ad74af3640",
-  "workflowSha256": "dd2598904110fdef05a617803b9ab0e2a136738417f46b8e9dd378cc2017438a",
-  "controlClosureSha256": "342b321779e612eda5452a6ab43dbe4d3956522ffc4592ea52f78772df945b50"
+  "workflowSha256": "888cd8e6f46bb9435d26f271622e285ce9e6c2f8fb48b4a8432dfd800e51cb00",
+  "controlClosureSha256": "3a7d815753053d318f9892ba6fc21921f00f396bb2f662be288bf1fcb5b68151"
 }

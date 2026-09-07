@@ -196,7 +196,7 @@ test("repository contains no second SWE-bench grader", () => {
   );
 });
 
-test("benchmark composition uses workspace-sandbox and one public task message", () => {
+test("benchmark composition uses an unrestricted OS worker and one public task message", () => {
   const harness = readFileSync(
     new URL("../scripts/swe-bench-harness.mjs", import.meta.url),
     "utf8",
@@ -211,7 +211,8 @@ test("benchmark composition uses workspace-sandbox and one public task message",
   assert.equal(prompt.match(new RegExp(problem, "gu"))?.length, 1);
   assert.match(prompt, /complete public issue/u);
   assert.match(prompt, /selected workspace tools and executable surface/u);
-  assert.match(prompt, /no web access/u);
+  assert.doesNotMatch(prompt, /no web access/u);
+  assert.match(prompt, /Do not retrieve upstream fixes/u);
   assert.doesNotMatch(
     prompt,
     /production fix|focused regression tests|git status|temporary artifacts|Run relevant focused tests|non-empty summary|acceptance checks|Make reasonable assumptions/u,
@@ -221,11 +222,9 @@ test("benchmark composition uses workspace-sandbox and one public task message",
     prompt,
     /test_patch|FAIL_TO_PASS|PASS_TO_PASS|gold patch|reference patch|official (?:command|log|verdict)/u,
   );
-  assert.match(
-    harness,
-    /"--workspace-backend",\s*"sandbox",\s*"--process-isolation",\s*"workspace-sandbox"/u,
-  );
-  assert.match(harness, /processIsolation: "workspace-sandbox"/u);
+  assert.match(harness, /processIsolation: "host"/u);
+  assert.match(harness, /controllerIsolation: "os-worker-account"/u);
+  assert.match(harness, /execNetworkIsolation: false/u);
   assert.match(smoke, /name: "process-start"/u);
   assert.match(smoke, /name: "process-read"/u);
   assert.match(smoke, /unixProbeConnections/u);
@@ -245,13 +244,13 @@ test("hosted generation uses the public package and caps each batch at ten tasks
   assert.match(workflow, /needs: \[plan, smoke, corpus, isolation\]/u);
   assert.match(workflow, /node scripts\/isolation-smoke\.mjs/u);
   assert.match(workflow, /brew install ripgrep/u);
-  assert.match(workflow, /node scripts\/sandbox-network-smoke\.mjs/u);
-  assert.match(workflow, /results\/gates\/sandbox-network-smoke\.json/u);
-  assert.match(workflow, /benchmark-sandbox-network-smoke-/u);
+  assert.match(workflow, /node scripts\/verify-swe-ci-candidate\.mjs/u);
+  assert.match(workflow, /Create isolated non-admin task worker/u);
+  assert.match(workflow, /--preflight-only/u);
   assert.match(workflow, /if: always\(\)[\s\S]*swe-bench-results\.\*\.tasks/u);
   assert.match(workflow, /node scripts\/admit-generation\.mjs/u);
   assert.match(workflow, /github-jobs\.json/u);
-  assert.match(workflow, /benchmark-headless-smoke-/u);
+  assert.match(workflow, /results\/generation-controller\.\*\.txt/u);
   assert.match(workflow, /benchmark-repository-isolation-/u);
   assert.match(workflow, /if: \$\{\{ always\(\) && inputs\.run_full_verified \}\}/u);
   assert.match(workflow, /Collect terminal benchmark evidence/u);

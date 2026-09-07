@@ -33,6 +33,9 @@ const CONTROL_CLOSURE_PATHS = [
   "scripts/prepare-swe-bench.mjs",
   "scripts/sandbox-network-smoke.mjs",
   "scripts/smoke.mjs",
+  "scripts/swe-ci-worker.mjs",
+  "scripts/verify-swe-ci-candidate.mjs",
+  "config/beta20-swe-remaining.json",
 ];
 
 export function parseAdmissionArgs(argv) {

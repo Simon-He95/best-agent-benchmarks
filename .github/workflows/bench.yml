@@ -3,6 +3,10 @@ name: Benchmark
 on:
   workflow_dispatch:
     inputs:
+      preflight_only:
+        description: Engineering-only public environment and scripted CLI probe; no task model requests
+        type: boolean
+        default: true
       run_smoke:
         description: Run the headless composition smoke gate
         required: false
@@ -91,6 +95,7 @@ jobs:
           TASK_OFFSET: ${{ inputs.swe_bench_offset }}
           TASK_CONCURRENCY: ${{ inputs.swe_bench_concurrency }}
           MODEL_OVERRIDE: ${{ inputs.swe_bench_model }}
+          PREFLIGHT_ONLY: ${{ inputs.preflight_only }}
         run: |
           node <<'NODE'
           const fs = require("node:fs");
@@ -187,9 +192,13 @@ jobs:
             if (taskIds.some(taskId => !corpusIdSet.has(taskId))) {
               throw new Error("Predeclared task is outside the frozen corpus.");
             }
-            if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 2) {
-              throw new Error("Task concurrency must be 1 or 2.");
-            }
+            if (concurrency !== 1) throw new Error("This worker profile requires concurrency 1.");
+            const frozen = require("./config/beta20-swe-remaining.json");
+            const candidate = require("./config/best-agent-candidate.json");
+            const eligible = new Set(frozen.batches.flatMap(b => b.tasks));
+            if (eligible.size !== 82 || taskIds.some(t => !eligible.has(t))) throw new Error("Task is outside the frozen 82.");
+            if (process.env.MODEL_OVERRIDE && process.env.MODEL_OVERRIDE !== candidate.provider.model) throw new Error("Model must match candidate.");
+            if (process.env.PREFLIGHT_ONLY !== "true" && !frozen.batches.some(b => b.id === id && JSON.stringify(b.tasks) === JSON.stringify(taskIds))) throw new Error("Generation must exactly match a frozen wave.");
             const offset = Number(process.env.TASK_OFFSET);
             if (!Number.isInteger(offset) || offset < 0 || offset + count > corpusIds.length) {
               throw new Error("Task offset/limit must stay inside the frozen corpus.");
@@ -208,64 +217,27 @@ jobs:
           NODE
 
   smoke:
-    name: macOS headless smoke
+    name: Verify frozen control and unit tests
     if: ${{ inputs.run_smoke || inputs.run_swe_bench }}
+    needs: corpus
     runs-on: macos-15
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Install benchmark dependencies and the exact CLI candidate
-        run: |
-          npm ci
-          CLI_VERSION="$(node -p 'require("./config/best-agent-candidate.json").cliVersion')"
-          CLI_PACKAGE="$(node -p 'require("./config/best-agent-candidate.json").packageName')"
-          EXPECTED_INTEGRITY="$(node -p 'require("./config/best-agent-candidate.json").packageIntegrity')"
-          test "$(uname -m)" = "arm64"
-          test "$(npm view "${CLI_PACKAGE}@${CLI_VERSION}" dist.integrity)" = "$EXPECTED_INTEGRITY"
-          npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${CLI_VERSION}"
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
-
-      - name: Verify provider credential
-        run: test -n "$BENCHMARK_PROVIDER_API_KEY"
-
-      - name: Materialize the frozen provider identity
-        run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/best-agent-candidate.json
-
-      - name: Verify formal benchmark controls
-        run: node --test --test-name-pattern='^(public benchmark artifacts|configuration paths|repository contains no second|hosted generation|the model workspace|formal generation|full Verified plan|repository instructions|the current candidate)' test/architecture.test.mjs
-
-      - name: Verify exec network isolation
-        run: |
-          mkdir -p results/gates
-          node scripts/sandbox-network-smoke.mjs | tee results/gates/sandbox-network-smoke.json
-
-      - name: Upload sandbox network smoke receipt
-        if: always()
-        uses: actions/upload-artifact@v4
+      - run: npm ci
+      - uses: actions/download-artifact@v4
         with:
-          name: benchmark-sandbox-network-smoke-${{ github.run_id }}
-          path: results/gates/sandbox-network-smoke.json
-          if-no-files-found: warn
-          retention-days: 90
-
-      - name: Headless composition smoke
+          name: swe-bench-corpus-${{ github.run_id }}
+          path: results/corpora
+      - name: Verify controls before any worker starts
         run: |
-          mkdir -p results/gates
-          node scripts/smoke.mjs | tee results/gates/headless-smoke.json
-
-      - name: Upload headless smoke receipt
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-headless-smoke-${{ github.run_id }}
-          path: results/gates/headless-smoke.json
-          if-no-files-found: warn
-          retention-days: 90
+          node scripts/verify-swe-ci-candidate.mjs
+          node --test --test-skip-pattern='beta\.9 diagnostic plan' test/*.test.mjs
 
   corpus:
     name: Freeze SWE-bench corpus
@@ -346,6 +318,8 @@ jobs:
         batch: ${{ fromJSON(needs.plan.outputs.batches) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Resolve the single candidate record
         id: candidate
@@ -371,7 +345,7 @@ jobs:
           path: results/corpora
 
       - name: Install the search runtime
-        run: brew install ripgrep
+        run: brew install ripgrep uv
 
       - name: Install benchmark dependencies and the exact CLI candidate
         run: |
@@ -381,10 +355,23 @@ jobs:
           test "$(uname -m)" = "arm64"
           test "$(npm view "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}" dist.integrity)" = "$EXPECTED_INTEGRITY"
           npm install --no-save --ignore-scripts "${CLI_PACKAGE}@${{ steps.candidate.outputs.version }}"
-          echo "BEST_AGENT_CLI_PATH=${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
-          echo "SWE_BENCH_CANDIDATE_ID=cli-${{ steps.candidate.outputs.version }}-${{ steps.candidate.outputs.source_commit }}" >> "$GITHUB_ENV"
+          node scripts/verify-swe-ci-candidate.mjs "${GITHUB_WORKSPACE}/node_modules/${CLI_PACKAGE}/bin/best-agent"
+          sudo mkdir -p /opt/best-agent-beta20
+          sudo cp -R node_modules /opt/best-agent-beta20/
+          echo "BEST_AGENT_CLI_PATH=/opt/best-agent-beta20/node_modules/${CLI_PACKAGE}/bin/best-agent" >> "$GITHUB_ENV"
+          echo "SWE_BENCH_CANDIDATE_ID=$(node -p 'require("./config/best-agent-candidate.json").candidateId')" >> "$GITHUB_ENV"
+
+      - name: Create isolated non-admin task worker
+        run: |
+          sudo sysadminctl -addUser benchworker -UID 59999 -GID 20 -home /Users/benchworker -shell /bin/bash -password "$(openssl rand -hex 32)"
+          sudo -n -u benchworker id
+          if sudo -n -u benchworker sudo -n true; then exit 1; fi
+          chmod 700 "$HOME" "$GITHUB_WORKSPACE" "$RUNNER_TEMP"
+          mkdir -p results
+          node -p 'JSON.stringify({uid:59999, profile:"plain/unrestricted/path/host", benchmarkAttempt:false})' > results/worker-setup.json
 
       - name: Materialize the frozen provider identity
+        if: ${{ !inputs.preflight_only }}
         run: node scripts/materialize-ci-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/best-agent-candidate.json
 
       - name: Prepare pinned SWE-bench Verified corpus
@@ -399,6 +386,7 @@ jobs:
 
       - name: Generate and freeze predictions
         env:
+          PREFLIGHT_ONLY: ${{ inputs.preflight_only }}
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.model.outputs.model }}
           BATCH_TASKS: ${{ matrix.batch.tasks }}
           SWE_BENCH_EVALUATION_BATCH_ID: ${{ inputs.run_full_verified && format('formal-{0}', github.run_id) || format('cli-{0}-{1}-{2}', steps.candidate.outputs.version, matrix.batch.id, steps.model.outputs.model) }}
@@ -419,7 +407,11 @@ jobs:
           if [ -n "$BATCH_TASKS" ]; then
             ARGS+=(--tasks "$BATCH_TASKS")
           fi
-          node scripts/swe-bench-harness.mjs "${ARGS[@]}"
+          if [ "$PREFLIGHT_ONLY" = "true" ]; then ARGS+=(--preflight-only); fi
+          sudo --preserve-env "$(command -v node)" scripts/swe-bench-harness.mjs "${ARGS[@]}" > results/generation-controller.stdout.txt 2> results/generation-controller.stderr.txt
+          if [ "$PREFLIGHT_ONLY" = "true" ]; then
+            node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync(process.argv[1]));if(!r.tasks.length || r.tasks.some(t=>t.disposition!=="environment-prepared"))process.exit(1)' "${GITHUB_WORKSPACE}/results/swe-bench-results.shard-${{ matrix.batch.shard }}.json"
+          fi
 
       - name: Upload immutable generation artifacts
         if: always()
@@ -427,6 +419,10 @@ jobs:
         with:
           name: swe-bench-generation-${{ matrix.batch.id }}
           path: |
+            results/worker-setup.json
+            results/generation-controller.*.txt
+            config/best-agent-candidate.json
+            config/beta20-swe-remaining.json
             results/swe-bench-results.*.json
             results/swe-bench-results.*.md
             results/swe-bench-results.*.predictions/**
