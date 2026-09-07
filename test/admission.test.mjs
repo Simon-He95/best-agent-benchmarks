@@ -12,6 +12,7 @@ import {
 import { dirname, relative, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
+import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
 
 import { admitFormalGeneration } from "../scripts/admit-generation.mjs";
@@ -58,33 +59,71 @@ test("the CLI watchdog returns only after the killed process closes", async () =
   assert.equal(result.timeoutClosure, "forced");
 });
 
-test("the CLI watchdog admits a graceful Application shutdown only after owned process cleanup", async () => {
+test("the CLI watchdog admits a graceful Application shutdown only after owned process cleanup", async (t) => {
   mkdirSync(resolve(repoRoot, ".tmp"), { recursive: true });
   const root = mkdtempSync(resolve(repoRoot, ".tmp", "watchdog-graceful-fixture-"));
   const pidPath = resolve(root, "child.pid");
+  const realSetTimeout = globalThis.setTimeout;
+  let deadlineTimer;
+  let fireDeadline;
+  let deadlineFired = false;
+  let execution;
+  let childPid;
   try {
     const source = [
       'const {spawn}=require("node:child_process");',
-      'const {writeFileSync}=require("node:fs");',
+      'const {writeFileSync,renameSync}=require("node:fs");',
+      "setTimeout(()=>{",
       `const child=spawn(process.execPath,["-e","setInterval(()=>{},1000)"],{detached:true,stdio:"ignore"});`,
-      `writeFileSync(${JSON.stringify(pidPath)},String(child.pid));`,
       'process.on("SIGTERM",()=>{process.kill(-child.pid,"SIGTERM");child.once("close",()=>process.exit(1));});',
+      `writeFileSync(${JSON.stringify(pidPath + ".tmp")},String(child.pid));`,
+      `renameSync(${JSON.stringify(pidPath + ".tmp")},${JSON.stringify(pidPath)});`,
       "setInterval(()=>{},1000);",
+      "},200);",
     ].join("");
-    const result = await runCliProcess({
+    const timeoutSpy = t.mock.method(globalThis, "setTimeout", (callback, milliseconds) => {
+      fireDeadline = () => { deadlineFired = true; callback(); };
+      deadlineTimer = realSetTimeout(fireDeadline, milliseconds);
+      return deadlineTimer;
+    });
+    execution = Promise.race([runCliProcess({
       args: [process.execPath, "-e", source],
       cwd: repoRoot,
-      timeoutMs: 50,
+      timeoutMs: 10_000,
       env: process.env,
-    });
+    }), delay(17_000, null, { ref: false }).then(() => assert.fail("watchdog did not close the fixture"))]);
+    timeoutSpy.mock.restore();
+    const readinessDeadline = Date.now() + 5_000;
+    while (!existsSync(pidPath)) {
+      assert.ok(Date.now() < readinessDeadline, "fixture did not register its shutdown handler");
+      await delay(10);
+    }
+    childPid = Number(readFileSync(pidPath, "utf8"));
+    assert.equal(deadlineFired, false, "fixture readiness exceeded the safety deadline");
+    clearTimeout(deadlineTimer);
+    fireDeadline();
+    const result = await execution;
     assert.equal(result.timedOut, true);
     assert.equal(result.status, 1);
     assert.equal(result.signal, null);
     assert.equal(result.timeoutClosure, "graceful");
-    const childPid = Number(readFileSync(pidPath, "utf8"));
     assert.throws(() => process.kill(childPid, 0), /ESRCH/u);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    if (execution && !deadlineFired) {
+      clearTimeout(deadlineTimer);
+      fireDeadline();
+    }
+    try {
+      await execution;
+    } finally {
+      if (childPid === undefined && existsSync(pidPath)) childPid = Number(readFileSync(pidPath, "utf8"));
+      if (childPid !== undefined) {
+        try { process.kill(childPid, "SIGKILL"); } catch (error) {
+          if (error.code !== "ESRCH") throw error;
+        }
+      }
+      rmSync(root, { recursive: true, force: true });
+    }
   }
 });
 
