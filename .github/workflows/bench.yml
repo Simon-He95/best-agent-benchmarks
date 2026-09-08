@@ -196,11 +196,12 @@ jobs:
             const frozen = require("./config/beta20-swe-remaining.json");
             const recovery = require("./config/beta20-environment-recovery.json");
             const residual = require("./config/beta20-residual-environment-recovery.json");
+            const transport = require("./config/beta20-transport-recovery.json");
             const candidate = require("./config/best-agent-candidate.json");
             const eligible = new Set(frozen.batches.flatMap(b => b.tasks));
             if (eligible.size !== 82 || taskIds.some(t => !eligible.has(t))) throw new Error("Task is outside the frozen 82.");
             if (process.env.MODEL_OVERRIDE && process.env.MODEL_OVERRIDE !== candidate.provider.model) throw new Error("Model must match candidate.");
-            if (process.env.PREFLIGHT_ONLY !== "true" && ![...frozen.batches, recovery.batch, ...residual.batches].some(b => b.id === id && JSON.stringify(b.tasks) === JSON.stringify(taskIds))) throw new Error("Generation must exactly match a frozen wave.");
+            if (process.env.PREFLIGHT_ONLY !== "true" && ![...frozen.batches, recovery.batch, ...residual.batches, transport.batch].some(b => b.id === id && JSON.stringify(b.tasks) === JSON.stringify(taskIds))) throw new Error("Generation must exactly match a frozen wave.");
             const offset = Number(process.env.TASK_OFFSET);
             if (!Number.isInteger(offset) || offset < 0 || offset + count > corpusIds.length) {
               throw new Error("Task offset/limit must stay inside the frozen corpus.");
@@ -452,6 +453,7 @@ jobs:
             config/beta20-swe-remaining.json
             config/beta20-environment-recovery.json
             config/beta20-residual-environment-recovery.json
+            config/beta20-transport-recovery.json
             config/swe-python-environments.json
             config/public-python-evidence/*.json
             results/swe-bench-results.*.json

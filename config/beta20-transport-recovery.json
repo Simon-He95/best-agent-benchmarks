@@ -1,0 +1,557 @@
+{
+  "schemaVersion": 1,
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidateId": "cli-0.0.3-beta.20-npm-f395c2ff3b0e5f45",
+  "sourceAudit": {
+    "bytes": 184361,
+    "sha256": "ab6ac66c4e5bfbeaed504e97170540a1e1608578c7386b94456750fd998f6cba"
+  },
+  "batch": {
+    "id": "beta20-transport-recovery-001",
+    "tasks": [
+      "astropy__astropy-13398",
+      "django__django-14170",
+      "django__django-16502",
+      "matplotlib__matplotlib-25479",
+      "sympy__sympy-13091",
+      "sympy__sympy-13798",
+      "sympy__sympy-18698",
+      "sympy__sympy-21930"
+    ]
+  },
+  "evidence": [
+    {
+      "instanceId": "astropy__astropy-13398",
+      "repo": "astropy/astropy",
+      "baseCommit": "6500928dc0e57be8f06d1162eacc3ba5e2eff692",
+      "sourceFormalRunId": "diagnostic-34159627144",
+      "refs": {
+        "receipt": {
+          "bytes": 7503,
+          "sha256": "dccc9eceeb906788bea329cd8d650a6092988904ff0bb1b26cd44596f79b6676"
+        },
+        "claim": {
+          "bytes": 368,
+          "sha256": "0a42c872d3a015736d14e22767927bbd988bf3af38a0ea46678dd89f9bf1708d"
+        },
+        "evidence": {
+          "bytes": 5467239,
+          "sha256": "76f87894e455ccd5060516aac1454e9501864211a2206d5b31ba6013a2452b9f"
+        },
+        "processReceipt": {
+          "bytes": 583,
+          "sha256": "a5cf6bebc78daae2ede7d973cedcee81d58476ddba1cb7e3ee0941a59f08e6be"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: read:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "django__django-14170",
+      "repo": "django/django",
+      "baseCommit": "6efc35b4fe3009666e56a60af0675d7d532bf4ff",
+      "sourceFormalRunId": "diagnostic-34099257580",
+      "refs": {
+        "receipt": {
+          "bytes": 3798,
+          "sha256": "53989bcff9d8fb205c08e57b27be4fb845d5be2a1d127d37b6f9ed7661d610dd"
+        },
+        "claim": {
+          "bytes": 365,
+          "sha256": "e340e020269090d9214d6f88840670ea3b6d8e319e4e5a17d4e3f2e1d59849cb"
+        },
+        "evidence": {
+          "bytes": 5867399,
+          "sha256": "d93a3f2a3b08563e99530625a0876054e49d4a67b0454c4ae4b8ba3c431f7997"
+        },
+        "processReceipt": {
+          "bytes": 579,
+          "sha256": "c1bf888f7e91a57c07bcadc00abb8be03032a30cf3281c54e4d81a16588c004c"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 112,
+          "sha256": "81550e7543dbd83fed1718e43e236d9b42dbd0460b9b5efeebf9077c660ba17a"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Bad Gateway; HTTP 502\nv3 run failed: model-failure\nv3 run tool: exec:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 112,
+          "sha256": "81550e7543dbd83fed1718e43e236d9b42dbd0460b9b5efeebf9077c660ba17a"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "django__django-16502",
+      "repo": "django/django",
+      "baseCommit": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "sourceFormalRunId": "diagnostic-34100860642",
+      "refs": {
+        "receipt": {
+          "bytes": 3484,
+          "sha256": "67d48fd66eed897e565b909dab7ceb40b552fc6de623303fdf3ce854a297899d"
+        },
+        "claim": {
+          "bytes": 365,
+          "sha256": "661256ec043e6ca9dcaa3284f55141a157955dae87010c0b7ce3804f3a756d01"
+        },
+        "evidence": {
+          "bytes": 508969,
+          "sha256": "8f022460f7d9bd01ec9ba6cdea4331b198b4957bb668c0d7ec88d96f4eb856f4"
+        },
+        "processReceipt": {
+          "bytes": 579,
+          "sha256": "fbaa55d0033bc69b513277d94ccfb61e173001340f1c39d7c5dade0938863d1a"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: read:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-25479",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "7fdf772201e4c9bafbc16dfac23b5472d6a53fa2",
+      "sourceFormalRunId": "diagnostic-34159627144",
+      "refs": {
+        "receipt": {
+          "bytes": 7944,
+          "sha256": "b7531081371cd396dc5cf8b11b915506cb314fa5ce1ef91f44cea46e977e2e8a"
+        },
+        "claim": {
+          "bytes": 380,
+          "sha256": "24b4b48cacb38a736652d4a419f012470cc003136916e9d55845fac012859f08"
+        },
+        "evidence": {
+          "bytes": 684587,
+          "sha256": "a0a01c374e318172f82288334f24d7c30ce823662e4ed8922236d7141c696090"
+        },
+        "processReceipt": {
+          "bytes": 595,
+          "sha256": "fa4d06090e656feef8a924836b2f26bd7919d0ed311703ed21fef8d022802a15"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "3dc57f10513fe201a2347c14fabe196d2772208781853eb97f399adc7d412cb5"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: exec:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "3dc57f10513fe201a2347c14fabe196d2772208781853eb97f399adc7d412cb5"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "sympy__sympy-13091",
+      "repo": "sympy/sympy",
+      "baseCommit": "d1320814eda6549996190618a21eaf212cfd4d1e",
+      "sourceFormalRunId": "diagnostic-34106202602",
+      "refs": {
+        "receipt": {
+          "bytes": 3595,
+          "sha256": "2175e65e72cb45119c8c7a5c8e6b062b08e9df1549ed310512708b5b8f5dbf31"
+        },
+        "claim": {
+          "bytes": 361,
+          "sha256": "67b65d2817bc07539e11e762c73c9890ddc3c95291f713b6d7e43f071ad6d97c"
+        },
+        "evidence": {
+          "bytes": 522787,
+          "sha256": "092c54cd0509dbd9571f2e67a0f18ad462f45cca7f797596fa1afa0ba2c86d7a"
+        },
+        "processReceipt": {
+          "bytes": 575,
+          "sha256": "ec69385c99fd3a8ecee76378ff70708c36d5b60ca3cf605a0dd9a42e7ffa0071"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: read:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "sympy__sympy-13798",
+      "repo": "sympy/sympy",
+      "baseCommit": "7121bdf1facdd90d05b6994b4c2e5b2865a4638a",
+      "sourceFormalRunId": "diagnostic-34106202602",
+      "refs": {
+        "receipt": {
+          "bytes": 2638,
+          "sha256": "f06a6b4f13f952470f246a9a3a2eee9be5e86f520affb75e46864ea92d41f5d5"
+        },
+        "claim": {
+          "bytes": 361,
+          "sha256": "aecb597e037ce08e2f6d294871294800b484eb820d05260810bc7948b648f24d"
+        },
+        "evidence": {
+          "bytes": 285651,
+          "sha256": "1e2168d85ac3495a855c599bae238b0a770bcd72a79ce4d80cf9e64aca93a509"
+        },
+        "processReceipt": {
+          "bytes": 575,
+          "sha256": "746b6234755c70e3cbfc622728ec7bdc097f1a85930dc493bbc447666f523be0"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: read:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "78ebc3c329f229cce7f3635d90366a2d47098460e2ca451aecc07e0c487db31c"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "sympy__sympy-18698",
+      "repo": "sympy/sympy",
+      "baseCommit": "3dff1b98a78f28c953ae2140b69356b8391e399c",
+      "sourceFormalRunId": "diagnostic-34106202602",
+      "refs": {
+        "receipt": {
+          "bytes": 2439,
+          "sha256": "f8c42b180e2d85665a7a3ce275334b492cadf60138284567e12b4b89d1b8885a"
+        },
+        "claim": {
+          "bytes": 361,
+          "sha256": "89cccf53883ff8be87ed87a6590f84f019c9ee720ae8e7c352134575f842fa69"
+        },
+        "evidence": {
+          "bytes": 19106337,
+          "sha256": "fed11d5f25323dc37b0807e5b56e910267999751bc63ce6e232c49d36ab9e8df"
+        },
+        "processReceipt": {
+          "bytes": 575,
+          "sha256": "b96bf27edc01e3fc2649d56e7d542690e60c4bb393463de5edea85fffb3f4108"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "3dc57f10513fe201a2347c14fabe196d2772208781853eb97f399adc7d412cb5"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET; cause: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: exec:succeeded\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 153,
+          "sha256": "3dc57f10513fe201a2347c14fabe196d2772208781853eb97f399adc7d412cb5"
+        }
+      },
+      "hasPrediction": false
+    },
+    {
+      "instanceId": "sympy__sympy-21930",
+      "repo": "sympy/sympy",
+      "baseCommit": "de446c6d85f633271dfec1452f6f28ea783e293f",
+      "sourceFormalRunId": "diagnostic-34099288002",
+      "refs": {
+        "receipt": {
+          "bytes": 2712,
+          "sha256": "495a4e6c7b55bf08e1d257180e2960e6e8d4c56b359ed550dbc65e8046acf725"
+        },
+        "claim": {
+          "bytes": 361,
+          "sha256": "60e840661aacc806bd60dc0c54da15ab0e5cbc35cb72a241d981d0ccd8e3f5c4"
+        },
+        "evidence": {
+          "bytes": 1234424,
+          "sha256": "8c9e1b5f9b0b5a86f4395b4e283b59408c30a54a60530c58dbb63c38d935ce98"
+        },
+        "processReceipt": {
+          "bytes": 575,
+          "sha256": "a7f8fb82c36b411cc8a3922b70bffc43095b23885db9761879a1de9a0db661ee"
+        },
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 109,
+          "sha256": "393fd113cc9b1924d7f84a7934fa5faec1387fdd775344fef9d1f9687b65dc67"
+        }
+      },
+      "stderr": "v3 run model-failure: transport: Bad Gateway; HTTP 502\nv3 run failed: model-failure\nv3 run tool: exec:failed\n",
+      "evidence": {
+        "prefixValid": true,
+        "complete": true,
+        "rootStatus": "failed",
+        "rootTerminalCause": "model-failure",
+        "rootModelFailureReason": "transport"
+      },
+      "process": {
+        "schemaVersion": 1,
+        "status": 1,
+        "signal": null,
+        "timedOut": false,
+        "timeoutClosure": "not-applicable",
+        "stdoutOverflow": false,
+        "stderrOverflow": false,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 109,
+          "sha256": "393fd113cc9b1924d7f84a7934fa5faec1387fdd775344fef9d1f9687b65dc67"
+        }
+      },
+      "hasPrediction": false
+    }
+  ],
+  "excluded": [
+    {
+      "instanceId": "astropy__astropy-14598",
+      "classification": "task-watchdog-timeout",
+      "receipt": {
+        "bytes": 4747,
+        "sha256": "9522216df94334d9a408e94dbb6e99370ee4a2a0f3bd75dc673c7f63ccb88f31"
+      }
+    },
+    {
+      "instanceId": "django__django-13513",
+      "classification": "no-diff",
+      "receipt": {
+        "bytes": 4442,
+        "sha256": "172eb717299341a2d16bcf08f11173e41f0e04d284080698054231326d3890ba"
+      }
+    },
+    {
+      "instanceId": "django__django-16263",
+      "classification": "task-watchdog-timeout",
+      "receipt": {
+        "bytes": 2529,
+        "sha256": "691fde30a2f7720af2f1e73cedfbb3fd815974752b92f5b835fea5946fcbdd00"
+      }
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-21568",
+      "classification": "tool-process-unresolved",
+      "receipt": {
+        "bytes": 3454,
+        "sha256": "8b8a48b22e925d5f14d9d156bc109c212ea368fd514e0fddde275853835c7711"
+      }
+    },
+    {
+      "instanceId": "psf__requests-2317",
+      "classification": "tool-process-unresolved",
+      "receipt": {
+        "bytes": 2833,
+        "sha256": "65f3b6d92867ebb7a8805d0ed51a6b6df848eb1f9c60f826732c4c1dfb265b79"
+      }
+    },
+    {
+      "instanceId": "pytest-dev__pytest-6197",
+      "classification": "task-watchdog-timeout",
+      "receipt": {
+        "bytes": 4770,
+        "sha256": "b0f2a90a288c0c0f510f4c21c42ba3b0e3a09bb5617e5f3f3870e96882d52fda"
+      }
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9229",
+      "classification": "task-watchdog-timeout",
+      "receipt": {
+        "bytes": 5924,
+        "sha256": "dbe3377d896c81a82d094a5a9cf3b07e03fdd009cec179b0d5d5f887f09d36e2"
+      }
+    },
+    {
+      "instanceId": "sympy__sympy-16597",
+      "classification": "task-watchdog-timeout",
+      "receipt": {
+        "bytes": 2473,
+        "sha256": "6237f6edbe7af41c9d2e985f77e6af4c869185f618bd31568c116b62083074c8"
+      }
+    }
+  ],
+  "scope": "new-diagnostic-run-linked-to-source-runs",
+  "selectionSha256": "46b4b9d49b233f240722530d3a142ef10785a020360d4d67dd3ae31b32836970"
+}

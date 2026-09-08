@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, statSync, cpSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { createRequire } from "node:module";
+import { runInNewContext } from "node:vm";
 import { createWorkerRunner, MAX_MODEL_CYCLES, publicPreparationPlan, prepareTaskEnvironment, probeWorker, taskWorkspaceCliArgs, workerEnvironment } from "../scripts/swe-ci-worker.mjs";
 import { runCliProcess, captureTerminalPatch } from "../scripts/swe-bench-harness.mjs";
 
@@ -335,6 +337,55 @@ test("residual recovery preserves the original nine and freezes only nineteen di
     for (const hash of [task.receiptSha256, task.claimSha256, task.preparationSha256,
       residual.sources[task.sourceWave].artifactSha256, residual.sources[task.sourceWave].resultSha256]) assert.match(hash, /^[a-f0-9]{64}$/);
   }
+});
+
+test("transport recovery rejects changed evidence even after control hashes are recomputed", t => {
+  const root = mkdtempSync(join(tmpdir(), "swe-transport-control-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  for (const path of ["scripts", "config", ".github", "package.json", "package-lock.json"]) {
+    cpSync(new URL("../" + path, import.meta.url), join(root, path), { recursive: true });
+  }
+  const path = join(root, "config/beta20-transport-recovery.json");
+  const original = JSON.parse(readFileSync(path));
+  const verify = () => spawnSync(process.execPath, ["scripts/verify-swe-ci-candidate.mjs"], { cwd: root, encoding: "utf8" });
+  const accepted = verify(); assert.equal(accepted.status, 0, accepted.stderr);
+  assert.equal(JSON.parse(accepted.stdout).transportRecoveryTasks, 8);
+  for (const mutate of [
+    x => x.batch.tasks.push(x.excluded[0].instanceId),
+    x => { x.batch.tasks[0] = x.excluded[0].instanceId; x.evidence[0].instanceId = x.excluded[0].instanceId; },
+    x => { x.batch.tasks.reverse(); x.evidence.reverse(); },
+    x => { x.candidateId = "another-candidate"; },
+    x => { x.evidence[0].refs.receipt.sha256 = "0".repeat(64); },
+    x => { x.evidence[0].sourceFormalRunId = "diagnostic-1"; },
+    x => { x.evidence[0].process.timedOut = true; },
+    x => { x.evidence[0].hasPrediction = true; },
+  ]) {
+    const changed = structuredClone(original); mutate(changed);
+    writeFileSync(path, JSON.stringify(changed, null, 2) + "\n");
+    const refresh = spawnSync(process.execPath, ["--input-type=module", "-e", `
+      import fs from 'node:fs'; import {benchmarkControlClosureSha256} from './scripts/admit-generation.mjs';
+      const path='config/best-agent-candidate.json';const candidate=JSON.parse(fs.readFileSync(path));
+      candidate.controlClosureSha256=benchmarkControlClosureSha256();fs.writeFileSync(path,JSON.stringify(candidate));
+    `], { cwd: root, encoding: "utf8" });
+    assert.equal(refresh.status, 0, refresh.stderr);
+    const rejected = verify(); assert.notEqual(rejected.status, 0);
+    assert.match(rejected.stderr, /Frozen transport recovery mismatch/);
+  }
+});
+
+test("actual workflow gate admits only the exact transport wave order and candidate model", () => {
+  const require = createRequire(new URL("../package.json", import.meta.url));
+  const workflow = readFileSync(new URL("../.github/workflows/bench.yml", import.meta.url), "utf8");
+  const gate = workflow.slice(workflow.indexOf('            const frozen = require("./config/beta20-swe-remaining.json")'), workflow.indexOf("            const offset = Number"));
+  const transport = require("./config/beta20-transport-recovery.json");
+  const candidate = require("./config/best-agent-candidate.json");
+  const invoke = (taskIds, model = candidate.provider.model) => runInNewContext(gate, {
+    require, taskIds, id: transport.batch.id, process: { env: { MODEL_OVERRIDE: model, PREFLIGHT_ONLY: "false" } },
+  });
+  assert.doesNotThrow(() => invoke(transport.batch.tasks));
+  assert.throws(() => invoke([...transport.batch.tasks].reverse()), /exactly match a frozen wave/);
+  assert.throws(() => invoke([...transport.batch.tasks, transport.excluded[0].instanceId]), /exactly match a frozen wave/);
+  assert.throws(() => invoke(transport.batch.tasks, "another-model"), /Model must match candidate/);
 });
 
 test("pytest profile version anchors match preserved public ancestor proof and exclude the diverged tag", () => {

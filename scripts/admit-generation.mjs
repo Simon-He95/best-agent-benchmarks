@@ -41,6 +41,7 @@ const CONTROL_CLOSURE_PATHS = [
   "config/public-python-evidence/pytest-public-ancestor-7324-5.4.0.json",
   "config/beta20-environment-recovery.json",
   "config/beta20-residual-environment-recovery.json",
+  "config/beta20-transport-recovery.json",
 ];
 
 export function parseAdmissionArgs(argv) {

@@ -38,6 +38,24 @@ if (residual.candidateId !== candidate.candidateId || residual.diagnosticOnly !=
       !residual.sources[t.sourceWave] || ![t.receiptSha256, t.claimSha256, t.preparationSha256].every(h => /^[a-f0-9]{64}$/.test(h)))) {
   throw new Error("Frozen residual environment recovery mismatch");
 }
+const transportPath = "config/beta20-transport-recovery.json";
+const transport = JSON.parse(readFileSync(resolve(root, transportPath)));
+if (hash(transportPath) !== "b1d9302d95181c80f970ccf232626600ea0ad374c8854e419e451a47cf2de344" ||
+    transport.candidateId !== candidate.candidateId || transport.diagnosticOnly !== true || transport.passAt1 !== null ||
+    transport.scope !== "new-diagnostic-run-linked-to-source-runs" ||
+    transport.batch.id !== "beta20-transport-recovery-001" || transport.batch.tasks.length !== 8 ||
+    new Set(transport.batch.tasks).size !== 8 || transport.excluded.length !== 8 ||
+    JSON.stringify(transport.batch.tasks) !== JSON.stringify(transport.evidence.map(t => t.instanceId)) ||
+    transport.batch.tasks.some(id => !ids.includes(id) || transport.excluded.some(t => t.instanceId === id)) ||
+    transport.evidence.some(t => t.hasPrediction !== false || t.process.timedOut !== false ||
+      t.process.status !== 1 || t.process.signal !== null || t.evidence.prefixValid !== true || t.evidence.complete !== true ||
+      t.evidence.rootStatus !== "failed" || t.evidence.rootTerminalCause !== "model-failure" ||
+      t.evidence.rootModelFailureReason !== "transport" || !/ECONNRESET|HTTP 502/.test(t.stderr) ||
+      !/^diagnostic-[0-9]+$/.test(t.sourceFormalRunId) ||
+      ![t.refs.receipt, t.refs.claim, t.refs.evidence, t.refs.processReceipt, t.refs.stdout, t.refs.stderr].every(r => /^[a-f0-9]{64}$/.test(r.sha256)) ||
+      t.process.stdout.sha256 !== t.refs.stdout.sha256 || t.process.stderr.sha256 !== t.refs.stderr.sha256)) {
+  throw new Error("Frozen transport recovery mismatch");
+}
 const profile = JSON.parse(readFileSync(resolve(root, "config/swe-python-environments.json")))["pytest-setuptools-scm"];
 const proofs = ["pytest-public-ancestor-probe.json", "pytest-public-ancestor-7324-5.4.0.json"].map(name => {
   const path = "config/public-python-evidence/" + name;
@@ -51,4 +69,4 @@ for (const [base, ancestor] of Object.entries(profile.ancestors)) {
     throw new Error("Unverified public pytest ancestor: " + base);
   }
 }
-console.log(JSON.stringify({ candidateId: candidate.candidateId, sourceCommit: null, verified: true, tasks: ids.length, residualEnvironmentTasks: remainingIds.length }));
+console.log(JSON.stringify({ candidateId: candidate.candidateId, sourceCommit: null, verified: true, tasks: ids.length, residualEnvironmentTasks: remainingIds.length, transportRecoveryTasks: transport.batch.tasks.length }));
