@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
-import {admitBatchRun, admitFirstTaskProvenance, batchModeTask, validateBatchConfig, resolveBatchTask} from '../scripts/node-bundle-controller.mjs';
+import {admitBatchRun, admitFirstTaskProvenance, batchModeTask, copyFrozenEvidence, frozenPredictionPrior, validateBatchConfig, resolveBatchTask, verifyFrozenArtifact} from '../scripts/node-bundle-controller.mjs';
 import {verifyCandidate, verifyTaskIdentity} from '../scripts/swe-node-bundle-preflight.mjs';
 import {pythonEnvironmentExpectations} from '../scripts/generate-node-bundle-one.mjs';
 import {selectFrozenTask} from '../scripts/node-bundle-task-selection.mjs';
@@ -29,6 +29,14 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
     if (prior.modelAttempt) {
       assert.equal(prior.predictionPresent, true, 'A model-attempt prior must have its frozen prediction');
       assert.equal(prior.officialEvaluation, 'not-evaluated');
+      assert.equal(prior.instanceId, 'astropy__astropy-13033');
+      assert.equal(prior.attemptId, 'astropy__astropy-13033-node-34404487703-001');
+      assert.equal(prior.predictionFileSha256, '9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58');
+      assert.equal(prior.patchSha256, '260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca');
+      assert.equal(prior.patchBytes, 2768);
+      assert.equal(prior.artifactId, 10125081716);
+      assert.equal(prior.artifactName, 'node-bundle-batch1-astropy__astropy-13033-34404487703-1');
+      assert.equal(prior.artifactManifestFiles, 260);
     } else {
       assert.equal(prior.predictionPresent, false);
     }
@@ -112,15 +120,104 @@ test('admitBatchRun admits declared failed priors with five-job shape and reject
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
 });
 
-test('the controller evaluate call passes the batch entry under the evaluation module parameter name', () => {
+test('the controller evaluate call passes the batch entry under the evaluation module parameter name and binds a frozen attempt to its generation run', () => {
   // Regression for batch run 34404487703: the evaluation module reads 'entry'; passing
   // 'task' silently fell back to the single-task django identity and the official
-  // evaluation rejected the astropy attempt at its first summary assertion.
+  // evaluation rejected the astropy attempt at its first summary assertion. The
+  // evaluation-only recovery additionally binds the evaluation to the frozen
+  // generation run, because every identity assertion in the evaluation module
+  // (summary attemptId, model-claim runId, prediction batch) checks that run.
   const source = fs.readFileSync(path.join(repository, 'scripts/node-bundle-controller.mjs'), 'utf8');
-  assert.match(source, /evaluateNodeBundleTask\(\{evidenceDir, manifestPath: path\.join\(evidenceDir, 'official-evaluator-manifest\.json'\), runId, entry: batchTask \? batchTask\.entry : null\}\)/);
+  assert.match(source, /evaluateNodeBundleTask\(\{evidenceDir, manifestPath: path\.join\(evidenceDir, 'official-evaluator-manifest\.json'\), runId: prior \? prior\.runId : runId, entry: batchTask \? batchTask\.entry : null\}\)/);
   assert.doesNotMatch(source, /evaluateNodeBundleTask\([^)]*\btask: batchTask/);
   const evaluate = fs.readFileSync(path.join(repository, 'scripts/evaluate-node-bundle-one.mjs'), 'utf8');
   assert.match(evaluate, /entry = null/);
+});
+
+test('frozenPredictionPrior routes only the consumed attempt to evaluation-only recovery', () => {
+  const prior = frozenPredictionPrior(batch, batch.tasks[0]);
+  assert.equal(prior.runId, '34404487703');
+  assert.equal(prior.instanceId, 'astropy__astropy-13033');
+  for (const entry of batch.tasks.slice(1)) {
+    assert.equal(frozenPredictionPrior(batch, entry), null, entry.instanceId + ' must keep its full first-attempt pipeline');
+  }
+  assert.equal(frozenPredictionPrior({...batch, priorBatchRuns: batch.priorBatchRuns.filter(run => !run.modelAttempt)}, batch.tasks[0]), null);
+});
+
+test('validateBatchConfig rejects a second consumed attempt or a tampered frozen identity', () => {
+  const second = {...batch, priorBatchRuns: [...batch.priorBatchRuns, {...batch.priorBatchRuns[4], runId: '34499999999', artifactId: 999, artifactName: 'node-bundle-batch1-astropy__astropy-13033-34499999999-1', reason: 'A second consumed model attempt for the same task is never admitted.'}]};
+  assert.throws(() => validateBatchConfig(second, selectionBytes), /At most one consumed model attempt/);
+  const wrongAttempt = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, attemptId: 'astropy__astropy-13033-node-34404487703-002'} : run)};
+  assert.throws(() => validateBatchConfig(wrongAttempt, selectionBytes), /attempt identity mismatch/);
+  const wrongPatch = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, patchSha256: 'a'.repeat(64)} : run)};
+  validateBatchConfig(wrongPatch, selectionBytes); // sha format is valid; identity stays mechanical
+  const missingArtifact = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, artifactName: 'some-other-artifact'} : run)};
+  assert.throws(() => validateBatchConfig(missingArtifact, selectionBytes), /node-bundle-batch1-/);
+});
+
+function buildFrozenFixture(directory, prior) {
+  const patchBytes = Buffer.from('frozen diagnostic patch bytes\n');
+  const prediction = {instanceId: prior.instanceId, attemptId: prior.attemptId, evaluationBatchId: `remaining63-node-${prior.runId}`, modelPatch: patchBytes.toString('utf8'), modelPatchSha256: createHash('sha256').update(patchBytes).digest('hex')};
+  const summary = {instanceId: prior.instanceId, attemptId: prior.attemptId, evaluationBatchId: `remaining63-node-${prior.runId}`, predictionPresent: true};
+  const capture = {status: 'captured', sha256: createHash('sha256').update(patchBytes).digest('hex'), bytes: patchBytes.length};
+  fs.mkdirSync(path.join(directory, 'terminal/captured'), {recursive: true});
+  fs.mkdirSync(path.join(directory, 'control-files/config'), {recursive: true});
+  fs.writeFileSync(path.join(directory, 'terminal/summary.json'), JSON.stringify(summary, null, 2) + '\n');
+  fs.writeFileSync(path.join(directory, 'terminal/prediction.json'), JSON.stringify(prediction, null, 2) + '\n');
+  fs.writeFileSync(path.join(directory, 'terminal/captured/receipt.json'), JSON.stringify(capture, null, 2) + '\n');
+  fs.writeFileSync(path.join(directory, 'terminal/captured/diagnostic.patch'), patchBytes);
+  fs.writeFileSync(path.join(directory, 'control-files/config/node-bundle-candidate.json'), '{}\n');
+  fs.writeFileSync(path.join(directory, 'run-claim.json'), '{"frozen":true}\n');
+  fs.writeFileSync(path.join(directory, 'pre-model-run-34399786029.json'), '{"frozen":true}\n');
+  const fileRecord = relative => {
+    const bytes = fs.readFileSync(path.join(directory, relative));
+    return {path: relative, sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex')};
+  };
+  const files = ['run-claim.json', 'pre-model-run-34399786029.json', 'control-files/config/node-bundle-candidate.json', 'terminal/summary.json', 'terminal/prediction.json', 'terminal/captured/receipt.json', 'terminal/captured/diagnostic.patch'].map(fileRecord);
+  fs.writeFileSync(path.join(directory, 'upload-manifest.json'), JSON.stringify({safe: true, files}, null, 2) + '\n');
+  return {patchSha256: capture.sha256, patchBytes: patchBytes.length};
+}
+
+test('verifyFrozenArtifact checks every manifest entry and the frozen identity, failing closed on change', t => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'node-batch-frozen-'));
+  t.after(() => fs.rmSync(fixture, {recursive: true, force: true}));
+  const prior = {...frozenPredictionPrior(batch, batch.tasks[0])};
+  const built = buildFrozenFixture(fixture, prior);
+  prior.artifactManifestFiles = 7;
+  prior.patchSha256 = built.patchSha256;
+  prior.patchBytes = built.patchBytes;
+  prior.predictionFileSha256 = createHash('sha256').update(fs.readFileSync(path.join(fixture, 'terminal/prediction.json'))).digest('hex');
+  verifyFrozenArtifact(fixture, prior);
+  const changed = fs.readFileSync(path.join(fixture, 'terminal/captured/diagnostic.patch'));
+  assert.throws(() => verifyFrozenArtifact(fixture, {...prior, artifactManifestFiles: 8}), /file count changed/);
+  assert.throws(() => verifyFrozenArtifact(fixture, {...prior, predictionFileSha256: 'b'.repeat(64)}), /prediction file hash changed/);
+  assert.throws(() => verifyFrozenArtifact(fixture, {...prior, patchBytes: built.patchBytes + 1}), /byte count changed/);
+  fs.writeFileSync(path.join(fixture, 'terminal/captured/diagnostic.patch'), changed.toString('utf8').replace('frozen', 'frozeN'));
+  assert.throws(() => verifyFrozenArtifact(fixture, prior), /hash changed: terminal\/captured\/diagnostic\.patch/);
+});
+
+test('copyFrozenEvidence copies frozen evidence without the fresh prepare-owned files and refuses overwrites', t => {
+  const staging = fs.mkdtempSync(path.join(os.tmpdir(), 'node-batch-copy-src-'));
+  const evidence = fs.mkdtempSync(path.join(os.tmpdir(), 'node-batch-copy-dst-'));
+  t.after(() => { fs.rmSync(staging, {recursive: true, force: true}); fs.rmSync(evidence, {recursive: true, force: true}); });
+  const prior = {...frozenPredictionPrior(batch, batch.tasks[0])};
+  const built = buildFrozenFixture(staging, prior);
+  prior.artifactManifestFiles = 7;
+  prior.patchSha256 = built.patchSha256;
+  prior.patchBytes = built.patchBytes;
+  prior.predictionFileSha256 = createHash('sha256').update(fs.readFileSync(path.join(staging, 'terminal/prediction.json'))).digest('hex');
+  verifyFrozenArtifact(staging, prior);
+  // The fresh prepare-owned files the recovery must not clobber.
+  fs.writeFileSync(path.join(evidence, 'run-claim.json'), '{"fresh":true}\n');
+  fs.mkdirSync(path.join(evidence, 'control-files/config'), {recursive: true});
+  fs.writeFileSync(path.join(evidence, 'control-files/config/node-bundle-candidate.json'), '{"fresh":true}\n');
+  const copied = copyFrozenEvidence(staging, evidence);
+  assert.equal(copied.filesCopied, 4, 'run-claim, pre-model-run-*, control-files stay excluded');
+  assert.equal(fs.readFileSync(path.join(evidence, 'run-claim.json'), 'utf8'), '{"fresh":true}\n');
+  assert.equal(fs.readFileSync(path.join(evidence, 'control-files/config/node-bundle-candidate.json'), 'utf8'), '{"fresh":true}\n');
+  assert.ok(fs.existsSync(path.join(evidence, 'terminal/prediction.json')));
+  assert.equal(fs.existsSync(path.join(evidence, 'pre-model-run-34399786029.json')), false, 'pre-model-run receipts stay fresh-prepare-owned');
+  assert.throws(() => copyFrozenEvidence(staging, evidence), /Recovery would overwrite existing evidence/, 'A second copy can never overwrite merged evidence');
 });
 
 test('batch task resolution is pinned to the frozen selection order', () => {

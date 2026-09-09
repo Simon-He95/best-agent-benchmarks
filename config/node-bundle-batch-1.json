@@ -71,7 +71,15 @@
       "modelAttempt": true,
       "predictionPresent": true,
       "officialEvaluation": "not-evaluated",
-      "reason": "Full generation pipeline succeeded with the as-shipped contract: single model attempt completed (attemptId astropy__astropy-13033-node-34404487703-001, trajectory complete, patch 2768 bytes sha256 260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca frozen in prediction). Official evaluation then failed at its identity gate because the controller passed the batch entry under the parameter name task while the evaluation module reads entry, so the module silently took the single-task django path and rejected the astropy summary. No official verdict exists. The prediction is frozen and immutable; the continuation must evaluate the existing prediction without a second model attempt (one-attempt-per-task). Audited artifact node-bundle-batch1-astropy__astropy-13033-34404487703-1 (id 10125081716, 227 files) preserves all evidence."
+      "instanceId": "astropy__astropy-13033",
+      "attemptId": "astropy__astropy-13033-node-34404487703-001",
+      "predictionFileSha256": "9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58",
+      "patchSha256": "260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca",
+      "patchBytes": 2768,
+      "artifactId": 10125081716,
+      "artifactName": "node-bundle-batch1-astropy__astropy-13033-34404487703-1",
+      "artifactManifestFiles": 260,
+      "reason": "Full generation pipeline succeeded with the as-shipped contract: single model attempt completed (attemptId astropy__astropy-13033-node-34404487703-001, trajectory complete, patch 2768 bytes sha256 260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca frozen in prediction). Official evaluation then failed at its identity gate because the controller passed the batch entry under the parameter name task while the evaluation module reads entry, so the module silently took the single-task django path and rejected the astropy summary. No official verdict exists. The prediction is frozen and immutable; the continuation must evaluate the existing prediction without a second model attempt (one-attempt-per-task). Audited artifact node-bundle-batch1-astropy__astropy-13033-34404487703-1 (id 10125081716, 227 files) preserves all evidence. Identity fields added 2026-09-10 with the evaluation-only recovery mechanism, verified byte-for-byte against the locally downloaded artifact: prediction file sha256 9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58, upload-manifest 260 file entries, image digest sha256:22f4f193fbf69d61c59e285494be18041934f8b528190dfe8c6c0d8051d8d6de matching this task's pinned imageRef."
     }
   ],
   "firstTaskProvenance": {

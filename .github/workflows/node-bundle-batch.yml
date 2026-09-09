@@ -66,6 +66,7 @@ jobs:
       - name: Run the sole frozen model attempt and audit terminal evidence
         env:
           BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
         run: >-
           "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node"
           scripts/node-bundle-controller.mjs generate
