@@ -8,7 +8,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: frozen-node-failed-tasks
+  group: frozen-node-failed-tasks-diagnostic
   cancel-in-progress: false
 
 jobs:
