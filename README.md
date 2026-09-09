@@ -2,6 +2,10 @@
 
 Public macOS generation runner for the pinned best-agent CLI on SWE-bench Verified.
 
+## Current work / handoff
+
+For the active fixed Node + frozen CJS Linux CI migration, start with [the runbook and current handoff](docs/node-bundle-ci.md), [the frozen remaining63 selection](config/node-bundle-failed-tasks.json), and [the single-task generation plan](docs/node-bundle-generation-plan.md). Linux engineering preflight has passed; that alone is not a new benchmark result. The sections below describe the existing npm/SEA workflow, not the new unpublished CJS candidate. Do not launch that older workflow merely to continue the new migration.
+
 ## Evaluation boundary
 
 This repository does not implement a second grader. It installs the public CLI version from
