@@ -115,9 +115,19 @@ export function verifyFrozenArtifact(stagingDir, prior) {
 // Fresh prepare already owns the current run's admission/preparation evidence;
 // the frozen artifact's own copies of those files must not enter the merged
 // evidence directory. Any collision fails closed instead of overwriting.
-const frozenRootExclusions = ['run-claim.json', 'hosted-run-admission.json', 'single-task-run-history.json', 'controller-prepared.json', 'official-evaluator-manifest.json', 'download-receipt.json', 'credential-audit.json', 'upload-manifest.json'];
+// Run 34410821207 failed on exactly this inventory being incomplete: fresh
+// prepare also writes execution-control.json and the evaluator-environment
+// step receipts below (runRecordedStep emits .process.json/.stdout.txt/.stderr.txt
+// per step), and the frozen artifact carries same-named receipts from its own
+// preparation. The fresh copies own these names; the frozen originals remain
+// verifiable in the frozen artifact itself.
+const frozenRootExclusions = ['run-claim.json', 'hosted-run-admission.json', 'single-task-run-history.json', 'controller-prepared.json', 'official-evaluator-manifest.json', 'download-receipt.json', 'credential-audit.json', 'upload-manifest.json', 'execution-control.json'];
 const frozenRootExcludedDirs = ['control-files'];
-const frozenExcludedRootFile = relative => /^pre-model-run-\d+\.json$/.test(relative) || frozenRootExclusions.includes(relative);
+const prepareOwnedReceiptStems = ['evaluator-source-head', 'evaluator-source-clean', 'host-python-version', 'evaluator-venv', 'evaluator-install', 'evaluator-freeze', 'evaluator-imports', 'evaluator-prepare'];
+const prepareOwnedReceiptNames = prepareOwnedReceiptStems.flatMap(name => [name + '.process.json', name + '.stdout.txt', name + '.stderr.txt']);
+const prepareOwnedReceiptPattern = "^(" + prepareOwnedReceiptNames.map(name => name.replace(/\./g, "[.]")).join("|") + ")$";
+const prepareOwnedStepReceipts = new RegExp(prepareOwnedReceiptPattern);
+const frozenExcludedRootFile = relative => /^pre-model-run-\d+\.json$/.test(relative) || prepareOwnedStepReceipts.test(relative) || frozenRootExclusions.includes(relative);
 
 export function copyFrozenEvidence(stagingDir, evidenceDir) {
   const files = [];
@@ -145,7 +155,7 @@ export function copyFrozenEvidence(stagingDir, evidenceDir) {
     assert.equal(fileHash(destination), fileHash(path.join(stagingDir, relative)), 'Frozen evidence changed during recovery copy: ' + relative);
     bytes += fs.statSync(destination).size;
   }
-  return {filesCopied: files.length, bytesCopied: bytes, excludedRootNames: frozenRootExclusions.concat(frozenRootExcludedDirs)};
+  return {filesCopied: files.length, bytesCopied: bytes, excludedRootNames: frozenRootExclusions.concat(frozenRootExcludedDirs, prepareOwnedReceiptNames)};
 }
 
 export function resolveBatchTask(batch, selection, instanceId) {

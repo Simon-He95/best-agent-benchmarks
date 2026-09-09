@@ -201,11 +201,20 @@ function buildFrozenFixture(directory, prior) {
   fs.writeFileSync(path.join(directory, 'control-files/config/node-bundle-candidate.json'), '{}\n');
   fs.writeFileSync(path.join(directory, 'run-claim.json'), '{"frozen":true}\n');
   fs.writeFileSync(path.join(directory, 'pre-model-run-34399786029.json'), '{"frozen":true}\n');
+  // The frozen artifact also carries the prepare-stage receipts its own run wrote
+  // (execution-control.json + the evaluator-environment step receipts); same-named
+  // fresh prepare receipts own these names in the merged evidence directory.
+  fs.writeFileSync(path.join(directory, 'execution-control.json'), '{"frozen":true}\n');
+  for (const name of ['evaluator-source-head', 'evaluator-source-clean', 'host-python-version', 'evaluator-venv', 'evaluator-install', 'evaluator-freeze', 'evaluator-imports', 'evaluator-prepare']) {
+    for (const suffix of ['.process.json', '.stdout.txt', '.stderr.txt']) fs.writeFileSync(path.join(directory, name + suffix), '{"frozen":true}\n');
+  }
   const fileRecord = relative => {
     const bytes = fs.readFileSync(path.join(directory, relative));
     return {path: relative, sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex')};
   };
-  const files = ['run-claim.json', 'pre-model-run-34399786029.json', 'control-files/config/node-bundle-candidate.json', 'terminal/summary.json', 'terminal/prediction.json', 'terminal/captured/receipt.json', 'terminal/captured/diagnostic.patch'].map(fileRecord);
+  const files = ['run-claim.json', 'pre-model-run-34399786029.json', 'execution-control.json',
+    ...['evaluator-source-head', 'evaluator-source-clean', 'host-python-version', 'evaluator-venv', 'evaluator-install', 'evaluator-freeze', 'evaluator-imports', 'evaluator-prepare'].flatMap(name => [name + '.process.json', name + '.stdout.txt', name + '.stderr.txt']),
+    'control-files/config/node-bundle-candidate.json', 'terminal/summary.json', 'terminal/prediction.json', 'terminal/captured/receipt.json', 'terminal/captured/diagnostic.patch'].map(fileRecord);
   fs.writeFileSync(path.join(directory, 'upload-manifest.json'), JSON.stringify({safe: true, files}, null, 2) + '\n');
   return {patchSha256: capture.sha256, patchBytes: patchBytes.length};
 }
@@ -215,7 +224,7 @@ test('verifyFrozenArtifact checks every manifest entry and the frozen identity, 
   t.after(() => fs.rmSync(fixture, {recursive: true, force: true}));
   const prior = {...frozenPredictionPrior(batch, batch.tasks[0])};
   const built = buildFrozenFixture(fixture, prior);
-  prior.artifactManifestFiles = 7;
+  prior.artifactManifestFiles = 32;
   prior.patchSha256 = built.patchSha256;
   prior.patchBytes = built.patchBytes;
   prior.predictionFileSha256 = createHash('sha256').update(fs.readFileSync(path.join(fixture, 'terminal/prediction.json'))).digest('hex');
@@ -234,18 +243,28 @@ test('copyFrozenEvidence copies frozen evidence without the fresh prepare-owned 
   t.after(() => { fs.rmSync(staging, {recursive: true, force: true}); fs.rmSync(evidence, {recursive: true, force: true}); });
   const prior = {...frozenPredictionPrior(batch, batch.tasks[0])};
   const built = buildFrozenFixture(staging, prior);
-  prior.artifactManifestFiles = 7;
+  prior.artifactManifestFiles = 32;
   prior.patchSha256 = built.patchSha256;
   prior.patchBytes = built.patchBytes;
   prior.predictionFileSha256 = createHash('sha256').update(fs.readFileSync(path.join(staging, 'terminal/prediction.json'))).digest('hex');
   verifyFrozenArtifact(staging, prior);
-  // The fresh prepare-owned files the recovery must not clobber.
+  // The fresh prepare-owned files the recovery must not clobber: the admission
+  // set plus execution-control.json and every evaluator-environment step receipt
+  // prepare writes (run 34410821207 failed on exactly this collision set).
   fs.writeFileSync(path.join(evidence, 'run-claim.json'), '{"fresh":true}\n');
+  fs.writeFileSync(path.join(evidence, 'execution-control.json'), '{"fresh":true}\n');
+  for (const name of ['evaluator-source-head', 'evaluator-source-clean', 'host-python-version', 'evaluator-venv', 'evaluator-install', 'evaluator-freeze', 'evaluator-imports', 'evaluator-prepare']) {
+    for (const suffix of ['.process.json', '.stdout.txt', '.stderr.txt']) fs.writeFileSync(path.join(evidence, name + suffix), '{"fresh":true}\n');
+  }
   fs.mkdirSync(path.join(evidence, 'control-files/config'), {recursive: true});
   fs.writeFileSync(path.join(evidence, 'control-files/config/node-bundle-candidate.json'), '{"fresh":true}\n');
   const copied = copyFrozenEvidence(staging, evidence);
-  assert.equal(copied.filesCopied, 4, 'run-claim, pre-model-run-*, control-files stay excluded');
+  assert.equal(copied.filesCopied, 4, 'run-claim, pre-model-run-*, execution-control, evaluator-environment receipts, control-files and upload-manifest stay excluded');
   assert.equal(fs.readFileSync(path.join(evidence, 'run-claim.json'), 'utf8'), '{"fresh":true}\n');
+  assert.equal(fs.readFileSync(path.join(evidence, 'execution-control.json'), 'utf8'), '{"fresh":true}\n');
+  assert.equal(fs.readFileSync(path.join(evidence, 'evaluator-freeze.process.json'), 'utf8'), '{"fresh":true}\n', 'fresh prepare owns the evaluator-environment receipt names');
+  assert.equal(fs.readFileSync(path.join(evidence, 'evaluator-prepare.stderr.txt'), 'utf8'), '{"fresh":true}\n');
+  assert.ok(copied.excludedRootNames.includes('execution-control.json') && copied.excludedRootNames.includes('evaluator-freeze.process.json'), 'the exclusion receipt records the full inventory');
   assert.equal(fs.readFileSync(path.join(evidence, 'control-files/config/node-bundle-candidate.json'), 'utf8'), '{"fresh":true}\n');
   assert.ok(fs.existsSync(path.join(evidence, 'terminal/prediction.json')));
   assert.equal(fs.existsSync(path.join(evidence, 'pre-model-run-34399786029.json')), false, 'pre-model-run receipts stay fresh-prepare-owned');
