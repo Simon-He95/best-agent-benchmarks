@@ -65,7 +65,10 @@ test('admits a declared prior recovery run and rejects undeclared or mutated rec
   const oneRuns = [hostedRun(100, 'h1'), hostedRun(200, 'h2'), hostedRun(300, 'h3')];
   const recoveryRuns = [hostedRun(777, 'r1')];
   const jobs = jobsByRun();
-  jobs['777'] = {jobs: [{id: 77, status: 'completed', conclusion: 'failure', steps: stepsFor(priorRecoveryRuns[0])}]};
+  // The real recovery job carries two same-named checkout actions steps (repo + tool
+  // checkout); undeclared lifecycle steps must not break the exact-match tripwire.
+  const lifecycle = [{name: 'Set up job', conclusion: 'success'}, {name: 'Run actions/checkout@v4', conclusion: 'success'}, {name: 'Run actions/checkout@v4', conclusion: 'success'}, {name: 'Run actions/setup-python@v5', conclusion: 'success'}, {name: 'Post Run actions/checkout@v4', conclusion: 'success'}, {name: 'Post Run actions/checkout@v4', conclusion: 'success'}];
+  jobs['777'] = {jobs: [{id: 77, status: 'completed', conclusion: 'failure', steps: [...lifecycle, ...stepsFor(priorRecoveryRuns[0])]}]};
   admitRecoveryRun(oneRuns, recoveryRuns, '999', preModelRuns, source, jobs, priorRecoveryRuns);
   for (const mutation of [
     () => admitRecoveryRun(oneRuns, [...recoveryRuns, hostedRun(888, 'h8')], '999', preModelRuns, source, jobs, priorRecoveryRuns),
@@ -213,5 +216,8 @@ test('the frozen recovery manifest declares the interrupted recovery run and its
   assert.equal(prior.runAttempt, 1);
   assert.equal(prior.skippedSteps.length, 2);
   assert.equal(prior.officialEvaluation, 'not-evaluated');
+  const declaredNames = [prior.failedStep, ...prior.skippedSteps, ...prior.succeededSteps];
+  for (const name of declaredNames) assert.equal(declaredNames.filter(item => item === name).length, 1, 'Duplicate declared step name would break the exactly-once matcher: ' + name);
+  for (const name of [...prior.skippedSteps, ...prior.succeededSteps]) assert.doesNotMatch(name, /^Run actions\//, 'lifecycle steps must not be declared: ' + name);
   assert.equal(recovery.expected.recoveredPatchSha256, 'd6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5');
 });

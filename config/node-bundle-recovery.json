@@ -68,8 +68,6 @@
         "Evaluate the frozen prediction in a fresh official Docker container"
       ],
       "succeededSteps": [
-        "Run actions/checkout@v4",
-        "Run actions/setup-python@v5",
         "Download and verify the pinned Node runtime (public distribution, no private token)",
         "Check recovery admission, evidence and lifecycle tests",
         "Verify recovery admission and prepare frozen attempt evidence",
