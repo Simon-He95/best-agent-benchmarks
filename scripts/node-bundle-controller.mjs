@@ -39,10 +39,10 @@ export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(provenance.verdict, 'test-failed');
   assert.equal(provenance.officialResolved, false);
   const modelPriors = batch.priorBatchRuns.filter(item => item.modelAttempt === true);
-  assert(modelPriors.length <= 1, 'At most one consumed model attempt is admitted');
+  const predeclared = modelPriors.filter(item => item.officialEvaluation === 'not-evaluated');
+  assert(predeclared.length <= 1, 'At most one predeclared model attempt with a pending evaluation is admitted');
   for (const prior of modelPriors) {
     assert.equal(prior.predictionPresent, true, 'A consumed model attempt must have its frozen prediction');
-    assert.equal(prior.officialEvaluation, 'not-evaluated');
     assert(batch.tasks.some(task => task.instanceId === prior.instanceId), 'A consumed model attempt must belong to a frozen batch task');
     assert.equal(prior.attemptId, `${prior.instanceId}-node-${prior.runId}-001`, 'Frozen attempt identity mismatch');
     assert.match(prior.predictionFileSha256, /^[a-f0-9]{64}$/);
@@ -51,12 +51,28 @@ export function validateBatchConfig(batch, selectionBytes) {
     assert(Number.isInteger(prior.artifactId) && prior.artifactId > 0);
     assert.equal(prior.artifactName, `node-bundle-batch1-${prior.instanceId}-${prior.runId}-1`);
     assert(Number.isInteger(prior.artifactManifestFiles) && prior.artifactManifestFiles > 0);
+    if (prior.officialEvaluation === 'not-evaluated') {
+      assert(prior.forbiddenDuplicateAttempt !== true, 'The predeclared attempt is never a forbidden duplicate');
+      assert(prior.excludedFromTally !== true, 'The predeclared attempt governs the diagnostic tally');
+    } else {
+      assert.equal(prior.forbiddenDuplicateAttempt, true, 'A model-attempt prior carrying an official verdict must be declared a forbidden duplicate');
+      assert.equal(prior.excludedFromTally, true, 'A forbidden duplicate verdict is excluded from the diagnostic tally');
+      assert(typeof prior.officialEvaluation === 'string' && prior.officialEvaluation.length > 0);
+    }
+  }
+  for (const prior of batch.priorBatchRuns) {
+    for (const job of prior.succeededJobs ?? []) {
+      assert(Number.isInteger(job.jobId) && job.jobId > 0, 'A declared succeeded job needs a numeric job id');
+    }
   }
   return batch;
 }
 
 export function frozenPredictionPrior(batch, entry) {
-  const prior = (batch.priorBatchRuns ?? []).find(item => item.modelAttempt === true);
+  // Only the predeclared attempt with a still-pending evaluation routes a task
+  // to evaluation-only recovery. Forbidden duplicates carry their own verdicts
+  // and never route anything.
+  const prior = (batch.priorBatchRuns ?? []).find(item => item.modelAttempt === true && item.officialEvaluation === 'not-evaluated');
   if (!prior || prior.instanceId !== entry.instanceId) return null;
   return prior;
 }
@@ -157,8 +173,13 @@ export function admitBatchRun(runs, runId, batch, jobsByRun = {}) {
     assert.equal(previous.run_attempt, 1);
     const jobs = jobsByRun[declaration.runId]?.jobs;
     assert(Array.isArray(jobs) && jobs.length === 5, 'The declared batch run must show all five jobs');
+    const succeeded = new Set((declaration.succeededJobs ?? []).map(item => item.jobId));
     for (const job of jobs) {
       if (job.id !== declaration.jobId) {
+        if (succeeded.has(job.id)) {
+          assert.equal(job.conclusion, 'success', 'A declared succeeded job did not succeed');
+          continue;
+        }
         assert.equal(job.conclusion, 'skipped', 'A non-declared job of a prior batch run executed');
         continue;
       }

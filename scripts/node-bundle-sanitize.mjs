@@ -108,7 +108,12 @@ def inspect(name, data, depth=0):
     digest = hashlib.sha256(data).hexdigest()
     files.append({'path': name, 'bytes': len(data), 'sha256': digest})
     if any(n in data for n in needles):
-        findings.append({'path': name, 'sha256': digest, 'reason': 'prohibited-content'})
+        base_era = (request.get('baseEra') or {})
+        relative = name[len('/testbed/'):] if name.startswith('/testbed/') else None
+        if relative is not None and base_era.get(relative) == digest:
+            findings.append({'path': name, 'sha256': digest, 'reason': 'base-era-content'})
+        else:
+            findings.append({'path': name, 'sha256': digest, 'reason': 'prohibited-content'})
     if depth > 5: raise ValueError('archive nesting limit')
     stream = io.BytesIO(data)
     archive = None
@@ -193,11 +198,11 @@ with tarfile.open(request['archive'], mode='r|') as archive:
             while parent:
                 if parent in links: raise ValueError('workspace member traverses link')
                 parent = posixpath.dirname(parent)
-print(json.dumps({'passed': not findings, 'scope': request['mode'], 'regularFiles': len(files), 'fileSetSha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(), 'archives': archives, 'findings': findings, 'excludes': ['kernel proc/sys/dev virtual filesystems'], 'contentScan': 'exact private patch/metadata bytes; recursively decoded zip, tar, gzip, bzip2, xz'}))
+print(json.dumps({'passed': not any(f['reason'] != 'base-era-content' for f in findings), 'scope': request['mode'], 'regularFiles': len(files), 'fileSetSha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(), 'archives': archives, 'findings': findings, 'excludes': ['kernel proc/sys/dev virtual filesystems'], 'contentScan': 'exact private patch/metadata bytes; recursively decoded zip, tar, gzip, bzip2, xz; base-era /testbed files byte-identical to the frozen base tree are recorded but not failures'}))
 `;
 
-export function inspectArchive(archive, needles = [], mode = 'root', receiptPrefix) {
-  const result = spawnSync('python3', ['-c', archiveScanner], {input: JSON.stringify({archive, needles, mode}), encoding: 'utf8', maxBuffer: 16 * 1024 ** 2, timeout: 600_000});
+export function inspectArchive(archive, needles = [], mode = 'root', receiptPrefix, baseEra = null) {
+  const result = spawnSync('python3', ['-c', archiveScanner], {input: JSON.stringify({archive, needles, mode, baseEra}), encoding: 'utf8', maxBuffer: 16 * 1024 ** 2, timeout: 600_000});
   if (receiptPrefix) {
     const outputs = {};
     for (const stream of ['stdout', 'stderr']) {
@@ -210,6 +215,49 @@ export function inspectArchive(archive, needles = [], mode = 'root', receiptPref
   }
   if (result.status !== 0 || result.signal || result.error) throw new Error('Archive inspection failed without admission (' + (result.status ?? result.signal ?? 'spawn') + ')');
   return JSON.parse(result.stdout);
+}
+
+// Controller-side map of every regular file tracked at the frozen base commit to the
+// sha256 of its content. The private base.git (docker-cp'd trusted construction) is the
+// only input besides the frozen base commit; no grader material is read to build this.
+export function baseEraFileHashes(baseGitDir, baseCommit) {
+  assert.match(baseCommit, /^[a-f0-9]{40}$/);
+  const ls = spawnSync('git', ['--git-dir', baseGitDir, 'ls-tree', '-r', '-z', baseCommit], {encoding: 'buffer', maxBuffer: 64 * 1024 * 1024, env: gitEnvironment});
+  assert.equal(ls.status, 0, 'Cannot list the frozen base tree');
+  const entries = [];
+  for (const line of ls.stdout.toString('utf8').split('\0')) {
+    if (!line) continue;
+    const tabIndex = line.indexOf('\t');
+    assert(tabIndex > 0, 'Malformed ls-tree record');
+    const [mode, type, blob] = line.slice(0, tabIndex).split(/\s+/);
+    assert.equal(type, 'blob', 'Base tree contains a non-blob entry: ' + line);
+    entries.push({path: line.slice(tabIndex + 1), blob});
+  }
+  assert(entries.length > 0, 'The frozen base tree is empty');
+  const batch = spawnSync('git', ['--git-dir', baseGitDir, 'cat-file', '--batch'], {
+    input: entries.map(entry => entry.blob).join('\n') + '\n', maxBuffer: 1024 * 1024 * 1024, env: gitEnvironment,
+  });
+  assert.equal(batch.status, 0, 'Cannot read the frozen base blobs');
+  const files = {};
+  let offset = 0;
+  const out = batch.stdout;
+  for (const entry of entries) {
+    const headerEnd = out.indexOf(0x0a, offset);
+    assert(headerEnd > offset, 'Malformed cat-file batch stream');
+    const header = out.slice(offset, headerEnd).toString('utf8').split(' ');
+    assert.equal(header[0], entry.blob, 'cat-file served a different object than requested');
+    assert.equal(header[1], 'blob');
+    const size = Number(header[2]);
+    assert(Number.isInteger(size) && size >= 0);
+    const content = out.subarray(headerEnd + 1, headerEnd + 1 + size);
+    assert.equal(content.length, size, 'Truncated cat-file record: ' + entry.path);
+    files[entry.path] = hash(content);
+    offset = headerEnd + 1 + size;
+    assert.equal(out[offset], 0x0a, 'Missing cat-file record terminator');
+    offset += 1;
+  }
+  assert.equal(offset, out.length, 'Trailing bytes in the cat-file batch stream');
+  return files;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

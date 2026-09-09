@@ -23,20 +23,35 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 5);
-  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029', '34404487703']);
+  assert.equal(batch.priorBatchRuns.length, 7);
+  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029', '34404487703', '34407065559', '34408218858']);
   for (const prior of batch.priorBatchRuns) {
     if (prior.modelAttempt) {
       assert.equal(prior.predictionPresent, true, 'A model-attempt prior must have its frozen prediction');
-      assert.equal(prior.officialEvaluation, 'not-evaluated');
       assert.equal(prior.instanceId, 'astropy__astropy-13033');
-      assert.equal(prior.attemptId, 'astropy__astropy-13033-node-34404487703-001');
-      assert.equal(prior.predictionFileSha256, '9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58');
-      assert.equal(prior.patchSha256, '260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca');
-      assert.equal(prior.patchBytes, 2768);
-      assert.equal(prior.artifactId, 10125081716);
-      assert.equal(prior.artifactName, 'node-bundle-batch1-astropy__astropy-13033-34404487703-1');
-      assert.equal(prior.artifactManifestFiles, 260);
+      assert.equal(prior.attemptId, `astropy__astropy-13033-node-${prior.runId}-001`);
+      assert.match(prior.predictionFileSha256, /^[a-f0-9]{64}$/);
+      assert.match(prior.patchSha256, /^[a-f0-9]{64}$/);
+      assert(Number.isInteger(prior.patchBytes) && prior.patchBytes > 0);
+      assert.equal(prior.artifactName, `node-bundle-batch1-astropy__astropy-13033-${prior.runId}-1`);
+      assert(Number.isInteger(prior.artifactId) && prior.artifactId > 0);
+      assert(Number.isInteger(prior.artifactManifestFiles) && prior.artifactManifestFiles > 0);
+      if (prior.officialEvaluation === 'not-evaluated') {
+        assert.equal(prior.runId, '34404487703', 'The predeclared attempt is the only one routed to evaluation-only recovery');
+        assert.equal(prior.predictionFileSha256, '9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58');
+        assert.equal(prior.patchSha256, '260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca');
+        assert.equal(prior.artifactId, 10125081716);
+        assert.equal(prior.artifactManifestFiles, 260);
+        assert(prior.forbiddenDuplicateAttempt !== true);
+      } else {
+        assert.equal(prior.runId, '34407065559', 'The only other model-attempt prior is the declared forbidden duplicate');
+        assert.equal(prior.forbiddenDuplicateAttempt, true);
+        assert.equal(prior.excludedFromTally, true);
+        assert.equal(prior.officialEvaluation, 'test-failed');
+        assert.equal(prior.patchSha256, 'addf5502dff82366c4237704694cae2ccee62e3da3c0fb4849be18f991868b6c');
+        assert.equal(prior.succeededJobs.map(job => job.jobId).join(','), '102652479023');
+        assert.equal(prior.jobId, 102655575298);
+      }
     } else {
       assert.equal(prior.predictionPresent, false);
     }
@@ -120,6 +135,19 @@ test('admitBatchRun admits declared failed priors with five-job shape and reject
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
 });
 
+test('admitBatchRun admits a declared prior with one succeeded and one failed job and rejects the rest', () => {
+  const current = {id: 500, head_sha: 'a'.repeat(40), status: 'in_progress', conclusion: null, run_attempt: 1};
+  const mixedJobs = failedJobId => [9, failedJobId, 22, 23, 24].map((id, index) => ({id, status: 'completed', conclusion: index === 0 ? 'success' : index === 1 ? 'failure' : 'skipped', steps: index === 1 ? [
+    {name: 'Verify controller and official evaluator environment before model admission', status: 'completed', conclusion: 'success'},
+    {name: 'Run the sole frozen model attempt and audit terminal evidence', status: 'completed', conclusion: 'failure'},
+    {name: 'Evaluate frozen prediction in fresh official Docker container', status: 'completed', conclusion: 'skipped'},
+  ] : []}));
+  const declared = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 21, failedStep: 'Run the sole frozen model attempt and audit terminal evidence', skippedSteps: ['Evaluate frozen prediction in fresh official Docker container'], succeededJobs: [{jobId: 9}]}]};
+  admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: mixedJobs(21)}});
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: mixedJobs(21).map(job => job.id === 9 ? {...job, conclusion: 'failure'} : job)}}), /declared succeeded job/);
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: mixedJobs(21).map(job => job.id === 22 ? {...job, conclusion: 'success'} : job)}}), /non-declared job/);
+});
+
 test('the controller evaluate call passes the batch entry under the evaluation module parameter name and binds a frozen attempt to its generation run', () => {
   // Regression for batch run 34404487703: the evaluation module reads 'entry'; passing
   // 'task' silently fell back to the single-task django identity and the official
@@ -134,25 +162,29 @@ test('the controller evaluate call passes the batch entry under the evaluation m
   assert.match(evaluate, /entry = null/);
 });
 
-test('frozenPredictionPrior routes only the consumed attempt to evaluation-only recovery', () => {
+test('frozenPredictionPrior routes only the predeclared attempt to evaluation-only recovery', () => {
   const prior = frozenPredictionPrior(batch, batch.tasks[0]);
-  assert.equal(prior.runId, '34404487703');
+  assert.equal(prior.runId, '34404487703', 'The forbidden duplicate must never route a task');
   assert.equal(prior.instanceId, 'astropy__astropy-13033');
   for (const entry of batch.tasks.slice(1)) {
     assert.equal(frozenPredictionPrior(batch, entry), null, entry.instanceId + ' must keep its full first-attempt pipeline');
   }
+  assert.equal(frozenPredictionPrior({...batch, priorBatchRuns: batch.priorBatchRuns.filter(run => run.runId !== '34404487703')}, batch.tasks[0]), null, 'With only the duplicate present, 13033 has no eval-only route');
   assert.equal(frozenPredictionPrior({...batch, priorBatchRuns: batch.priorBatchRuns.filter(run => !run.modelAttempt)}, batch.tasks[0]), null);
 });
 
-test('validateBatchConfig rejects a second consumed attempt or a tampered frozen identity', () => {
-  const second = {...batch, priorBatchRuns: [...batch.priorBatchRuns, {...batch.priorBatchRuns[4], runId: '34499999999', artifactId: 999, artifactName: 'node-bundle-batch1-astropy__astropy-13033-34499999999-1', reason: 'A second consumed model attempt for the same task is never admitted.'}]};
-  assert.throws(() => validateBatchConfig(second, selectionBytes), /At most one consumed model attempt/);
-  const wrongAttempt = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, attemptId: 'astropy__astropy-13033-node-34404487703-002'} : run)};
+test('validateBatchConfig admits the declared forbidden duplicate and rejects undeclared or second predeclared attempts', () => {
+  const secondPredeclared = {...batch, priorBatchRuns: [...batch.priorBatchRuns, {...batch.priorBatchRuns[4], runId: '34409999999', artifactId: 999, artifactName: 'node-bundle-batch1-astropy__astropy-13033-34409999999-1', reason: 'A second predeclared pending attempt for the same task is never admitted.'}]};
+  assert.throws(() => validateBatchConfig(secondPredeclared, selectionBytes), /At most one predeclared model attempt/);
+  const undeclaredDuplicate = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.runId === '34407065559' ? {...run, forbiddenDuplicateAttempt: false} : run)};
+  assert.throws(() => validateBatchConfig(undeclaredDuplicate, selectionBytes), /must be declared a forbidden duplicate/);
+  const unexcludedDuplicate = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.runId === '34407065559' ? {...run, excludedFromTally: false} : run)};
+  assert.throws(() => validateBatchConfig(unexcludedDuplicate, selectionBytes), /excluded from the diagnostic tally/);
+  const wrongAttempt = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt && run.officialEvaluation === 'not-evaluated' ? {...run, attemptId: 'astropy__astropy-13033-node-34404487703-002'} : run)};
   assert.throws(() => validateBatchConfig(wrongAttempt, selectionBytes), /attempt identity mismatch/);
-  const wrongPatch = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, patchSha256: 'a'.repeat(64)} : run)};
-  validateBatchConfig(wrongPatch, selectionBytes); // sha format is valid; identity stays mechanical
-  const missingArtifact = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt ? {...run, artifactName: 'some-other-artifact'} : run)};
+  const missingArtifact = {...batch, priorBatchRuns: batch.priorBatchRuns.map(run => run.modelAttempt && run.officialEvaluation === 'not-evaluated' ? {...run, artifactName: 'some-other-artifact'} : run)};
   assert.throws(() => validateBatchConfig(missingArtifact, selectionBytes), /node-bundle-batch1-/);
+  validateBatchConfig(batch, selectionBytes);
 });
 
 function buildFrozenFixture(directory, prior) {

@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import {sanitizeRepository, verifyBaseObjects, verifyInstalledDjango, inspectArchive} from '../scripts/node-bundle-sanitize.mjs';
+import {sanitizeRepository, verifyBaseObjects, verifyInstalledDjango, inspectArchive, baseEraFileHashes} from '../scripts/node-bundle-sanitize.mjs';
 import {capturePatch} from '../scripts/node-bundle-capture.mjs';
 import {generationInputs, predictionEligible, recordGenerationProcess, generateNodeBundleTask, collectTerminalExports, modelRemovalSafe} from '../scripts/generate-node-bundle-one.mjs';
 import {buildTaskPrompt} from '../scripts/swe-bench-harness.mjs';
@@ -261,4 +261,37 @@ with tarfile.open(sys.argv[1],'w') as t:
   assert.equal(result.passed, false);
   assert.deepEqual(result.findings.map(f => f.path), ['/first.gz', '/second.gz']);
   assert(result.findings.every(f => f.reason === 'archive-decoder-error' && f.traceback.includes('Error')));
+});
+
+
+test('base-era /testbed content matching a needle is recorded but does not fail the root scan', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'root.tar');
+  const content = 'def coordinate_frame_from_base():\n    return "shared base source line that also appears in a patch addition block"\n';
+  const contentSha = hash(content);
+  execFileSync('python3', ['-c', `import tarfile,io,sys
+with tarfile.open(sys.argv[1],'w') as t:
+ for name,data in [('testbed/astropy/frame.py',sys.argv[2].encode()),('opt/other/frame.py',sys.argv[2].encode())]:
+  m=tarfile.TarInfo(name);m.size=len(data);t.addfile(m,io.BytesIO(data))`, archive, content]);
+  const baseEra = {'astropy/frame.py': contentSha};
+  const flagged = inspectArchive(archive, ['shared base source line'], 'root', null, null);
+  assert.equal(flagged.passed, false, 'A match outside the base-era /testbed tree stays a hard failure');
+  assert.deepEqual(flagged.findings.map(f => [f.path, f.reason]), [
+    ['/testbed/astropy/frame.py', 'prohibited-content'],
+    ['/opt/other/frame.py', 'prohibited-content'],
+  ], 'Without a matching base-era hash every needle match is prohibited content');
+  assert.equal(inspectArchive(archive, ['shared base source line'], 'root', null, {'astropy/frame.py': 'b'.repeat(64)}).passed, false, 'A wrong base-era hash does not whitelist anything');
+  execFileSync('python3', ['-c', `import tarfile,io,sys
+with tarfile.open(sys.argv[1],'w') as t:
+ data=sys.argv[2].encode();m=tarfile.TarInfo('testbed/astropy/frame.py');m.size=len(data);t.addfile(m,io.BytesIO(data))`, archive, content]);
+  const result = inspectArchive(archive, ['shared base source line'], 'root', null, baseEra);
+  assert.equal(result.passed, true, 'A base-era-only match no longer fails the root scan');
+  assert.deepEqual(result.findings.map(f => [f.path, f.reason]), [['/testbed/astropy/frame.py', 'base-era-content']]);
+});
+
+test('baseEraFileHashes maps the frozen base tree to content sha256 and rejects unknown commits', t => {
+  const {repo, git, base} = fixture(t);
+  const files = baseEraFileHashes(path.join(repo, '.git'), base);
+  assert.equal(files['django/__init__.py'], hash(fs.readFileSync(path.join(repo, 'django/__init__.py'))));
+  assert.equal(files['delete-me'], hash(Buffer.from('base\n')));
+  assert.throws(() => baseEraFileHashes(path.join(repo, '.git'), 'f'.repeat(40)));
 });
