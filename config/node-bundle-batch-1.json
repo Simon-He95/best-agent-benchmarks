@@ -61,6 +61,17 @@
       "predictionPresent": false,
       "officialEvaluation": "not-evaluated",
       "reason": "Sanitation first assertion failed before model admission: astropy image /testbed HEAD tree 5e7722a78e2dd470dbd8a2cdd40a0ff8a8146d34 differs from base 298ccb478e6bf092953bca67a3d29dc6c35f6752 tree aac5ec576b94c4e4ba90b38eddc8e24cb1d52b54 (official setup-commit image state, unlike django HEAD==base). No model invocation, no prediction, no canonical record; audited artifact 10123016784 preserves all receipts."
+    },
+    {
+      "runId": "34404487703",
+      "headSha": "e89703768fddd4dc27009687b0033e2d7765b9a8",
+      "jobId": 102644068754,
+      "failedStep": "Evaluate frozen prediction in fresh official Docker container",
+      "skippedSteps": [],
+      "modelAttempt": true,
+      "predictionPresent": true,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Full generation pipeline succeeded with the as-shipped contract: single model attempt completed (attemptId astropy__astropy-13033-node-34404487703-001, trajectory complete, patch 2768 bytes sha256 260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca frozen in prediction). Official evaluation then failed at its identity gate because the controller passed the batch entry under the parameter name task while the evaluation module reads entry, so the module silently took the single-task django path and rejected the astropy summary. No official verdict exists. The prediction is frozen and immutable; the continuation must evaluate the existing prediction without a second model attempt (one-attempt-per-task). Audited artifact node-bundle-batch1-astropy__astropy-13033-34404487703-1 (id 10125081716, 227 files) preserves all evidence."
     }
   ],
   "firstTaskProvenance": {

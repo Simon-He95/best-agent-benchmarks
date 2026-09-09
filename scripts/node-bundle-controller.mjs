@@ -297,7 +297,7 @@ export async function controller(mode, candidateDir, evidenceDir, runId) {
   if (mode === 'evaluate') {
     assert(!process.env.BENCHMARK_PROVIDER_API_KEY && !process.env.BEST_AGENT_SOURCE_TOKEN);
     const {evaluateNodeBundleTask} = await import('./evaluate-node-bundle-one.mjs');
-    return evaluateNodeBundleTask({evidenceDir, manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), runId, task: batchTask ? batchTask.entry : null});
+    return evaluateNodeBundleTask({evidenceDir, manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), runId, entry: batchTask ? batchTask.entry : null});
   }
   if (mode === 'publish') {
     const uploadDir = evidenceDir + '-upload';

@@ -23,11 +23,15 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 4);
-  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029']);
+  assert.equal(batch.priorBatchRuns.length, 5);
+  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029', '34404487703']);
   for (const prior of batch.priorBatchRuns) {
-    assert.equal(prior.modelAttempt, false);
-    assert.equal(prior.predictionPresent, false);
+    if (prior.modelAttempt) {
+      assert.equal(prior.predictionPresent, true, 'A model-attempt prior must have its frozen prediction');
+      assert.equal(prior.officialEvaluation, 'not-evaluated');
+    } else {
+      assert.equal(prior.predictionPresent, false);
+    }
     assert(prior.reason.length > 40);
   }
   for (const entry of batch.tasks) {
@@ -106,6 +110,17 @@ test('admitBatchRun admits declared failed priors with five-job shape and reject
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).map(job => ({...job, conclusion: job.id === 9 ? 'failure' : 'success'}))}}), /non-declared job/);
   const successful = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'anything', skippedSteps: []}]};
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
+});
+
+test('the controller evaluate call passes the batch entry under the evaluation module parameter name', () => {
+  // Regression for batch run 34404487703: the evaluation module reads 'entry'; passing
+  // 'task' silently fell back to the single-task django identity and the official
+  // evaluation rejected the astropy attempt at its first summary assertion.
+  const source = fs.readFileSync(path.join(repository, 'scripts/node-bundle-controller.mjs'), 'utf8');
+  assert.match(source, /evaluateNodeBundleTask\(\{evidenceDir, manifestPath: path\.join\(evidenceDir, 'official-evaluator-manifest\.json'\), runId, entry: batchTask \? batchTask\.entry : null\}\)/);
+  assert.doesNotMatch(source, /evaluateNodeBundleTask\([^)]*\btask: batchTask/);
+  const evaluate = fs.readFileSync(path.join(repository, 'scripts/evaluate-node-bundle-one.mjs'), 'utf8');
+  assert.match(evaluate, /entry = null/);
 });
 
 test('batch task resolution is pinned to the frozen selection order', () => {
