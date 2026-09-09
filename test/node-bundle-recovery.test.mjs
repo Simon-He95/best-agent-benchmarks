@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
-import {admitRecoveryRun, buildRecoverySummary, readRecoveryConfig, recoveryPrediction, verifyFrozenSource} from '../scripts/node-bundle-recovery.mjs';
+import {admitRecoveryRun, buildRecoverySummary, readRecoveryConfig, recoveryConfigConsistency, recoveryPrediction, verifyFrozenSource} from '../scripts/node-bundle-recovery.mjs';
 import {captureExec, modelRemovalSafe, predictionEligible} from '../scripts/generate-node-bundle-one.mjs';
 import {readFrozenPrediction} from '../scripts/swe-bench-official-evaluator.mjs';
 
@@ -16,10 +16,13 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
 test('the frozen recovery manifest matches the real candidate and generation configuration', () => {
   const recovery = readRecoveryConfig(candidate, generation);
+  recoveryConfigConsistency(recovery);
   assert.equal(recovery.source.runId, '34376814789');
   assert.equal(recovery.attempt.attemptId, 'django__django-10097-node-34376814789-001');
   assert.equal(recovery.attempt.evaluationBatchId, 'remaining63-node-34376814789');
   assert.equal(recovery.attempt.imageRef, candidate.task.imageRef);
+  assert.equal(recovery.attempt.imageId, 'sha256:ece45a718bc9b069cd4aa3c294ee768296aec0639a629938aaf3ef952ea3d329');
+  assert.notEqual(recovery.attempt.imageId, recovery.attempt.imageRef.split('@')[1], 'image config digest and repository digest are different identifiers');
   assert.equal(recovery.expected.baseGit.objects, 8173);
   assert(recovery.evidence['terminal/workspace.tar'].sizeBytes > 1_000_000);
   assert.equal(recovery.evidence['terminal/attempt.jsonl'].sha256, 'f3b280b29ff0a6153b229bbac10c3b2fc6f38dab79e53177a380bafa5852d79a');

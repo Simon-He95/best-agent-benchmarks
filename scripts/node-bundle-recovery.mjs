@@ -25,8 +25,7 @@ function fileHash(filename) {
 const write = (filename, value) => fs.writeFileSync(filename, JSON.stringify(value, null, 2) + '\n', {flag: 'wx'});
 const readJson = filename => JSON.parse(fs.readFileSync(filename, 'utf8'));
 
-export function readRecoveryConfig(candidateManifest = candidate, generationManifest = generation) {
-  const recovery = readJson(path.join(repository, 'config/node-bundle-recovery.json'));
+export function readRecoveryConfig(candidateManifest = candidate, generationManifest = generation) {  const recovery = readJson(path.join(repository, 'config/node-bundle-recovery.json'));
   assert.equal(recovery.schemaVersion, 1);
   assert.equal(recovery.diagnosticOnly, true);
   assert.equal(recovery.passAt1, null);
@@ -169,6 +168,7 @@ export function verifyFrozenSource(sourceDir, recovery, inspectAttempt = inspect
   assert.equal(environment.containerId, recovery.attempt.containerId);
   assert.equal(environment.imageId, recovery.attempt.imageId);
   assert.equal(environment.imageRef, recovery.attempt.imageRef);
+  assert.equal(environment.imageDigest, recovery.attempt.imageRef.split('@')[1]);
   assert.equal(environment.bundleSha256, candidate.bundle.sha256);
   return {instanceId: recovery.attempt.instanceId, sourceRunId: recovery.source.runId, attemptId: recovery.attempt.attemptId, verifiedFiles: Object.keys(recovery.evidence).length, attemptEvidence: attempt, verifiedAt: new Date().toISOString()};
 }
@@ -226,11 +226,13 @@ function assertNoSecrets() {
   assert(!process.env.BENCHMARK_PROVIDER_API_KEY && !process.env.BEST_AGENT_SOURCE_TOKEN, 'Recovery must not hold provider or source credentials');
 }
 
-function recoveryConfigConsistency(recovery) {
+export function recoveryConfigConsistency(recovery) {
   assert.equal(recovery.attempt.instanceId, candidate.task.instanceId);
   assert.equal(recovery.attempt.baseCommit, candidate.task.baseCommit);
   assert.equal(recovery.attempt.imageRef, candidate.task.imageRef);
-  assert.equal(recovery.attempt.imageId, recovery.attempt.imageRef.split('@')[1]);
+  // imageId is the image config digest (docker image inspect Id); the imageRef carries
+  // the repository digest. They are different identifiers and must not be equated.
+  assert.match(recovery.attempt.imageId, /^sha256:[a-f0-9]{64}$/);
   assert.equal(recovery.expected.candidateConfigSha256, hash(fs.readFileSync(path.join(repository, 'config/node-bundle-candidate.json'))));
 }
 
