@@ -16,9 +16,9 @@ export function verifyTaskIdentity(task, instanceId) {
   assert.match(task.imageRef, new RegExp(imagePattern));
 }
 
-export function verifyCandidate(manifest, candidateDir, instanceId = 'django__django-10097') {
+export function verifyCandidate(manifest, candidateDir, task = manifest.task) {
   assert.equal(manifest.node.version, '24.15.0');
-  verifyTaskIdentity(manifest.task, instanceId);
+  verifyTaskIdentity(task, task.instanceId);
   const files = [
     ['best-agent.cjs', manifest.bundle.sha256, manifest.bundle.bytes],
     ['node-v24.15.0-linux-x64.tar.xz', manifest.node.archiveSha256],

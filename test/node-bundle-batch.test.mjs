@@ -23,7 +23,12 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 0);
+  assert.equal(batch.priorBatchRuns.length, 2);
+  for (const prior of batch.priorBatchRuns) {
+    assert.equal(prior.modelAttempt, false);
+    assert.equal(prior.predictionPresent, false);
+    assert(prior.reason.length > 40);
+  }
   for (const entry of batch.tasks) {
     const frozen = selection.tasks[entry.taskIndex];
     assert.equal(frozen.instanceId, entry.instanceId);
@@ -64,19 +69,22 @@ test('admitFirstTaskProvenance verifies the live recovery and generation runs be
   assert.throws(() => admitFirstTaskProvenance([{...recovery, run_attempt: 2}], [generation], batch));
 });
 
-test('admitBatchRun admits exactly the first run and rejects undeclared or successful priors', () => {
+test('admitBatchRun admits declared failed priors with five-job shape and rejects the rest', () => {
   const current = {id: 500, head_sha: 'a'.repeat(40), status: 'in_progress', conclusion: null, run_attempt: 1};
-  admitBatchRun([current], '500', batch);
-  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', batch), /no frozen pre-model evidence/);
-  const declared = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'Run the sole frozen model attempt and audit terminal evidence', skippedSteps: ['Evaluate frozen prediction in fresh official Docker container']}]};
-  const jobs = {499: {jobs: [{id: 9, status: 'completed', conclusion: 'failure', steps: [
-    {name: 'Run the sole frozen model attempt and audit terminal evidence', status: 'completed', conclusion: 'failure'},
+  const fiveJobs = jobId => [jobId, 21, 22, 23, 24].map((id, index) => ({id, status: 'completed', conclusion: index === 0 ? 'failure' : 'skipped', steps: index === 0 ? [
+    {name: 'Verify controller and official evaluator environment before model admission', status: 'completed', conclusion: 'failure'},
+    {name: 'Run the sole frozen model attempt and audit terminal evidence', status: 'completed', conclusion: 'skipped'},
     {name: 'Evaluate frozen prediction in fresh official Docker container', status: 'completed', conclusion: 'skipped'},
-  ]}]}};
-  admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, jobs);
-  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, jobs));
+  ] : []}));
+  admitBatchRun([current], '500', batch);
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', batch), /not declared/);
+  const declared = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'Verify controller and official evaluator environment before model admission', skippedSteps: ['Run the sole frozen model attempt and audit terminal evidence', 'Evaluate frozen prediction in fresh official Docker container']}]};
+  admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9)}});
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9)}}));
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).slice(0, 1)}}), /five jobs/);
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).map(job => ({...job, conclusion: job.id === 9 ? 'failure' : 'success'}))}}), /non-declared job/);
   const successful = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'anything', skippedSteps: []}]};
-  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: [{id: 9, status: 'completed', conclusion: 'success', steps: []}]}}), /forbids any further dispatch/);
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
 });
 
 test('batch task resolution is pinned to the frozen selection order', () => {
@@ -105,10 +113,9 @@ test('verifyTaskIdentity enforces per-instance official image refs and prefixes'
   assert.throws(() => verifyTaskIdentity({...entry, pythonPrefix: '/usr/local'}, 'astropy__astropy-14365'));
 });
 
-test('verifyCandidate keeps the frozen single-task identity and admits per-task identities', t => {
+test('verifyCandidate admits per-task identities against the frozen candidate files', t => {
   const entry = batch.tasks[0];
-  const manifest = {...readJson('config/node-bundle-candidate.json'), task: entry};
-  assert.throws(() => verifyCandidate(manifest, repository), /django__django-10097/, 'Default instance stays django__django-10097');
+  const djangoManifest = readJson('config/node-bundle-candidate.json');
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'node-batch-candidate-'));
   t.after(() => fs.rmSync(fixture, {recursive: true, force: true}));
   for (const name of ['best-agent.cjs', 'node-v24.15.0-linux-x64.tar.xz', 'node-v24.15.0-linux-x64/bin/node']) {
@@ -116,7 +123,11 @@ test('verifyCandidate keeps the frozen single-task identity and admits per-task 
     fs.mkdirSync(path.dirname(file), {recursive: true});
     fs.writeFileSync(file, 'fixture-bytes');
   }
-  assert.throws(() => verifyCandidate(manifest, fixture, 'astropy__astropy-13033'), /SHA256 mismatch/, 'Astropy identity passes and file verification is reached');
+  // Regression for batch run 34396601488: the batch prepare path must verify the
+  // batch entry identity, not the django task frozen in the candidate manifest.
+  assert.throws(() => verifyCandidate(djangoManifest, fixture, entry), /SHA256 mismatch/, 'Astropy entry identity passes and file verification is reached');
+  assert.throws(() => verifyCandidate(djangoManifest, fixture), /SHA256 mismatch/, 'Default still verifies the manifest own frozen task identity');
+  assert.throws(() => verifyCandidate(djangoManifest, fixture, {...entry, instanceId: 'django__django-10097'}), /regular expression/, 'Cross-instance image refs fail closed');
 });
 
 test('python environment expectations keep django defaults and parameterize astropy', () => {

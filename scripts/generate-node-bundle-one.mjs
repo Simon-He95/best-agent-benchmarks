@@ -158,7 +158,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     generation = JSON.parse(generationBytes);
     candidate = task ? {...JSON.parse(candidateBytes), task} : baseCandidate;
     frozen = generationInputs({corpusPath, runId, providerPath}, candidate, readJson(path.join(repository, 'config/node-bundle-failed-tasks.json')), generation, readJson(path.join(repository, 'config/swe-bench-verified.json')), task);
-    summary.candidate = verifyCandidate(candidate, candidateDir, candidate.task.instanceId);
+    summary.candidate = verifyCandidate(candidate, candidateDir, effectiveCandidate.task);
     assert.equal(process.platform, 'linux'); assert.equal(process.arch, 'x64');
     writeJson(lockPath, {stage: 'generation', runId, instanceId: summary.instanceId, startedAt: new Date().toISOString()}); ownsLock = true;
     const disk = fs.statfsSync(evidenceDir); assert(disk.bavail * disk.bsize >= 12 * 1024 ** 3, 'Insufficient disk for image and root/terminal exports');

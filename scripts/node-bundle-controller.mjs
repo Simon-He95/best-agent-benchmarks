@@ -51,10 +51,33 @@ export function resolveBatchTask(batch, selection, instanceId) {
 }
 
 export function admitBatchRun(runs, runId, batch, jobsByRun = {}) {
-  for (const previous of runs.filter(run => String(run.id) !== runId)) {
+  assert(runs.some(run => String(run.id) === String(runId)), 'Current hosted run must be visible');
+  const declarations = batch.priorBatchRuns ?? [];
+  const declared = new Set(declarations.map(item => String(item.runId)));
+  for (const previous of runs.filter(run => String(run.id) !== String(runId))) {
     assert.notEqual(previous.conclusion, 'success', 'A completed successful batch run forbids any further dispatch');
+    const declaration = declarations.find(item => item.runId === String(previous.id));
+    assert(declaration, 'A prior batch run is not declared; no new batch dispatch');
+    assert.equal(previous.head_sha, declaration.headSha);
+    assert.equal(previous.status, 'completed');
+    assert.equal(previous.conclusion, 'failure');
+    assert.equal(previous.run_attempt, 1);
+    const jobs = jobsByRun[declaration.runId]?.jobs;
+    assert(Array.isArray(jobs) && jobs.length === 5, 'The declared batch run must show all five jobs');
+    for (const job of jobs) {
+      if (job.id !== declaration.jobId) {
+        assert.equal(job.conclusion, 'skipped', 'A non-declared job of a prior batch run executed');
+        continue;
+      }
+      assert.equal(job.conclusion, 'failure');
+      const required = [[declaration.failedStep, 'failure'], ...declaration.skippedSteps.map(name => [name, 'skipped'])];
+      for (const [name, conclusion] of required) {
+        const matches = job.steps.filter(step => step.name === name);
+        assert.equal(matches.length, 1, 'Declared step not found exactly once: ' + name);
+        assert.equal(matches[0].conclusion, conclusion, 'Declared step changed conclusion: ' + name);
+      }
+    }
   }
-  admitFirstRun(runs, runId, batch.priorBatchRuns ?? [], jobsByRun);
 }
 
 export function admitFirstTaskProvenance(recoveryRuns, generationRuns, batch) {
@@ -153,7 +176,7 @@ async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
   assert.equal(process.platform, 'linux');
   assert.equal(process.arch, 'x64');
   assert.equal(process.version, 'v24.15.0');
-  verifyCandidate(candidate, candidateDir, batchTask ? batchTask.entry.instanceId : undefined);
+  verifyCandidate(candidate, candidateDir, batchTask ? batchTask.entry : candidate.task);
   assert.equal(fileHash(process.execPath), candidate.node.binarySha256);
   const workflowName = batchTask ? batchWorkflow : singleTaskWorkflow;
   const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/${workflowName}/runs?per_page=100`, {
@@ -295,6 +318,19 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   controller(mode, candidateDir, evidenceDir, runId).catch(error => {
     if (evidenceDir && fs.existsSync(evidenceDir) && mode !== 'publish') {
       write(path.join(evidenceDir, 'controller-' + mode + '-failure.json'), {stage: mode, error: String(error), stack: error.stack});
+    }
+    if (mode === 'publish' && evidenceDir) {
+      // Even an entry-level failure must leave a credential-free upload receipt,
+      // otherwise the failed stage is undiagnosable after the runner is reclaimed.
+      try {
+        const uploadDir = evidenceDir + '-upload';
+        const receipt = path.join(uploadDir, 'upload-blocked.json');
+        if (!fs.existsSync(receipt)) {
+          fs.rmSync(uploadDir, {recursive: true, force: true});
+          fs.mkdirSync(uploadDir);
+          fs.writeFileSync(receipt, JSON.stringify({runId, safe: false, rawEvidenceUploaded: false, reason: 'controller-entry-failure', error: String(error), audit: error.audit ?? null}, null, 2) + '\n');
+        }
+      } catch {}
     }
     // Detailed process evidence stays in the audit-gated directory, never in the CI console.
     console.error(`Node bundle ${mode} did not complete; inspect audited evidence for the stage.`);

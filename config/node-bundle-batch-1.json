@@ -6,7 +6,36 @@
   "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
   "diagnosticOnly": true,
   "passAt1": null,
-  "priorBatchRuns": [],
+  "priorBatchRuns": [
+    {
+      "runId": "34396601488",
+      "headSha": "9c82ff1bfd27f2b9b4e583aac51a43285881ed3b",
+      "jobId": 102617768837,
+      "failedStep": "Verify controller and official evaluator environment before model admission",
+      "skippedSteps": [
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Batch prepare failed instantly before any GitHub admission call: verifyCandidate compared the frozen django candidate task against the astropy batch instance id. Model, evaluator and the four trailing jobs were never admitted; publish/upload also failed so no artifact was preserved. Fixed by verifying the batch entry task identity (commit to follow)."
+    },
+    {
+      "runId": "34396884605",
+      "headSha": "b4a682dde830e505e8b6d06e0975f0c510f4d69e",
+      "jobId": 102618708985,
+      "failedStep": "Verify controller and official evaluator environment before model admission",
+      "skippedSteps": [
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Identical instant prepare failure (same verifyCandidate defect) dispatched before the fix; coordinator double-dispatch disclosure. No model invocation, no prediction, no canonical record."
+    }
+  ],
   "firstTaskProvenance": {
     "instanceId": "django__django-10097",
     "generationRunId": "34376814789",
