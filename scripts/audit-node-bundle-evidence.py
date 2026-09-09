@@ -50,7 +50,8 @@ def audit(root, secrets):
             check(tail + chunk)
             tail = (tail + chunk)[-overlap:] if overlap else b''
         stream.seek(0)
-        if header.startswith(b'PK\x03\x04') or header.startswith(b'PK\x05\x06'):
+        if zipfile.is_zipfile(stream):
+            stream.seek(0)
             with zipfile.ZipFile(stream) as archive:
                 for member in archive.infolist():
                     check(member.filename.encode())

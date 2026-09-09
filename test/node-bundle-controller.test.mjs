@@ -81,3 +81,40 @@ test('refuses compressed formats whose contents the scanner cannot prove safe', 
   fs.writeFileSync(path.join(root, 'archive.zst'), Buffer.from([0x28, 0xb5, 0x2f, 0xfd, 0]));
   assert.throws(() => auditEvidence(root, secret));
 });
+
+
+test('rejects a valid prefixed ZIP inside TAR before safe upload admission', t => {
+  const root = directory(t), evidence = path.join(root, 'evidence');
+  fs.mkdirSync(evidence);
+  const script = `import io,tarfile,zipfile,sys
+root,token=sys.argv[1:]
+b=io.BytesIO(b'ordinary archive prefix\\n');b.seek(0,2)
+with zipfile.ZipFile(b,'a',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('credential.txt',token)
+data=b.getvalue()
+assert token.encode() not in data and zipfile.is_zipfile(io.BytesIO(data))
+with tarfile.open(root+'/workspace.tar','w') as t:
+ d=tarfile.TarInfo('testbed');d.type=tarfile.DIRTYPE;t.addfile(d)
+ m=tarfile.TarInfo('testbed/debug.zip');m.size=len(data);t.addfile(m,io.BytesIO(data))
+`;
+  const made = spawnSync('python3', ['-c', script, evidence, secret], {encoding: 'utf8'});
+  assert.equal(made.status, 0, made.stderr);
+  const upload = path.join(root, 'upload');
+  assert.throws(() => {
+    const audit = auditEvidence(evidence, secret);
+    copyAuditedEvidence(evidence, upload, audit);
+  }, error => error.audit?.reason === 'credential-bytes');
+  assert.equal(fs.existsSync(upload), false);
+});
+
+test('accepts safe ZIP structure with and without a prefix', t => {
+  const root = directory(t);
+  const script = `import io,zipfile,sys
+for name,prefix in [('ordinary.zip',b''),('prefixed.zip',b'prefix')]:
+ b=io.BytesIO(prefix);b.seek(0,2)
+ with zipfile.ZipFile(b,'a',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('safe.txt','public evidence')
+ open(sys.argv[1]+'/'+name,'wb').write(b.getvalue())
+`;
+  const made = spawnSync('python3', ['-c', script, root], {encoding: 'utf8'});
+  assert.equal(made.status, 0, made.stderr);
+  assert.equal(auditEvidence(root, secret).files.length, 2);
+});
