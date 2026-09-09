@@ -8,12 +8,17 @@ import {inspectAttemptEvidence, runCliProcess} from './swe-bench-harness.mjs';
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
-export function verifyCandidate(manifest, candidateDir) {
+export function verifyTaskIdentity(task, instanceId) {
+  assert.equal(task.instanceId, instanceId);
+  assert.equal(task.pythonPrefix, '/opt/miniconda3/envs/testbed');
+  assert.match(task.baseCommit, /^[a-f0-9]{40}$/);
+  const imagePattern = '^swebench/sweb\\.eval\\.x86_64\\.' + instanceId.replace('__', '_1776_') + '@sha256:[a-f0-9]{64}' + '$';
+  assert.match(task.imageRef, new RegExp(imagePattern));
+}
+
+export function verifyCandidate(manifest, candidateDir, instanceId = 'django__django-10097') {
   assert.equal(manifest.node.version, '24.15.0');
-  assert.equal(manifest.task.instanceId, 'django__django-10097');
-  assert.equal(manifest.task.pythonPrefix, '/opt/miniconda3/envs/testbed');
-  assert.match(manifest.task.baseCommit, /^[a-f0-9]{40}$/);
-  assert.match(manifest.task.imageRef, /^swebench\/sweb\.eval\.x86_64\.django_1776_django-10097@sha256:[a-f0-9]{64}$/);
+  verifyTaskIdentity(manifest.task, instanceId);
   const files = [
     ['best-agent.cjs', manifest.bundle.sha256, manifest.bundle.bytes],
     ['node-v24.15.0-linux-x64.tar.xz', manifest.node.archiveSha256],

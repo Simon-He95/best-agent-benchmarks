@@ -12,6 +12,65 @@ const write = (filename, value) => fs.writeFileSync(filename, JSON.stringify(val
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const candidate = read(path.join(repository, 'config/node-bundle-candidate.json'));
 const generation = read(path.join(repository, 'config/node-bundle-generation.json'));
+const singleTaskWorkflow = 'node-bundle-one.yml';
+const batchWorkflow = 'node-bundle-batch.yml';
+
+export function validateBatchConfig(batch, selectionBytes) {
+  assert.equal(batch.schemaVersion, 1);
+  assert.equal(batch.candidateId, candidate.candidateId);
+  assert.equal(batch.selectionId, 'remaining63-node-bundle-20260909');
+  assert.equal(hash(selectionBytes), batch.selectionSourceSha256, 'Frozen failed-task selection changed');
+  assert.equal(batch.diagnosticOnly, true);
+  assert.equal(batch.passAt1, null);
+  assert(Array.isArray(batch.priorBatchRuns));
+  assert.equal(batch.tasks.length, 5, 'Hosted generation batches stay at five tasks');
+  const seen = new Set();
+  for (const entry of batch.tasks) {
+    assert(Number.isInteger(entry.taskIndex) && entry.taskIndex >= 1 && entry.taskIndex <= 62);
+    assert(!seen.has(entry.instanceId), 'Duplicate batch task');
+    seen.add(entry.instanceId);
+    assert.equal(entry.pythonModule, 'astropy', 'Batch 1 is the astropy block of the frozen selection');
+    assert.equal(entry.pythonSource, '/testbed/astropy/__init__.py');
+  }
+  const provenance = batch.firstTaskProvenance;
+  assert.equal(provenance.instanceId, 'django__django-10097');
+  assert.equal(provenance.verdict, 'test-failed');
+  assert.equal(provenance.officialResolved, false);
+  return batch;
+}
+
+export function resolveBatchTask(batch, selection, instanceId) {
+  const entry = batch.tasks.find(item => item.instanceId === instanceId);
+  assert(entry, 'Selected task is not part of the frozen batch');
+  const frozen = selection.tasks[entry.taskIndex];
+  assert.equal(frozen.instanceId, entry.instanceId, 'Batch task left the frozen selection order');
+  assert.equal(frozen.baseCommit, entry.baseCommit);
+  assert.equal(frozen.promptSha256, entry.promptSha256);
+  assert.equal(frozen.priorDisposition, entry.priorDisposition);
+  return entry;
+}
+
+export function admitBatchRun(runs, runId, batch, jobsByRun = {}) {
+  for (const previous of runs.filter(run => String(run.id) !== runId)) {
+    assert.notEqual(previous.conclusion, 'success', 'A completed successful batch run forbids any further dispatch');
+  }
+  admitFirstRun(runs, runId, batch.priorBatchRuns ?? [], jobsByRun);
+}
+
+export function admitFirstTaskProvenance(recoveryRuns, generationRuns, batch) {
+  const provenance = batch.firstTaskProvenance;
+  const recovery = recoveryRuns.find(run => String(run.id) === provenance.recoveryRunId);
+  assert(recovery, 'The frozen first-task recovery run is not visible; batch is not admitted');
+  assert.equal(recovery.head_sha, provenance.recoveryHeadSha);
+  assert.equal(recovery.status, 'completed');
+  assert.equal(recovery.conclusion, 'success');
+  assert.equal(recovery.run_attempt, 1);
+  const generation = generationRuns.find(run => String(run.id) === provenance.generationRunId);
+  assert(generation, 'The frozen first-task generation run is not visible; batch is not admitted');
+  assert.equal(generation.status, 'completed');
+  assert.equal(generation.run_attempt, 1);
+}
+
 
 export function validateRun(runId, environment = process.env) {
   assert.match(runId, /^[1-9][0-9]*$/);
@@ -88,23 +147,39 @@ export function copyAuditedEvidence(evidenceDir, uploadDir, audit) {
   write(path.join(uploadDir, 'upload-manifest.json'), audit);
 }
 
-async function prepare(candidateDir, evidenceDir, runId) {
+async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
   fs.mkdirSync(evidenceDir);
-  write(path.join(evidenceDir, 'run-claim.json'), {runId, runAttempt: 1, candidateId: candidate.candidateId, modelAttempt: false, diagnosticOnly: true, passAt1: null, at: new Date().toISOString()});
+  write(path.join(evidenceDir, 'run-claim.json'), {runId, runAttempt: 1, candidateId: candidate.candidateId, instanceId: batchTask ? batchTask.entry.instanceId : candidate.task.instanceId, modelAttempt: false, diagnosticOnly: true, passAt1: null, at: new Date().toISOString()});
   assert.equal(process.platform, 'linux');
   assert.equal(process.arch, 'x64');
   assert.equal(process.version, 'v24.15.0');
-  verifyCandidate(candidate, candidateDir);
+  verifyCandidate(candidate, candidateDir, batchTask ? batchTask.entry.instanceId : undefined);
   assert.equal(fileHash(process.execPath), candidate.node.binarySha256);
-  const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/node-bundle-one.yml/runs?per_page=100`, {
+  const workflowName = batchTask ? batchWorkflow : singleTaskWorkflow;
+  const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/${workflowName}/runs?per_page=100`, {
     headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
   });
   assert(response.ok, 'Unable to verify previous hosted runs');
   const runs = (await response.json()).workflow_runs;
-  write(path.join(evidenceDir, 'hosted-run-admission.json'), {runId, runs: runs.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion}))});
+  write(path.join(evidenceDir, 'hosted-run-admission.json'), {runId, workflow: workflowName, runs: runs.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion}))});
+  if (batchTask) {
+    const recoveryResponse = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/node-bundle-capture-recovery.yml/runs?per_page=100`, {
+      headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
+    });
+    assert(recoveryResponse.ok, 'Unable to verify the frozen first-task recovery run');
+    const recoveryRuns = (await recoveryResponse.json()).workflow_runs;
+    const singleResponse = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/${singleTaskWorkflow}/runs?per_page=100`, {
+      headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
+    });
+    assert(singleResponse.ok, 'Unable to verify the frozen single-task history');
+    const singleRuns = (await singleResponse.json()).workflow_runs;
+    write(path.join(evidenceDir, 'single-task-run-history.json'), {recoveryRuns: recoveryRuns.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion})), generationRuns: singleRuns.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion}))});
+    admitFirstTaskProvenance(recoveryRuns, singleRuns, batchTask.batch);
+  }
   const jobsByRun = {};
+  const priorDeclarations = batchTask ? batchTask.batch.priorBatchRuns ?? [] : generation.preModelRuns ?? [];
   for (const previous of runs.filter(run => String(run.id) !== runId)) {
-    if (!generation.preModelRuns?.some(item => item.runId === String(previous.id))) continue;
+    if (!priorDeclarations.some(item => item.runId === String(previous.id))) continue;
     const jobResponse = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${previous.id}/jobs?per_page=100`, {
       headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
     });
@@ -112,9 +187,11 @@ async function prepare(candidateDir, evidenceDir, runId) {
     jobsByRun[String(previous.id)] = await jobResponse.json();
     write(path.join(evidenceDir, 'pre-model-run-' + previous.id + '.json'), {run: previous, jobs: jobsByRun[String(previous.id)]});
   }
-  admitFirstRun(runs, runId, generation.preModelRuns, jobsByRun);
+  if (batchTask) admitBatchRun(runs, runId, batchTask.batch, jobsByRun);
+  else admitFirstRun(runs, runId, generation.preModelRuns, jobsByRun);
   const step = (name, args, timeout = 60_000) => runRecordedStep(evidenceDir, name, args, timeout);
   const controls = ['config/node-bundle-candidate.json', 'config/node-bundle-generation.json', 'config/node-bundle-failed-tasks.json', 'config/swe-bench-verified.json', '.github/workflows/node-bundle-one.yml', 'scripts/node-bundle-controller.mjs', 'scripts/audit-node-bundle-evidence.py', 'scripts/generate-node-bundle-one.mjs', 'scripts/node-bundle-sanitize.mjs', 'scripts/node-bundle-capture.mjs', 'scripts/evaluate-node-bundle-one.mjs', 'scripts/node-bundle-probe.mjs', 'scripts/swe-bench-harness.mjs', 'scripts/swe-bench-official-evaluator.mjs', 'scripts/prepare-swe-bench.mjs', 'scripts/materialize-ci-provider.mjs'];
+  if (batchTask) controls.push('config/node-bundle-batch-1.json', '.github/workflows/node-bundle-batch.yml');
   const controlFiles = controls.map(name => {
     const bytes = fs.readFileSync(path.join(repository, name));
     const output = path.join(evidenceDir, 'control-files', name);
@@ -123,7 +200,8 @@ async function prepare(candidateDir, evidenceDir, runId) {
     return {path: name, sha256: hash(bytes), sizeBytes: bytes.length};
   });
   fs.copyFileSync(path.join(candidateDir, 'download-receipt.json'), path.join(evidenceDir, 'download-receipt.json'), fs.constants.COPYFILE_EXCL);
-  write(path.join(evidenceDir, 'execution-control.json'), {runId, workflowHead: process.env.GITHUB_SHA, candidateId: candidate.candidateId, controlFiles, provider: generation.provider, modelWatchdogMs: generation.externalWatchdogMs, diagnosticOnly: true, passAt1: null, closedBook: false});
+  write(path.join(evidenceDir, 'execution-control.json'), {runId, workflowHead: process.env.GITHUB_SHA, candidateId: candidate.candidateId, ...(batchTask ? {batchId: batchTask.batch.batchId, taskIndex: batchTask.entry.taskIndex, instanceId: batchTask.entry.instanceId} : {instanceId: candidate.task.instanceId}), controlFiles, provider: generation.provider, modelWatchdogMs: generation.externalWatchdogMs, diagnosticOnly: true, passAt1: null, closedBook: false});
+
   const source = path.join(repository, 'tools/swe-bench-source');
   assert.equal((await step('evaluator-source-head', ['git', '-C', source, 'rev-parse', 'HEAD'])).stdout.trim(), generation.officialEvaluatorCommit);
   assert.equal((await step('evaluator-source-clean', ['git', '-C', source, 'status', '--porcelain'])).stdout.trim(), '');
@@ -143,7 +221,7 @@ async function prepare(candidateDir, evidenceDir, runId) {
   write(path.join(evidenceDir, 'controller-prepared.json'), {runId, privateRoot, corpusPath: path.join(privateRoot, 'corpus.jsonl'), providerPath: path.join(privateRoot, 'provider/provider.json'), manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), modelAttempt: false});
 }
 
-async function generate(candidateDir, evidenceDir, runId) {
+async function generate(candidateDir, evidenceDir, runId, batchTask = null) {
   const prepared = read(path.join(evidenceDir, 'controller-prepared.json'));
   assert.equal(prepared.runId, runId);
   const secret = process.env.BENCHMARK_PROVIDER_API_KEY;
@@ -154,9 +232,9 @@ async function generate(candidateDir, evidenceDir, runId) {
     await runRecordedStep(evidenceDir, 'provider-materialize', [process.execPath, path.join(repository, 'scripts/materialize-ci-provider.mjs'), providerRoot, path.join(prepared.privateRoot, 'provider-env.txt'), path.join(repository, 'config/node-bundle-generation.json')], 60_000);
     delete process.env.BENCHMARK_PROVIDER_API_KEY;
     const {generateNodeBundleTask} = await import('./generate-node-bundle-one.mjs');
-    const summary = await generateNodeBundleTask({candidateDir, evidenceDir, corpusPath: prepared.corpusPath, providerPath: prepared.providerPath, runId});
+    const summary = await generateNodeBundleTask({candidateDir, evidenceDir, corpusPath: prepared.corpusPath, providerPath: prepared.providerPath, runId, task: batchTask ? batchTask.entry : null});
     if (summary.status !== 'completed' || !summary.containerClosed || !summary.containerRemoved || !summary.captureContainerRemoved || summary.process?.status !== 0 || summary.process?.timedOut || !summary.evidence?.complete) {
-      write(path.join(evidenceDir, 'evaluation-disposition.json'), {instanceId: candidate.task.instanceId, diagnosticOnly: true, passAt1: null, disposition: 'not-evaluated', reason: 'generation-incomplete'});
+      write(path.join(evidenceDir, 'evaluation-disposition.json'), {instanceId: batchTask ? batchTask.entry.instanceId : candidate.task.instanceId, diagnosticOnly: true, passAt1: null, disposition: 'not-evaluated', reason: 'generation-incomplete'});
       throw new Error('Generation did not complete; official evaluation is not admitted');
     }
   } catch (error) { failure = error; }
@@ -169,6 +247,15 @@ async function generate(candidateDir, evidenceDir, runId) {
   if (failure) throw failure;
 }
 
+function batchModeTask() {
+  const instanceId = process.env.NODE_BUNDLE_TASK;
+  if (!instanceId) return null;
+  const batchBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-batch-1.json'));
+  const batch = validateBatchConfig(JSON.parse(batchBytes), batchBytes);
+  const selection = read(path.join(repository, 'config/node-bundle-failed-tasks.json'));
+  return {batch, entry: resolveBatchTask(batch, selection, instanceId)};
+}
+
 export async function controller(mode, candidateDir, evidenceDir, runId) {
   validateRun(runId);
   candidateDir = path.resolve(candidateDir);
@@ -178,12 +265,13 @@ export async function controller(mode, candidateDir, evidenceDir, runId) {
   assert.equal(generation.passAt1, null);
   assert.equal(process.version, 'v24.15.0');
   assert.equal(fileHash(process.execPath), candidate.node.binarySha256);
-  if (mode === 'prepare') return prepare(candidateDir, evidenceDir, runId);
-  if (mode === 'generate') return generate(candidateDir, evidenceDir, runId);
+  const batchTask = batchModeTask();
+  if (mode === 'prepare') return prepare(candidateDir, evidenceDir, runId, batchTask);
+  if (mode === 'generate') return generate(candidateDir, evidenceDir, runId, batchTask);
   if (mode === 'evaluate') {
     assert(!process.env.BENCHMARK_PROVIDER_API_KEY && !process.env.BEST_AGENT_SOURCE_TOKEN);
     const {evaluateNodeBundleTask} = await import('./evaluate-node-bundle-one.mjs');
-    return evaluateNodeBundleTask({evidenceDir, manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), runId});
+    return evaluateNodeBundleTask({evidenceDir, manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), runId, task: batchTask ? batchTask.entry : null});
   }
   if (mode === 'publish') {
     const uploadDir = evidenceDir + '-upload';

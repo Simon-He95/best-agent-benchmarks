@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {buildTaskPrompt, inspectAttemptEvidence} from './swe-bench-harness.mjs';
 import {verifyCandidate, verifyProbeTranscript} from './swe-node-bundle-preflight.mjs';
 import {inspectArchive} from './node-bundle-sanitize.mjs';
+import {selectFrozenTask} from './node-bundle-task-selection.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -39,13 +40,12 @@ export async function recordGenerationProcess(directory, name, args, {timeoutMs 
   return {...receipt, stdoutPath, stderrPath};
 }
 
-export function generationInputs({corpusPath, runId, providerPath}, candidate, selection, generation, corpusProfile) {
+export function generationInputs({corpusPath, runId, providerPath}, candidate, selection, generation, corpusProfile, entry = null) {
   assert.match(runId, /^[1-9][0-9]*$/);
   assert.equal(candidate.candidateId, generation.candidateId);
   assert.equal(generation.maxModelCycles, 2251799813685247);
   assert.equal(generation.externalWatchdogMs, 3600000);
-  const selected = selection.tasks[0];
-  assert.equal(selected.instanceId, 'django__django-10097');
+  const selected = selectFrozenTask(selection, entry);
   assert.equal(selected.instanceId, candidate.task.instanceId);
   assert.equal(selected.baseCommit, candidate.task.baseCommit);
   const bytes = fs.readFileSync(corpusPath);
@@ -81,6 +81,14 @@ export function generationInputs({corpusPath, runId, providerPath}, candidate, s
   return {task: selected, prompt, publicPrompt, provider, needles, evaluationBatchId: 'remaining63-node-' + runId, attemptId: selected.instanceId + '-node-' + runId + '-001'};
 }
 
+export function pythonEnvironmentExpectations(task) {
+  return {
+    module: task.pythonModule ?? 'django',
+    source: task.pythonSource ?? '/testbed/django/__init__.py',
+    version: task.pythonVersion === undefined ? '3.5.6' : (typeof task.pythonVersion === 'string' ? task.pythonVersion : null),
+  };
+}
+
 export function predictionEligible(summary) {
   return summary.process?.status === 0 && summary.process.signal === null && !summary.process.timedOut && !summary.process.error && summary.containerClosed === true && summary.containerRemoved === true && summary.captureContainerRemoved === true && summary.evidence?.complete === true && summary.evidence.rootStatus === 'completed' && summary.exports?.length === 4 && summary.exports.every(item => item.status === 0 && item.signal === null && !item.timedOut && !item.error && item.sha256) && summary.capture?.status === 'captured' && summary.capture.bytes > 0;
 }
@@ -107,7 +115,7 @@ export function modelRemovalSafe(summary) {
   return summary.containerClosed === true && (!summary.modelAttempt || (summary.exports?.length === 4 && summary.exports.every(entry => entry.status === 0 && entry.signal === null && !entry.timedOut && !entry.error && entry.sha256)));
 }
 
-export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusPath, providerPath, runId}) {
+export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusPath, providerPath, runId, task = null}) {
   evidenceDir = path.resolve(evidenceDir); candidateDir = path.resolve(candidateDir); providerPath = path.resolve(providerPath);
   assert(!providerPath.startsWith(evidenceDir + path.sep), 'Provider must stay outside evidence directory');
   fs.mkdirSync(evidenceDir, {recursive: true});
@@ -115,7 +123,9 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
   writeJson(path.join(evidenceDir, 'generation-claim.json'), {runId, startedAt: new Date().toISOString(), diagnosticOnly: true, passAt1: null});
   const terminal = path.join(evidenceDir, 'terminal'); fs.mkdirSync(terminal);
   const privateDir = fs.mkdtempSync(path.join(path.dirname(providerPath), 'generation-private-'));
-  const summary = {instanceId: 'django__django-10097', evaluationBatchId: 'remaining63-node-' + runId, attemptId: 'django__django-10097-node-' + runId + '-001', status: 'failed', stage: 'input', diagnosticOnly: true, passAt1: null, modelAttempt: false, predictionEligible: false, predictionPresent: false, containerClosed: false, containerRemoved: false, captureContainerRemoved: true};
+  const baseCandidate = JSON.parse(fs.readFileSync(path.join(repository, 'config/node-bundle-candidate.json')));
+  const effectiveCandidate = task ? {...baseCandidate, task} : baseCandidate;
+  const summary = {instanceId: effectiveCandidate.task.instanceId, evaluationBatchId: 'remaining63-node-' + runId, attemptId: effectiveCandidate.task.instanceId + '-node-' + runId + '-001', status: 'failed', stage: 'input', diagnosticOnly: true, passAt1: null, modelAttempt: false, predictionEligible: false, predictionPresent: false, containerClosed: false, containerRemoved: false, captureContainerRemoved: true};
   let containerId, captureId, frozen, candidate, generation, ownsLock = false;
   const lockPath = path.join(evidenceDir, 'active-operation.lock');
   let serial = 0;
@@ -145,9 +155,10 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
   try {
     const candidateBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-candidate.json'));
     const generationBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-generation.json'));
-    candidate = JSON.parse(candidateBytes); generation = JSON.parse(generationBytes);
-    frozen = generationInputs({corpusPath, runId, providerPath}, candidate, readJson(path.join(repository, 'config/node-bundle-failed-tasks.json')), generation, readJson(path.join(repository, 'config/swe-bench-verified.json')));
-    summary.candidate = verifyCandidate(candidate, candidateDir);
+    generation = JSON.parse(generationBytes);
+    candidate = task ? {...JSON.parse(candidateBytes), task} : baseCandidate;
+    frozen = generationInputs({corpusPath, runId, providerPath}, candidate, readJson(path.join(repository, 'config/node-bundle-failed-tasks.json')), generation, readJson(path.join(repository, 'config/swe-bench-verified.json')), task);
+    summary.candidate = verifyCandidate(candidate, candidateDir, candidate.task.instanceId);
     assert.equal(process.platform, 'linux'); assert.equal(process.arch, 'x64');
     writeJson(lockPath, {stage: 'generation', runId, instanceId: summary.instanceId, startedAt: new Date().toISOString()}); ownsLock = true;
     const disk = fs.statfsSync(evidenceDir); assert(disk.bavail * disk.bsize >= 12 * 1024 ** 3, 'Insufficient disk for image and root/terminal exports');
@@ -158,7 +169,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     const image = jsonOutput(await step('image-inspect', ['image', 'inspect', candidate.task.imageRef]))[0];
     assert.equal(image.Architecture, 'amd64'); assert.equal(image.Os, 'linux'); assert(image.RepoDigests.includes(candidate.task.imageRef));
     assert.equal(image.Config.Entrypoint, null); assert.equal(image.Config.Volumes, null);
-    containerId = output(await step('model-create', ['create', '--name', 'remaining63-node-' + runId + '-model', '--platform', 'linux/amd64', '--network', 'bridge', '--memory', '6g', '--cpus', '4', image.Id, 'sleep', 'infinity'])).trim();
+    containerId = output(await step('model-create', ['create', '--name', 'remaining63-node-' + runId + '-' + candidate.task.instanceId + '-model', '--platform', 'linux/amd64', '--network', 'bridge', '--memory', '6g', '--cpus', '4', image.Id, 'sleep', 'infinity'])).trim();
     assert.match(containerId, /^[a-f0-9]{64}$/); summary.containerId = containerId;
     await step('model-start', ['start', containerId]);
     const inspection = jsonOutput(await step('model-boundary', ['inspect', containerId]))[0];
@@ -183,9 +194,14 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     fs.unlinkSync(rootTar);
     await step('inventory-after', ['exec', containerId, '/usr/bin/find', '/', '-xdev', '-printf', '%y %s %p\n']);
     summary.stage = 'preflight';
-    const collect = `const fs=require('fs'),crypto=require('crypto'),{spawnSync}=require('child_process'),{DatabaseSync}=require('node:sqlite');const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');const env={};for(const k of ['PATH','HOME','CONDA_PREFIX','CONDA_DEFAULT_ENV','CONDA_SHLVL','LANG','LC_ALL','LANGUAGE','PYTHONIOENCODING','LD_LIBRARY_PATH'])if(process.env[k]!==undefined)env[k]=process.env[k];env.PATH=process.env.CONDA_PREFIX+'/bin:/opt/agent/node/bin:'+env.PATH;env.PYTHONDONTWRITEBYTECODE='1';const p=spawnSync(process.env.CONDA_PREFIX+'/bin/python',['-B','-c','import sys,django,json; print(json.dumps(dict(version=sys.version.split()[0],prefix=sys.prefix,source=django.__file__)))'],{cwd:'/testbed',env,encoding:'utf8'});if(p.status!==0){process.stdout.write(p.stdout);process.stderr.write(p.stderr);process.exit(p.status||1)}const db=new DatabaseSync(':memory:');db.exec('CREATE TABLE probe(value); INSERT INTO probe VALUES (42)');const sqliteValue=db.prepare('SELECT value FROM probe').get().value;db.close();console.log(JSON.stringify({repoDir:'/testbed',pythonPrefix:process.env.CONDA_PREFIX,python:JSON.parse(p.stdout),node:{path:process.execPath,version:process.version,arch:process.arch,platform:process.platform,sha256:hash(process.execPath)},bundleSha256:hash('/opt/agent/best-agent.cjs'),sqliteValue,env}));`;
+    const pyEnv = pythonEnvironmentExpectations(candidate.task);
+    const pyModule = pyEnv.module;
+    const collect = `const fs=require('fs'),crypto=require('crypto'),{spawnSync}=require('child_process'),{DatabaseSync}=require('node:sqlite');const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');const env={};for(const k of ['PATH','HOME','CONDA_PREFIX','CONDA_DEFAULT_ENV','CONDA_SHLVL','LANG','LC_ALL','LANGUAGE','PYTHONIOENCODING','LD_LIBRARY_PATH'])if(process.env[k]!==undefined)env[k]=process.env[k];env.PATH=process.env.CONDA_PREFIX+'/bin:/opt/agent/node/bin:'+env.PATH;env.PYTHONDONTWRITEBYTECODE='1';const p=spawnSync(process.env.CONDA_PREFIX+'/bin/python',['-B','-c','import sys,${pyModule},json; print(json.dumps(dict(version=sys.version.split()[0],prefix=sys.prefix,source=${pyModule}.__file__)))'],{cwd:'/testbed',env,encoding:'utf8'});if(p.status!==0){process.stdout.write(p.stdout);process.stderr.write(p.stderr);process.exit(p.status||1)}const db=new DatabaseSync(':memory:');db.exec('CREATE TABLE probe(value); INSERT INTO probe VALUES (42)');const sqliteValue=db.prepare('SELECT value FROM probe').get().value;db.close();console.log(JSON.stringify({repoDir:'/testbed',pythonPrefix:process.env.CONDA_PREFIX,python:JSON.parse(p.stdout),node:{path:process.execPath,version:process.version,arch:process.arch,platform:process.platform,sha256:hash(process.execPath)},bundleSha256:hash('/opt/agent/best-agent.cjs'),sqliteValue,env}));`;
     const environment = jsonOutput(await step('environment', ['exec', containerId, '/usr/bin/env', '-i', 'HOME=/root', 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', '/bin/bash', '--noprofile', '--norc', '-c', 'source /opt/miniconda3/etc/profile.d/conda.sh && conda activate testbed && cd /testbed && exec /opt/agent/node/bin/node -e "$1"', 'environment', collect]));
-    assert.equal(environment.pythonPrefix, candidate.task.pythonPrefix); assert.equal(environment.python.prefix, candidate.task.pythonPrefix); assert.equal(environment.python.version, '3.5.6'); assert.equal(environment.python.source, '/testbed/django/__init__.py');
+    assert.equal(environment.pythonPrefix, candidate.task.pythonPrefix); assert.equal(environment.python.prefix, candidate.task.pythonPrefix);
+    if (pyEnv.version === null) assert.match(environment.python.version, /^\d+\.\d+\.\d+$/, 'Official image Python version is recorded as evidence');
+    else assert.equal(environment.python.version, pyEnv.version);
+    assert.equal(environment.python.source, pyEnv.source);
     assert.equal(environment.node.version, 'v24.15.0'); assert.equal(environment.node.sha256, candidate.node.binarySha256); assert.equal(environment.node.arch, 'x64'); assert.equal(environment.node.platform, 'linux'); assert.equal(environment.bundleSha256, candidate.bundle.sha256); assert.equal(environment.sqliteValue, 42);
     Object.assign(environment, {instanceId: frozen.task.instanceId, baseCommit: frozen.task.baseCommit, imageId: image.Id, imageRef: candidate.task.imageRef, imageDigest: candidate.task.imageRef.split('@')[1], containerId, platform: 'linux/amd64'});
     writeJson(path.join(evidenceDir, 'official-environment.json'), environment);
@@ -234,7 +250,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     summary.stage = 'capture';
     const archiveAdmission = inspectArchive(path.join(terminal, 'workspace.tar'), [], 'workspace', path.join(evidenceDir, 'workspace-archive-scan'));
     assert(archiveAdmission.passed); writeJson(path.join(terminal, 'workspace-admission.json'), archiveAdmission);
-    captureId = output(await step('capture-create', ['create', '--name', 'remaining63-node-' + runId + '-capture', '--platform', 'linux/amd64', '--network', 'none', '--memory', '2g', image.Id, 'sleep', 'infinity'])).trim();
+    captureId = output(await step('capture-create', ['create', '--name', 'remaining63-node-' + runId + '-' + candidate.task.instanceId + '-capture', '--platform', 'linux/amd64', '--network', 'none', '--memory', '2g', image.Id, 'sleep', 'infinity'])).trim();
     assert.match(captureId, /^[a-f0-9]{64}$/); summary.captureContainerId = captureId; summary.captureContainerRemoved = false;
     await step('capture-start', ['start', captureId]);
     const boundary = jsonOutput(await step('capture-boundary', ['inspect', captureId]))[0];

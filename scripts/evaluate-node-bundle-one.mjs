@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {selectFrozenTask} from './node-bundle-task-selection.mjs';
 
 const repository = fileURLToPath(new URL('..', import.meta.url));
 const evaluatorPath = fileURLToPath(new URL('./swe-bench-official-evaluator.mjs', import.meta.url));
@@ -11,7 +12,7 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const read = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const write = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n', {flag: 'wx'});
 
-export async function evaluateNodeBundleTask({evidenceDir, manifestPath, runId}) {
+export async function evaluateNodeBundleTask({evidenceDir, manifestPath, runId, entry = null}) {
   assert.match(runId, /^\d+$/);
   evidenceDir = fs.realpathSync(evidenceDir);
   const candidatePath = path.join(repository, 'config/node-bundle-candidate.json');
@@ -19,9 +20,9 @@ export async function evaluateNodeBundleTask({evidenceDir, manifestPath, runId})
   const generationPath = path.join(repository, 'config/node-bundle-generation.json');
   const generation = read(generationPath);
   const evaluatorSha256 = generation.officialEvaluatorSha256;
-  const candidate = read(candidatePath), selection = read(selectionPath);
-  const task = selection.tasks[0], id = task.instanceId;
-  assert.equal(id, 'django__django-10097');
+  const baseCandidate = read(candidatePath), selection = read(selectionPath);
+  const candidate = entry ? {...baseCandidate, task: entry} : baseCandidate;
+  const task = selectFrozenTask(selection, entry), id = task.instanceId;
   assert.equal(candidate.task.instanceId, id);
   assert.equal(candidate.task.baseCommit, task.baseCommit);
   assert.equal(generation.candidateId, candidate.candidateId);
