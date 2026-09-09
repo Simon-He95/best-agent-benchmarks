@@ -270,12 +270,13 @@ async function generate(candidateDir, evidenceDir, runId, batchTask = null) {
   if (failure) throw failure;
 }
 
-function batchModeTask() {
+export function batchModeTask() {
   const instanceId = process.env.NODE_BUNDLE_TASK;
   if (!instanceId) return null;
   const batchBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-batch-1.json'));
-  const batch = validateBatchConfig(JSON.parse(batchBytes), batchBytes);
-  const selection = read(path.join(repository, 'config/node-bundle-failed-tasks.json'));
+  const selectionBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-failed-tasks.json'));
+  const batch = validateBatchConfig(JSON.parse(batchBytes), selectionBytes);
+  const selection = JSON.parse(selectionBytes);
   return {batch, entry: resolveBatchTask(batch, selection, instanceId)};
 }
 

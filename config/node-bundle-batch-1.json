@@ -34,6 +34,20 @@
       "predictionPresent": false,
       "officialEvaluation": "not-evaluated",
       "reason": "Identical instant prepare failure (same verifyCandidate defect) dispatched before the fix; coordinator double-dispatch disclosure. No model invocation, no prediction, no canonical record."
+    },
+    {
+      "runId": "34398741179",
+      "headSha": "310f841db020500901f48c3708b68e4792d4a461",
+      "jobId": 102625021684,
+      "failedStep": "Verify controller and official evaluator environment before model admission",
+      "skippedSteps": [
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Post-fix dispatch still failed in the controller prelude: batchModeTask passed the batch config bytes as the selection bytes, so the frozen selection-hash gate threw 'Frozen failed-task selection changed' before any admission call. Diagnosed from the uploaded upload-blocked.json receipt (recomputed batch-config hash 3e508c07... against the pinned selection hash 60a9abae...). No model invocation, no prediction, no canonical record."
     }
   ],
   "firstTaskProvenance": {

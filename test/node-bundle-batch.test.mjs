@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
-import {admitBatchRun, admitFirstTaskProvenance, validateBatchConfig, resolveBatchTask} from '../scripts/node-bundle-controller.mjs';
+import {admitBatchRun, admitFirstTaskProvenance, batchModeTask, validateBatchConfig, resolveBatchTask} from '../scripts/node-bundle-controller.mjs';
 import {verifyCandidate, verifyTaskIdentity} from '../scripts/swe-node-bundle-preflight.mjs';
 import {pythonEnvironmentExpectations} from '../scripts/generate-node-bundle-one.mjs';
 import {selectFrozenTask} from '../scripts/node-bundle-task-selection.mjs';
@@ -23,7 +23,8 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 2);
+  assert.equal(batch.priorBatchRuns.length, 3);
+  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179']);
   for (const prior of batch.priorBatchRuns) {
     assert.equal(prior.modelAttempt, false);
     assert.equal(prior.predictionPresent, false);
@@ -67,6 +68,25 @@ test('admitFirstTaskProvenance verifies the live recovery and generation runs be
   assert.throws(() => admitFirstTaskProvenance([{...recovery, head_sha: '0'.repeat(40)}], [generation], batch));
   assert.throws(() => admitFirstTaskProvenance([{...recovery, conclusion: 'failure'}], [generation], batch));
   assert.throws(() => admitFirstTaskProvenance([{...recovery, run_attempt: 2}], [generation], batch));
+});
+
+test('controller batchModeTask reads the real frozen selection bytes for its hash gate', t => {
+  // Regression for batch run 34398741179: the controller passed its own batch
+  // config bytes where the failed-task selection bytes are required, so the
+  // frozen selection-hash gate threw before any admission or model call. This
+  // test exercises the controller's real batch entry path, not a re-implementation.
+  process.env.NODE_BUNDLE_TASK = 'astropy__astropy-13033';
+  t.after(() => { delete process.env.NODE_BUNDLE_TASK; });
+  const resolved = batchModeTask();
+  assert.equal(resolved.batch.batchId, 'remaining63-node-batch1');
+  assert.equal(resolved.batch.selectionSourceSha256, createHash('sha256').update(selectionBytes).digest('hex'));
+  assert.equal(resolved.entry.instanceId, 'astropy__astropy-13033');
+  assert.equal(resolved.entry.taskIndex, 1);
+  assert.deepEqual(resolved.entry.baseCommit, selection.tasks[1].baseCommit);
+  process.env.NODE_BUNDLE_TASK = 'astropy__astropy-14598';
+  assert.equal(batchModeTask().entry.taskIndex, 5);
+  delete process.env.NODE_BUNDLE_TASK;
+  assert.equal(batchModeTask(), null, 'No NODE_BUNDLE_TASK means the single-task controller path');
 });
 
 test('admitBatchRun admits declared failed priors with five-job shape and rejects the rest', () => {
