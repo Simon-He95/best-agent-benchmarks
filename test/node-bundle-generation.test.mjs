@@ -25,7 +25,7 @@ test('sanitation removes future refs and unreachable objects while retaining the
   const {repo, git, base} = fixture(t);
   fs.writeFileSync(path.join(repo, 'solution'), 'future answer\n'); git('add', '.'); git('commit', '-m', 'future'); const future = git('rev-parse', 'HEAD'); git('tag', 'future');
   git('checkout', '--detach', base);
-  const receipt = sanitizeRepository(repo, base);
+  const receipt = sanitizeRepository(repo, base, 'base-only');
   assert.equal(receipt.commitObjects, 1); assert.equal(receipt.allObjectsReachableFromBase, true);
   assert.throws(() => git('cat-file', '-e', future));
   const extra = execFileSync('/usr/bin/git', ['hash-object', '-w', '--stdin'], {cwd: repo, input: 'unreachable secret answer', encoding: 'utf8'}).trim();
@@ -35,11 +35,11 @@ test('sanitation removes future refs and unreachable objects while retaining the
 test('sanitation rejects unexplained setup source changes', t => {
   const {repo, base} = fixture(t);
   fs.writeFileSync(path.join(repo, 'django/__init__.py'), 'changed = True\n');
-  assert.throws(() => sanitizeRepository(repo, base), /tracked source differs/);
+  assert.throws(() => sanitizeRepository(repo, base, 'base-only'), /tracked source differs/);
 });
 
 test('installed project must match tracked base; project bytecode is removed', t => {
-  const {directory, repo, base} = fixture(t); sanitizeRepository(repo, base);
+  const {directory, repo, base} = fixture(t); sanitizeRepository(repo, base, 'base-only');
   const installed = path.join(directory, 'installed'); fs.mkdirSync(installed);
   fs.copyFileSync(path.join(repo, 'django/__init__.py'), path.join(installed, '__init__.py'));
   fs.writeFileSync(path.join(installed, '__init__.pyc'), 'opaque bytecode');
@@ -52,19 +52,54 @@ test('installed project must match tracked base; project bytecode is removed', t
 });
 
 test('capture uses a private index and trusted config, including deleted, executable and binary files', t => {
-  const {directory, repo, git, base} = fixture(t); sanitizeRepository(repo, base);
+  const {directory, repo, git, base} = fixture(t); sanitizeRepository(repo, base, 'base-only');
   const gitDir = path.join(directory, 'trusted.git'); fs.cpSync(path.join(repo, '.git'), gitDir, {recursive: true});
-  const baseline = capturePatch({repo, gitDir, base, outputDir: path.join(directory, 'baseline')}); assert.equal(baseline.bytes, 0);
+  const baseline = capturePatch({repo, gitDir, base, headCommit: base, outputDir: path.join(directory, 'baseline')}); assert.equal(baseline.bytes, 0);
   const marker = path.join(directory, 'FILTER-RAN');
   git('config', 'filter.evil.clean', 'touch ' + marker); git('config', 'core.fsmonitor', 'touch ' + marker);
   fs.writeFileSync(path.join(repo, '.gitattributes'), '* filter=evil\n');
   fs.unlinkSync(path.join(repo, 'delete-me'));
   fs.writeFileSync(path.join(repo, 'script'), '#!/bin/sh\ntrue\n', {mode: 0o755});
   fs.writeFileSync(path.join(repo, 'data.bin'), Buffer.from([0, 1, 255, 0]));
-  const result = capturePatch({repo, gitDir, base, outputDir: path.join(directory, 'captured')});
+  const result = capturePatch({repo, gitDir, base, headCommit: base, outputDir: path.join(directory, 'captured')});
   assert.equal(result.originalIndexUnchanged, true); assert(!fs.existsSync(marker));
   const patch = fs.readFileSync(path.join(directory, 'captured/diagnostic.patch'), 'utf8');
   assert.match(patch, /deleted file mode/); assert.match(patch, /new file mode 100755/); assert.match(patch, /GIT binary patch/);
+});
+
+test('as-shipped sanitation preserves the official setup auto-commit and captures edits relative to it', t => {
+  // Official instance images end setup with "git reset --hard base; git commit --allow-empty -am
+  // SWE-bench", so the image HEAD is one commit above base whose tree carries tracked install
+  // modifications. The model patch must be relative to that as-shipped state because the official
+  // evaluator applies it to the image worktree without checking out base (run_instance).
+  const {directory, repo, git, base} = fixture(t);
+  fs.writeFileSync(path.join(repo, 'django/__init__.py'), 'base = True\ninstall = 1\n');
+  git('commit', '-am', 'SWE-bench');
+  const head = git('rev-parse', 'HEAD');
+  const receipt = sanitizeRepository(repo, base, 'as-shipped');
+  assert.equal(receipt.headCommit, head); assert.equal(receipt.commitObjects, 2);
+  assert.equal(receipt.allObjectsReachableFromHead, true);
+  assert.deepEqual(receipt.installModifiedFiles, ['django/__init__.py']);
+  assert.equal(execFileSync('/usr/bin/git', ['status', '--porcelain'], {cwd: repo, env: {PATH: '/usr/bin:/bin', HOME: '/tmp', GIT_CONFIG_NOSYSTEM: '1'}}).toString(), '');
+  const gitDir = path.join(directory, 'trusted.git'); fs.cpSync(path.join(repo, '.git'), gitDir, {recursive: true});
+  const baseline = capturePatch({repo, gitDir, base, headCommit: head, outputDir: path.join(directory, 'baseline')});
+  assert.equal(baseline.bytes, 0, 'The model must start from the exact state the patch is diffed against');
+  fs.writeFileSync(path.join(repo, 'django/fix.py'), 'model edit\n');
+  const captured = capturePatch({repo, gitDir, base, headCommit: head, outputDir: path.join(directory, 'captured')});
+  const patch = fs.readFileSync(path.join(directory, 'captured/diagnostic.patch'), 'utf8');
+  assert.match(patch, /fix\.py/);
+  assert.doesNotMatch(patch, /__init__\.py/, 'Install modifications must not leak into the model patch');
+  assert.equal(captured.baseCommit, base); assert.equal(captured.headCommit, head);
+});
+
+test('as-shipped sanitation fails closed on any non-official image git shape', t => {
+  const {repo, git, base} = fixture(t);
+  fs.writeFileSync(path.join(repo, 'django/__init__.py'), 'base = True\nextra = 1\n'); git('commit', '-am', 'SWE-bench');
+  fs.writeFileSync(path.join(repo, 'django/__init__.py'), 'base = True\nextra = 2\n'); git('commit', '-am', 'second');
+  assert.throws(() => sanitizeRepository(repo, base, 'as-shipped'), /exactly one commit above base/);
+  const {repo: repo2, git: git2, base: base2} = fixture(t);
+  git2('checkout', '--orphan', 'detached'); git2('commit', '--allow-empty', '-m', 'unrelated root');
+  assert.throws(() => sanitizeRepository(repo2, base2, 'as-shipped'), /not a child of the frozen base commit/);
 });
 
 function makeArchive(filename, members, zip = false) {

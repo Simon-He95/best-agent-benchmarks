@@ -348,7 +348,7 @@ async function prepare(nodeRoot, evidenceDir, runId) {
   write(path.join(privateStage, 'evaluator.json'), {privateRoot, corpusPath: path.join(privateRoot, 'corpus.jsonl'), manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), at: new Date().toISOString()});
 }
 
-const baseGitConstructionRunner = "import {sanitizeRepository} from '/capture/sanitize.mjs';\nimport fs from 'node:fs';\nconst expected = JSON.parse(fs.readFileSync('/capture/expected.json', 'utf8'));\nconsole.log(JSON.stringify(sanitizeRepository('/testbed', expected.baseCommit)));\n";
+const baseGitConstructionRunner = "import {sanitizeRepository} from '/capture/sanitize.mjs';\nimport fs from 'node:fs';\nconst expected = JSON.parse(fs.readFileSync('/capture/expected.json', 'utf8'));\nconsole.log(JSON.stringify(sanitizeRepository('/testbed', expected.baseCommit, 'base-only')));\n";
 
 async function capture(nodeRoot, evidenceDir, runId) {
   assertNoSecrets();
@@ -415,7 +415,7 @@ async function capture(nodeRoot, evidenceDir, runId) {
     await step('capture-place-worktree', ['docker', ...captureExec(captureId, 'mv', '/restore/testbed', '/testbed')]);
     await step('capture-remove-untrusted-git', ['docker', ...captureExec(captureId, 'rm', '-rf', '/testbed/.git')]);
     await step('capture-helper', ['docker', 'cp', path.join(repository, 'scripts/node-bundle-capture.mjs'), captureId + ':/capture/helper.mjs']);
-    await step('capture-patch', ['docker', ...captureExec(captureId, node, '/capture/helper.mjs', recovery.attempt.baseCommit)], {timeoutMs: 200_000});
+    await step('capture-patch', ['docker', ...captureExec(captureId, node, '/capture/helper.mjs', recovery.attempt.baseCommit, recovery.attempt.baseCommit)], {timeoutMs: 200_000});
     await step('capture-export', ['docker', 'cp', captureId + ':/capture/output', path.join(evidenceDir, 'terminal/captured')]);
   } finally {
     if (!captureRemoved) {

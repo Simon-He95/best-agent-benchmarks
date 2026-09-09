@@ -8,40 +8,68 @@ import {fileURLToPath} from 'node:url';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const gitEnvironment = {PATH: '/usr/bin:/bin', HOME: '/tmp', GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_TERMINAL_PROMPT: '0'};
 
-export function sanitizeRepository(repo, base) {
+export function sanitizeRepository(repo, base, mode) {
   assert.match(base, /^[a-f0-9]{40}$/);
+  assert(mode === 'as-shipped' || mode === 'base-only', 'Unknown sanitation mode');
   const git = args => execFileSync('/usr/bin/git', ['-c', 'core.hooksPath=/dev/null', ...args], {cwd: repo, env: gitEnvironment, maxBuffer: 64 * 1024 ** 2});
-  assert.equal(git(['rev-parse', 'HEAD^{tree}']).toString().trim(), git(['rev-parse', base + '^{tree}']).toString().trim(), 'Official setup tree differs from base');
-  assert.equal(git(['diff', '--no-ext-diff', '--no-textconv', '--name-only', base]).length, 0, 'Official tracked source differs from base');
+  const head = git(['rev-parse', 'HEAD']).toString().trim();
+  let headCommit, installModifiedFiles;
+  if (mode === 'base-only') {
+    // Frozen recovery contract: the official setup tree must equal the base tree so the
+    // one-commit base-only construction is object-identical with the original pre-model git.
+    assert.equal(git(['rev-parse', 'HEAD^{tree}']).toString().trim(), git(['rev-parse', base + '^{tree}']).toString().trim(), 'Official setup tree differs from base');
+    assert.equal(git(['diff', '--no-ext-diff', '--no-textconv', '--name-only', base]).length, 0, 'Official tracked source differs from base');
+    headCommit = base;
+  } else {
+    // Official instance images end their setup with a single "SWE-bench" auto-commit on top of
+    // the frozen base commit (git reset --hard base; git commit --allow-empty -am), capturing
+    // tracked modifications made by the environment install. The model must work in exactly
+    // that as-shipped state and the captured patch is relative to it, matching the official
+    // evaluator that applies the model patch to the image worktree without checking out base.
+    assert.equal(git(['rev-list', '--count', base + '..HEAD']).toString().trim(), '1', 'Official image HEAD must be exactly one commit above base');
+    const headParents = git(['rev-list', '--parents', '-n', '1', 'HEAD']).toString().trim().split(/\s+/);
+    assert.equal(headParents.length, 2, 'Official image HEAD is not a child of the frozen base commit');
+    assert.equal(headParents[1], base, 'Official image HEAD is not a child of the frozen base commit');
+    headCommit = head;
+    installModifiedFiles = git(['diff', '--no-ext-diff', '--no-textconv', '--name-only', base, headCommit]).toString().trim().split('\n').filter(Boolean);
+  }
   const temporary = fs.mkdtempSync(path.join(path.dirname(repo), '.base-git-'));
   try {
     execFileSync('/usr/bin/git', ['init', '--bare', '--template=', temporary], {env: gitEnvironment});
     execFileSync('/usr/bin/git', ['--git-dir=' + temporary, '-c', 'protocol.file.allow=always', 'fetch', '--depth=1', '--no-tags', 'file://' + repo, base], {env: gitEnvironment});
-    fs.writeFileSync(path.join(temporary, 'HEAD'), base + '\n');
+    if (headCommit !== base) {
+      execFileSync('/usr/bin/git', ['--git-dir=' + temporary, '-c', 'protocol.file.allow=always', 'fetch', '--depth=2', '--no-tags', 'file://' + repo, headCommit], {env: gitEnvironment});
+    }
+    fs.writeFileSync(path.join(temporary, 'HEAD'), headCommit + '\n');
     fs.writeFileSync(path.join(temporary, 'config'), '[core]\n\trepositoryformatversion = 0\n\tbare = false\n\tlogallrefupdates = false\n');
     for (const name of ['FETCH_HEAD', 'logs', 'hooks']) fs.rmSync(path.join(temporary, name), {recursive: true, force: true});
     fs.rmSync(path.join(repo, '.git'), {recursive: true});
     fs.renameSync(temporary, path.join(repo, '.git'));
   } finally { fs.rmSync(temporary, {recursive: true, force: true}); }
-  git(['read-tree', base]);
-  const receipt = verifyBaseObjects(repo, base);
-  assert.equal(git(['diff', '--name-only', base]).length, 0);
+  git(['read-tree', headCommit]);
+  const receipt = verifyBaseObjects(repo, base, headCommit);
+  if (installModifiedFiles) receipt.installModifiedFiles = installModifiedFiles;
+  assert.equal(git(['diff', '--no-ext-diff', '--no-textconv', '--name-only', headCommit]).length, 0);
   return receipt;
 }
 
-export function verifyBaseObjects(repo, base) {
+export function verifyBaseObjects(repo, base, headCommit = base) {
   const git = args => execFileSync('/usr/bin/git', args, {cwd: repo, env: gitEnvironment, encoding: 'utf8', maxBuffer: 64 * 1024 ** 2});
-  assert.equal(git(['rev-parse', 'HEAD']).trim(), base);
-  assert.equal(git(['rev-list', '--count', 'HEAD']).trim(), '1');
+  assert.equal(git(['rev-parse', 'HEAD']).trim(), headCommit);
+  assert.equal(git(['rev-list', '--count', 'HEAD']).trim(), headCommit === base ? '1' : '2');
   assert.equal(git(['for-each-ref']).trim(), '');
+  if (headCommit !== base) assert.equal(git(['rev-parse', 'HEAD^']).trim(), base);
   const all = git(['cat-file', '--batch-all-objects', '--batch-check=%(objectname) %(objecttype)']).trim().split('\n');
-  assert.equal(all.filter(line => line.endsWith(' commit')).length, 1);
+  assert.equal(all.filter(line => line.endsWith(' commit')).length, headCommit === base ? 1 : 2);
   const stored = all.map(line => line.split(' ')[0]).sort();
   const reachable = git(['rev-list', '--objects', '--no-object-names', 'HEAD']).trim().split('\n').sort();
   assert.deepEqual(stored, reachable, 'Unreachable or future Git objects remain');
   for (const name of ['logs', 'objects/info/alternates', 'objects/info/http-alternates', 'worktrees', 'packed-refs', 'FETCH_HEAD']) assert(!fs.existsSync(path.join(repo, '.git', name)), 'Forbidden Git metadata: ' + name);
   assert.equal(fs.readFileSync(path.join(repo, '.git/shallow'), 'utf8').trim(), base);
-  return {baseCommit: base, commitObjects: 1, objects: stored.length, objectSetSha256: hash(stored.join('\n')), allObjectsReachableFromBase: true};
+  const receipt = {baseCommit: base, headCommit, commitObjects: headCommit === base ? 1 : 2, objects: stored.length, objectSetSha256: hash(stored.join('\n'))};
+  if (headCommit === base) receipt.allObjectsReachableFromBase = true;
+  else receipt.allObjectsReachableFromHead = true;
+  return receipt;
 }
 
 export function verifyInstalledDjango(repo, installed) {
@@ -186,13 +214,17 @@ export function inspectArchive(archive, needles = [], mode = 'root', receiptPref
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const base = process.argv[2];
-  const git = sanitizeRepository('/testbed', base);
+  const plan = JSON.parse(process.argv[3]);
+  assert(plan.mode === 'as-shipped');
+  assert(Array.isArray(plan.removals) && plan.removals.every(name => name && !name.includes('/') && !name.startsWith('.')), 'Sanitation removals must be simple top-level names');
+  const git = sanitizeRepository('/testbed', base, plan.mode);
   const removed = [];
-  for (const name of ['build', 'dist', 'Django.egg-info']) {
+  for (const name of plan.removals) {
     assert.equal(execFileSync('/usr/bin/git', ['ls-files', '--', name], {cwd: '/testbed', env: gitEnvironment}).length, 0);
     fs.rmSync('/testbed/' + name, {recursive: true, force: true}); removed.push('/testbed/' + name);
   }
   fs.rmSync('/root/.gitconfig', {force: true}); removed.push('/root/.gitconfig');
-  const installed = verifyInstalledDjango('/testbed', '/opt/miniconda3/envs/testbed/lib/python3.5/site-packages/Django-2.2.dev20180625180104-py3.5.egg/django');
+  let installed = null;
+  if (plan.installedEggPath) installed = verifyInstalledDjango('/testbed', plan.installedEggPath);
   console.log(JSON.stringify({git, installed, removed}));
 }

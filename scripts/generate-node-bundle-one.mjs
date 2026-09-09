@@ -182,7 +182,12 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     summary.stage = 'sanitation';
     await step('inventory-before', ['exec', containerId, '/usr/bin/find', '/', '-xdev', '-printf', '%y %s %p\n']);
     await step('copy-sanitizer', ['cp', path.join(repository, 'scripts/node-bundle-sanitize.mjs'), containerId + ':/work/sanitize.mjs']);
-    const sanitation = jsonOutput(await step('sanitize-base', ['exec', containerId, node, '/work/sanitize.mjs', candidate.task.baseCommit], {timeoutMs: 300_000}));
+    const sanitationPlan = candidate.task.sanitationPlan ?? {mode: 'as-shipped', removals: ['build', 'dist', 'Django.egg-info'], installedEggPath: '/opt/miniconda3/envs/testbed/lib/python3.5/site-packages/Django-2.2.dev20180625180104-py3.5.egg/django'};
+    assert(sanitationPlan.mode === 'as-shipped' && Array.isArray(sanitationPlan.removals) && sanitationPlan.removals.length > 0 && (sanitationPlan.installedEggPath === null || typeof sanitationPlan.installedEggPath === 'string'), 'Invalid sanitation plan');
+    const sanitation = jsonOutput(await step('sanitize-base', ['exec', containerId, node, '/work/sanitize.mjs', candidate.task.baseCommit, JSON.stringify(sanitationPlan)], {timeoutMs: 300_000}));
+    assert.equal(sanitation.git.baseCommit, candidate.task.baseCommit);
+    assert.match(sanitation.git.headCommit, /^[a-f0-9]{40}$/);
+    const headCommit = sanitation.git.headCommit;
     await step('remove-sanitizer', ['exec', containerId, 'rm', '/work/sanitize.mjs']);
     await step('freeze-base-git', ['cp', containerId + ':/testbed/.git', path.join(privateDir, 'base.git')]);
     const rootTar = path.join(privateDir, 'root.tar');
@@ -215,8 +220,8 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     const proof = inspectAttemptEvidence(path.join(evidenceDir, 'probe/evidence.jsonl')); assert(proof.complete && proof.rootStatus === 'completed');
     const fidelity = verifyProbeTranscript(fs.readFileSync(path.join(evidenceDir, 'probe/evidence.jsonl'), 'utf8').trim().split('\n').map(line => JSON.parse(line)), readJson(path.join(evidenceDir, 'probe/requests.json')));
     await step('copy-baseline-helper', ['cp', path.join(repository, 'scripts/node-bundle-capture.mjs'), containerId + ':/work/capture.mjs']);
-    const baselineCode = "import {capturePatch} from '/work/capture.mjs'; console.log(JSON.stringify(capturePatch({repo:'/testbed',gitDir:'/testbed/.git',base:process.argv[1],outputDir:'/work/baseline'})));";
-    const baseline = jsonOutput(await step('baseline', ['exec', containerId, node, '--input-type=module', '-e', baselineCode, frozen.task.baseCommit]));
+    const baselineCode = "import {capturePatch} from '/work/capture.mjs'; console.log(JSON.stringify(capturePatch({repo:'/testbed',gitDir:'/testbed/.git',base:process.argv[1],headCommit:process.argv[2],outputDir:'/work/baseline'})));";
+    const baseline = jsonOutput(await step('baseline', ['exec', containerId, node, '--input-type=module', '-e', baselineCode, frozen.task.baseCommit, headCommit]));
     assert.equal(baseline.bytes, 0); assert.equal(baseline.originalIndexUnchanged, true);
     await step('export-baseline', ['cp', containerId + ':/work/baseline', path.join(evidenceDir, 'baseline-capture')]);
     writeJson(path.join(evidenceDir, 'preflight-verification.json'), {probe, proof, fidelity, baseline, modelAttempt: false});
@@ -263,7 +268,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     await step('capture-trusted-git', ['cp', path.join(privateDir, 'base.git'), captureId + ':/capture/base.git']);
     await step('capture-node', ['cp', path.join(candidateDir, 'node-v24.15.0-linux-x64'), captureId + ':/opt/agent/node']);
     await step('capture-helper', ['cp', path.join(repository, 'scripts/node-bundle-capture.mjs'), captureId + ':/capture/helper.mjs']);
-    await step('capture-patch', ['exec', captureId, node, '/capture/helper.mjs', frozen.task.baseCommit], {timeoutMs: 200_000});
+    await step('capture-patch', ['exec', captureId, node, '/capture/helper.mjs', frozen.task.baseCommit, headCommit], {timeoutMs: 200_000});
     await step('capture-export', ['cp', captureId + ':/capture/output', path.join(terminal, 'captured')]);
     summary.capture = readJson(path.join(terminal, 'captured/receipt.json'));
     assert.equal(fileHash(path.join(terminal, 'captured/diagnostic.patch')), summary.capture.sha256);

@@ -31,6 +31,8 @@ export function validateBatchConfig(batch, selectionBytes) {
     seen.add(entry.instanceId);
     assert.equal(entry.pythonModule, 'astropy', 'Batch 1 is the astropy block of the frozen selection');
     assert.equal(entry.pythonSource, '/testbed/astropy/__init__.py');
+    const plan = entry.sanitationPlan;
+    assert(plan && plan.mode === 'as-shipped' && Array.isArray(plan.removals) && plan.removals.length > 0 && plan.removals.every(name => name && !name.includes('/') && !name.startsWith('.')) && (plan.installedEggPath === null || typeof plan.installedEggPath === 'string'), 'Batch tasks need a valid as-shipped sanitation plan');
   }
   const provenance = batch.firstTaskProvenance;
   assert.equal(provenance.instanceId, 'django__django-10097');

@@ -23,8 +23,8 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 3);
-  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179']);
+  assert.equal(batch.priorBatchRuns.length, 4);
+  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029']);
   for (const prior of batch.priorBatchRuns) {
     assert.equal(prior.modelAttempt, false);
     assert.equal(prior.predictionPresent, false);
@@ -36,6 +36,7 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
     assert.equal(frozen.baseCommit, entry.baseCommit);
     assert.equal(frozen.promptSha256, entry.promptSha256);
     assert.equal(entry.pythonVersion, null, 'Batch image Python versions are recorded as evidence, not invented');
+    assert.equal(entry.sanitationPlan.installedEggPath, null, 'astropy dev-installs resolve to /testbed; the environment probe proves source identity');
     verifyTaskIdentity(entry, entry.instanceId);
   }
   assert.deepEqual(batch.tasks.map(task => task.instanceId), [
