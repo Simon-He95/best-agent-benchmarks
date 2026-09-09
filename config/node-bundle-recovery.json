@@ -51,8 +51,41 @@
       "objectSetSha256": "d8d4f3317e3cc5b0f725b88b1d31a8cc91a6fa379e223150777d3cbbbc38cc19",
       "headSha": "b9cf764be62e77b4777b3a75ec256f6209a57671",
       "configContent": "[core]\n\trepositoryformatversion = 0\n\tbare = false\n\tlogallrefupdates = false\n"
-    }
+    },
+    "recoveredPatchSha256": "d6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5"
   },
+  "priorRecoveryRuns": [
+    {
+      "workflow": "node-bundle-capture-recovery.yml",
+      "runId": "34385964593",
+      "runAttempt": 1,
+      "headSha": "14ee9c9ccfb17e71a0a8c584464367837344a116",
+      "jobId": 102582179327,
+      "conclusion": "failure",
+      "failedStep": "Recover the trusted capture of the frozen attempt (no model invocation)",
+      "skippedSteps": [
+        "Audit prepared evidence before official evaluation",
+        "Evaluate the frozen prediction in a fresh official Docker container"
+      ],
+      "succeededSteps": [
+        "Run actions/checkout@v4",
+        "Run actions/setup-python@v5",
+        "Download and verify the pinned Node runtime (public distribution, no private token)",
+        "Check recovery admission, evidence and lifecycle tests",
+        "Verify recovery admission and prepare frozen attempt evidence",
+        "Audit and stage only immutable credential-safe evidence",
+        "Upload audited evidence even when the task fails"
+      ],
+      "failure": {
+        "stage": "capture-finalize",
+        "classification": "controller-capture-finalize-defect-after-successful-capture",
+        "cause": "ReferenceError: baseGit is not defined at node-bundle-recovery.mjs:409 after the capture completed: audited artifact evidence shows every capture step 001-021 succeeded, the 658-byte patch was captured with sha256 d6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5 (originalIndexUnchanged true), and the capture container was removed with docker rm exit 0 plus a verified absence receipt. The crash happened while assembling the recovery summary, so no recovery summary, capture receipt or evaluation admission was written; audit and evaluate steps were skipped and no official verdict exists. The prediction.json inside the artifact is an orphan of the interrupted stage, superseded by the new run's own capture, which must reproduce the identical patch hash."
+      },
+      "orphanPredictionPresent": true,
+      "officialEvaluation": "not-evaluated",
+      "declaredAt": "2026-09-10T02:20:00.000Z"
+    }
+  ],
   "evidence": {
     "controller-generate-failure.json": {
       "sizeBytes": 412,

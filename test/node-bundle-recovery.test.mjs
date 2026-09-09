@@ -60,6 +60,25 @@ test('admits recovery exactly when the hosted run population matches the frozen 
   assert.throws(() => admitRecoveryRun(oneRuns, [], '999', preModelRuns, {...source, predictionPresent: true}, jobsByRun()), /prediction/);
 });
 
+test('admits a declared prior recovery run and rejects undeclared or mutated recovery runs', () => {
+  const priorRecoveryRuns = [{runId: '777', headSha: 'r1', jobId: 77, conclusion: 'failure', runAttempt: 1, failedStep: 'RC', skippedSteps: ['RA', 'RE'], succeededSteps: ['RS']}];
+  const oneRuns = [hostedRun(100, 'h1'), hostedRun(200, 'h2'), hostedRun(300, 'h3')];
+  const recoveryRuns = [hostedRun(777, 'r1')];
+  const jobs = jobsByRun();
+  jobs['777'] = {jobs: [{id: 77, status: 'completed', conclusion: 'failure', steps: stepsFor(priorRecoveryRuns[0])}]};
+  admitRecoveryRun(oneRuns, recoveryRuns, '999', preModelRuns, source, jobs, priorRecoveryRuns);
+  for (const mutation of [
+    () => admitRecoveryRun(oneRuns, [...recoveryRuns, hostedRun(888, 'h8')], '999', preModelRuns, source, jobs, priorRecoveryRuns),
+    () => admitRecoveryRun(oneRuns, recoveryRuns, '777', preModelRuns, source, jobs, priorRecoveryRuns),
+    () => admitRecoveryRun(oneRuns, recoveryRuns, '999', preModelRuns, source, jobs, [...priorRecoveryRuns, {runId: '888', headSha: 'h8', jobId: 88, conclusion: 'failure', runAttempt: 1, failedStep: 'X', skippedSteps: []}]),
+    () => admitRecoveryRun(oneRuns, [hostedRun(777, 'changed')], '999', preModelRuns, source, jobs, priorRecoveryRuns),
+    () => admitRecoveryRun(oneRuns, recoveryRuns, '999', preModelRuns, source, jobs, priorRecoveryRuns.map(item => ({...item, runAttempt: 2}))),
+  ]) assert.throws(mutation);
+  const driftedJobs = JSON.parse(JSON.stringify(jobs));
+  driftedJobs['777'].jobs[0].steps.find(step => step.name === 'RA').conclusion = 'success';
+  assert.throws(() => admitRecoveryRun(oneRuns, recoveryRuns, '999', preModelRuns, source, driftedJobs, priorRecoveryRuns), /conclusion/);
+});
+
 function fixtureSource(t, {recovery, mutate}) {
   const sourceDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'recovery-source-')));
   t.after(() => fs.rmSync(sourceDir, {recursive: true, force: true}));
@@ -143,7 +162,8 @@ test('the recovery summary is prediction-eligible and preserves the frozen attem
   const sourceSummary = JSON.parse(fs.readFileSync(path.join(sourceDir, 'terminal/summary.json'), 'utf8'));
   const patch = Buffer.from('diff --git a/x b/x\n');
   const captureReceipt = {status: 'captured', baseCommit: recovery.attempt.baseCommit, bytes: patch.length, sha256: hash(patch), method: 'trusted-base-git-private-index-to-terminal-worktree', originalIndexUnchanged: true};
-  const summary = buildRecoverySummary(sourceSummary, captureReceipt, 'c'.repeat(64), {sourceRunId: recovery.source.runId});
+  const summary = buildRecoverySummary(sourceSummary, captureReceipt, 'c'.repeat(64), {sourceRunId: recovery.source.runId}, true);
+  assert.throws(() => buildRecoverySummary(sourceSummary, captureReceipt, 'c'.repeat(64), {sourceRunId: recovery.source.runId}, false), /closure is not proven/);
   assert.equal(summary.attemptId, recovery.attempt.attemptId);
   assert.equal(summary.evaluationBatchId, recovery.attempt.evaluationBatchId);
   assert.equal(summary.status, 'completed');
@@ -172,4 +192,26 @@ test('the main flow capture steps execute with a working-directory-safe exec for
     assert.match(source, new RegExp("step\\('" + name + "', captureExec\\("), name + ' must use the cwd-safe exec helper');
   }
   assert.doesNotMatch(source, /'capture-clear-original', \['exec', captureId/);
+});
+
+test('recovery capture fails closed on unproven container closure and pins the preserved capture identity', () => {
+  const source = fs.readFileSync(path.join(repository, 'scripts/node-bundle-recovery.mjs'), 'utf8');
+  assert.match(source, /throw cleanupError;/, 'capture cleanup failure must propagate so no prediction is frozen');
+  assert.doesNotMatch(source, /captureContainerRemoved: true/, 'capture container closure must come from verified state, not a hard-coded true');
+  assert.match(source, /let baseGitVerification = null;/, 'the verified base-git identity must stay visible after the finally block');
+  assert.doesNotMatch(source, /baseGitVerification: baseGit[^V]/, 'the interrupted recovery run crashed on exactly this out-of-scope reference');
+  assert.match(source, /recovery\.expected\.recoveredPatchSha256/, 'the recovered capture must equal the preserved interrupted capture');
+});
+
+test('the frozen recovery manifest declares the interrupted recovery run and its preserved capture', () => {
+  const recovery = readRecoveryConfig();
+  assert.equal(recovery.priorRecoveryRuns.length, 1);
+  const prior = recovery.priorRecoveryRuns[0];
+  assert.equal(String(prior.runId), '34385964593');
+  assert.equal(prior.headSha, '14ee9c9ccfb17e71a0a8c584464367837344a116');
+  assert.equal(prior.conclusion, 'failure');
+  assert.equal(prior.runAttempt, 1);
+  assert.equal(prior.skippedSteps.length, 2);
+  assert.equal(prior.officialEvaluation, 'not-evaluated');
+  assert.equal(recovery.expected.recoveredPatchSha256, 'd6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5');
 });

@@ -45,13 +45,42 @@ export function readRecoveryConfig(candidateManifest = candidate, generationMani
     assert.equal(typeof entry.sizeBytes, 'number');
     assert.match(entry.sha256, /^[a-f0-9]{64}$/);
   }
+  assert.match(recovery.expected.recoveredPatchSha256, /^[a-f0-9]{64}$/);
+  assert(Array.isArray(recovery.priorRecoveryRuns), 'priorRecoveryRuns must be an array');
+  for (const item of recovery.priorRecoveryRuns) {
+    assert(item && String(item.runId).length >= 9, 'A prior recovery run declaration needs its hosted run id');
+    assert(typeof item.jobId === 'number' || typeof item.jobId === 'string');
+    assert.match(item.headSha, /^[a-f0-9]{40}$/);
+    assert.equal(item.conclusion, 'failure');
+    assert.equal(item.runAttempt, 1);
+    assert.equal(typeof item.failedStep, 'string');
+    assert(Array.isArray(item.skippedSteps) && Array.isArray(item.succeededSteps));
+  }
   return recovery;
 }
 
-// The frozen source attempt plus the two preserved pre-model failures must be the
-// complete population of node-bundle-one.yml runs, and recovery is single-dispatch.
-export function admitRecoveryRun(oneRuns, recoveryRuns, runId, preModelRuns, source, jobsByRun) {
-  assert(recoveryRuns.every(run => String(run.id) === String(runId)), 'A prior recovery run already exists; recovery is single-dispatch');
+// The frozen source attempt, the two preserved pre-model failures and every declared
+// prior recovery run must be the complete hosted population; the current run must be
+// the only recovery run beyond the declared priors.
+function assertDeclaredRun(declaration, jobs, kind) {
+  assert(jobs?.length === 1, 'The declared ' + kind + ' run must have exactly one job');
+  assert.equal(jobs[0].id, declaration.jobId);
+  assert.equal(jobs[0].status, 'completed');
+  assert.equal(jobs[0].conclusion, 'failure');
+  const required = [[declaration.failedStep, 'failure'], ...declaration.skippedSteps.map(name => [name, 'skipped']), ...(declaration.succeededSteps ?? []).map(name => [name, 'success'])];
+  for (const [name, conclusion] of required) {
+    const matches = jobs[0].steps.filter(step => step.name === name);
+    assert.equal(matches.length, 1, 'Declared step not found exactly once: ' + name);
+    assert.equal(matches[0].conclusion, conclusion, 'Declared step changed conclusion: ' + name);
+  }
+}
+
+export function admitRecoveryRun(oneRuns, recoveryRuns, runId, preModelRuns, source, jobsByRun, priorRecoveryRuns = []) {
+  const currentRunId = String(runId);
+  const priorIds = priorRecoveryRuns.map(item => String(item.runId));
+  assert(!priorIds.includes(currentRunId), 'The current recovery run is already declared as a prior recovery run');
+  const knownRecovery = new Set([...priorIds, currentRunId]);
+  assert(recoveryRuns.every(run => knownRecovery.has(String(run.id))), 'An undeclared prior recovery run exists; no recovery admission');
   assert(Array.isArray(oneRuns) && oneRuns.length === preModelRuns.length + 1, 'node-bundle-one.yml has runs beyond the frozen declarations; no recovery admission');
   const declarations = [...preModelRuns, source];
   for (const run of oneRuns) {
@@ -61,17 +90,16 @@ export function admitRecoveryRun(oneRuns, recoveryRuns, runId, preModelRuns, sou
     assert.equal(run.status, 'completed');
     assert.equal(run.conclusion, 'failure');
     assert.equal(run.run_attempt, 1);
-    const jobs = jobsByRun[declaration.runId]?.jobs;
-    assert.equal(jobs?.length, 1, 'The declared run must have exactly one job');
-    assert.equal(jobs[0].id, declaration.jobId);
-    assert.equal(jobs[0].status, 'completed');
-    assert.equal(jobs[0].conclusion, 'failure');
-    const required = [[declaration.failedStep, 'failure'], ...declaration.skippedSteps.map(name => [name, 'skipped']), ...(declaration.succeededSteps ?? []).map(name => [name, 'success'])];
-    for (const [name, conclusion] of required) {
-      const matches = jobs[0].steps.filter(step => step.name === name);
-      assert.equal(matches.length, 1, 'Declared step not found exactly once: ' + name);
-      assert.equal(matches[0].conclusion, conclusion, 'Declared step changed conclusion: ' + name);
-    }
+    assertDeclaredRun(declaration, jobsByRun[declaration.runId]?.jobs, 'node-bundle-one');
+  }
+  for (const declaration of priorRecoveryRuns) {
+    const actual = recoveryRuns.find(run => String(run.id) === String(declaration.runId));
+    assert(actual, 'Declared prior recovery run is absent from the hosted population');
+    assert.equal(actual.head_sha, declaration.headSha, 'Declared prior recovery run head changed: ' + declaration.runId);
+    assert.equal(actual.status, 'completed');
+    assert.equal(actual.conclusion, 'failure');
+    assert.equal(actual.run_attempt, declaration.runAttempt, 'Declared prior recovery run attempt changed: ' + declaration.runId);
+    assertDeclaredRun(declaration, jobsByRun[declaration.runId]?.jobs, 'recovery');
   }
   assert.equal(source.modelAttempt, true, 'Recovery admission requires the executed model attempt');
   assert.equal(source.predictionPresent, false, 'A frozen prediction already exists; recovery is not admission');
@@ -175,7 +203,8 @@ export function verifyFrozenSource(sourceDir, recovery, inspectAttempt = inspect
 
 // The failed source summary stays verbatim under recovery/source; the recovery
 // summary records the same attempt identity with the recovered capture state.
-export function buildRecoverySummary(sourceSummary, captureReceipt, captureContainerId, recoveredFrom) {
+export function buildRecoverySummary(sourceSummary, captureReceipt, captureContainerId, recoveredFrom, captureRemoved) {
+  assert.equal(captureRemoved, true, 'Recovered capture container closure is not proven; a recovery summary is not admissible');
   return {
     instanceId: sourceSummary.instanceId,
     evaluationBatchId: sourceSummary.evaluationBatchId,
@@ -189,7 +218,7 @@ export function buildRecoverySummary(sourceSummary, captureReceipt, captureConta
     predictionPresent: true,
     containerClosed: sourceSummary.containerClosed,
     containerRemoved: sourceSummary.containerRemoved,
-    captureContainerRemoved: true,
+    captureContainerRemoved: captureRemoved,
     candidate: sourceSummary.candidate,
     containerId: sourceSummary.containerId,
     process: sourceSummary.process,
@@ -254,16 +283,20 @@ async function prepare(nodeRoot, evidenceDir, runId) {
   fs.mkdirSync(privateStage);
   const oneRuns = (await apiJson(`/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/node-bundle-one.yml/runs?per_page=100`)).workflow_runs;
   const recoveryRuns = (await apiJson(`/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/node-bundle-capture-recovery.yml/runs?per_page=100`)).workflow_runs;
-  const declared = [...generation.preModelRuns, recovery.source];
+  const priorRecoveryRuns = recovery.priorRecoveryRuns ?? [];
+  const declared = [...generation.preModelRuns, recovery.source, ...priorRecoveryRuns];
   const jobsByRun = {};
   for (const declaration of declared) {
     jobsByRun[declaration.runId] = await apiJson(`/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${declaration.runId}/jobs?per_page=100`);
   }
   const mapRun = run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion, runAttempt: run.run_attempt});
   write(path.join(privateStage, 'hosted-run-admission.json'), {runId, oneRuns: oneRuns.map(mapRun), recoveryRuns: recoveryRuns.map(mapRun), declared});
-  admitRecoveryRun(oneRuns, recoveryRuns, runId, generation.preModelRuns, recovery.source, jobsByRun);
+  admitRecoveryRun(oneRuns, recoveryRuns, runId, generation.preModelRuns, recovery.source, jobsByRun, priorRecoveryRuns);
   for (const declaration of generation.preModelRuns) {
     write(path.join(privateStage, 'pre-model-run-' + declaration.runId + '.json'), jobsByRun[declaration.runId]);
+  }
+  for (const declaration of priorRecoveryRuns) {
+    write(path.join(privateStage, 'prior-recovery-run-' + declaration.runId + '.json'), jobsByRun[declaration.runId]);
   }
   write(path.join(privateStage, 'source-run-jobs.json'), jobsByRun[recovery.source.runId]);
   const sourceDir = path.join(path.dirname(evidenceDir), 'node-bundle-recovery-source-' + runId);
@@ -346,6 +379,7 @@ async function capture(nodeRoot, evidenceDir, runId) {
   const captureId = output(await step('capture-create', ['docker', 'create', '--name', 'remaining63-node-' + recovery.source.runId + '-recovery-capture', '--platform', 'linux/amd64', '--network', 'none', '--memory', '2g', image.Id, 'sleep', 'infinity'])).trim();
   assert.match(captureId, /^[a-f0-9]{64}$/);
   let captureRemoved = false;
+  let baseGitVerification = null;
   try {
     await step('capture-start', ['docker', 'start', captureId]);
     const boundary = JSON.parse(output(await step('capture-boundary', ['docker', 'inspect', captureId])))[0];
@@ -368,11 +402,13 @@ async function capture(nodeRoot, evidenceDir, runId) {
     // Construct the trusted base-only git from the pinned image's own checkout with the
     // reviewed sanitizer construction — independent of anything the model could touch —
     // and require its object set to equal the frozen pre-model sanitation receipt.
-    const baseGit = JSON.parse(output(await step('base-git-construction', ['docker', 'exec', captureId, node, '/capture/build-base-git.mjs'], {timeoutMs: 300_000})));
-    assert.equal(baseGit.baseCommit, recovery.expected.baseGit.headSha);
-    assert.equal(baseGit.objects, recovery.expected.baseGit.objects);
-    assert.equal(baseGit.objectSetSha256, recovery.expected.baseGit.objectSetSha256);
-    assert.equal(baseGit.allObjectsReachableFromBase, true);
+    // Constructed inside the try scope but consumed after the finally block: the hoisted
+    // binding keeps the verified base-git identity visible at recovery-summary time.
+    baseGitVerification = JSON.parse(output(await step('base-git-construction', ['docker', 'exec', captureId, node, '/capture/build-base-git.mjs'], {timeoutMs: 300_000})));
+    assert.equal(baseGitVerification.baseCommit, recovery.expected.baseGit.headSha);
+    assert.equal(baseGitVerification.objects, recovery.expected.baseGit.objects);
+    assert.equal(baseGitVerification.objectSetSha256, recovery.expected.baseGit.objectSetSha256);
+    assert.equal(baseGitVerification.allObjectsReachableFromBase, true);
     await step('capture-trusted-git', ['docker', ...captureExec(captureId, 'cp', '-a', '/testbed/.git', '/capture/base.git')]);
     await step('capture-clear-original', ['docker', ...captureExec(captureId, 'rm', '-rf', '/testbed')]);
     await step('capture-restore', ['docker', 'cp', '-', captureId + ':/restore/'], {inputPath: workspaceTar, timeoutMs: 180_000});
@@ -393,21 +429,27 @@ async function capture(nodeRoot, evidenceDir, runId) {
         assert.equal(absence.stdout.bytes, 0);
       } catch (cleanupError) {
         write(path.join(evidenceDir, 'recovery/capture-cleanup-error.json'), {captureId, error: String(cleanupError), at: new Date().toISOString()});
+        // Fail closed: an unproven capture-container closure never freezes a prediction.
+        throw cleanupError;
       }
     }
   }
+  assert.equal(captureRemoved, true, 'Capture container closure was not mechanically proven; prediction freeze is not admitted');
+  assert(fs.existsSync(path.join(evidenceDir, 'capture-absence.process.json')), 'Capture container absence receipt is missing');
   const receipt = readJson(path.join(evidenceDir, 'terminal/captured/receipt.json'));
   assert.equal(receipt.status, 'captured');
   assert.equal(receipt.baseCommit, recovery.attempt.baseCommit);
   assert(receipt.bytes > 0, 'Recovered capture produced an empty patch');
   assert.equal(receipt.originalIndexUnchanged, true);
+  assert.equal(receipt.sha256, recovery.expected.recoveredPatchSha256, 'Recovered capture differs from the preserved interrupted capture of the frozen attempt');
   const patch = fs.readFileSync(path.join(evidenceDir, 'terminal/captured/diagnostic.patch'));
   assert.equal(hash(patch), receipt.sha256);
   assert.equal(hash(Buffer.from(patch.toString('utf8'), 'utf8')), receipt.sha256, 'Patch UTF-8 roundtrip changed bytes');
   write(path.join(evidenceDir, 'terminal/prediction.json'), recoveryPrediction(patch.toString('utf8'), receipt.sha256, recovery));
   const sourceSummary = readJson(path.join(sourceDir, 'terminal/summary.json'));
-  const recoveredFrom = {sourceRunId: recovery.source.runId, sourceAttemptId: recovery.attempt.attemptId, sourceArtifactId: recovery.source.artifact.id, sourceFailureStage: recovery.source.failure.stage, sourceSummarySha256: recovery.evidence['terminal/summary.json'].sha256, recoveryRunId: runId, workspaceTarSha256: fileHash(workspaceTar), baseGitVerification: baseGit, at: new Date().toISOString()};
-  const summary = buildRecoverySummary(sourceSummary, receipt, captureId, recoveredFrom);
+  assert(baseGitVerification, 'Verified base-git construction result is missing');
+  const recoveredFrom = {sourceRunId: recovery.source.runId, sourceAttemptId: recovery.attempt.attemptId, sourceArtifactId: recovery.source.artifact.id, sourceFailureStage: recovery.source.failure.stage, sourceSummarySha256: recovery.evidence['terminal/summary.json'].sha256, recoveryRunId: runId, workspaceTarSha256: fileHash(workspaceTar), baseGitVerification, at: new Date().toISOString()};
+  const summary = buildRecoverySummary(sourceSummary, receipt, captureId, recoveredFrom, captureRemoved);
   assert.equal(modelRemovalSafe(summary), true, 'Recovered summary fails the model-removal safety contract');
   assert.equal(predictionEligible(summary), true, 'Recovered summary is not prediction-eligible');
   write(path.join(evidenceDir, 'terminal/summary.json'), summary);
