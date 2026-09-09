@@ -1,6 +1,6 @@
 # Fixed Node bundle: single-task generation and official evaluation
 
-Status: Python 3.13 fix and evidence-bound pre-model continuation ACCEPT; new first-task run is authorized and next, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
+Status: continuation CI run34369524170 is in progress; no model-start or official-result claim yet, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
 
 ## Authorized scope and verified starting point
 
@@ -85,3 +85,5 @@ Replace `RUN_ID` only with the actual observed ID, never guess it. The upload ar
 - `config/node-bundle-generation.json` now freezes the one known pre-model run ID/head/job and failed/skipped step identities plus original API hashes. Controller continuation re-reads that exact prior run's jobs and admits a new run only if the declaration matches and prepare/model/evaluator remain skipped; any other prior run, changed head/attempt/job or executed model is rejected. Original run/job/artifact is immutable; this is continuation of an unstarted task, not a second model attempt. Narrow review of this portability fix and pre-model admission is pending in the existing visible implementation review task. Do not dispatch until accepted; do not rerun the old GitHub job.
 
 - Narrow review **ACCEPT** for `5b592b0`: fixed Python3.13 scanner and exact prior-run continuation; 56/56 tests repeated on Python3.13.1. Supplement SHA256 `ce2d844f564951a044b077566f326a85820bed5259b845614a8c13b2ab8dde3c`, same visible reviewer. A new run may now continue the still-unstarted first task; do not rerun old job34368429953 or admit any other previous run.
+
+- **CURRENT ACTIVE RUN**: [34369524170](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/34369524170), exact head `8e3057c1ed5027dfa0659a1e012de9ed7dfabd09`, observed in_progress. It continues the unstarted task after the accepted Python3.13 correction; prior34368429953 is preserved. Do not dispatch again. Monitor/download this exact newrun using the commands above with RUN_ID34369524170. Model invocation and official scoring are not yet verified.
