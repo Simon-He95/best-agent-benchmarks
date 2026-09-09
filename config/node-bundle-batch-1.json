@@ -48,6 +48,19 @@
       "predictionPresent": false,
       "officialEvaluation": "not-evaluated",
       "reason": "Post-fix dispatch still failed in the controller prelude: batchModeTask passed the batch config bytes as the selection bytes, so the frozen selection-hash gate threw 'Frozen failed-task selection changed' before any admission call. Diagnosed from the uploaded upload-blocked.json receipt (recomputed batch-config hash 3e508c07... against the pinned selection hash 60a9abae...). No model invocation, no prediction, no canonical record."
+    },
+    {
+      "runId": "34399786029",
+      "headSha": "47c31415f5257e2c7a6dc6b6424b649d3b82b19e",
+      "jobId": 102628532037,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Sanitation first assertion failed before model admission: astropy image /testbed HEAD tree 5e7722a78e2dd470dbd8a2cdd40a0ff8a8146d34 differs from base 298ccb478e6bf092953bca67a3d29dc6c35f6752 tree aac5ec576b94c4e4ba90b38eddc8e24cb1d52b54 (official setup-commit image state, unlike django HEAD==base). No model invocation, no prediction, no canonical record; audited artifact 10123016784 preserves all receipts."
     }
   ],
   "firstTaskProvenance": {
@@ -80,7 +93,16 @@
       "pythonPrefix": "/opt/miniconda3/envs/testbed",
       "pythonModule": "astropy",
       "pythonSource": "/testbed/astropy/__init__.py",
-      "pythonVersion": null
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "astropy.egg-info"
+        ],
+        "installedEggPath": null
+      }
     },
     {
       "taskIndex": 2,
@@ -93,7 +115,16 @@
       "pythonPrefix": "/opt/miniconda3/envs/testbed",
       "pythonModule": "astropy",
       "pythonSource": "/testbed/astropy/__init__.py",
-      "pythonVersion": null
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "astropy.egg-info"
+        ],
+        "installedEggPath": null
+      }
     },
     {
       "taskIndex": 3,
@@ -106,7 +137,16 @@
       "pythonPrefix": "/opt/miniconda3/envs/testbed",
       "pythonModule": "astropy",
       "pythonSource": "/testbed/astropy/__init__.py",
-      "pythonVersion": null
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "astropy.egg-info"
+        ],
+        "installedEggPath": null
+      }
     },
     {
       "taskIndex": 4,
@@ -119,7 +159,16 @@
       "pythonPrefix": "/opt/miniconda3/envs/testbed",
       "pythonModule": "astropy",
       "pythonSource": "/testbed/astropy/__init__.py",
-      "pythonVersion": null
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "astropy.egg-info"
+        ],
+        "installedEggPath": null
+      }
     },
     {
       "taskIndex": 5,
@@ -132,7 +181,16 @@
       "pythonPrefix": "/opt/miniconda3/envs/testbed",
       "pythonModule": "astropy",
       "pythonSource": "/testbed/astropy/__init__.py",
-      "pythonVersion": null
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "astropy.egg-info"
+        ],
+        "installedEggPath": null
+      }
     }
   ]
 }

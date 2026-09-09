@@ -1,0 +1,54 @@
+name: Frozen Node batch 1 — read-only image git-state diagnosis (no model)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: frozen-node-failed-tasks
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    name: Diagnose the five pinned astropy image git states (read-only)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+
+      - name: Download and verify the pinned Node runtime (public distribution, no private token)
+        run: node scripts/download-pinned-node.mjs "$RUNNER_TEMP/pinned-node"
+
+      - name: Check batch admission, evidence and lifecycle tests
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          --experimental-test-module-mocks --test
+          test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs
+          test/node-bundle-generation.test.mjs test/node-bundle-evaluation.test.mjs
+          test/node-bundle-controller.test.mjs test/node-bundle-recovery.test.mjs
+          test/node-bundle-batch.test.mjs test/node-bundle-batch-diagnose.test.mjs
+
+      - name: Record read-only git facts from the five pinned images (no model, no writes)
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-batch-diagnose.mjs
+          "$RUNNER_TEMP/node-bundle-diagnostic-evidence"
+
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-bundle-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/node-bundle-diagnostic-evidence/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
