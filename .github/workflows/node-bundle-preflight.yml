@@ -1,0 +1,44 @@
+name: Frozen Node bundle preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frozen-node-bundle-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Linux x64 official-image engineering probe (no model)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify frozen configuration and local checks
+        run: node --test test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs
+
+      - name: Download private frozen CJS and checksummed Node
+        env:
+          BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+        run: node scripts/download-node-bundle.mjs "$RUNNER_TEMP/frozen-node-candidate"
+
+      - name: Run actual Linux official-image preflight without model credentials
+        run: node scripts/swe-node-bundle-preflight.mjs "$RUNNER_TEMP/frozen-node-candidate" "$RUNNER_TEMP/node-bundle-evidence"
+
+      - name: Upload preflight evidence even when probe fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-bundle-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/node-bundle-evidence/
+            ${{ runner.temp }}/frozen-node-candidate/download-receipt.json
+            config/node-bundle-candidate.json
+          if-no-files-found: error
+          retention-days: 30

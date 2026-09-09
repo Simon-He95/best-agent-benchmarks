@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "local-spec100-epoch002-not-published",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "bundle": {
+    "repository": "Simon-He95/best-agent",
+    "releaseTag": "benchmark-cjs-1acde263f490",
+    "assetName": "best-agent.cjs",
+    "bytes": 17930440,
+    "sha256": "1acde263f49090594f958d30704c92d34ea81d1af9b82cc818a3e429c3aa6e03",
+    "sourceFreezeSha256": "e35732f5f5a31a37c9a12106219df7086e00cb1e28c235803e2f19d903937f5c"
+  },
+  "node": {
+    "version": "24.15.0",
+    "archiveSha256": "472655581fb851559730c48763e0c9d3bc25975c59d518003fc0849d3e4ba0f6",
+    "binarySha256": "d1de76d8edf2fededf6f8b30d244e2c0529ac607923a018283b77e9c74bd932c"
+  },
+  "task": {
+    "instanceId": "django__django-10097",
+    "baseCommit": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+    "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10097@sha256:faf07f1d70370e9a4f76dac2cab0758300018f0eb4346b28aa55ac13630b873a",
+    "pythonPrefix": "/opt/miniconda3/envs/testbed"
+  }
+}
