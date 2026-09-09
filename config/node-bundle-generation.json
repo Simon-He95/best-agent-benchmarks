@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "local-spec100-epoch002-not-published",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "maxModelCycles": 2251799813685247,
+  "externalWatchdogMs": 3600000,
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "transportProfile": "dim-oauth"
+  },
+  "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
+  "officialEvaluatorCommit": "726c5461e2ef52d83cf1ea2107870a8bb3328d57",
+  "officialEvaluatorVersion": "4.1.0",
+  "hostPythonVersion": "3.13.1"
+}

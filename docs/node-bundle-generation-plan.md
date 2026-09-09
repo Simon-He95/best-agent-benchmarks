@@ -1,6 +1,6 @@
 # Fixed Node bundle: single-task generation and official evaluation
 
-Status: planning, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
+Status: implementation complete, local tests passed; fresh implementation review pending, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
 
 ## Authorized scope and verified starting point
 
@@ -48,3 +48,27 @@ Current continuation: finish plan review, implement owned modules and single-tas
 - Owned implementation split: generation worker `01a08415-fc9e-71a0-9cd1-3b3f4b6711d6` owns `generate-node-bundle-one.mjs`, `node-bundle-sanitize.mjs`, `node-bundle-capture.mjs` and generation tests; evaluator worker `01a08416-03b4-7d13-8fda-71db8b5006d5` owns `evaluate-node-bundle-one.mjs` and evaluation tests; coordinator owns controller/audit/new workflow and `config/node-bundle-generation.json`. Both workers are implementing only; no local Docker or CI runs.
 - Controller implementation checks host evaluator dependencies before model admission so installation failure consumes no model attempt. Host-only corpus/source remain inaccessible to model containers. Provider credential is delivered only to the generation controller and the final audit controller; the separate evaluator step has neither provider nor private-source token. Final audit removes all raw staged uploads on any uncertainty; it does not redact evidence. Source token remains exclusive to candidate download.
 - Controller/audit first seven tests passed on local Node24.16: replay admission rejection, hash-preserving upload, changed bytes rejection, credential spanning read chunks, filesystem symlink rejection, nested compressed archive scan without extraction, unsupported archive rejection. These are local implementation tests, not fixed-Node hosted model evidence. Further generation/evaluation tests and a fresh visible implementation review are pending.
+
+- Final combined local implementation checks: **52/52 passed**, Node24.16.0/macOS, with `node --experimental-test-module-mocks --test test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs test/node-bundle-generation.test.mjs test/node-bundle-evaluation.test.mjs test/node-bundle-controller.test.mjs`. Workflow parsed as YAML (10 steps), JavaScript syntax checks passed. Generation now holds the shared lock until proven removal, preserves partial terminal exports before cleanup, rejects a linked workspace root, uses correct gzip decoding, and rechecks credential expiry immediately before the single model claim. These tests do not establish actual hosted sanitation/model/evaluation success.
+
+## Exact next commands (dispatch remains gated by fresh review)
+
+Use this repository checkout; inspect `git status --short` before editing, and preserve unrelated work. The current workflow is `.github/workflows/node-bundle-one.yml`, with no task/batch input. It admits only the first 10097 run and rejects a second hosted run or `run_attempt != 1`. A failed preparation must be inspected, not blindly redispatched.
+
+```sh
+# Local implementation checks; no Docker, provider or model invocation.
+node --experimental-test-module-mocks --test test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs test/node-bundle-generation.test.mjs test/node-bundle-evaluation.test.mjs test/node-bundle-controller.test.mjs
+
+# Check for an existing run before any dispatch (after this workflow is pushed).
+gh run list --repo Simon-He95/best-agent-benchmarks --workflow node-bundle-one.yml --limit 20 --json databaseId,headSha,status,conclusion,url
+
+# ONLY after the fresh implementation review accepts the current code and remote HEAD is verified.
+gh workflow run node-bundle-one.yml --repo Simon-He95/best-agent-benchmarks --ref master
+
+# Discover the one dispatched run, verify headSha, then inspect/download that exact run.
+gh run list --repo Simon-He95/best-agent-benchmarks --workflow node-bundle-one.yml --limit 5 --json databaseId,headSha,status,conclusion,url
+gh run view RUN_ID --repo Simon-He95/best-agent-benchmarks --json status,conclusion,jobs,headSha,url
+gh run download RUN_ID --repo Simon-He95/best-agent-benchmarks --name node-bundle-first-RUN_ID-1 --dir artifacts/node-bundle-first-RUN_ID
+```
+
+Replace `RUN_ID` only with the actual observed ID, never guess it. The upload artifact contains the original raw evidence plus `upload-manifest.json`; verify every size/hash and the official canonical `official-record.json`, generation terminal, exact container closures and absence of upload-blocked receipts. `evaluation-disposition.json` is an explicit no-prediction record, not an official fail/pass. Any `upload-blocked.json` means full evidence was withheld and acceptance is impossible. The first run has not been dispatched. Do not start five tasks until its complete evidence is reviewed.
