@@ -1,0 +1,650 @@
+{
+  "schemaVersion": 1,
+  "selectionId": "remaining63-node-bundle-20260909",
+  "candidateManifest": "config/node-bundle-candidate.json",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "selectionSourceSha256": "6f1a6303095a09eacfab656c934bf14e7b534cc9ed30c7a6d9e3ea3011d1562e",
+  "frozenTaskSourceSha256": "96a227f1d11e541e3044915c835778c2d2602b0d700fbc01fd04c328e623260e",
+  "historicalComposite": {
+    "total": 500,
+    "resolved": 437,
+    "testFailed": 54,
+    "noPrediction": 9,
+    "pending": 0,
+    "rate": 0.874,
+    "passAt1": null
+  },
+  "tasks": [
+    {
+      "instanceId": "django__django-10097",
+      "repo": "django/django",
+      "baseCommit": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+      "promptSha256": "be8782ac71c571cc282c4ed30144de85b7b9de34853d27d1e72c5381191662a3",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "28fdc830d854d339cf6b020cd48e6b83c6575437b333f9cbf1266166f68f8a0e",
+      "priorAttemptEvidenceSha256": "159afb075d1a690c1c9a972e337b0a14e34fbccfb95c05fe2bd7844998f6a302",
+      "priorOfficialOutputSha256": "6dbbad86f6fba10c07708169fbfd3a004e72fa510d555e10e79fe535c95c1759"
+    },
+    {
+      "instanceId": "astropy__astropy-13033",
+      "repo": "astropy/astropy",
+      "baseCommit": "298ccb478e6bf092953bca67a3d29dc6c35f6752",
+      "promptSha256": "1cf982180913e0ad57e0ae676c0ecdf5d7d36d2c48e29846938c543c086afc8f",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "b9736e99f5080614fb8546cbe4e7cadbfc0ad45f70ce8106b49445761e664c01",
+      "priorAttemptEvidenceSha256": "71357eba3b3f2b7b5727d62e9ff98b475617531213f68c58189f622eaf462aae",
+      "priorOfficialOutputSha256": "8e7b47f80eb467d2d4f638eec06b9358ae14a6cd14cda927a870991e6589a37e"
+    },
+    {
+      "instanceId": "astropy__astropy-13398",
+      "repo": "astropy/astropy",
+      "baseCommit": "6500928dc0e57be8f06d1162eacc3ba5e2eff692",
+      "promptSha256": "d06ec1c9375c3b2417a7e18c73a304b33caaa64a59dfceeb083cc7e2e036f8a0",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "078a695a12af8d1a45021dbdfefb68fefd5abe0f02c667f1fb313b2737ef2a1e",
+      "priorAttemptEvidenceSha256": "b81bfb9c5d52d22222ba572ea725c919c0fbbe065232e47ef87a587462faaa29",
+      "priorOfficialOutputSha256": "47ffebc854eeb99dd1bb00e16b28f838316d7e6e128eb582754ef7aee45f4c4f"
+    },
+    {
+      "instanceId": "astropy__astropy-13977",
+      "repo": "astropy/astropy",
+      "baseCommit": "5250b2442501e6c671c6b380536f1edb352602d1",
+      "promptSha256": "e8882ecf88f12de48fff00fd7ec6e037ff0eb06d6f557be13258eaf981eb82f7",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "e0f42dbb44619007d8e92382b3a8fbe65f10ad50f8ff4048671dde2d98253e85",
+      "priorAttemptEvidenceSha256": "007a3e52c70919d2a4528577b590ac9a286e12c01e4857959870cfa671828e62",
+      "priorOfficialOutputSha256": "c1cba098173b39a310daccc37de8f25ae26a43641dc298934313c7f9fc7f633b"
+    },
+    {
+      "instanceId": "astropy__astropy-14365",
+      "repo": "astropy/astropy",
+      "baseCommit": "7269fa3e33e8d02485a647da91a5a2a60a06af61",
+      "promptSha256": "49f1960554d22faf54ebebf153103271d8725e72d87d2fc354f28ea2ac55e65e",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "be029312d6f107deea705112cd2fa0067eabbf8527c73d6a177e9f50bbaa531a",
+      "priorAttemptEvidenceSha256": "46f7ee6c560e4c826624f8600ac414d01d95df3808a17e64ac5825404b8932ae",
+      "priorOfficialOutputSha256": "bc5f6a1033c873addbea719b477c89b589ad59b0264e9da84a33ab8d6abe650a"
+    },
+    {
+      "instanceId": "astropy__astropy-14598",
+      "repo": "astropy/astropy",
+      "baseCommit": "80c3854a5f4f4a6ab86c03d9db7854767fcd83c1",
+      "promptSha256": "67db7c656485acf44a2f3b84a8070b29680e82665acc6303f4d07a1fdc6a10e7",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "9522216df94334d9a408e94dbb6e99370ee4a2a0f3bd75dc673c7f63ccb88f31",
+      "priorAttemptEvidenceSha256": "4655850e19ace8c92b3835e4723f024f4bb8f99cf2ccd54074f8f9098183048d",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "astropy__astropy-7606",
+      "repo": "astropy/astropy",
+      "baseCommit": "3cedd79e6c121910220f8e6df77c54a0b344ea94",
+      "promptSha256": "c3d795772630494f378ff5492c32ba9ab5d8045b0e2235bf573cb7647e717fd8",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "acef6ef1dcda4237f6b11f126a8357f8184ef611da48a77ac9573c0a382c1a7b",
+      "priorAttemptEvidenceSha256": "70b891c79481a98f05a3f5ba0077713e81fc3282ad550142a7aeed902bbf95ca",
+      "priorOfficialOutputSha256": "560c078715a1ac67ab6b3f9dd2d6789dd3c40ce1a0f807d198d950f59d07e868"
+    },
+    {
+      "instanceId": "django__django-10554",
+      "repo": "django/django",
+      "baseCommit": "14d026cccb144c6877294ba4cd4e03ebf0842498",
+      "promptSha256": "690453ba206f50c5fb9b23faeb2e30173ac7779f4809cd1aa1f8263981c958f7",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "08583c1abbdb2c7f04b53ed9e647dd696574d41f1ab6677f307d8d038f9bbe90",
+      "priorAttemptEvidenceSha256": "39fda4e26e774b7bfbbf5bfc37b0df837bdeb26077c7e6155c60791d72f5a24f",
+      "priorOfficialOutputSha256": "d873a0cd7f020e1b7116d968e8b2bc8683637c4957ef564a8a3b0be9ddd13ede"
+    },
+    {
+      "instanceId": "django__django-10999",
+      "repo": "django/django",
+      "baseCommit": "36300ef336e3f130a0dadc1143163ff3d23dc843",
+      "promptSha256": "40cea84cc62e4981836f08933afc63f4005f9533f1ae45c9dba0d796a3fbe5d0",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "41eb73815ca0033904d42c3a6c34a9aa93a609a3302f98736fcd3d76d28bc967",
+      "priorAttemptEvidenceSha256": "1b1b7528c6afa7cf7bb4f1108e396b2cf497123cec8f70fe11e1be34a368e8b9",
+      "priorOfficialOutputSha256": "02bc84aaa2ff349a4f6fe55e954deef584e1a8dc1fb44679215af88d48da659a"
+    },
+    {
+      "instanceId": "django__django-11141",
+      "repo": "django/django",
+      "baseCommit": "5d9cf79baf07fc4aed7ad1b06990532a65378155",
+      "promptSha256": "8046fd19bbadedb44f248b7069fa4e19167a1f85e1569788bc5b62a00d51903d",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "450c25138da4382688cbd3f8e1b25cd91ed26bef543618c63cdfcc1a404ea351",
+      "priorAttemptEvidenceSha256": "b3889eda218b1ad1d4380f4c18471bce7137b9083b393a6349803b1a07829c83",
+      "priorOfficialOutputSha256": "a987714286f1197cde7de618ed1356917436d9d2932183d72e3bfc870d8e8959"
+    },
+    {
+      "instanceId": "django__django-11400",
+      "repo": "django/django",
+      "baseCommit": "1f8382d34d54061eddc41df6994e20ee38c60907",
+      "promptSha256": "a68f903920fa686b8ee6ebc826f8ec7a5ee52aed3d2d4f384b305cc6fad405f1",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "064889a5b250f118b17ec2f2271bd3843f2f7d3556a59c1c4d70f66a32a95832",
+      "priorAttemptEvidenceSha256": "362cbe871f3b462f63363e82542132adffdc2e50a6bf9748abdf825c052c0103",
+      "priorOfficialOutputSha256": "d08e68965a0ce4cbcb0252528fff5dc2655d5a29dfe194f1d3a0fd812453d46d"
+    },
+    {
+      "instanceId": "django__django-11477",
+      "repo": "django/django",
+      "baseCommit": "e28671187903e6aca2428374fdd504fca3032aee",
+      "promptSha256": "33f6c414171d05331a65a97f239204e365018776271daf60b0ef8d6ea541d00b",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "103271956d6d63d380918df3fa0c694291e6bb095fa54f634293228ad3c1e206",
+      "priorAttemptEvidenceSha256": "14afa6a32cf977a3254263c006098b871367a567c67109b162cc41cd706520c4",
+      "priorOfficialOutputSha256": "eff2b4c0ba528642c42c85df22378d4771bfcfd15447610830a3cf6c07bfd764"
+    },
+    {
+      "instanceId": "django__django-11820",
+      "repo": "django/django",
+      "baseCommit": "c2678e49759e5c4c329bff0eeca2886267005d21",
+      "promptSha256": "b331678ef33618cc0a42490d55a38e747f3010959a84a1eef6f07215086eed1c",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "316f5367fc269d3d32d96e6ee14576fbfd67663f18d3ea6b7554c7f06294649c",
+      "priorAttemptEvidenceSha256": "815f621719779384f13d87e72be9633b5b8f9b60dd1b768f491a515049a8ea04",
+      "priorOfficialOutputSha256": "99bf2bbc8422283b5716c304c57c544166643f00380b969d7134b9ed9b1a15d4"
+    },
+    {
+      "instanceId": "django__django-12325",
+      "repo": "django/django",
+      "baseCommit": "29c126bb349526b5f1cd78facbe9f25906f18563",
+      "promptSha256": "f5bf480a594d5ad183f2e9c95a052861d52cfe1f9f3d5e1261ac6e2ce2c0b47d",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "17bab20875d2c97a4001c9880bfd49928dbd1ba4bd6cbdbfc221ad06902df16a",
+      "priorAttemptEvidenceSha256": "b30e2f5313eef58987faecb591f891f061900933a3de328cc6abd1be8f1f270d",
+      "priorOfficialOutputSha256": "6b5641573b643c1e5562fd2dc02aeac0fbc589fa2ab9894b122e53fa9c0fd422"
+    },
+    {
+      "instanceId": "django__django-13212",
+      "repo": "django/django",
+      "baseCommit": "f4e93919e4608cfc50849a1f764fd856e0917401",
+      "promptSha256": "4c84a42b52265735b52b31f58eb9fc2ed873cdf94cc3bf32ea415f46e2f1e0f2",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "14a2f02d492fc6ec4fc30bc6348025685a58913abcbe856bf8f7944d3cde87db",
+      "priorAttemptEvidenceSha256": "5e3510b8a7a8dd6fa43c9ecfaea0c81767f03dca60866a0f2a0f57cca43ca37d",
+      "priorOfficialOutputSha256": "cb2dcdff4c5e728a41caa58545f2496106b1cad392bd52ed4643d6fe8c55db5b"
+    },
+    {
+      "instanceId": "django__django-13513",
+      "repo": "django/django",
+      "baseCommit": "6599608c4d0befdcb820ddccce55f183f247ae4f",
+      "promptSha256": "d4463b0906f7509cfa0789e2c1195d4fd3e37226235eac0cb1cec8b812334535",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "172eb717299341a2d16bcf08f11173e41f0e04d284080698054231326d3890ba",
+      "priorAttemptEvidenceSha256": "9674e508ca3be77529d17934c3ceb546307c7968207baba7418a3d1e0f311876",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "django__django-14034",
+      "repo": "django/django",
+      "baseCommit": "db1fc5cd3c5d36cdb5d0fe4404efd6623dd3e8fb",
+      "promptSha256": "445d906e51bd0a22ac9b4d1c558e1848ff2e534a5948adb2828f45ecbe60a220",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "0f41a52012b74a50ffa24b50ec2f66557a693028748a8b54332ccf761431dffb",
+      "priorAttemptEvidenceSha256": "067ac0a2d1e00a01d825497eb46d269a041ea92888d6ad7ef75ad033fbe3a78c",
+      "priorOfficialOutputSha256": "71bc802d14362e07b1afc86cca31918922ff828a539b7d4e45ee40eaf0fe22ce"
+    },
+    {
+      "instanceId": "django__django-14155",
+      "repo": "django/django",
+      "baseCommit": "2f13c476abe4ba787b6cb71131818341911f43cc",
+      "promptSha256": "182d708731cac1bbc43b87b02934826b6ea2473e9a61eed769d3a980c1aff0cd",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "f70d263e634b2c71210a01aba19d5cbc8961145972c25671b7f8995e9188726b",
+      "priorAttemptEvidenceSha256": "dfc084bdcf1f7dc639acb0a8469a7a04b541d71a2e4ee5033d9dfb2b57bad877",
+      "priorOfficialOutputSha256": "aa91b02972ae3c14955cb928e5745e468eb56bd0ddf8c2e44fa8d3d56c9df3c2"
+    },
+    {
+      "instanceId": "django__django-14170",
+      "repo": "django/django",
+      "baseCommit": "6efc35b4fe3009666e56a60af0675d7d532bf4ff",
+      "promptSha256": "c47f3c9bb057ff4a81a9f2606309a28b016267af2a340fe3e518481859072092",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "ad95d8404e857a6934675714f2c5e4b9d6d1bcc1826441090106edcbacb74a72",
+      "priorAttemptEvidenceSha256": "95553b3ca2562efbb1c4a1b850c583f7acd512f286de8cbdda590d8e6a608366",
+      "priorOfficialOutputSha256": "5bb55e39f510016238d2450a905ecd27e30ea16bbb10f77c1de2a60be148b881"
+    },
+    {
+      "instanceId": "django__django-14315",
+      "repo": "django/django",
+      "baseCommit": "187118203197801c6cb72dc8b06b714b23b6dd3d",
+      "promptSha256": "1f5c1d97aac487b5d3d8c07213000c9b11d99c8266616d71456ea8f4be888064",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "aeff85b79cb79739e9ad11c62df154dd88d8920ade82fd025777d6740ae9f599",
+      "priorAttemptEvidenceSha256": "7e2e9c3b770ce8c11d429d1f0a8158df0202eed9cf702b5ae1cabe995eb19500",
+      "priorOfficialOutputSha256": "2677d0095fbddb48b5ed5844d36884824be340903482b79e1e1ee77b3d1a065d"
+    },
+    {
+      "instanceId": "django__django-14376",
+      "repo": "django/django",
+      "baseCommit": "d06c5b358149c02a62da8a5469264d05f29ac659",
+      "promptSha256": "d84956517fce07798dcca4a320fc208bdec37cb9a67fdf27bbbeb5a9873c8137",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "03cfda15af6ed42a2c4e91a9cbd41df4a1241096f2b47d8c3d04c7455e242bc5",
+      "priorAttemptEvidenceSha256": "fbaedb7b5cc8e1191c6af946155373fb04b303b9fc636a45ea5481543989c699",
+      "priorOfficialOutputSha256": "f2b32e50ed4ef1f02c3376317acc55e6b6e663517dd524e63eedd023a113220a"
+    },
+    {
+      "instanceId": "django__django-14792",
+      "repo": "django/django",
+      "baseCommit": "d89f976bddb49fb168334960acc8979c3de991fa",
+      "promptSha256": "7fb02f1b45fa30db8d4b91420a674ef08454e8ca076f0c64c82a819e8e333b71",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "47365add350f53d738fe98afa602d08cb12d9a2d5085250612a0f7896c989fe3",
+      "priorAttemptEvidenceSha256": "82d4446c0e29e1c5816bac4e2f4176a7daa3e338dd01b040fe2cc7058074e508",
+      "priorOfficialOutputSha256": "f18b0c1341051a6285e9692926e643b34a214d0607faba89d58b340ad4f99921"
+    },
+    {
+      "instanceId": "django__django-15127",
+      "repo": "django/django",
+      "baseCommit": "9a6e2df3a8f01ea761529bec48e5a8dc0ea9575b",
+      "promptSha256": "7a9fd604bbb91c81d1d38dc6a3dc9e171838a21161e5bb6dbf341eff97d35c41",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "b5693d237e94f4ea206497572d34f7dfcf2ff893c02b29b6f17ba342c066cf7b",
+      "priorAttemptEvidenceSha256": "f45525d2cbf30eb020891fa3f61e5240a9b56c50fd381e0dff4822cc89bea7a5",
+      "priorOfficialOutputSha256": "c92108c69fad44354b66fffb57d34ea5382768ffa0498dea1beb03d9fbca799e"
+    },
+    {
+      "instanceId": "django__django-15629",
+      "repo": "django/django",
+      "baseCommit": "694cf458f16b8d340a3195244196980b2dec34fd",
+      "promptSha256": "c59f2d0d01bae7bbbb5f13a5c3e8c2f215d12a3038e93369e079495993cbc20e",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "c07b754ecc9de1f1e9d0d13dd030fced03cc4f863c076cf004308a7fb0dd7d79",
+      "priorAttemptEvidenceSha256": "ae7325cdab3dbc70c81fed658fa7a6ec0ed3ba578d62241cf15c7c3357e50be9",
+      "priorOfficialOutputSha256": "ccdc2f42df4fd6595246110eabfd03c84c49b519d6a965be7ed17820d655e464"
+    },
+    {
+      "instanceId": "django__django-15695",
+      "repo": "django/django",
+      "baseCommit": "647480166bfe7532e8c471fef0146e3a17e6c0c9",
+      "promptSha256": "bec3f16c82686c3eb86f6e066fddab37f62af40175b568c7bedac7fd46df7dac",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "5d37e0c866e2aea21895bda166835274a4cf1d7d50e492e53a849a5a39912059",
+      "priorAttemptEvidenceSha256": "753b7ce0a51831089a6e495fbf678b1ae439c60e612338e0dd8335998bbec3cf",
+      "priorOfficialOutputSha256": "61148152c203ac9f2d8a7d31f13fcfac8021e2da7c0eb79ac2b198bcc970cbf8"
+    },
+    {
+      "instanceId": "django__django-15732",
+      "repo": "django/django",
+      "baseCommit": "ce69e34bd646558bb44ea92cecfd98b345a0b3e0",
+      "promptSha256": "03b9fdfea09d0dacf11f72590f6d72e1bbf7b177f1fa467b54f240b8fe427c07",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "364a57997c279b57ba33d3a39638d57c88d6a27a2fb38d76bbdf261d7d5cdd77",
+      "priorAttemptEvidenceSha256": "42d924e4e23dee84e434cd96d2f90d89c99e0f35eabb9149f16b6dc95faea5b5",
+      "priorOfficialOutputSha256": "6f4953d2f2be17dcd81b4ca3417d796f7f459b1d0457bf2e995174cfebddc757"
+    },
+    {
+      "instanceId": "django__django-16263",
+      "repo": "django/django",
+      "baseCommit": "321ecb40f4da842926e1bc07e11df4aabe53ca4b",
+      "promptSha256": "8140675c232e8df908187eadf34242c55b3075b282330b2bdd0ccb568a1975cd",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "691fde30a2f7720af2f1e73cedfbb3fd815974752b92f5b835fea5946fcbdd00",
+      "priorAttemptEvidenceSha256": "e6a64220d00e978619c944824bdb855fb0f4a63c988fa97427369d0eefb7891f",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "django__django-16502",
+      "repo": "django/django",
+      "baseCommit": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "promptSha256": "4cd3e892f7725f726e19966756c1959296aa02fa7fc134db80096f5526546662",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "7ddbc371869f4bf91736681ab36588a9208a1fb3f579711b308ab2b88db10272",
+      "priorAttemptEvidenceSha256": "9174a35d25ceb454973838e515caa66cc6221fd997286ad2b0940ef2fef80b04",
+      "priorOfficialOutputSha256": "9bfbc4da361b011e5cbd032949e7568e7a547d4a90dab14ddb58dd4afc596235"
+    },
+    {
+      "instanceId": "django__django-16631",
+      "repo": "django/django",
+      "baseCommit": "9b224579875e30203d079cc2fee83b116d98eb78",
+      "promptSha256": "10381c87197dc8a2ad31a24ce70137575d487215870a69ea84372533f1df446b",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "a4e8bde009ba370fff5c4efafdf25765d619d8d48e774b34ede5ac7a4fe7ea32",
+      "priorAttemptEvidenceSha256": "f674c211b312b5550c82bcf4a1a8d251574af52b8ef133ffcd113e57170900f6",
+      "priorOfficialOutputSha256": "3dd8099580d4f573b7893abb1f2d082e1a024fa62f75e369c19077422f2a7a5e"
+    },
+    {
+      "instanceId": "django__django-16667",
+      "repo": "django/django",
+      "baseCommit": "02c356f2f3945b8075735d485c3cf48cad991011",
+      "promptSha256": "fa00b7f9203ea9ee5629d256d941e49265f08e43bb6f457359bf7196770feca8",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "eaa0edd67a8fdc0cbd200a69a6e589f33a738a4cf9f99b4c039c9f4ea1f5ebf6",
+      "priorAttemptEvidenceSha256": "6f5892702136271aa568863a4d78339b9a65d81a802c3cdc5e72c869b6ac0d63",
+      "priorOfficialOutputSha256": "3067a702b927eab901ce6e2f30239512dff626e911a55d529ba80bafb95376ba"
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-21568",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "f0632c0fc7339f68e992ed63ae4cfac76cd41aad",
+      "promptSha256": "f883ddaa1dde3ab2b8ad772405baa1d0f0f7651abe08441c7c79a0521380bc3e",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "8b8a48b22e925d5f14d9d156bc109c212ea368fd514e0fddde275853835c7711",
+      "priorAttemptEvidenceSha256": "5b183d6fdcdc8b27bc48127bdbcce96822c51d41bb20494b984e4b39eddf3e5d",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-23476",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "33a0599711d26dc2b79f851c6daed4947df7c167",
+      "promptSha256": "808e727e1b216aa66bfd1ed5513b992c9b2e7f2199c1a90c4b81ab6107a976e2",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "10757acfa51daf7c4362acb6870b1aec1e4249e2fd8a7d370c5706c715c21086",
+      "priorAttemptEvidenceSha256": "cecd0c0dba1fc2c58408f228cb577d135b715d18b81d8ff802bd2d83db539c9e",
+      "priorOfficialOutputSha256": "901b1af3cc1c4595abf6a70d9676cb4e8fcee34fdec37b2ed0727cd6047efc7d"
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-24870",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "6091437be9776139d3672cde28a19cbe6c09dcd5",
+      "promptSha256": "3034da33136795acdd837e161a2ab1bb83180e052ecc333145ad526d60a66c9e",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "8ed888d08ed89a7ec599ba7a4733c6755a50c1e0622a13232ba1839c530c1671",
+      "priorAttemptEvidenceSha256": "5e6dc9478e98935b18b623fd2636552e25d0c63279010faadd709d736c25e672",
+      "priorOfficialOutputSha256": "9b2db9dd258d1e0df09d4c2743314f1c7d07fa7df8da41c1b0f0c4b696f45e3b"
+    },
+    {
+      "instanceId": "matplotlib__matplotlib-25479",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "7fdf772201e4c9bafbc16dfac23b5472d6a53fa2",
+      "promptSha256": "bd9dd7f218bb38b25af4ed56a37b335f186cea0d941a2512b042924977e87fae",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "6b31e32b3dee8892874e57ac5db221a8697ee0114a3e3630483b1616dc984c9f",
+      "priorAttemptEvidenceSha256": "44d836c9ad4a711bdd41882d19fb1bbf9c9e5ae65fae523b961ed719472e2bf4",
+      "priorOfficialOutputSha256": "548734ccf74bfacc842da3518eb2072e8aeda7c7d79855f071e75254f064014d"
+    },
+    {
+      "instanceId": "psf__requests-2317",
+      "repo": "psf/requests",
+      "baseCommit": "091991be0da19de9108dbe5e3752917fea3d7fdc",
+      "promptSha256": "ffb0003814d20a14a482e5096eb552fd5ea96e9d52a1be3839b51c490d01d2ef",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "65f3b6d92867ebb7a8805d0ed51a6b6df848eb1f9c60f826732c4c1dfb265b79",
+      "priorAttemptEvidenceSha256": "aac15170d2dbbcb0e05759847ff3f4b0a360c3cf2dd9a4b72d6c96afad923b12",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "psf__requests-2931",
+      "repo": "psf/requests",
+      "baseCommit": "5f7a3a74aab1625c2bb65f643197ee885e3da576",
+      "promptSha256": "87afc5258e5f27f7587b46c9c99b70e2650d72bda89b8de394d5c4f501f74636",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "86387882e6d2fdd0493b8b00f14f13d37752c471a5fa60ee08a45575b2ba5f80",
+      "priorAttemptEvidenceSha256": "087f7cfec4cd660ecac8ad64c23cb50c28a94b460cfe0bcc0adc7f74dc8e38bc",
+      "priorOfficialOutputSha256": "98b8d439b68943ec6bd1a83a32efe34ddcaaa2ca1331ac26498d7b3020a46e67"
+    },
+    {
+      "instanceId": "psf__requests-5414",
+      "repo": "psf/requests",
+      "baseCommit": "39d0fdd9096f7dceccbc8f82e1eda7dd64717a8e",
+      "promptSha256": "8a50c4d25d65f861e50a5f429be72a7596da41148b710fd1cf3898a324c2beef",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "ad352845dceefc20f20abb4b762711e22ce41564ff1d0d38e6ac29776616675a",
+      "priorAttemptEvidenceSha256": "2725d4bdc2d4cb4e4756bb34eec2e04f35fd1e75ce77ea1f68e73d68e6f19b55",
+      "priorOfficialOutputSha256": "ca33e2ca29a6a1c5a0dfab6ab6bcf86028bb3d5a2a27cba4456c09ad3838ad15"
+    },
+    {
+      "instanceId": "pydata__xarray-4687",
+      "repo": "pydata/xarray",
+      "baseCommit": "d3b6aa6d8b997df115a53c001d00222a0f92f63a",
+      "promptSha256": "b0532bf21cda9862ec6f5e191f222ce736a32b7b86ab9ccb0fb63764e90d444e",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "c5700b849a072747fc087a679eb0e5d513dd1b967e78c7e3b1fd3214bb3e83ab",
+      "priorAttemptEvidenceSha256": "7efd9466432edbb6941e618911316c35e5756dbada25392eeccbb38c1f7c21ad",
+      "priorOfficialOutputSha256": "6e168527b5c790558eeeef4ea78e49efb065bcf54af37bbedd0fc41930af7477"
+    },
+    {
+      "instanceId": "pydata__xarray-6938",
+      "repo": "pydata/xarray",
+      "baseCommit": "c4e40d991c28be51de9ac560ce895ac7f9b14924",
+      "promptSha256": "ea9df203df0f9daed285a5a61e74d9cb19e25bbc9df851c278fe5e0e3ce8575e",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "734671f61a78ec40780e991df18ea36997261ad3e9f4bb3516a0800bfb0bd10c",
+      "priorAttemptEvidenceSha256": "c57b9121de5e03b72af6ebb1a6f38f98bfce8081ad966c048478e461cb81b8b7",
+      "priorOfficialOutputSha256": "107f917c0de0dde1d5dd63df8f23da9401af49095c44bb30e81805a216838a4e"
+    },
+    {
+      "instanceId": "pydata__xarray-6992",
+      "repo": "pydata/xarray",
+      "baseCommit": "45c0a114e2b7b27b83c9618bc05b36afac82183c",
+      "promptSha256": "933625a5936a10093e6397ac7ea8a4a40c5950e628b35aaa526f7781febe264d",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "a16ab87e17d6182342df94ffaf9afc1595466f102934184bd1a278f7a0b3e57c",
+      "priorAttemptEvidenceSha256": "6a487fd0035dc0ed0c15cec74e2431c12930637b1c04f34d3e1f5266942cd254",
+      "priorOfficialOutputSha256": "3bba6cb67f1d0222f7dda3d747152dd783ba677e60d4fdc46e2ca7011b45eb76"
+    },
+    {
+      "instanceId": "pydata__xarray-7229",
+      "repo": "pydata/xarray",
+      "baseCommit": "3aa75c8d00a4a2d4acf10d80f76b937cadb666b7",
+      "promptSha256": "7a2747eac36caaf158755143c293e96c321b70515b11553518923e401ef37836",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "86b2b94e8d9f7efb36bcd87ce66b8d0e797edd98a576be78e7433e99e6c91d6e",
+      "priorAttemptEvidenceSha256": "789e77225eebe51cccad015e77fac3246286a747d3fa04c5dba186c65ba1de83",
+      "priorOfficialOutputSha256": "d2461666891563a17be259e13efe4776159c773374112b26f6471a8b7e334eaf"
+    },
+    {
+      "instanceId": "pylint-dev__pylint-4604",
+      "repo": "pylint-dev/pylint",
+      "baseCommit": "1e55ae64624d28c5fe8b63ad7979880ee2e6ef3f",
+      "promptSha256": "7955c3bcc6174017779ee956de0a86eb82a62d475becf1a66d2882bfc5ee9445",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "6712bf68f6d43df0dd776ab90176bf3b3965a051e444bdbe2735849629b91341",
+      "priorAttemptEvidenceSha256": "8c677f292a1cd8c43abcd995af6846615a18b82210c7801a0ff78464103a202a",
+      "priorOfficialOutputSha256": "99627d6e84cf232c201eec518bb9f16edfc8f2c8eaf677647d46826a79527db3"
+    },
+    {
+      "instanceId": "pylint-dev__pylint-4661",
+      "repo": "pylint-dev/pylint",
+      "baseCommit": "1d1619ef913b99b06647d2030bddff4800abdf63",
+      "promptSha256": "45f7b8e31bbe32818a80b99dcfbdb564a05bd5e5279591a91b07509d45af9104",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "01fdf7b703e4f32896854c8f61a344ed22aa155de74597ea1dc2f19f6cf92885",
+      "priorAttemptEvidenceSha256": "cadf1e0f134d39753d6dde6a884c15745069b7a853b413607548b6cd8c68fc42",
+      "priorOfficialOutputSha256": "604be681545a692d5bc502cd277765acf6d4217b367cf5db57b694747054da04"
+    },
+    {
+      "instanceId": "pytest-dev__pytest-5840",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "73c5b7f4b11a81e971f7d1bb18072e06a87060f4",
+      "promptSha256": "3a5b416d5673971de05b298f1db34db2e2dc5ace7ef14afcdb95c96eab0b4787",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "5f640783c0e084913082137435aa80099ba0e83d8c88e3b2167d9c2d8382f465",
+      "priorAttemptEvidenceSha256": "9d7a7ddb02b2e863735fae5d0e38b50003de5d318c7abbaa170a69630b2c7ec1",
+      "priorOfficialOutputSha256": "bf561c3d364fc625d98f83d54e513bf1965ce7a1eccd3b2006a466144541b10d"
+    },
+    {
+      "instanceId": "pytest-dev__pytest-6197",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "e856638ba086fcf5bebf1bebea32d5cf78de87b4",
+      "promptSha256": "0e2271baaa1893981da223201aa9e7c89dd3b650d95038306f075a7506f7eddd",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "b0f2a90a288c0c0f510f4c21c42ba3b0e3a09bb5617e5f3f3870e96882d52fda",
+      "priorAttemptEvidenceSha256": "bb57c0ede26936e4d12810cfe8db5aa25fd7edacf027eea7901a06ea6074406c",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "pytest-dev__pytest-7324",
+      "repo": "pytest-dev/pytest",
+      "baseCommit": "19ad5889353c7f5f2b65cc2acd346b7a9e95dfcd",
+      "promptSha256": "600d749471835a72e8da9116587c727a36fc259447ce8a1dfa321157c8f43b84",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "0e2a074936dcb2ef086de11590f6df4e9170dc0078bb8be156979895ac2a8af3",
+      "priorAttemptEvidenceSha256": "0a9991cccbe732cdd0e3742259746faae91323ca5bf71d14863bcf417b46a777",
+      "priorOfficialOutputSha256": "4188fd3c82d78d7d4f6ec7ea1f1a0c8b9a87967cc1d56b5445b09dc96d2776c7"
+    },
+    {
+      "instanceId": "scikit-learn__scikit-learn-25747",
+      "repo": "scikit-learn/scikit-learn",
+      "baseCommit": "2c867b8f822eb7a684f0d5c4359e4426e1c9cfe0",
+      "promptSha256": "67319c5c1a1b9106e44641636a363fe1f31fa1232ab7ebf5311be766458a0572",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "fe2236c64256ff14410398d24cf9daf57835dcd9e0ee56cd78239744722dc1f1",
+      "priorAttemptEvidenceSha256": "5458caeeaceb0a73f7289afc2d7044e5e9252ee6d02c4696270429dc23f1615a",
+      "priorOfficialOutputSha256": "7387e3df11bddd0be34a1edc3192fb3ac77fffed0ced04c5457cf8f8d02c1699"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-10614",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "ac2b7599d212af7d04649959ce6926c63c3133fa",
+      "promptSha256": "39f01c6c96f666c943fabd85f800cdefd493f45553c7577a57ee6abac157efce",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "e3bbbd0bb1d69c6384a3678fe4264ca88e8100b06a10c31ae6a78a110d79b409",
+      "priorAttemptEvidenceSha256": "d6f1de22515ee043d00907036d8dbc3bba0d1770e3ee7b96b5e58c4b22a5961f",
+      "priorOfficialOutputSha256": "f2252c990f28eeb7e72d968b83264b22375b044b05c41e5273428b61e2c37a32"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7462",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "b3e26a6c851133b82b50f4b68b53692076574d13",
+      "promptSha256": "5af2c1989f15b055a631bb23857401ff80c8317c5f216f7c81796de9687190bf",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "baf2ba25930f02b42cbed015b1f30014d5e40f32bdc0f682961bfed7be72b34d",
+      "priorAttemptEvidenceSha256": "2c95f95e06859e5c1939de5f2aff04209e8c4542f8745fd544572cc43cf6ac32",
+      "priorOfficialOutputSha256": "0bd5ce46532e2043a0c07e2e2f47fcfbbc63754632843065a50f6a52943a0b78"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-7748",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "9988d5ce267bf0df4791770b469431b1fb00dcdd",
+      "promptSha256": "bdbab4fa23f8128b2f270d00af15dfbc714454261fa5c55eda95a6b9bbe02bf1",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "d642cda85beab56a31f6ad183a366daec0eca071b65a086dddc651245c1767ca",
+      "priorAttemptEvidenceSha256": "4c291497618ccbb8e248e8d952a91f8c07bcd2b079e8d63be1f79d5bcaec6c13",
+      "priorOfficialOutputSha256": "c30545030e8e7d885b9fec3c4e594b63d1efb6c31867b8471a1bd6f6e1ba87db"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9229",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "promptSha256": "ba05ce016ebb4467fdcb7f6adb654e99180b100b1bc7d7940445bd7af90685e8",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "dbe3377d896c81a82d094a5a9cf3b07e03fdd009cec179b0d5d5f887f09d36e2",
+      "priorAttemptEvidenceSha256": "1980528ffe5c5f31dc172c12fe6d2ece331ff7ef80fdff3732eeef14417d6fc6",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9461",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "939c7bb7ff7c53a4d27df067cea637540f0e1dad",
+      "promptSha256": "b9f36edac3dad1de6da41512d542622d3db3b772eb4744451c4939b3dac5ab43",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "83047078ea5e3a17fe4e2730f4b8b30d64604da920f7b628c24a969698466510",
+      "priorAttemptEvidenceSha256": "fd556df0c7592b57630e9f10571934f05a20b81db7795167594315924df65e10",
+      "priorOfficialOutputSha256": "af65fbf1046db9b1d39a6232e351f7ce0df3eeb3e48ef3c82fa1d6538f2c991c"
+    },
+    {
+      "instanceId": "sphinx-doc__sphinx-9711",
+      "repo": "sphinx-doc/sphinx",
+      "baseCommit": "81a4fd973d4cfcb25d01a7b0be62cdb28f82406d",
+      "promptSha256": "6df66a1d669e5c9ffb88141dd9ca1f578c88eaf016466127fdbe9b9da55824e2",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "cb267f7d1ef796c0073a593dee33fde6f3d4e3eb81c1ec6c5787086eb72510cb",
+      "priorAttemptEvidenceSha256": "5b7d604785a76e86e8b6936d988d5045ba66b63991ca1dc8b46f1accc906ac81",
+      "priorOfficialOutputSha256": "5986b9474b50930bf5e6fd5c28197cfdb6a6cded2dc9e956a4e075a7427cb38b"
+    },
+    {
+      "instanceId": "sympy__sympy-13798",
+      "repo": "sympy/sympy",
+      "baseCommit": "7121bdf1facdd90d05b6994b4c2e5b2865a4638a",
+      "promptSha256": "729e1f260c7c8d987a0def136b2b59ba36b70e98d8a174be96e9811ddd9fadf8",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "e6d2bcf01d0681a84fad1865a2ebe08c3d8531eec9f3ae5a8572a97f52cb62cc",
+      "priorAttemptEvidenceSha256": "ba7359e780cce2a47af6a824dacde15ddc7e5994165e80d7442c931d42e90c42",
+      "priorOfficialOutputSha256": "e8de5daf90f46d12911ab7e46c6c6a56d3bcd03333a8010fca92fc12b78e07db"
+    },
+    {
+      "instanceId": "sympy__sympy-13852",
+      "repo": "sympy/sympy",
+      "baseCommit": "c935e1d106743efd5bf0705fbeedbd18fadff4dc",
+      "promptSha256": "791b77d5a13505d7c4602a6673312bec1d9adfff2fa9d6bd2ae6ae3ba5c35842",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "71fdc455b2f870d8cbc64b772c5adab5f608ede32464b33122af5feb527b9602",
+      "priorAttemptEvidenceSha256": "a74234df5182001cbff6de05350f304f589f44ceb1c083bbb9be65645e696b00",
+      "priorOfficialOutputSha256": "5a2002978e63f171a5db0218193e01394f9d30b721fd06c30fdaa26e63f65f9e"
+    },
+    {
+      "instanceId": "sympy__sympy-16597",
+      "repo": "sympy/sympy",
+      "baseCommit": "6fd65310fa3167b9626c38a5487e171ca407d988",
+      "promptSha256": "75faf33cb8af4470cda708075de2f375800f8e6e626aee0990ddf4a8a5ae9271",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "6237f6edbe7af41c9d2e985f77e6af4c869185f618bd31568c116b62083074c8",
+      "priorAttemptEvidenceSha256": "c225f65c859ba6d233f528f66928631bf3c1385c26a8a647f9933b007946cf79",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "sympy__sympy-18199",
+      "repo": "sympy/sympy",
+      "baseCommit": "ba80d1e493f21431b4bf729b3e0452cd47eb9566",
+      "promptSha256": "fb4f3af183800c308a63cbf52136853d1b5e88eb24611109485ae7c2fcc3e2cf",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "0c13bd4a75b63c8240cf2e82b131f49a0cd169da687c657520f2294fb82f0dd5",
+      "priorAttemptEvidenceSha256": "1ffdc286e9b3e7b6b39c65e23efe95a98d91614a35dc1a6edb68122a548596bc",
+      "priorOfficialOutputSha256": "fb1c26819f3daeefe83f1cf64b74ab701237722d1e3f7c984f42423edd9aa69c"
+    },
+    {
+      "instanceId": "sympy__sympy-18698",
+      "repo": "sympy/sympy",
+      "baseCommit": "3dff1b98a78f28c953ae2140b69356b8391e399c",
+      "promptSha256": "cdb29793eb503c7888669e3d43f5cd836d2fcb2200ef7c4160a4534d632a790a",
+      "priorDisposition": "no-prediction",
+      "priorReceiptSha256": "ec205a1ea97ed19491b4406d223c1603868689f0f048bdd247d4320b2a360ccf",
+      "priorAttemptEvidenceSha256": "6a58fcab01a09c218e1eae9472100c0518788a972726675b1f044be525a19311",
+      "priorOfficialOutputSha256": null
+    },
+    {
+      "instanceId": "sympy__sympy-18763",
+      "repo": "sympy/sympy",
+      "baseCommit": "70381f282f2d9d039da860e391fe51649df2779d",
+      "promptSha256": "d82a68049f5f47b8fe84d33013d7d8fe9f9f859fc777f9d06e19b138187f088c",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "52eb30360cc10b6322f9ea1df2e09ea8959083940875622b7479f14c13c6d5c9",
+      "priorAttemptEvidenceSha256": "8556ed79eee88d337fa5b8978f828945e942a59f63bb19eed446b83a1f8b9991",
+      "priorOfficialOutputSha256": "1d61845358cdf6065e226e9633ab53ccb282729316bb4a1faf3467059f32a0eb"
+    },
+    {
+      "instanceId": "sympy__sympy-20438",
+      "repo": "sympy/sympy",
+      "baseCommit": "33b47e4bd60e2302e42616141e76285038b724d6",
+      "promptSha256": "794882adb48cdf856185ad55ad9c7dc4cf60b16f5f9949604a506cc74b714e65",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "b8129a59e8b9bc9e3da24b6b9fd1d25150b796744d7cd22ce9a816b42c64fda2",
+      "priorAttemptEvidenceSha256": "123249670ca08212b4e2d751333f64478670b52ce4155b9026f26d74765e6386",
+      "priorOfficialOutputSha256": "56aacdcba629fa2c055603a9daa88763281f5ee19623a484875fbbb8921744fd"
+    },
+    {
+      "instanceId": "sympy__sympy-21596",
+      "repo": "sympy/sympy",
+      "baseCommit": "110997fe18b9f7d5ba7d22f624d156a29bf40759",
+      "promptSha256": "abbe79587e5a8acdcc2a5cdd74ac9894776b512117286a92978c0e9495f296bb",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "228c9b2518d2763fce67b3f6a1745727461fd359926970de9b95c2c507655ea9",
+      "priorAttemptEvidenceSha256": "5a5a0da8b259e0083dcd9f335bcebac7930db55d6b4994dddb18c15d45eb3581",
+      "priorOfficialOutputSha256": "618c537672a3d5ca49da2d4221264a0f66a599a3cbf4e0769304644e96a35684"
+    },
+    {
+      "instanceId": "sympy__sympy-21930",
+      "repo": "sympy/sympy",
+      "baseCommit": "de446c6d85f633271dfec1452f6f28ea783e293f",
+      "promptSha256": "3d84580b7883476cf85d5546c9fb65508ad7948e21faa70cef21acaa44e916f3",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "7b64afb11b2601e12c0029791f0a38cc5f654e9336ad87bde980ef5847745d47",
+      "priorAttemptEvidenceSha256": "e77dad9a5171b2c995e172afda6ac566301581ae8a720496659602d73cf9e6f6",
+      "priorOfficialOutputSha256": "8eac53b992fe6ca6c3867233553338ee4353e517eebefcd5460945ab14755b2c"
+    },
+    {
+      "instanceId": "sympy__sympy-22080",
+      "repo": "sympy/sympy",
+      "baseCommit": "3f8c8c2377cb8e0daaf8073e8d03ac7d87580813",
+      "promptSha256": "031ce7d214ccd7d54c3240c2a5236782954cca4b6a4e78077f76c0e2c7ff0731",
+      "priorDisposition": "test-failed",
+      "priorReceiptSha256": "2710a231b84e0acb67400b74e319f675ad0714b9f9b65251f8f68a7476d28d74",
+      "priorAttemptEvidenceSha256": "7a7d043d47f93dbbc66613db1a380b4e568fbed933fbc6b0a83f6ceb49d52112",
+      "priorOfficialOutputSha256": "a222b2e49dd4b3406f68b3a1dbbb9b9834b3437b54c357ba43df760354daa19a"
+    }
+  ]
+}
