@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-09-09T17:18:37.803Z",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidateId": "local-spec100-epoch002-not-published",
+  "source": {
+    "workflow": "node-bundle-one.yml",
+    "runId": "34376814789",
+    "runAttempt": 1,
+    "headSha": "acdd275fc67e4ab707ce07c93bb0ad8129e5d9b6",
+    "jobId": 102551595244,
+    "conclusion": "failure",
+    "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+    "skippedSteps": [
+      "Evaluate frozen prediction in fresh official Docker container"
+    ],
+    "succeededSteps": [
+      "Audit and stage only immutable credential-safe evidence",
+      "Upload audited evidence even when the task fails"
+    ],
+    "artifact": {
+      "id": 10114634455,
+      "name": "node-bundle-first-34376814789-1",
+      "sizeInBytes": 22343558
+    },
+    "failure": {
+      "stage": "capture",
+      "classification": "controller-capture-defect-after-completed-model-attempt",
+      "cause": "capture-clear-original removed /testbed itself (the image WorkingDir); every later docker exec into the capture container failed chdir to /testbed with exit 127, so the trusted capture never started. Model container ran 2026-09-09T16:28:57Z to 16:37:43Z with CLI status 0, complete attempt evidence, and preserved hash-verified terminal exports."
+    },
+    "modelAttempt": true,
+    "predictionPresent": false,
+    "officialEvaluation": "not-evaluated"
+  },
+  "attempt": {
+    "instanceId": "django__django-10097",
+    "attemptId": "django__django-10097-node-34376814789-001",
+    "evaluationBatchId": "remaining63-node-34376814789",
+    "baseCommit": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+    "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10097@sha256:faf07f1d70370e9a4f76dac2cab0758300018f0eb4346b28aa55ac13630b873a",
+    "imageId": "sha256:ece45a718bc9b069cd4aa3c294ee768296aec0639a629938aaf3ef952ea3d329",
+    "containerId": "b481bfeae25127c735daf9072c5106fd9c170b54d5ce7ff04e93b57f78aed3cc"
+  },
+  "expected": {
+    "candidateConfigSha256": "ba0cdc54fe7a86468e5cf1866dd449a83cf6b9a1a7a3d1222612729c131d3636",
+    "officialEnvironmentSha256": "e2f6b2eec7169406de03239171b934911b342ec3e30299379649568186418ca7",
+    "sanitationSha256": "a665d961108fe9348d27979c23a14f9055fee3467412b06f86e11370aa3686a2",
+    "baseGit": {
+      "objects": 8173,
+      "objectSetSha256": "d8d4f3317e3cc5b0f725b88b1d31a8cc91a6fa379e223150777d3cbbbc38cc19",
+      "headSha": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+      "configContent": "[core]\n\trepositoryformatversion = 0\n\tbare = false\n\tlogallrefupdates = false\n"
+    }
+  },
+  "evidence": {
+    "controller-generate-failure.json": {
+      "sizeBytes": 412,
+      "sha256": "593fc652c664eaa521a2cbc8e408797a5fbd95affb2c3fd2c6fde56fc05e60ed"
+    },
+    "evaluation-disposition.json": {
+      "sizeBytes": 159,
+      "sha256": "fdc4a5413fafb842dee614ebd73859638d97050730bcce4608950861ebdd1947"
+    },
+    "generation-claim.json": {
+      "sizeBytes": 117,
+      "sha256": "8e430d435524354fe8d4098fd0d03c6aa9ae2328bb1e3d51277a53bcc6004ed3"
+    },
+    "hosted-run-admission.json": {
+      "sizeBytes": 516,
+      "sha256": "6e235ce8690da73279a8dced0c481add622356316bef36dcac44f3206e183e13"
+    },
+    "launch-prompt.txt": {
+      "sizeBytes": 3281,
+      "sha256": "e73f520e8bbd3d318f68d053f4809d3539949f7295524aa4d6aba3eb9ff96d16"
+    },
+    "model-absence.process.json": {
+      "sizeBytes": 488,
+      "sha256": "0d292519929cedcea0aa737a103ad0e7f453d51431cb3d20bf42de9bb48c4ed8"
+    },
+    "model-absence.stderr.txt": {
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "model-absence.stdout.txt": {
+      "sizeBytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "model-admission.json": {
+      "sizeBytes": 910,
+      "sha256": "c0df3cd88d662bfa2681fbcebe2b75ef6d4bdccc7aa7089d39d9118f0cf964ca"
+    },
+    "model-claim.json": {
+      "sizeBytes": 5871,
+      "sha256": "54bd90524e66351edf5b9e997685ff7b671de1ca66c8be8cdfcccca4cce23e53"
+    },
+    "model.process.json": {
+      "sizeBytes": 5001,
+      "sha256": "d3316e56e5d89d2543ad0b1c7f70ebfde9c2c4df41db2af654e0d7bf30016787"
+    },
+    "official-environment.json": {
+      "sizeBytes": 1432,
+      "sha256": "e2f6b2eec7169406de03239171b934911b342ec3e30299379649568186418ca7"
+    },
+    "preflight-verification.json": {
+      "sizeBytes": 3584,
+      "sha256": "5e76297ac75e0473f84193cba39205363be26b07c620e9bbb5ca080a57631709"
+    },
+    "process-receipt.json": {
+      "sizeBytes": 572,
+      "sha256": "6023cbf3fa4c66c0b4afb42b32d7bd16cc8b4f688520f1645e94a98248048266"
+    },
+    "prompt.txt": {
+      "sizeBytes": 2976,
+      "sha256": "be8782ac71c571cc282c4ed30144de85b7b9de34853d27d1e72c5381191662a3"
+    },
+    "run-claim.json": {
+      "sizeBytes": 211,
+      "sha256": "e51b35463beb1c63b66e388fc9db79f95c5045a618aad6d19208148846d45843"
+    },
+    "sanitation.json": {
+      "sizeBytes": 35424,
+      "sha256": "a665d961108fe9348d27979c23a14f9055fee3467412b06f86e11370aa3686a2"
+    },
+    "stdout.txt": {
+      "sizeBytes": 2674,
+      "sha256": "c642b640c975002882e477ce585c835128d36e04d38eebe283e97cc6e8ec96c8"
+    },
+    "stderr.txt": {
+      "sizeBytes": 145,
+      "sha256": "a2b53d548e644ebc844fbfd1e6bf189662983f0ab567b1924d70c3d172645ef9"
+    },
+    "terminal/artifacts.tar": {
+      "sizeBytes": 1536,
+      "sha256": "99b50b928db5105cfb12c1a57236e59131ede5907709b52ed9c9063b2c008c26"
+    },
+    "terminal/attempt.jsonl": {
+      "sizeBytes": 6952804,
+      "sha256": "f3b280b29ff0a6153b229bbac10c3b2fc6f38dab79e53177a380bafa5852d79a"
+    },
+    "terminal/evidence-admission.json": {
+      "sizeBytes": 135,
+      "sha256": "27f50c1b76a74cb3747c538c789d31552004fc4d13a0115b1c87040940f6776b"
+    },
+    "terminal/exports.json": {
+      "sizeBytes": 852,
+      "sha256": "305c8ae056e5525dd83e9b09e8ccaed8e10372b3e182f8a3a9254c6d652c1609"
+    },
+    "terminal/runtime.tar": {
+      "sizeBytes": 445440,
+      "sha256": "5d8b1242c0a3cc76f19eaf47eb69cbda6b9efcf1b6ce4d4db2501201296b88d8"
+    },
+    "terminal/summary.json": {
+      "sizeBytes": 3043,
+      "sha256": "97a41a08a2904f78034255acb4bb3b168263fdb7f4f4959f3fa2500c887d59e1"
+    },
+    "terminal/workspace-admission.json": {
+      "sizeBytes": 358,
+      "sha256": "1b92e6f4b96789dc3e789c8a8130808fb691a45f349001cc4d3f86b64f5e5a35"
+    },
+    "terminal/workspace.tar": {
+      "sizeBytes": 51921920,
+      "sha256": "bac6fb8788b0740c8fb4ff7d5910a6a69df53e670396df50fadd4cec8d56a37c"
+    },
+    "baseline-capture/receipt.json": {
+      "sizeBytes": 282,
+      "sha256": "7698083dd8376db5492bbf9cca268af97063b355e8f8426e68b79d9709ba3115"
+    }
+  }
+}

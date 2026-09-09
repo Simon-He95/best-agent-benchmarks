@@ -101,6 +101,8 @@ export async function collectTerminalExports(containerId, evidenceDir, processRu
   return exports;
 }
 
+export const captureExec = (captureId, ...args) => ['exec', '-w', '/', captureId, ...args];
+
 export function modelRemovalSafe(summary) {
   return summary.containerClosed === true && (!summary.modelAttempt || (summary.exports?.length === 4 && summary.exports.every(entry => entry.status === 0 && entry.signal === null && !entry.timedOut && !entry.error && entry.sha256)));
 }
@@ -237,10 +239,10 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     await step('capture-start', ['start', captureId]);
     const boundary = jsonOutput(await step('capture-boundary', ['inspect', captureId]))[0];
     assert.equal(boundary.Id, captureId); assert.equal(boundary.Image, image.Id); assert.equal(boundary.Mounts.length, 0); assert.equal(boundary.HostConfig.NetworkMode, 'none'); assert.equal(boundary.HostConfig.Privileged, false); assert.notEqual(boundary.HostConfig.PidMode, 'host');
-    await step('capture-clear-original', ['exec', captureId, 'rm', '-rf', '/testbed']);
-    await step('capture-directories', ['exec', captureId, 'mkdir', '-p', '/restore', '/capture', '/opt/agent']);
+    await step('capture-clear-original', captureExec(captureId, 'rm', '-rf', '/testbed'));
+    await step('capture-directories', captureExec(captureId, 'mkdir', '-p', '/restore', '/capture', '/opt/agent'));
     await step('capture-restore', ['cp', '-', captureId + ':/restore/'], {inputPath: path.join(terminal, 'workspace.tar'), timeoutMs: 180_000});
-    await step('capture-place-worktree', ['exec', captureId, 'mv', '/restore/testbed', '/testbed']);
+    await step('capture-place-worktree', captureExec(captureId, 'mv', '/restore/testbed', '/testbed'));
     await step('capture-remove-untrusted-git', ['exec', captureId, 'rm', '-rf', '/testbed/.git']);
     await step('capture-trusted-git', ['cp', path.join(privateDir, 'base.git'), captureId + ':/capture/base.git']);
     await step('capture-node', ['cp', path.join(candidateDir, 'node-v24.15.0-linux-x64'), captureId + ':/opt/agent/node']);

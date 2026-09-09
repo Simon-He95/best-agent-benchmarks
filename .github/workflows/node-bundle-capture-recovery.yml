@@ -1,0 +1,91 @@
+name: Frozen Node first failed task — recovered capture and official evaluation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: frozen-node-failed-tasks
+  cancel-in-progress: false
+
+jobs:
+  django-10097-recovery:
+    name: django__django-10097 — recover the frozen attempt capture and run official evaluation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+
+      - uses: actions/checkout@v4
+        with:
+          repository: SWE-bench/SWE-bench
+          ref: 726c5461e2ef52d83cf1ea2107870a8bb3328d57
+          path: tools/swe-bench-source
+          persist-credentials: false
+
+      - name: Download and verify the pinned Node runtime (public distribution, no private token)
+        run: node scripts/download-pinned-node.mjs "$RUNNER_TEMP/pinned-node"
+
+      - name: Check recovery admission, evidence and lifecycle tests
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          --experimental-test-module-mocks --test
+          test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs
+          test/node-bundle-generation.test.mjs test/node-bundle-evaluation.test.mjs
+          test/node-bundle-controller.test.mjs test/node-bundle-recovery.test.mjs
+
+      - name: Verify recovery admission and prepare frozen attempt evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-recovery.mjs prepare
+          "$RUNNER_TEMP/pinned-node" "$RUNNER_TEMP/node-bundle-recovery-evidence" "$GITHUB_RUN_ID"
+
+      - name: Recover the trusted capture of the frozen attempt (no model invocation)
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-recovery.mjs capture
+          "$RUNNER_TEMP/pinned-node" "$RUNNER_TEMP/node-bundle-recovery-evidence" "$GITHUB_RUN_ID"
+
+      - name: Audit prepared evidence before official evaluation
+        env:
+          BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-recovery.mjs audit
+          "$RUNNER_TEMP/pinned-node" "$RUNNER_TEMP/node-bundle-recovery-evidence" "$GITHUB_RUN_ID"
+
+      - name: Evaluate the frozen prediction in a fresh official Docker container
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-recovery.mjs evaluate
+          "$RUNNER_TEMP/pinned-node" "$RUNNER_TEMP/node-bundle-recovery-evidence" "$GITHUB_RUN_ID"
+
+      - name: Audit and stage only immutable credential-safe evidence
+        if: always()
+        env:
+          BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+        run: >-
+          "$RUNNER_TEMP/pinned-node/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-recovery.mjs publish
+          "$RUNNER_TEMP/pinned-node" "$RUNNER_TEMP/node-bundle-recovery-evidence" "$GITHUB_RUN_ID"
+
+      - name: Upload audited evidence even when the task fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-bundle-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/node-bundle-recovery-evidence-upload/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
