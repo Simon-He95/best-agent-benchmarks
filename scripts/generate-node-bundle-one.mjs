@@ -174,7 +174,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     await step('freeze-base-git', ['cp', containerId + ':/testbed/.git', path.join(privateDir, 'base.git')]);
     const rootTar = path.join(privateDir, 'root.tar');
     await step('root-export', ['export', containerId], {timeoutMs: 300_000, stdoutPath: rootTar});
-    sanitation.content = inspectArchive(rootTar, frozen.needles);
+    sanitation.content = inspectArchive(rootTar, frozen.needles, 'root', path.join(evidenceDir, 'root-archive-scan'));
     sanitation.rootExportSha256 = fileHash(rootTar);
     writeJson(path.join(evidenceDir, 'sanitation.json'), sanitation);
     assert.equal(sanitation.content.passed, true, 'Root content sanitation failed');
@@ -230,7 +230,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     summary.evidence = inspectAttemptEvidence(path.join(terminal, 'attempt.jsonl'));
     writeJson(path.join(terminal, 'evidence-admission.json'), summary.evidence);
     summary.stage = 'capture';
-    const archiveAdmission = inspectArchive(path.join(terminal, 'workspace.tar'), [], 'workspace');
+    const archiveAdmission = inspectArchive(path.join(terminal, 'workspace.tar'), [], 'workspace', path.join(evidenceDir, 'workspace-archive-scan'));
     assert(archiveAdmission.passed); writeJson(path.join(terminal, 'workspace-admission.json'), archiveAdmission);
     captureId = output(await step('capture-create', ['create', '--name', 'remaining63-node-' + runId + '-capture', '--platform', 'linux/amd64', '--network', 'none', '--memory', '2g', image.Id, 'sleep', 'infinity'])).trim();
     assert.match(captureId, /^[a-f0-9]{64}$/); summary.captureContainerId = captureId; summary.captureContainerRemoved = false;

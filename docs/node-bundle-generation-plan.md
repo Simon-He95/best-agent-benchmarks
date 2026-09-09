@@ -1,6 +1,6 @@
 # Fixed Node bundle: single-task generation and official evaluation
 
-Status: continuation CI run34369524170 is in progress; no model-start or official-result claim yet, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
+Status: CI34369524170 failed before model admission during controller root archive inspection. Model attempts0, official evaluations0. The scanner discarded its Python error; a no-model hosted diagnostic is being prepared to recover the actual cause. Local Docker remains on hold. Owner: coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`.
 
 ## Authorized scope and verified starting point
 
@@ -87,3 +87,8 @@ Replace `RUN_ID` only with the actual observed ID, never guess it. The upload ar
 - Narrow review **ACCEPT** for `5b592b0`: fixed Python3.13 scanner and exact prior-run continuation; 56/56 tests repeated on Python3.13.1. Supplement SHA256 `ce2d844f564951a044b077566f326a85820bed5259b845614a8c13b2ab8dde3c`, same visible reviewer. A new run may now continue the still-unstarted first task; do not rerun old job34368429953 or admit any other previous run.
 
 - **CURRENT ACTIVE RUN**: [34369524170](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/34369524170), exact head `8e3057c1ed5027dfa0659a1e012de9ed7dfabd09`, observed in_progress. It continues the unstarted task after the accepted Python3.13 correction; prior34368429953 is preserved. Do not dispatch again. Monitor/download this exact newrun using the commands above with RUN_ID34369524170. Model invocation and official scoring are not yet verified.
+
+
+- Run34369524170 completed failure in sanitation; all57 current local tests pass (the run itself passed56). Official base Git verified8173 objects/one commit and installed Django verified3318 files; root export succeeded3168276992 bytes. Scanner exited1 before model admission; terminal modelAttempt=false, no model-claim/prediction in upload manifest, evaluator skipped, model container removed. Artifact10111389272 digest12dc0bec8f58dc7f2d1e3e696db3f84af3ce13651d8370c01a4cf115c16deb43:112 present files match sizes/hashes, but control-files/.github/workflows/node-bundle-one.yml was omitted by upload-artifact hidden-file defaults. Full evidence acceptance is therefore not granted.
+- Concrete fixes: preserve scanner stdout/stderr/status/signal/timeout and hashes, identify failing root member in chained Python error, include hidden files from the already audited upload staging directory. Added a regression test for failure diagnostics without private stdin. No archive policy has been weakened; actual scanner exception remains unknown.
+- Next: narrow visible review of these changes and `.github/workflows/node-bundle-scan-diagnostic.yml`; then dispatch that no-model workflow once. It recreates frozen runtime/base sanitation and scans root with empty private needles on pinned Python3.13.1, without provider/model/evaluator. It is a parser diagnostic only, not sanitation admission or a task attempt. Inspect its raw scanner stderr before any further fix. Do not dispatch node-bundle-one.yml: continuation admission does not yet include second failed run.

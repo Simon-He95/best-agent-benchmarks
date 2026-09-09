@@ -136,7 +136,10 @@ with tarfile.open(request['archive'], mode='r|') as archive:
             check_path(name, True)
             if member.isfile():
                 if member.size > limit: raise ValueError('root file size limit')
-                inspect('/' + name, archive.extractfile(member).read())
+                try:
+                    inspect('/' + name, archive.extractfile(member).read())
+                except Exception as error:
+                    raise RuntimeError('Root archive member: ' + name) from error
     if request['mode'] == 'workspace':
         if not root_directory: raise ValueError('workspace archive has no root directory')
         links = {name for name, linked in members if linked}
@@ -151,8 +154,18 @@ with tarfile.open(request['archive'], mode='r|') as archive:
 print(json.dumps({'passed': not findings, 'scope': request['mode'], 'regularFiles': len(files), 'fileSetSha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(), 'archives': archives, 'findings': findings, 'excludes': ['kernel proc/sys/dev virtual filesystems'], 'contentScan': 'exact private patch/metadata bytes; recursively decoded zip, tar, gzip, bzip2, xz'}))
 `;
 
-export function inspectArchive(archive, needles = [], mode = 'root') {
+export function inspectArchive(archive, needles = [], mode = 'root', receiptPrefix) {
   const result = spawnSync('python3', ['-c', archiveScanner], {input: JSON.stringify({archive, needles, mode}), encoding: 'utf8', maxBuffer: 16 * 1024 ** 2, timeout: 600_000});
+  if (receiptPrefix) {
+    const outputs = {};
+    for (const stream of ['stdout', 'stderr']) {
+      const bytes = Buffer.from(result[stream] ?? '');
+      const filename = receiptPrefix + '.' + stream + '.txt';
+      fs.writeFileSync(filename, bytes, {flag: 'wx'});
+      outputs[stream] = {path: path.basename(filename), sizeBytes: bytes.length, sha256: hash(bytes)};
+    }
+    fs.writeFileSync(receiptPrefix + '.process.json', JSON.stringify({status: result.status, signal: result.signal, errorCode: result.error?.code ?? null, timedOut: result.error?.code === 'ETIMEDOUT', ...outputs}) + '\n', {flag: 'wx'});
+  }
   if (result.status !== 0 || result.signal || result.error) throw new Error('Archive inspection failed without admission (' + (result.status ?? result.signal ?? 'spawn') + ')');
   return JSON.parse(result.stdout);
 }

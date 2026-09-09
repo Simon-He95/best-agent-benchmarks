@@ -100,4 +100,5 @@ jobs:
           name: node-bundle-first-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/node-bundle-one-evidence-upload/
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 30

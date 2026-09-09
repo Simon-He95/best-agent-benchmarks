@@ -151,3 +151,21 @@ test('post-model export failure preserves partial bytes, attempts remaining expo
   assert.equal(modelRemovalSafe({modelAttempt: true, containerClosed: true, exports: exports.map(entry => ({...entry, status: 0}))}), true);
   assert.equal(modelRemovalSafe({modelAttempt: true, containerClosed: true}), false);
 });
+
+
+test('failed archive inspection preserves hashed diagnostics without recording private stdin', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'broken.tar');
+  fs.writeFileSync(archive, 'not a tar archive');
+  const prefix = path.join(directory, 'scan');
+  assert.throws(() => inspectArchive(archive, ['private-comparison-value'], 'root', prefix), /without admission/);
+  const receipt = JSON.parse(fs.readFileSync(prefix + '.process.json', 'utf8'));
+  assert.equal(receipt.status, 1);
+  assert.equal(receipt.timedOut, false);
+  for (const stream of ['stdout', 'stderr']) {
+    const bytes = fs.readFileSync(prefix + '.' + stream + '.txt');
+    assert.equal(receipt[stream].sha256, hash(bytes));
+    assert.equal(receipt[stream].sizeBytes, bytes.length);
+    assert(!bytes.includes('private-comparison-value'));
+  }
+  assert.match(fs.readFileSync(prefix + '.stderr.txt', 'utf8'), /ReadError/);
+});
