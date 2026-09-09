@@ -169,3 +169,29 @@ test('failed archive inspection preserves hashed diagnostics without recording p
   }
   assert.match(fs.readFileSync(prefix + '.stderr.txt', 'utf8'), /ReadError/);
 });
+
+
+test('ZIP signature constants in ordinary binary data are not an archive or a content-scan bypass', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'root.tar');
+  const bytes = Buffer.concat([Buffer.from('compiled-module-private-marker'), Buffer.from('504b0506000000000100010001000000ffffffff0000', 'hex')]);
+  execFileSync('python3', ['-c', `import tarfile,io,sys
+b=bytes.fromhex(sys.argv[2])
+with tarfile.open(sys.argv[1],'w') as t:
+ m=tarfile.TarInfo('lib/zipfile.pyc');m.size=len(b);t.addfile(m,io.BytesIO(b))`, archive, bytes.toString('hex')]);
+  assert.equal(inspectArchive(archive).passed, true);
+  assert.equal(inspectArchive(archive, ['private-marker']).passed, false);
+  execFileSync('python3', ['-c', `import tarfile,io,sys,zipfile
+b=bytes.fromhex(sys.argv[2]);assert zipfile.is_zipfile(io.BytesIO(b))
+try: zipfile.ZipFile(io.BytesIO(b))
+except zipfile.BadZipFile: pass
+else: raise AssertionError('fixture is not the observed false positive')
+with tarfile.open(sys.argv[1],'w') as t:
+ m=tarfile.TarInfo('broken.zip');m.size=len(b);t.addfile(m,io.BytesIO(b))`, archive, bytes.toString('hex')]);
+  assert.throws(() => inspectArchive(archive), /without admission/);
+  execFileSync('python3', ['-c', `import tarfile,io,sys,zipfile
+b=io.BytesIO(b'ordinary-prefix');b.seek(0,2)
+with zipfile.ZipFile(b,'a',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('hidden','private-marker')
+with tarfile.open(sys.argv[1],'w') as t:
+ data=b.getvalue();m=tarfile.TarInfo('lib/binary.pyc');m.size=len(data);t.addfile(m,io.BytesIO(data))`, archive]);
+  assert.equal(inspectArchive(archive, ['private-marker']).passed, false);
+});

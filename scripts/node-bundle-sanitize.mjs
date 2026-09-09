@@ -83,9 +83,17 @@ def inspect(name, data, depth=0):
         findings.append({'path': name, 'sha256': digest, 'reason': 'prohibited-content'})
     if depth > 5: raise ValueError('archive nesting limit')
     stream = io.BytesIO(data)
+    archive = None
     if zipfile.is_zipfile(stream):
+        try:
+            archive = zipfile.ZipFile(stream)
+        except zipfile.BadZipFile:
+            # Signature constants also occur in ordinary compiled Python modules.
+            if data.startswith(b'PK') or name.lower().endswith(('.zip', '.whl', '.egg', '.conda', '.jar')):
+                raise
+    if archive is not None:
         archives.append(name)
-        with zipfile.ZipFile(stream) as archive:
+        with archive:
             for member in archive.infolist():
                 if not member.is_dir():
                     if member.file_size > limit: raise ValueError('archive member size limit')
