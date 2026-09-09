@@ -71,32 +71,15 @@
       "modelAttempt": true,
       "predictionPresent": true,
       "officialEvaluation": "not-evaluated",
-      "reason": "Full generation pipeline succeeded with the as-shipped contract: single model attempt completed (attemptId astropy__astropy-13033-node-34404487703-001, trajectory complete, patch 2768 bytes sha256 260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca frozen in prediction). Official evaluation then failed at its identity gate because the controller passed the batch entry under the parameter name task while the evaluation module reads entry, so the module silently took the single-task django path and rejected the astropy summary. No official verdict exists. The prediction is frozen and immutable; the continuation must evaluate the existing prediction without a second model attempt (one-attempt-per-task). Audited artifact node-bundle-batch1-astropy__astropy-13033-34404487703-1 (id 10125081716, 227 files) preserves all evidence."
-    },
-    {
-      "runId": "34407065559",
-      "headSha": "ba693380b840c48ca141bf3edd649d18f8aae315",
-      "jobId": 102652479023,
-      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
-      "skippedSteps": [],
-      "modelAttempt": true,
-      "predictionPresent": true,
-      "officialEvaluation": "test-failed-orphan",
-      "reason": "PROTOCOL VIOLATION: job2-dispatch sequencing error caused job1 to re-run the model attempt for astropy__astropy-13033 (second attempt, attemptId node-34407065559-001, patch sha addf5502dff82366c4237704694cae2ccee62e3da3c0fb4849be18f991868b6c) after run 34404487703 had already consumed the task single predeclared attempt and frozen its prediction. The resulting official verdict (test-failed) is an ORPHAN verdict of a forbidden rescue attempt and must never be recorded as the task result. The only predeclared attempt for 13033 remains astropy__astropy-13033-node-34404487703-001 (prediction 260a27b0e4... truncated in this field on purpose, full value in the frozen firstTaskProvenance-adjacent record of run 34404487703). Job2 astropy__astropy-13398 failed in root content sanitation BEFORE model admission (modelAttempt false, attempt not consumed): needle hit prohibited-content on /testbed/astropy/coordinates/builtin_frames/cirs.py sha256 753d12a6e4b34519933ca1db4524a47c2b91c44402929632f1a8245c034e6eda - a gold-patch addition block overlapping the public base source (constructive false positive to be adapted, never guessed safe). Jobs 3-5 skipped by the needs chain."
-    },
-    {
-      "runId": "34408218858",
-      "headSha": "b174af9a1a3fc58f557ee70c73b98834de8632a0",
-      "jobId": 102656233401,
-      "failedStep": "Verify controller and official evaluator environment before model admission",
-      "skippedSteps": [
-        "Run the sole frozen model attempt and audit terminal evidence",
-        "Evaluate frozen prediction in fresh official Docker container"
-      ],
-      "modelAttempt": false,
-      "predictionPresent": false,
-      "officialEvaluation": "not-evaluated",
-      "reason": "Admission correctly rejected this dispatch because prior batch run 34407065559 was not yet declared in priorBatchRuns (fail-closed worked as designed). Declared here after the fact with its real job id."
+      "instanceId": "astropy__astropy-13033",
+      "attemptId": "astropy__astropy-13033-node-34404487703-001",
+      "predictionFileSha256": "9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58",
+      "patchSha256": "260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca",
+      "patchBytes": 2768,
+      "artifactId": 10125081716,
+      "artifactName": "node-bundle-batch1-astropy__astropy-13033-34404487703-1",
+      "artifactManifestFiles": 260,
+      "reason": "Full generation pipeline succeeded with the as-shipped contract: single model attempt completed (attemptId astropy__astropy-13033-node-34404487703-001, trajectory complete, patch 2768 bytes sha256 260a27b0443323c2e885bfa86c6f70fd36aeb1af958248f3aa2c41c9ab8a29ca frozen in prediction). Official evaluation then failed at its identity gate because the controller passed the batch entry under the parameter name task while the evaluation module reads entry, so the module silently took the single-task django path and rejected the astropy summary. No official verdict exists. The prediction is frozen and immutable; the continuation must evaluate the existing prediction without a second model attempt (one-attempt-per-task). Audited artifact node-bundle-batch1-astropy__astropy-13033-34404487703-1 (id 10125081716, 227 files) preserves all evidence. Identity fields added 2026-09-10 with the evaluation-only recovery mechanism, verified byte-for-byte against the locally downloaded artifact: prediction file sha256 9896313bc698548b12a3a94a51c73ec731bb23fc8ccec9f99688f2d1024fbd58, upload-manifest 260 file entries, image digest sha256:22f4f193fbf69d61c59e285494be18041934f8b528190dfe8c6c0d8051d8d6de matching this task's pinned imageRef."
     }
   ],
   "firstTaskProvenance": {
