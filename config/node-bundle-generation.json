@@ -16,5 +16,21 @@
   "officialEvaluatorSha256": "46931bc75ad9a07108766975a838948b27fcd90d9c0a450b78e157b2a8656c6c",
   "officialEvaluatorCommit": "726c5461e2ef52d83cf1ea2107870a8bb3328d57",
   "officialEvaluatorVersion": "4.1.0",
-  "hostPythonVersion": "3.13.1"
+  "hostPythonVersion": "3.13.1",
+  "preModelRuns": [
+    {
+      "runId": "34368429953",
+      "headSha": "d150675673ca0d16880cbfd020579c42cb1f678e",
+      "jobId": 102523112516,
+      "failedStep": "Check single-task admission, evidence and lifecycle tests",
+      "skippedSteps": [
+        "Verify controller and official evaluator environment before model admission",
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "runEvidenceSha256": "7b9a3b41ee0f12573cd59474e7d468fa56a2ebce9920c07798fac228e006e5ad",
+      "jobsEvidenceSha256": "79a589768a1db24299788997e2c2968a57677e11af8cadbe148ad2051ad86422",
+      "reason": "Python 3.13 stream-position self-test failure; preparation, model and evaluator steps all skipped"
+    }
+  ]
 }

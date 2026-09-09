@@ -21,10 +21,27 @@ export function validateRun(runId, environment = process.env) {
   assert.equal(environment.GITHUB_REF, 'refs/heads/master');
 }
 
-export function admitFirstRun(runs, runId) {
+export function admitFirstRun(runs, runId, preModelRuns = [], jobsByRun = {}) {
   assert(runs.some(run => String(run.id) === runId), 'Current hosted run must be visible');
-  assert.equal(runs.filter(run => String(run.id) !== runId).length, 0,
-    'A first-task workflow run already exists; inspect its immutable evidence instead of dispatching again');
+  for (const previous of runs.filter(run => String(run.id) !== runId)) {
+    const declaration = preModelRuns.find(item => item.runId === String(previous.id));
+    assert(declaration, 'A prior workflow run has no frozen pre-model evidence; no new attempt');
+    assert.equal(previous.head_sha, declaration.headSha);
+    assert.equal(previous.status, 'completed');
+    assert.equal(previous.conclusion, 'failure');
+    assert.equal(previous.run_attempt, 1);
+    const jobs = jobsByRun[declaration.runId]?.jobs;
+    assert.equal(jobs?.length, 1);
+    assert.equal(jobs[0].id, declaration.jobId);
+    assert.equal(jobs[0].status, 'completed');
+    assert.equal(jobs[0].conclusion, 'failure');
+    for (const [name, conclusion] of [[declaration.failedStep, 'failure'], ...declaration.skippedSteps.map(name => [name, 'skipped'])]) {
+      const matches = jobs[0].steps.filter(step => step.name === name);
+      assert.equal(matches.length, 1);
+      assert.equal(matches[0].status, 'completed');
+      assert.equal(matches[0].conclusion, conclusion, 'Prior model/evaluator execution prevents recovery');
+    }
+  }
 }
 
 function fileHash(filename) {
@@ -85,7 +102,17 @@ async function prepare(candidateDir, evidenceDir, runId) {
   assert(response.ok, 'Unable to verify previous hosted runs');
   const runs = (await response.json()).workflow_runs;
   write(path.join(evidenceDir, 'hosted-run-admission.json'), {runId, runs: runs.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion}))});
-  admitFirstRun(runs, runId);
+  const jobsByRun = {};
+  for (const previous of runs.filter(run => String(run.id) !== runId)) {
+    if (!generation.preModelRuns?.some(item => item.runId === String(previous.id))) continue;
+    const jobResponse = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/runs/${previous.id}/jobs?per_page=100`, {
+      headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
+    });
+    assert(jobResponse.ok, 'Cannot verify the frozen prior pre-model failure');
+    jobsByRun[String(previous.id)] = await jobResponse.json();
+    write(path.join(evidenceDir, 'pre-model-run-' + previous.id + '.json'), {run: previous, jobs: jobsByRun[String(previous.id)]});
+  }
+  admitFirstRun(runs, runId, generation.preModelRuns, jobsByRun);
   const step = (name, args, timeout = 60_000) => runRecordedStep(evidenceDir, name, args, timeout);
   const controls = ['config/node-bundle-candidate.json', 'config/node-bundle-generation.json', 'config/node-bundle-failed-tasks.json', 'config/swe-bench-verified.json', '.github/workflows/node-bundle-one.yml', 'scripts/node-bundle-controller.mjs', 'scripts/audit-node-bundle-evidence.py', 'scripts/generate-node-bundle-one.mjs', 'scripts/node-bundle-sanitize.mjs', 'scripts/node-bundle-capture.mjs', 'scripts/evaluate-node-bundle-one.mjs', 'scripts/node-bundle-probe.mjs', 'scripts/swe-bench-harness.mjs', 'scripts/swe-bench-official-evaluator.mjs', 'scripts/prepare-swe-bench.mjs', 'scripts/materialize-ci-provider.mjs'];
   const controlFiles = controls.map(name => {

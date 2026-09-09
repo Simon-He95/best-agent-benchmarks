@@ -134,3 +134,22 @@ with tarfile.open(root+'/workspace.tar','w') as t:
   assert.equal(made.status, 0, made.stderr);
   assert.throws(() => auditEvidence(root, secret), error => error.audit?.reason === 'credential-bytes');
 });
+
+test('admits only the frozen pre-model failure and rejects any model execution or changed identity', () => {
+  const declaration = {runId: '122', headSha: 'frozen-head', jobId: 44, failedStep: 'tests', skippedSteps: ['prepare', 'model', 'evaluate']};
+  const previous = {id: 122, head_sha: 'frozen-head', status: 'completed', conclusion: 'failure', run_attempt: 1};
+  const runs = [previous, {id: 123}];
+  const jobs = {'122': {jobs: [{id: 44, status: 'completed', conclusion: 'failure', steps: [
+    {name: 'tests', status: 'completed', conclusion: 'failure'},
+    ...['prepare', 'model', 'evaluate'].map(name => ({name, status: 'completed', conclusion: 'skipped'})),
+  ]}]}};
+  admitFirstRun(runs, '123', [declaration], jobs);
+  for (const field of ['head_sha', 'run_attempt', 'conclusion']) {
+    assert.throws(() => admitFirstRun([{...previous, [field]: 'changed'}, {id: 123}], '123', [declaration], jobs));
+  }
+  const executed = structuredClone(jobs);
+  executed['122'].jobs[0].steps.find(step => step.name === 'model').conclusion = 'success';
+  assert.throws(() => admitFirstRun(runs, '123', [declaration], executed));
+  assert.throws(() => admitFirstRun(runs, '123', [declaration], {}));
+  assert.throws(() => admitFirstRun([...runs, {id: 124}], '123', [declaration], jobs));
+});
