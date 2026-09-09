@@ -38,6 +38,7 @@ try {
   docker(['export', containerId], rootTar);
   const result = inspectArchive(rootTar, [], 'root', path.join(evidenceDir, 'root-archive-scan'));
   fs.writeFileSync(path.join(evidenceDir, 'scan.json'), JSON.stringify(result));
+  assert(!result.findings.some(finding => finding.reason === 'archive-decoder-error'), 'Archive decoder errors recorded in scan.json');
 } finally {
   if (containerId) docker(['rm', '-f', containerId]);
   fs.rmSync(rootTar, {force: true});

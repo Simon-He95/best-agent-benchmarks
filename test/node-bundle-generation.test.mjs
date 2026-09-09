@@ -187,11 +187,43 @@ except zipfile.BadZipFile: pass
 else: raise AssertionError('fixture is not the observed false positive')
 with tarfile.open(sys.argv[1],'w') as t:
  m=tarfile.TarInfo('broken.zip');m.size=len(b);t.addfile(m,io.BytesIO(b))`, archive, bytes.toString('hex')]);
-  assert.throws(() => inspectArchive(archive), /without admission/);
+  assert.equal(inspectArchive(archive).passed, false);
+  assert.equal(inspectArchive(archive).findings[0].reason, 'archive-decoder-error');
   execFileSync('python3', ['-c', `import tarfile,io,sys,zipfile
 b=io.BytesIO(b'ordinary-prefix');b.seek(0,2)
 with zipfile.ZipFile(b,'a',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('hidden','private-marker')
 with tarfile.open(sys.argv[1],'w') as t:
  data=b.getvalue();m=tarfile.TarInfo('lib/binary.pyc');m.size=len(data);t.addfile(m,io.BytesIO(data))`, archive]);
   assert.equal(inspectArchive(archive, ['private-marker']).passed, false);
+});
+
+
+test('central-directory signatures embedded in non-ZIP bytes require matching local headers', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'root.tar');
+  execFileSync('python3', ['-c', `import tarfile,io,sys,zipfile
+b=io.BytesIO()
+with zipfile.ZipFile(b,'w') as z:z.writestr('entry','private-marker')
+data=b'JUNK'+b.getvalue()[4:]
+assert zipfile.is_zipfile(io.BytesIO(data))
+with zipfile.ZipFile(io.BytesIO(data)) as z:
+ try: z.open('entry')
+ except zipfile.BadZipFile: pass
+ else: raise AssertionError('not the observed local-header mismatch')
+with tarfile.open(sys.argv[1],'w') as t:
+ m=tarfile.TarInfo('package.tar.zst');m.size=len(data);t.addfile(m,io.BytesIO(data))`, archive]);
+  assert.equal(inspectArchive(archive).passed, true);
+  assert.equal(inspectArchive(archive, ['private-marker']).passed, false);
+});
+
+
+test('root scanner records every decoder failure while keeping admission closed', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'root.tar');
+  execFileSync('python3', ['-c', `import tarfile,io,sys
+with tarfile.open(sys.argv[1],'w') as t:
+ for name in ['first.gz','second.gz']:
+  b=bytes([31,139,0]);m=tarfile.TarInfo(name);m.size=len(b);t.addfile(m,io.BytesIO(b))`, archive]);
+  const result = inspectArchive(archive);
+  assert.equal(result.passed, false);
+  assert.deepEqual(result.findings.map(f => f.path), ['/first.gz', '/second.gz']);
+  assert(result.findings.every(f => f.reason === 'archive-decoder-error' && f.traceback.includes('Error')));
 });

@@ -71,7 +71,7 @@ export function verifyInstalledDjango(repo, installed) {
 
 // Runs on the controller. Private comparison strings arrive on stdin, never argv or the image.
 const archiveScanner = String.raw`
-import sys, json, tarfile, zipfile, io, hashlib, gzip, bz2, lzma, posixpath
+import sys, json, tarfile, zipfile, io, hashlib, gzip, bz2, lzma, posixpath, traceback
 request = json.load(sys.stdin)
 needles = [s.encode() for s in request.get('needles', []) if s]
 findings, archives, files = [], [], []
@@ -87,7 +87,13 @@ def inspect(name, data, depth=0):
     if zipfile.is_zipfile(stream):
         try:
             archive = zipfile.ZipFile(stream)
+            for member in archive.infolist():
+                with archive.open(member):
+                    pass
         except zipfile.BadZipFile:
+            if archive is not None:
+                archive.close()
+                archive = None
             # Signature constants also occur in ordinary compiled Python modules.
             if data.startswith(b'PK') or name.lower().endswith(('.zip', '.whl', '.egg', '.conda', '.jar')):
                 raise
@@ -147,7 +153,7 @@ with tarfile.open(request['archive'], mode='r|') as archive:
                 try:
                     inspect('/' + name, archive.extractfile(member).read())
                 except Exception as error:
-                    raise RuntimeError('Root archive member: ' + name) from error
+                    findings.append({'path': '/' + name, 'reason': 'archive-decoder-error', 'traceback': traceback.format_exc()})
     if request['mode'] == 'workspace':
         if not root_directory: raise ValueError('workspace archive has no root directory')
         links = {name for name, linked in members if linked}
