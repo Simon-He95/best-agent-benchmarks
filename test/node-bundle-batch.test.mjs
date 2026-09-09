@@ -23,8 +23,8 @@ test('batch 1 config is frozen, diagnostic, and consistent with the failed-task 
   assert.equal(batch.batchId, 'remaining63-node-batch1');
   assert.equal(batch.tasks.length, 5);
   assert.deepEqual(batch.tasks.map(task => task.taskIndex), [1, 2, 3, 4, 5]);
-  assert.equal(batch.priorBatchRuns.length, 7);
-  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029', '34404487703', '34407065559', '34408218858']);
+  assert.equal(batch.priorBatchRuns.length, 9);
+  assert.deepEqual(batch.priorBatchRuns.map(run => run.runId), ['34396601488', '34396884605', '34398741179', '34399786029', '34404487703', '34407065559', '34408218858', '34410821207', '34412884382']);
   for (const prior of batch.priorBatchRuns) {
     if (prior.modelAttempt) {
       assert.equal(prior.predictionPresent, true, 'A model-attempt prior must have its frozen prediction');

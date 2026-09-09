@@ -122,6 +122,33 @@
       "predictionPresent": false,
       "officialEvaluation": "not-evaluated",
       "reason": "Dispatched by the phase2 owner session (this continuation) after the fresh review ACCEPT for the evaluation-only mechanism; double-dispatch disclosure: the parallel session's run 34407065559 (head ba69338, dispatched 2026-09-09T21:27:55Z, completed failure) was in_progress at dispatch time and was not acted on before dispatching. The admission gate then refused this run in prepare: run 34407065559 was not declared in priorBatchRuns, so admitBatchRun threw before any model invocation or evaluation. Fail-closed behavior is correct; no model attempt, no prediction, no canonical record. Artifact node-bundle-batch1-astropy__astropy-13033-34408218858-1 preserves controller-prepare-failure.json and the hosted-run admission evidence."
+    },
+    {
+      "runId": "34410821207",
+      "headSha": "142a634fa9875bd98364a2271b6bf6d057f858db",
+      "jobId": 102664560825,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "The single authorized post-violation-schema dispatch (reviewed code a0c9bac + 9cab1cf, docs-only head 142a634): job1's evaluation-only recovery branch failed INSIDE the generate step at copyFrozenEvidence — 'Recovery would overwrite existing evidence: evaluator-freeze.process.json'. Root cause: the recovery exclusion inventory omitted the fresh-prepare-owned receipts that prepare also writes (evaluator-venv/install/freeze/imports/prepare/source-head/source-clean.*, host-python-version.*, execution-control.json), so the frozen artifact's own old-run copies collided and the merge failed closed. No model invocation, no prediction, no official record; evaluate skipped, jobs 2-5 skipped. Frozen artifact metadata and download receipts (frozen-artifact-metadata.json, frozen-artifact-download.*) prove the metadata assertions and the artifact download themselves succeeded. Fixed by the exclusion inventory fix in commit 63240b3; artifact node-bundle-batch1-astropy__astropy-13033-34410821207-1 (id 10127182032) preserves all receipts."
+    },
+    {
+      "runId": "34412884382",
+      "headSha": "c551a47c7acfe819720706d7f93113ec5615fb23",
+      "jobId": 102671114239,
+      "failedStep": "Verify controller and official evaluator environment before model admission",
+      "skippedSteps": [
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "The coordinator's single authorized dispatch after the two ACCEPT reviews (c551a47): admission refused it in prepare because run 34410821207 was not yet declared in priorBatchRuns (AssertionError 'A prior batch run is not declared; no new batch dispatch' at admitBatchRun, proven by controller-prepare-failure.json and run-claim.json modelAttempt:false). Fail-closed admission worked exactly as designed; config-only continuation. No model invocation, no prediction, no canonical record; jobs 2-5 skipped. Artifact node-bundle-batch1-astropy__astropy-13033-34412884382-1 (id 10127927737) preserves the receipts."
     }
   ],
   "firstTaskProvenance": {
