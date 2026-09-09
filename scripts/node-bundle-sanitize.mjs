@@ -91,7 +91,7 @@ def inspect(name, data, depth=0):
                     if member.file_size > limit: raise ValueError('archive member size limit')
                     check_path(name + '!' + member.filename, False)
                     inspect(name + '!' + member.filename, archive.read(member), depth + 1)
-        return
+        stream.seek(0)
     if data.startswith((b'\x1f\x8b', b'BZh', b'\xfd7zXZ\x00')):
         opener = gzip.GzipFile if data.startswith(b'\x1f\x8b') else bz2.BZ2File if data.startswith(b'BZh') else lzma.LZMAFile
         with (opener(fileobj=stream) if opener is gzip.GzipFile else opener(stream)) as compressed:

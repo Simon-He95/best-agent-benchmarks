@@ -60,7 +60,8 @@ def audit(root, secrets):
                     with archive.open(member) as source, tempfile.TemporaryFile() as temporary:
                         copy_archive(source, temporary)
                         inspect(temporary, depth + 1)
-        elif header.startswith((b'\x1f\x8b', b'BZh', b'\xfd7zXZ\x00')):
+        stream.seek(0)
+        if header.startswith((b'\x1f\x8b', b'BZh', b'\xfd7zXZ\x00')):
             opener = gzip.GzipFile if header.startswith(b'\x1f\x8b') else bz2.BZ2File if header.startswith(b'BZh') else lzma.LZMAFile
             with (gzip.GzipFile(fileobj=stream) if opener is gzip.GzipFile else opener(stream)) as source, tempfile.TemporaryFile() as temporary:
                 copy_archive(source, temporary)

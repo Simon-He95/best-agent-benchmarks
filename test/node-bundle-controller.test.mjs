@@ -118,3 +118,19 @@ for name,prefix in [('ordinary.zip',b''),('prefixed.zip',b'prefix')]:
   assert.equal(made.status, 0, made.stderr);
   assert.equal(auditEvidence(root, secret).files.length, 2);
 });
+
+
+test('a trailing safe ZIP cannot hide another compressed TAR member', t => {
+  const root = directory(t);
+  const script = `import io,tarfile,zipfile,sys
+root,token=sys.argv[1:]
+with tarfile.open(root+'/workspace.tar','w') as t:
+ for name,value in [('first.zip',token),('last.zip','safe')]:
+  b=io.BytesIO()
+  with zipfile.ZipFile(b,'w',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('data',value)
+  data=b.getvalue();m=tarfile.TarInfo(name);m.size=len(data);t.addfile(m,io.BytesIO(data))
+`;
+  const made = spawnSync('python3', ['-c', script, root, secret], {encoding: 'utf8'});
+  assert.equal(made.status, 0, made.stderr);
+  assert.throws(() => auditEvidence(root, secret), error => error.audit?.reason === 'credential-bytes');
+});
