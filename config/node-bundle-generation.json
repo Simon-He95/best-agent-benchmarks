@@ -31,6 +31,18 @@
       "runEvidenceSha256": "7b9a3b41ee0f12573cd59474e7d468fa56a2ebce9920c07798fac228e006e5ad",
       "jobsEvidenceSha256": "79a589768a1db24299788997e2c2968a57677e11af8cadbe148ad2051ad86422",
       "reason": "Python 3.13 stream-position self-test failure; preparation, model and evaluator steps all skipped"
+    },
+    {
+      "runId": "34369524170",
+      "headSha": "8e3057c1ed5027dfa0659a1e012de9ed7dfabd09",
+      "jobId": 102526846314,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "runEvidenceSha256": "e3bf516c6eb27950030cef7554aeccf72a6d89c1527a48f7f639a2546ec625c6",
+      "jobsEvidenceSha256": "b69a7600ba8a40d26794c5dd9a427097acd3047eb858044ef763fc99eff85626",
+      "reason": "Scanner exited 1 in sanitation before model admission (Python3.13 ZIP signature false positive on official .pyc); terminal modelAttempt=false, no model claim or prediction, evaluator skipped; audited artifact upload omitted hidden control files. Failure already fixed and hosted-verified by scanner-only run 34375208189"
     }
   ]
 }
