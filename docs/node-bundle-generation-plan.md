@@ -1,6 +1,6 @@
 # Fixed Node bundle: single-task generation and official evaluation
 
-Status: implementation complete, local tests passed; fresh implementation review pending, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
+Status: implementation review ACCEPT, 55 local tests passed; first hosted dispatch authorized and next, 2026-09-09. Owner: remaining63 coordinator task `01a08415-889f-7ad0-9d01-2269c2d24a93`; parent owns the handoff entry `docs/node-bundle-ci.md` and failed-task manifest. No model attempt or evaluation has run in this round. Local Docker acquisition and old workflows remain on hold.
 
 ## Authorized scope and verified starting point
 
@@ -73,3 +73,7 @@ gh run download RUN_ID --repo Simon-He95/best-agent-benchmarks --name node-bundl
 
 Replace `RUN_ID` only with the actual observed ID, never guess it. The upload artifact contains the original raw evidence plus `upload-manifest.json`; verify every size/hash and the official canonical `official-record.json`, generation terminal, exact container closures and absence of upload-blocked receipts. `evaluation-disposition.json` is an explicit no-prediction record, not an official fail/pass. Any `upload-blocked.json` means full evidence was withheld and acceptance is impossible. The first run has not been dispatched. Do not start five tasks until its complete evidence is reviewed.
 - Implementation snapshot commit `8721d9f` is complete and **awaiting fresh visible implementation review** in task `01a0869b-bb90-7432-9804-c59cddd9d26d` (GPT-6 high, clean projectless context). Its reviewed code is frozen while that review runs. Publishing this review-pending source for handoff is not admission to dispatch; do not run the workflow until the review accepts the actual code. No first-task CI run/model attempt/evaluation exists yet.
+
+- Implementation review initially returned one P1: prefixed ZIP contents could bypass credential audit. Fixed in `042eb7c` and `9f06ec1`: ZIP structural recognition, plus independent TAR/compression traversal so a trailing ZIP cannot hide earlier members. Added real negative fixtures and safe ZIP positives. Final combined local tests are **55/55 passed**; no Docker/provider/CI was invoked by these tests. Original reviewer is closing this exact finding in a narrow supplement; original report is preserved.
+
+- Narrow independent implementation supplement **ACCEPT** for code `9f06ec162c48cca3b6df78f231d0e1e0d17e53df`, original P1 closed with no remaining finding. Reviewer task `01a0869b-bb90-7432-9804-c59cddd9d26d`; supplement SHA256 `fe2745e2e9a949a8671cd280a6ae4eac5441653cc48202b4edbb977529f0bb5e`. First-task push/dispatch may proceed under existing user authorization. This is not hosted/model/evaluator success.
