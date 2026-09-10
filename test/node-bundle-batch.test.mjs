@@ -354,3 +354,73 @@ test('batch workflow serializes five single-task jobs with isolated evidence and
     assert.match(section, /test\/node-bundle-batch\.test\.mjs/);
   }
 });
+
+const batch2Bytes = fs.readFileSync(new URL('../config/node-bundle-batch-2.json', import.meta.url));
+const batch2 = JSON.parse(batch2Bytes);
+
+test('batch 2 config is frozen, diagnostic, mixed-repo, and consistent with the failed-task selection', () => {
+  validateBatchConfig(batch2, selectionBytes);
+  assert.equal(batch2.batchId, 'remaining63-node-batch2');
+  assert.equal(batch2.workflowName, 'node-bundle-batch2.yml');
+  assert.equal(batch2.priorBatchRuns.length, 0, 'Batch 2 starts with a clean prior-run history');
+  assert.deepEqual(batch2.tasks.map(task => task.taskIndex), [6, 7, 8, 9, 10]);
+  assert.deepEqual(batch2.tasks.map(task => task.instanceId), [
+    'astropy__astropy-7606',
+    'django__django-10554',
+    'django__django-10999',
+    'django__django-11141',
+    'django__django-11400',
+  ]);
+  for (const entry of batch2.tasks) {
+    const frozen = selection.tasks[entry.taskIndex];
+    assert.equal(frozen.instanceId, entry.instanceId);
+    assert.equal(frozen.baseCommit, entry.baseCommit);
+    assert.equal(frozen.promptSha256, entry.promptSha256);
+    assert.equal(frozen.priorDisposition, entry.priorDisposition);
+    assert.equal(entry.pythonModule, frozen.repo === 'astropy/astropy' ? 'astropy' : 'django');
+    assert.equal(entry.pythonSource, `/testbed/${entry.pythonModule}/__init__.py`);
+    assert.equal(entry.pythonVersion, null, 'Batch image Python versions are recorded as evidence, not invented');
+    verifyTaskIdentity(entry, entry.instanceId);
+    assert.match(entry.imageRef, new RegExp('^swebench/sweb\\.eval\\.x86_64\\.' + entry.instanceId.replace('__', '_1776_') + '@sha256:[a-f0-9]{64}$'));
+    if (entry.pythonModule === 'astropy') {
+      assert.deepEqual(entry.sanitationPlan.removals, ['build', 'dist', 'astropy.egg-info']);
+    } else {
+      assert.deepEqual(entry.sanitationPlan.removals, ['build', 'dist', 'Django.egg-info']);
+    }
+  }
+});
+
+test('batchModeTask routes batch-2 tasks through NODE_BUNDLE_BATCH_CONFIG', t => {
+  process.env.NODE_BUNDLE_TASK = 'django__django-11141';
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-2.json';
+  t.after(() => { delete process.env.NODE_BUNDLE_TASK; delete process.env.NODE_BUNDLE_BATCH_CONFIG; });
+  const resolved = batchModeTask();
+  assert.equal(resolved.configPath, 'config/node-bundle-batch-2.json');
+  assert.equal(resolved.batch.batchId, 'remaining63-node-batch2');
+  assert.equal(resolved.entry.taskIndex, 9);
+  assert.equal(resolved.entry.pythonModule, 'django');
+  assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 2 has no consumed attempts; every task keeps its full first-attempt pipeline');
+});
+
+test('batch 2 workflow mirrors the audited batch-1 structure for its own tasks', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch2.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /inputs:/);
+  assert.match(workflow, /group: frozen-node-failed-tasks/);
+  assert.equal((workflow.match(/steps: &job-steps/g) ?? []).length, 1, 'Exactly one shared step anchor');
+  assert.equal((workflow.match(/steps: \*job-steps/g) ?? []).length, 4, 'Four jobs reuse the audited step list');
+  assert.doesNotMatch(workflow, /batch1|13033|13398|13977|14365|14598/, 'Batch 2 must not reference batch-1 tasks or artifacts');
+  const jobNames = ['astropy-7606', 'django-10554', 'django-10999', 'django-11141', 'django-11400'];
+  const positions = jobNames.map(job => workflow.indexOf('\n  ' + job + ':\n'));
+  assert.ok(positions.every(position => position > 0), 'All five jobs exist at top level');
+  for (const [index, job] of jobNames.entries()) {
+    const section = workflow.slice(positions[index], index + 1 < positions.length ? positions[index + 1] : workflow.length);
+    const instanceId = (job === 'astropy-7606' ? 'astropy__astropy-' : 'django__django-') + job.split('-')[1];
+    assert.match(section, new RegExp('NODE_BUNDLE_TASK: ' + instanceId), job + ' pins its task');
+    assert.match(section, /NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-2\.json/, job + ' selects the batch-2 config');
+    if (index > 0) assert.match(section, new RegExp('needs: ' + jobNames[index - 1]), job + ' waits for the previous task');
+    assert.match(section, /steps: (&job-steps|\*job-steps)/);
+    assert.match(section, /timeout-minutes: 180/);
+  }
+  assert.match(workflow, /node-bundle-batch2-\$\{\{ env.NODE_BUNDLE_TASK \}\}-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}/);
+});

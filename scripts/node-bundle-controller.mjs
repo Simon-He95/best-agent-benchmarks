@@ -17,6 +17,8 @@ const batchWorkflow = 'node-bundle-batch.yml';
 
 export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(batch.schemaVersion, 1);
+  assert.match(batch.batchId, /^remaining63-node-batch\d$/, 'Batch id must name its frozen batch number');
+  assert(batch.workflowName === undefined || /^node-bundle-batch\d\.yml$/.test(batch.workflowName), 'Batch workflow name must match the batch number');
   assert.equal(batch.candidateId, candidate.candidateId);
   assert.equal(batch.selectionId, 'remaining63-node-bundle-20260909');
   assert.equal(hash(selectionBytes), batch.selectionSourceSha256, 'Frozen failed-task selection changed');
@@ -24,20 +26,29 @@ export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(batch.passAt1, null);
   assert(Array.isArray(batch.priorBatchRuns));
   assert.equal(batch.tasks.length, 5, 'Hosted generation batches stay at five tasks');
+  const selection = JSON.parse(selectionBytes);
   const seen = new Set();
   for (const entry of batch.tasks) {
     assert(Number.isInteger(entry.taskIndex) && entry.taskIndex >= 1 && entry.taskIndex <= 62);
     assert(!seen.has(entry.instanceId), 'Duplicate batch task');
     seen.add(entry.instanceId);
-    assert.equal(entry.pythonModule, 'astropy', 'Batch 1 is the astropy block of the frozen selection');
-    assert.equal(entry.pythonSource, '/testbed/astropy/__init__.py');
+    // The probe language module follows the task's repository, so mixed astropy/django
+    // batches are validated against the frozen selection's repo instead of a single block.
+    const frozenRepo = selection.tasks[entry.taskIndex]?.repo;
+    assert.equal(entry.repo, frozenRepo, 'Batch task left the frozen selection repository');
+    const expectedModule = frozenRepo === 'astropy/astropy' ? 'astropy' : frozenRepo === 'django/django' ? 'django' : null;
+    assert(expectedModule, 'Unsupported frozen batch repository: ' + frozenRepo);
+    assert.equal(entry.pythonModule, expectedModule, 'Batch task python module must follow its repository');
+    assert.equal(entry.pythonSource, `/testbed/${expectedModule}/__init__.py`);
     const plan = entry.sanitationPlan;
     assert(plan && plan.mode === 'as-shipped' && Array.isArray(plan.removals) && plan.removals.length > 0 && plan.removals.every(name => name && !name.includes('/') && !name.startsWith('.')) && (plan.installedEggPath === null || typeof plan.installedEggPath === 'string'), 'Batch tasks need a valid as-shipped sanitation plan');
   }
-  const provenance = batch.firstTaskProvenance;
-  assert.equal(provenance.instanceId, 'django__django-10097');
-  assert.equal(provenance.verdict, 'test-failed');
-  assert.equal(provenance.officialResolved, false);
+  if (batch.firstTaskProvenance) {
+    const provenance = batch.firstTaskProvenance;
+    assert.equal(provenance.instanceId, 'django__django-10097');
+    assert.equal(provenance.verdict, 'test-failed');
+    assert.equal(provenance.officialResolved, false);
+  }
   const modelPriors = batch.priorBatchRuns.filter(item => item.modelAttempt === true);
   const predeclared = modelPriors.filter(item => item.officialEvaluation === 'not-evaluated');
   assert(predeclared.length <= 1, 'At most one predeclared model attempt with a pending evaluation is admitted');
@@ -302,7 +313,7 @@ async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
   assert.equal(process.version, 'v24.15.0');
   verifyCandidate(candidate, candidateDir, batchTask ? batchTask.entry : candidate.task);
   assert.equal(fileHash(process.execPath), candidate.node.binarySha256);
-  const workflowName = batchTask ? batchWorkflow : singleTaskWorkflow;
+  const workflowName = batchTask ? (batchTask.batch.workflowName ?? batchWorkflow) : singleTaskWorkflow;
   const response = await fetch(`https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/actions/workflows/${workflowName}/runs?per_page=100`, {
     headers: {Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json'}, signal: AbortSignal.timeout(30_000),
   });
@@ -321,7 +332,7 @@ async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
     assert(singleResponse.ok, 'Unable to verify the frozen single-task history');
     const singleRuns = (await singleResponse.json()).workflow_runs;
     write(path.join(evidenceDir, 'single-task-run-history.json'), {recoveryRuns: recoveryRuns.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion})), generationRuns: singleRuns.map(run => ({id: run.id, headSha: run.head_sha, status: run.status, conclusion: run.conclusion}))});
-    admitFirstTaskProvenance(recoveryRuns, singleRuns, batchTask.batch);
+    if (batchTask.batch.firstTaskProvenance) admitFirstTaskProvenance(recoveryRuns, singleRuns, batchTask.batch);
   }
   const jobsByRun = {};
   const priorDeclarations = batchTask ? batchTask.batch.priorBatchRuns ?? [] : generation.preModelRuns ?? [];
@@ -338,7 +349,7 @@ async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
   else admitFirstRun(runs, runId, generation.preModelRuns, jobsByRun);
   const step = (name, args, timeout = 60_000) => runRecordedStep(evidenceDir, name, args, timeout);
   const controls = ['config/node-bundle-candidate.json', 'config/node-bundle-generation.json', 'config/node-bundle-failed-tasks.json', 'config/swe-bench-verified.json', '.github/workflows/node-bundle-one.yml', 'scripts/node-bundle-controller.mjs', 'scripts/audit-node-bundle-evidence.py', 'scripts/generate-node-bundle-one.mjs', 'scripts/node-bundle-sanitize.mjs', 'scripts/node-bundle-capture.mjs', 'scripts/evaluate-node-bundle-one.mjs', 'scripts/node-bundle-probe.mjs', 'scripts/swe-bench-harness.mjs', 'scripts/swe-bench-official-evaluator.mjs', 'scripts/prepare-swe-bench.mjs', 'scripts/materialize-ci-provider.mjs'];
-  if (batchTask) controls.push('config/node-bundle-batch-1.json', '.github/workflows/node-bundle-batch.yml');
+  if (batchTask) controls.push(batchTask.configPath, '.github/workflows/' + workflowName);
   const controlFiles = controls.map(name => {
     const bytes = fs.readFileSync(path.join(repository, name));
     const output = path.join(evidenceDir, 'control-files', name);
@@ -437,11 +448,15 @@ async function generate(candidateDir, evidenceDir, runId, batchTask = null) {
 export function batchModeTask() {
   const instanceId = process.env.NODE_BUNDLE_TASK;
   if (!instanceId) return null;
-  const batchBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-batch-1.json'));
+  // The batch config is selected by the workflow through NODE_BUNDLE_BATCH_CONFIG;
+  // the default keeps the single-batch behavior of the audited batch-1 workflow.
+  const configPath = process.env.NODE_BUNDLE_BATCH_CONFIG ?? 'config/node-bundle-batch-1.json';
+  assert(/^config\/node-bundle-batch-\d\.json$/.test(configPath), 'NODE_BUNDLE_BATCH_CONFIG must name a frozen batch config');
+  const batchBytes = fs.readFileSync(path.join(repository, configPath));
   const selectionBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-failed-tasks.json'));
   const batch = validateBatchConfig(JSON.parse(batchBytes), selectionBytes);
   const selection = JSON.parse(selectionBytes);
-  return {batch, entry: resolveBatchTask(batch, selection, instanceId)};
+  return {batch, entry: resolveBatchTask(batch, selection, instanceId), configPath};
 }
 
 export async function controller(mode, candidateDir, evidenceDir, runId) {
