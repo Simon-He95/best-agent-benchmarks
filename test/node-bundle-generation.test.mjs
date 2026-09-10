@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import {sanitizeRepository, verifyBaseObjects, verifyInstalledDjango, inspectArchive, baseEraFileHashes} from '../scripts/node-bundle-sanitize.mjs';
+import {sanitizeRepository, verifyBaseObjects, verifyInstalledDjango, inspectArchive, baseEraFileHashes, treeGitlinks} from '../scripts/node-bundle-sanitize.mjs';
 import {capturePatch} from '../scripts/node-bundle-capture.mjs';
 import {generationInputs, predictionEligible, recordGenerationProcess, generateNodeBundleTask, collectTerminalExports, modelRemovalSafe} from '../scripts/generate-node-bundle-one.mjs';
 import {buildTaskPrompt} from '../scripts/swe-bench-harness.mjs';
@@ -90,6 +90,49 @@ test('as-shipped sanitation preserves the official setup auto-commit and capture
   assert.match(patch, /fix\.py/);
   assert.doesNotMatch(patch, /__init__\.py/, 'Install modifications must not leak into the model patch');
   assert.equal(captured.baseCommit, base); assert.equal(captured.headCommit, head);
+});
+
+test('submodule-bearing as-shipped images sanitize and capture without resolving absent module stores', t => {
+  // astropy-7606 vendors astropy_helpers: the image tree carries a mode-160000 gitlink whose
+  // worktree .git gitfile points at a module store the image does not ship. Every git worktree
+  // resolution is fatal without submodule-blind invocations; the trusted construction must stay
+  // gitlink-neutral and the model patch must never contain submodule hunks.
+  const {directory, repo, git, base} = fixture(t);
+  const moduleRepo = path.join(directory, 'module-store'); fs.mkdirSync(moduleRepo);
+  const moduleGit = (...args) => execFileSync('/usr/bin/git', args, {cwd: moduleRepo, env: {...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_AUTHOR_NAME: 'Fixture', GIT_COMMITTER_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_EMAIL: 'fixture@example.invalid'}, encoding: 'utf8'}).trim();
+  moduleGit('init'); fs.writeFileSync(path.join(moduleRepo, 'helper.py'), 'helper = 1\n');
+  moduleGit('add', '.'); moduleGit('commit', '-m', 'module'); const moduleHead = moduleGit('rev-parse', 'HEAD');
+  fs.mkdirSync(path.join(repo, 'astropy_helpers'));
+  fs.writeFileSync(path.join(repo, 'astropy_helpers/setup.py'), 'vendored = 1\n');
+  fs.writeFileSync(path.join(repo, 'astropy_helpers/.git'), 'gitdir: ../.git/modules/astropy_helpers\n');
+  git('update-index', '--add', '--cacheinfo', `160000,${moduleHead},astropy_helpers`);
+  git('commit', '-m', 'SWE-bench');
+  const head = git('rev-parse', 'HEAD');
+  const receipt = sanitizeRepository(repo, base, 'as-shipped');
+  assert.equal(receipt.headCommit, head); assert.equal(receipt.commitObjects, 2);
+  assert.deepEqual(receipt.submoduleGitlinks, {count: 1, entries: [{path: 'astropy_helpers', sha: moduleHead}], truncated: false});
+  const gitDir = path.join(directory, 'trusted.git'); fs.cpSync(path.join(repo, '.git'), gitDir, {recursive: true});
+  const baseline = capturePatch({repo, gitDir, base, headCommit: head, outputDir: path.join(directory, 'baseline')});
+  assert.equal(baseline.bytes, 0, 'The unresolvable gitlink must not fabricate baseline changes');
+  assert.deepEqual(baseline.gitlinkPaths, ['astropy_helpers']);
+  fs.writeFileSync(path.join(repo, 'django/fix.py'), 'model edit\n');
+  const captured = capturePatch({repo, gitDir, base, headCommit: head, outputDir: path.join(directory, 'captured')});
+  const patch = fs.readFileSync(path.join(directory, 'captured/diagnostic.patch'), 'utf8');
+  assert.match(patch, /fix\.py/);
+  assert.doesNotMatch(patch, /astropy_helpers/);
+  assert.doesNotMatch(patch, /Subproject/, 'The model patch must not contain submodule hunks');
+  assert.deepEqual(treeGitlinks(gitDir, head), [{path: 'astropy_helpers', sha: moduleHead}]);
+  assert.deepEqual(treeGitlinks(gitDir, base), []);
+  // The frozen base tree of a submodule-bearing image carries the gitlink itself; the
+  // base-era blob map must skip it instead of rejecting the whole tree.
+  const gitlinkBase = path.join(directory, 'gitlink-base'); fs.mkdirSync(gitlinkBase);
+  const baseGit = (...args) => execFileSync('/usr/bin/git', args, {cwd: gitlinkBase, env: {...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_AUTHOR_NAME: 'Fixture', GIT_COMMITTER_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_EMAIL: 'fixture@example.invalid'}, encoding: 'utf8'}).trim();
+  baseGit('init'); fs.writeFileSync(path.join(gitlinkBase, 'django-init.py'), 'base = True\n');
+  baseGit('add', '.'); baseGit('update-index', '--add', '--cacheinfo', `160000,${moduleHead},astropy_helpers`); baseGit('commit', '-m', 'base');
+  const base2 = baseGit('rev-parse', 'HEAD');
+  const files = baseEraFileHashes(path.join(gitlinkBase, '.git'), base2);
+  assert(!('astropy_helpers' in files), 'Gitlink entries carry no base blob content');
+  assert('django-init.py' in files);
 });
 
 test('as-shipped sanitation fails closed on any non-official image git shape', t => {

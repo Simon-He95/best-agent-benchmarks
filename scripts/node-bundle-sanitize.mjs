@@ -11,7 +11,7 @@ const gitEnvironment = {PATH: '/usr/bin:/bin', HOME: '/tmp', GIT_CONFIG_NOSYSTEM
 export function sanitizeRepository(repo, base, mode) {
   assert.match(base, /^[a-f0-9]{40}$/);
   assert(mode === 'as-shipped' || mode === 'base-only', 'Unknown sanitation mode');
-  const git = args => execFileSync('/usr/bin/git', ['-c', 'core.hooksPath=/dev/null', ...args], {cwd: repo, env: gitEnvironment, maxBuffer: 64 * 1024 ** 2});
+  const git = args => execFileSync('/usr/bin/git', ['-c', 'core.hooksPath=/dev/null', '-c', 'diff.ignoreSubmodules=all', ...args], {cwd: repo, env: gitEnvironment, maxBuffer: 64 * 1024 ** 2});
   const head = git(['rev-parse', 'HEAD']).toString().trim();
   let headCommit, installModifiedFiles;
   if (mode === 'base-only') {
@@ -48,6 +48,15 @@ export function sanitizeRepository(repo, base, mode) {
   } finally { fs.rmSync(temporary, {recursive: true, force: true}); }
   git(['read-tree', headCommit]);
   const receipt = verifyBaseObjects(repo, base, headCommit);
+  // Submodule gitlinks (mode 160000) are pointers into other repositories; the official
+  // image may ship them without the module store (e.g. astropy-7606 vendoring
+  // astropy_helpers). They are mechanical metadata: recorded, never resolved.
+  const gitlinkRecords = git(['ls-tree', '-r', 'HEAD']).toString().split('\n').filter(line => line.startsWith('160000 ')).map(line => {
+    const tabIndex = line.indexOf('\t');
+    assert(tabIndex > 0, 'Malformed ls-tree record: ' + line);
+    return {path: line.slice(tabIndex + 1), sha: line.slice('160000 commit '.length, tabIndex)};
+  });
+  receipt.submoduleGitlinks = {count: gitlinkRecords.length, entries: gitlinkRecords.slice(0, 50), truncated: gitlinkRecords.length > 50};
   if (installModifiedFiles) receipt.installModifiedFiles = installModifiedFiles;
   assert.equal(git(['diff', '--no-ext-diff', '--no-textconv', '--name-only', headCommit]).length, 0);
   return receipt;
@@ -230,6 +239,7 @@ export function baseEraFileHashes(baseGitDir, baseCommit) {
     const tabIndex = line.indexOf('\t');
     assert(tabIndex > 0, 'Malformed ls-tree record');
     const [mode, type, blob] = line.slice(0, tabIndex).split(/\s+/);
+    if (type === 'commit') continue; // Submodule gitlink: content lives in another repository and has no base blob.
     assert.equal(type, 'blob', 'Base tree contains a non-blob entry: ' + line);
     entries.push({path: line.slice(tabIndex + 1), blob});
   }
@@ -258,6 +268,21 @@ export function baseEraFileHashes(baseGitDir, baseCommit) {
   }
   assert.equal(offset, out.length, 'Trailing bytes in the cat-file batch stream');
   return files;
+}
+
+export function treeGitlinks(baseGitDir, commit) {
+  assert.match(commit, /^[a-f0-9]{40}$/);
+  const ls = spawnSync('git', ['--git-dir', baseGitDir, 'ls-tree', '-r', '-z', commit], {encoding: 'buffer', maxBuffer: 64 * 1024 * 1024, env: gitEnvironment});
+  assert.equal(ls.status, 0, 'Cannot list the frozen tree');
+  const gitlinks = [];
+  for (const line of ls.stdout.toString('utf8').split('\0')) {
+    if (!line) continue;
+    const tabIndex = line.indexOf('\t');
+    assert(tabIndex > 0, 'Malformed ls-tree record');
+    const [mode, type, sha] = line.slice(0, tabIndex).split(/\s+/);
+    if (type === 'commit') gitlinks.push({path: line.slice(tabIndex + 1), sha});
+  }
+  return gitlinks;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

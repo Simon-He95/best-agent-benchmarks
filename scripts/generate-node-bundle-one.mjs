@@ -6,7 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buildTaskPrompt, inspectAttemptEvidence} from './swe-bench-harness.mjs';
 import {verifyCandidate, verifyProbeTranscript} from './swe-node-bundle-preflight.mjs';
-import {baseEraFileHashes, inspectArchive} from './node-bundle-sanitize.mjs';
+import {baseEraFileHashes, inspectArchive, treeGitlinks} from './node-bundle-sanitize.mjs';
 import {selectFrozenTask} from './node-bundle-task-selection.mjs';
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -198,9 +198,10 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     // fail sanitation. Everything else — untracked files, modified files, anything outside
     // /testbed — remains a hard failure. The map is built from the frozen base commit only.
     const baseEra = baseEraFileHashes(path.join(privateDir, 'base.git'), candidate.task.baseCommit);
-    writeJson(path.join(evidenceDir, 'base-era-files.json'), baseEra);
+    const baseGitlinks = treeGitlinks(path.join(privateDir, 'base.git'), candidate.task.baseCommit);
+    writeJson(path.join(evidenceDir, 'base-era-files.json'), {files: baseEra, gitlinks: baseGitlinks});
     sanitation.content = inspectArchive(rootTar, frozen.needles, 'root', path.join(evidenceDir, 'root-archive-scan'), baseEra);
-    sanitation.baseEraFiles = {count: Object.keys(baseEra).length, fileSetSha256: hash(JSON.stringify(Object.entries(baseEra).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)))};
+    sanitation.baseEraFiles = {count: Object.keys(baseEra).length, fileSetSha256: hash(JSON.stringify(Object.entries(baseEra).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0))), gitlinkCount: baseGitlinks.length};
     sanitation.rootExportSha256 = fileHash(rootTar);
     writeJson(path.join(evidenceDir, 'sanitation.json'), sanitation);
     assert.equal(sanitation.content.passed, true, 'Root content sanitation failed');

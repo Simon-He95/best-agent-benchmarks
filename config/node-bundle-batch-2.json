@@ -49,6 +49,21 @@
       "predictionPresent": false,
       "officialEvaluation": "not-evaluated",
       "reason": "Double-dispatch duplicate, cancelled by its own session while job 1 was still in the unit-test step; all five jobs show conclusion 'cancelled' and no model/evaluation step executed (verified via the live jobs API). Declared as a cancelled prior with no fabricated failure shape."
+    },
+    {
+      "runId": "34422634587",
+      "headSha": "41a86146497351eb635b5c2e6eb924414d0989e4",
+      "jobId": 102701167992,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "artifactName": "node-bundle-batch2-astropy__astropy-7606-34422634587-1",
+      "artifactId": 10131497602,
+      "reason": "Pre-model sanitation environment failure: astropy-7606 is an older astropy whose official image vendors the astropy_helpers submodule (gitlink in the tree, .git gitfile in the worktree) without shipping the module gitdir, so sanitizeRepository worktree diffs and capture git add resolved the missing .git/modules/astropy_helpers fatally (fatal: not a git repository). Model never invoked (modelAttempt false, no claim, model-final-absence), containers closed+removed, evaluation not-evaluated; fail-closed audited evidence uploaded (artifact 10131497602). Fixed by submodule-blind sanitation/capture (diff.ignoreSubmodules=all, gitlink-aware add, gitlink receipt recording)."
     }
   ],
   "tasks": [

@@ -388,8 +388,8 @@ test('batch 2 config is frozen, diagnostic, mixed-repo, and consistent with the 
   validateBatchConfig(batch2, selectionBytes);
   assert.equal(batch2.batchId, 'remaining63-node-batch2');
   assert.equal(batch2.workflowName, 'node-bundle-batch2.yml');
-  assert.equal(batch2.priorBatchRuns.length, 3, 'Batch 2 declares its pre-model failed run, its double-dispatch prepare failure, and the cancelled duplicate');
-  assert.deepEqual(batch2.priorBatchRuns.map(run => run.runId), ['34419635726', '34421764305', '34421778355']);
+  assert.equal(batch2.priorBatchRuns.length, 4, 'Batch 2 declares its pre-model failed run, its double-dispatch prepare failure, the cancelled duplicate, and the submodule pre-model failure');
+  assert.deepEqual(batch2.priorBatchRuns.map(run => run.runId), ['34419635726', '34421764305', '34421778355', '34422634587']);
   assert.equal(batch2.priorBatchRuns[0].modelAttempt, false, 'The declared prior made no model attempt');
   const cancelledPrior = batch2.priorBatchRuns[2];
   assert.equal(cancelledPrior.priorConclusion, 'cancelled');
