@@ -673,3 +673,68 @@ test('batchModeTask routes a batch-5 task through the batch-5 config', t => {
   assert.equal(resolved.entry.pythonModule, 'django');
   assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 5 has no consumed attempts; every task keeps its full first-attempt pipeline');
 });
+
+test('batch 6 continues the frozen selection order with five un-attempted tasks', () => {
+  const batch6Bytes = fs.readFileSync(new URL('../config/node-bundle-batch-6.json', import.meta.url));
+  const batch6 = JSON.parse(batch6Bytes);
+  validateBatchConfig(batch6, selectionBytes);
+  assert.equal(batch6.batchId, 'remaining63-node-batch6');
+  assert.equal(batch6.workflowName, 'node-bundle-batch6.yml');
+  assert.equal(batch6.priorBatchRuns.length, 0, 'Batch 6 has no prior runs of its own workflow; admission starts clean');
+  assert.deepEqual(batch6.tasks.map(task => task.taskIndex), [16, 17, 18, 19, 20], 'Batch 6 takes the next five frozen selection entries');
+  assert.deepEqual(batch6.tasks.map(task => task.instanceId), ['django__django-14034', 'django__django-14155', 'django__django-14170', 'django__django-14315', 'django__django-14376']);
+  const selection = JSON.parse(selectionBytes);
+  for (const task of batch6.tasks) {
+    const frozen = selection.tasks[task.taskIndex];
+    assert.equal(task.instanceId, frozen.instanceId, 'Batch 6 task follows the frozen selection index');
+    assert.equal(task.repo, frozen.repo);
+    assert.equal(task.baseCommit, frozen.baseCommit, 'Batch 6 pins the frozen base commit');
+    assert.equal(task.promptSha256, frozen.promptSha256, 'Batch 6 pins the frozen prompt hash');
+    assert.equal(task.priorDisposition, frozen.priorDisposition, 'Batch 6 records the historical disposition honestly');
+    assert.match(task.imageRef, new RegExp('^swebench/sweb\\.eval\\.x86_64\\.' + task.instanceId.replace('__', '_1776_') + '@sha256:[a-f0-9]{64}$'), task.instanceId + ' pins a digest-addressed official image');
+  }
+  // Every batch-6 task must be one that has NOT already been re-attempted in this round.
+  const verdicted = ['django__django-10097', 'astropy__astropy-13033', 'astropy__astropy-13398', 'astropy__astropy-13977', 'astropy__astropy-14365', 'astropy__astropy-14598', 'astropy__astropy-7606', 'django__django-10554', 'django__django-10999', 'django__django-11141', 'django__django-11400', 'django__django-11477', 'django__django-11820', 'django__django-12325', 'django__django-13212', 'django__django-13513'];
+  assert(!batch6.tasks.some(task => verdicted.includes(task.instanceId)), 'No task with a canonical verdict or an in-flight attempt is dispatched a second time');
+});
+
+test('batch 6 workflow mirrors the audited batch-5 structure for its five tasks', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch6.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /inputs:/);
+  assert.match(workflow, /group: frozen-node-failed-tasks/);
+  assert.equal((workflow.match(/steps: \x26job-steps/g) ?? []).length, 1, 'Exactly one shared step anchor');
+  assert.equal((workflow.match(/steps: \*job-steps/g) ?? []).length, 4, 'The remaining four jobs reuse the audited step list');
+  assert.doesNotMatch(workflow, /batch1|batch2|batch3|batch4|batch5|7606|13033|13398|13977|14365|14598|10097|10554/, 'Batch 6 must not reference earlier batches or verdicted tasks');
+  const jobNames = ['django-14034', 'django-14155', 'django-14170', 'django-14315', 'django-14376'];
+  const positions = jobNames.map(job => workflow.indexOf('\n  ' + job + ':\n'));
+  assert.ok(positions.every(position => position > 0), 'All five jobs exist at top level');
+  for (const [index, job] of jobNames.entries()) {
+    const section = workflow.slice(positions[index], index + 1 < positions.length ? positions[index + 1] : workflow.length);
+    assert.match(section, new RegExp('NODE_BUNDLE_TASK: django__django-' + job.split('-')[1]), job + ' pins its task');
+    assert.match(section, /NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-6\.json/, job + ' selects the batch-6 config');
+    if (index > 0) assert.match(section, new RegExp('needs: ' + jobNames[index - 1]), job + ' waits for the previous task');
+    assert.match(section, /steps: (\x26job-steps|\*job-steps)/);
+    assert.match(section, /timeout-minutes: 180/);
+  }
+  assert.match(workflow, /node-bundle-batch6-\$\{\{ env\.NODE_BUNDLE_TASK \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
+  assert.equal((workflow.match(/Run the sole frozen model attempt/g) ?? []).length, 1, 'The model attempt step appears once in the shared list');
+});
+
+test('batchModeTask routes a batch-6 task through the batch-6 config', t => {
+  const ambientTask = process.env.NODE_BUNDLE_TASK;
+  const ambientConfig = process.env.NODE_BUNDLE_BATCH_CONFIG;
+  process.env.NODE_BUNDLE_TASK = 'django__django-14376';
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-6.json';
+  t.after(() => {
+    if (ambientTask === undefined) delete process.env.NODE_BUNDLE_TASK;
+    else process.env.NODE_BUNDLE_TASK = ambientTask;
+    if (ambientConfig === undefined) delete process.env.NODE_BUNDLE_BATCH_CONFIG;
+    else process.env.NODE_BUNDLE_BATCH_CONFIG = ambientConfig;
+  });
+  const resolved = batchModeTask();
+  assert.equal(resolved.configPath, 'config/node-bundle-batch-6.json');
+  assert.equal(resolved.entry.taskIndex, 20);
+  assert.equal(resolved.entry.pythonModule, 'django');
+  assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 6 has no consumed attempts; every task keeps its full first-attempt pipeline');
+});
