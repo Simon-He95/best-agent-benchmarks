@@ -111,11 +111,23 @@ const archiveScanner = String.raw`
 import sys, json, tarfile, zipfile, io, hashlib, gzip, bz2, lzma, posixpath, traceback
 request = json.load(sys.stdin)
 needles = [s.encode() for s in request.get('needles', []) if s]
+approved_gitfiles = set(request.get('approvedGitfiles', []))
 findings, archives, files = [], [], []
 limit = 512 * 1024 * 1024
 def inspect(name, data, depth=0):
     digest = hashlib.sha256(data).hexdigest()
     files.append({'path': name, 'bytes': len(data), 'sha256': digest})
+    bare = name[1:] if name.startswith('/') else name
+    if bare in approved_gitfiles:
+        target = data[:-1] if data.endswith(b'\n') else data
+        if not target.startswith(b'gitdir: ') or b'\n' in target:
+            raise ValueError('approved submodule gitfile is not a single-line relative gitdir pointer: ' + name)
+        pointer = target[len(b'gitdir: '):].decode('utf-8', 'replace')
+        if not pointer or pointer.startswith('/') or '\\' in pointer or pointer != posixpath.normpath(pointer):
+            raise ValueError('approved submodule gitfile pointer must be a clean relative path: ' + name)
+        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(bare), pointer))
+        if not (resolved == 'testbed' or resolved.startswith('testbed/')):
+            raise ValueError('approved submodule gitfile pointer must resolve inside testbed: ' + name)
     if any(n in data for n in needles):
         base_era = (request.get('baseEra') or {})
         relative = name[len('/testbed/'):] if name.startswith('/testbed/') else None
@@ -166,7 +178,7 @@ def inspect(name, data, depth=0):
                     inspect(name + '!' + member.name, archive.extractfile(member).read(), depth + 1)
 def check_path(name, root):
     parts = name.replace('!', '/').split('/')
-    approved = root and (name == 'testbed/.git' or name.startswith('testbed/.git/'))
+    approved = root and (name == 'testbed/.git' or name.startswith('testbed/.git/') or name in approved_gitfiles)
     if ('.git' in parts or name.endswith(('.pack', '.bundle'))) and not approved:
         findings.append({'path': '/' + name, 'reason': 'additional-git-material'})
     leaf = parts[-1].lower()
@@ -190,6 +202,8 @@ with tarfile.open(request['archive'], mode='r|') as archive:
             members.append((name.rstrip('/'), member.issym() or member.islnk()))
         else:
             check_path(name, True)
+            if name in approved_gitfiles and not member.isfile():
+                raise ValueError('approved submodule gitfile path is not a regular file in the image: ' + name)
             if member.isfile():
                 if member.size > limit: raise ValueError('root file size limit')
                 try:
@@ -207,11 +221,11 @@ with tarfile.open(request['archive'], mode='r|') as archive:
             while parent:
                 if parent in links: raise ValueError('workspace member traverses link')
                 parent = posixpath.dirname(parent)
-print(json.dumps({'passed': not any(f['reason'] != 'base-era-content' for f in findings), 'scope': request['mode'], 'regularFiles': len(files), 'fileSetSha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(), 'archives': archives, 'findings': findings, 'excludes': ['kernel proc/sys/dev virtual filesystems'], 'contentScan': 'exact private patch/metadata bytes; recursively decoded zip, tar, gzip, bzip2, xz; base-era /testbed files byte-identical to the frozen base tree are recorded but not failures'}))
+print(json.dumps({'passed': not any(f['reason'] != 'base-era-content' for f in findings), 'scope': request['mode'], 'regularFiles': len(files), 'fileSetSha256': hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest(), 'archives': archives, 'findings': findings, 'excludes': ['kernel proc/sys/dev virtual filesystems'], 'contentScan': 'exact private patch/metadata bytes; recursively decoded zip, tar, gzip, bzip2, xz; base-era /testbed files byte-identical to the frozen base tree are recorded but not failures; official submodule gitfiles at frozen-base gitlink paths are admitted only as regular single-line relative pointers'}))
 `;
 
-export function inspectArchive(archive, needles = [], mode = 'root', receiptPrefix, baseEra = null) {
-  const result = spawnSync('python3', ['-c', archiveScanner], {input: JSON.stringify({archive, needles, mode, baseEra}), encoding: 'utf8', maxBuffer: 16 * 1024 ** 2, timeout: 600_000});
+export function inspectArchive(archive, needles = [], mode = 'root', receiptPrefix, baseEra = null, approvedGitfiles = []) {
+  const result = spawnSync('python3', ['-c', archiveScanner], {input: JSON.stringify({archive, needles, mode, baseEra, approvedGitfiles}), encoding: 'utf8', maxBuffer: 16 * 1024 ** 2, timeout: 600_000});
   if (receiptPrefix) {
     const outputs = {};
     for (const stream of ['stdout', 'stderr']) {

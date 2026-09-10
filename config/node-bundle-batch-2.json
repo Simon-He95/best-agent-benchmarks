@@ -64,6 +64,21 @@
       "artifactName": "node-bundle-batch2-astropy__astropy-7606-34422634587-1",
       "artifactId": 10131497602,
       "reason": "Pre-model sanitation environment failure: astropy-7606 is an older astropy whose official image vendors the astropy_helpers submodule (gitlink in the tree, .git gitfile in the worktree) without shipping the module gitdir, so sanitizeRepository worktree diffs and capture git add resolved the missing .git/modules/astropy_helpers fatally (fatal: not a git repository). Model never invoked (modelAttempt false, no claim, model-final-absence), containers closed+removed, evaluation not-evaluated; fail-closed audited evidence uploaded (artifact 10131497602). Fixed by submodule-blind sanitation/capture (diff.ignoreSubmodules=all, gitlink-aware add, gitlink receipt recording)."
+    },
+    {
+      "runId": "34428240778",
+      "headSha": "7c3d604bd1415bef5dd1a92c40679f5442a9fd1b",
+      "jobId": 102717962783,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "artifactName": "node-bundle-batch2-astropy__astropy-7606-34428240778-1",
+      "artifactId": 10133509173,
+      "reason": "Pre-model environment failure, second stage of the astropy-7606 submodule git shape: the submodule-blind fix let sanitation proceed, then the root-archive needle scan flagged the official image's own vendored-submodule pointer file /testbed/astropy_helpers/.git as additional-git-material (finding was the scan's only entry). The gitfile is one line of text pointing at a module store the image does not ship; it is part of the as-shipped official state, carries no git objects, and was mechanically approved in the scanner only as an exact frozen-base-gitlink path, regular file, single relative gitdir pointer. Model never invoked (modelAttempt false, no claim, model-final-absence), containers closed+removed, evaluation not-evaluated; fail-closed audited evidence uploaded (artifact 10133509173)."
     }
   ],
   "tasks": [

@@ -200,7 +200,13 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     const baseEra = baseEraFileHashes(path.join(privateDir, 'base.git'), candidate.task.baseCommit);
     const baseGitlinks = treeGitlinks(path.join(privateDir, 'base.git'), candidate.task.baseCommit);
     writeJson(path.join(evidenceDir, 'base-era-files.json'), {files: baseEra, gitlinks: baseGitlinks});
-    sanitation.content = inspectArchive(rootTar, frozen.needles, 'root', path.join(evidenceDir, 'root-archive-scan'), baseEra);
+    // Each mode-160000 gitlink in the frozen base tree may carry exactly one official `.git`
+    // gitfile in the as-shipped image (astropy-7606 vendors astropy_helpers this way). The
+    // scanner admits only these exact paths, only as regular files whose whole content is a
+    // single relative `gitdir:` pointer; every other piece of git material still fails closed.
+    const approvedGitfiles = baseGitlinks.map(link => 'testbed/' + link.path + '/.git');
+    sanitation.content = inspectArchive(rootTar, frozen.needles, 'root', path.join(evidenceDir, 'root-archive-scan'), baseEra, approvedGitfiles);
+    sanitation.approvedGitfiles = {count: approvedGitfiles.length, paths: approvedGitfiles};
     sanitation.baseEraFiles = {count: Object.keys(baseEra).length, fileSetSha256: hash(JSON.stringify(Object.entries(baseEra).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0))), gitlinkCount: baseGitlinks.length};
     sanitation.rootExportSha256 = fileHash(rootTar);
     writeJson(path.join(evidenceDir, 'sanitation.json'), sanitation);

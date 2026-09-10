@@ -135,6 +135,26 @@ test('submodule-bearing as-shipped images sanitize and capture without resolving
   assert('django-init.py' in files);
 });
 
+test('root scan admits only frozen-base gitlink gitfiles and fails every other git shape', t => {
+  const {directory} = fixture(t), archive = path.join(directory, 'root.tar');
+  const pointer = 'gitdir: ../.git/modules/astropy_helpers\n';
+  const approved = ['testbed/astropy_helpers/.git'];
+  makeArchive(archive, [{name: 'testbed/astropy_helpers/.git', data: pointer}, {name: 'testbed/astropy/setup.py', data: 'as shipped\n'}]);
+  assert.equal(inspectArchive(archive).passed, false, 'Without the gitlink-derived approval the official gitfile is still additional git material');
+  const receipt = inspectArchive(archive, [], 'root', null, null, approved);
+  assert.equal(receipt.passed, true);
+  makeArchive(archive, [{name: 'testbed/astropy_helpers/.git', data: 'gitdir: /etc/elsewhere/store\n'}]);
+  assert.equal(inspectArchive(archive, [], 'root', null, null, approved).passed, false, 'An absolute pointer escapes the tree and is never admitted');
+  makeArchive(archive, [{name: 'testbed/astropy_helpers/.git', data: 'gitdir: ../../outside/store\n'}]);
+  assert.equal(inspectArchive(archive, [], 'root', null, null, approved).passed, false, 'A pointer resolving outside testbed is never admitted');
+  makeArchive(archive, [{name: 'testbed/astropy_helpers/.git', data: 'gitdir: ../.git/modules/x\nmore\n'}]);
+  assert.equal(inspectArchive(archive, [], 'root', null, null, approved).passed, false, 'Multi-line content is not a gitfile');
+  makeArchive(archive, [{name: 'testbed/astropy_helpers/.git', directory: true}, {name: 'testbed/astropy_helpers/.git/config', data: 'shipped module gitdir\n'}]);
+  assert.throws(() => inspectArchive(archive, [], 'root', null, null, approved), /without admission/, 'A real module store directory is never admitted');
+  makeArchive(archive, [{name: 'testbed/other_helpers/.git', data: pointer}, {name: 'testbed/astropy/setup.py', data: 'as shipped\n'}]);
+  assert.equal(inspectArchive(archive, [], 'root', null, null, approved).passed, false, 'Gitfiles outside the frozen gitlink set stay prohibited');
+});
+
 test('as-shipped sanitation fails closed on any non-official image git shape', t => {
   const {repo, git, base} = fixture(t);
   fs.writeFileSync(path.join(repo, 'django/__init__.py'), 'base = True\nextra = 1\n'); git('commit', '-am', 'SWE-bench');
