@@ -25,7 +25,7 @@ export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(batch.diagnosticOnly, true);
   assert.equal(batch.passAt1, null);
   assert(Array.isArray(batch.priorBatchRuns));
-  assert.equal(batch.tasks.length, 5, 'Hosted generation batches stay at five tasks');
+  assert(batch.tasks.length >= 1 && batch.tasks.length <= 5, 'Hosted generation batches stay at most five tasks');
   const selection = JSON.parse(selectionBytes);
   const seen = new Set();
   for (const entry of batch.tasks) {

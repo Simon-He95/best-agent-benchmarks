@@ -479,3 +479,63 @@ test('batch 2 workflow mirrors the audited batch-1 structure for its own tasks',
   }
   assert.match(workflow, /node-bundle-batch2-\$\{\{ env.NODE_BUNDLE_TASK \}\}-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}/);
 });
+
+test('batch 3 config is frozen, diagnostic, django-only, and consistent with the failed-task selection', () => {
+  const batch3Bytes = fs.readFileSync(new URL('../config/node-bundle-batch-3.json', import.meta.url));
+  const batch3 = JSON.parse(batch3Bytes);
+  validateBatchConfig(batch3, selectionBytes);
+  assert.equal(batch3.batchId, 'remaining63-node-batch3');
+  assert.equal(batch3.workflowName, 'node-bundle-batch3.yml');
+  assert.equal(batch3.priorBatchRuns.length, 0, 'Batch 3 has no prior runs of its own workflow; admission starts clean');
+  assert.deepEqual(batch3.tasks.map(task => task.taskIndex), [7, 8, 9, 10], 'Batch 3 continues the frozen selection order after batch-2');
+  assert.deepEqual(batch3.tasks.map(task => task.instanceId), ['django__django-10554', 'django__django-10999', 'django__django-11141', 'django__django-11400']);
+  const batch2 = JSON.parse(fs.readFileSync(new URL('../config/node-bundle-batch-2.json', import.meta.url)));
+  for (const task of batch3.tasks) {
+    const pinned = batch2.tasks.find(entry => entry.instanceId === task.instanceId);
+    assert(pinned, 'Batch 3 task came from the reviewed batch-2 pins');
+    assert.deepEqual(task, pinned, 'Batch 3 task entry is byte-identical to its reviewed batch-2 pin');
+  }
+  assert(!batch3.tasks.some(task => task.instanceId === 'astropy__astropy-7606'), 'astropy-7606 has a canonical verdict and must never be attempted again');
+  assert.throws(() => validateBatchConfig({...batch3, tasks: [...batch3.tasks, batch3.tasks[0], batch3.tasks[0]]}, selectionBytes), /at most five tasks/, 'The five-task hosting ceiling still rejects larger batches');
+  assert.throws(() => validateBatchConfig({...batch3, tasks: []}, selectionBytes), /at most five tasks/, 'An empty batch is not a hosted generation batch');
+});
+
+test('batch 3 workflow mirrors the audited batch-2 structure for its own tasks', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch3.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /inputs:/);
+  assert.match(workflow, /group: frozen-node-failed-tasks/);
+  assert.equal((workflow.match(/steps: \x26job-steps/g) ?? []).length, 1, 'Exactly one shared step anchor');
+  assert.equal((workflow.match(/steps: \*job-steps/g) ?? []).length, 3, 'The remaining jobs reuse the audited step list');
+  assert.doesNotMatch(workflow, /batch1|batch2|7606|13033|13398|13977|14365|14598/, 'Batch 3 must not reference earlier batches or their tasks');
+  const jobNames = ['django-10554', 'django-10999', 'django-11141', 'django-11400'];
+  const positions = jobNames.map(job => workflow.indexOf('\n  ' + job + ':\n'));
+  assert.ok(positions.every(position => position > 0), 'All four jobs exist at top level');
+  for (const [index, job] of jobNames.entries()) {
+    const section = workflow.slice(positions[index], index + 1 < positions.length ? positions[index + 1] : workflow.length);
+    assert.match(section, new RegExp('NODE_BUNDLE_TASK: django__django-' + job.split('-')[1]), job + ' pins its task');
+    assert.match(section, /NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-3\.json/, job + ' selects the batch-3 config');
+    if (index > 0) assert.match(section, new RegExp('needs: ' + jobNames[index - 1]), job + ' waits for the previous task');
+    assert.match(section, /steps: (\x26job-steps|\*job-steps)/);
+    assert.match(section, /timeout-minutes: 180/);
+  }
+  assert.match(workflow, /node-bundle-batch3-\$\{\{ env.NODE_BUNDLE_TASK \}\}-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}/);
+});
+
+test('batchModeTask routes a batch-3 task through the batch-3 config', t => {
+  const ambientTask = process.env.NODE_BUNDLE_TASK;
+  const ambientConfig = process.env.NODE_BUNDLE_BATCH_CONFIG;
+  process.env.NODE_BUNDLE_TASK = 'django__django-10999';
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-3.json';
+  t.after(() => {
+    if (ambientTask === undefined) delete process.env.NODE_BUNDLE_TASK;
+    else process.env.NODE_BUNDLE_TASK = ambientTask;
+    if (ambientConfig === undefined) delete process.env.NODE_BUNDLE_BATCH_CONFIG;
+    else process.env.NODE_BUNDLE_BATCH_CONFIG = ambientConfig;
+  });
+  const resolved = batchModeTask();
+  assert.equal(resolved.configPath, 'config/node-bundle-batch-3.json');
+  assert.equal(resolved.entry.taskIndex, 8);
+  assert.equal(resolved.entry.pythonModule, 'django');
+  assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 3 has no consumed attempts; every task keeps its full first-attempt pipeline');
+});
