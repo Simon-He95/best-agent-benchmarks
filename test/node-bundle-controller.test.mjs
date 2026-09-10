@@ -153,3 +153,91 @@ test('admits only the frozen pre-model failure and rejects any model execution o
   assert.throws(() => admitFirstRun(runs, '123', [declaration], {}));
   assert.throws(() => admitFirstRun([...runs, {id: 124}], '123', [declaration], jobs));
 });
+
+const {prepareWithTransportRetry, PREPARE_TRANSPORT_POLICY, validateBatchConfig: validateBatchConfigForRetry} = await import('../scripts/node-bundle-controller.mjs');
+
+function retryFixture(t, runner, options = {}) {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'prepare-retry-')));
+  t.after(() => fs.rmSync(dir, {recursive: true, force: true}));
+  const manifestPath = path.join(dir, 'official-evaluator-manifest.json');
+  const calls = {sleeps: [], timeouts: [], attempts: []};
+  return {
+    dir,
+    manifestPath,
+    calls,
+    run: () => prepareWithTransportRetry({
+      runId: '34432740844',
+      evidenceDir: dir,
+      manifestPath,
+      sleep: ms => calls.sleeps.push(ms),
+      run: async (timeout, attempt) => { calls.attempts.push(attempt); calls.timeouts.push(timeout); return runner(timeout, attempt, calls); },
+      ...options,
+    }),
+  };
+}
+
+test('evaluator-prepare is transport-retried while a clean first attempt keeps the historical evidence shape', async t => {
+  const fixture = retryFixture(t, () => {});
+  const attempts = await fixture.run();
+  assert.deepEqual(attempts, [{attempt: 1, status: 'succeeded', clearedManifest: false}]);
+  assert.deepEqual(fixture.calls.attempts, [1]);
+  assert.deepEqual(fixture.calls.sleeps, []);
+  assert.equal(fixture.calls.timeouts[0], PREPARE_TRANSPORT_POLICY.perAttemptTimeoutMs);
+  assert.equal(fs.existsSync(path.join(fixture.dir, 'prepare-transport-retry.json')), false, 'A first-attempt success adds no new evidence file');
+});
+
+test('transport retry recovers a pre-model environment failure and records every attempt', async t => {
+  const fixture = retryFixture(t, async (timeout, attempt, calls) => {
+    if (attempt === 1) {
+      fs.writeFileSync(fixture.manifestPath, '{"partial":true}\n');
+      throw new Error('evaluator-prepare failed: HTTP Error 502: Bad Gateway');
+    }
+    assert.equal(fs.existsSync(fixture.manifestPath), false, 'A failed attempt must not leave the write-once manifest behind');
+    fs.writeFileSync(fixture.manifestPath, '{"manifest":true}\n');
+  });
+  const attempts = await fixture.run();
+  assert.deepEqual(attempts.map(item => item.status), ['failed', 'succeeded']);
+  assert.deepEqual(attempts.map(item => item.clearedManifest), [false, true]);
+  assert.match(attempts[0].error, /502/);
+  assert.deepEqual(fixture.calls.sleeps, [PREPARE_TRANSPORT_POLICY.backoffMs[0]]);
+  const receipt = JSON.parse(fs.readFileSync(path.join(fixture.dir, 'prepare-transport-retry.json')));
+  assert.equal(receipt.exhausted, false);
+  assert.deepEqual(receipt.attempts.map(item => item.attempt), [1, 2]);
+  assert.equal(receipt.policy.attempts, PREPARE_TRANSPORT_POLICY.attempts);
+  assert.equal(fs.readFileSync(fixture.manifestPath, 'utf8'), '{"manifest":true}\n');
+});
+
+test('exhausted transport retries fail closed and never leave a false success', async t => {
+  const fixture = retryFixture(t, () => { throw new Error('evaluator-prepare failed: HTTP Error 503: Service Unavailable'); });
+  await assert.rejects(fixture.run, /after 3 attempt\(s\)/);
+  assert.deepEqual(fixture.calls.attempts, [1, 2, 3], 'Every admitted attempt is exercised before failing');
+  assert.deepEqual(fixture.calls.sleeps, PREPARE_TRANSPORT_POLICY.backoffMs);
+  const receipt = JSON.parse(fs.readFileSync(path.join(fixture.dir, 'prepare-transport-retry.json')));
+  assert.equal(receipt.exhausted, true);
+  assert.deepEqual(receipt.attempts.map(item => item.status), ['failed', 'failed', 'failed']);
+  assert.equal(fs.existsSync(fixture.manifestPath), false);
+});
+
+test('the transport deadline stops retrying instead of overrunning the eval-prepare step timeout', async t => {
+  let clock = 0;
+  const fixture = retryFixture(t, async () => { clock += 400_000; throw new Error('evaluator-prepare failed: HTTP Error 502: Bad Gateway'); }, {now: () => clock});
+  await assert.rejects(fixture.run, /after 2 attempt\(s\)/);
+  assert.deepEqual(fixture.calls.attempts, [1, 2], 'Two 400s attempts exhaust the 780s budget');
+  assert.deepEqual(fixture.calls.sleeps, [PREPARE_TRANSPORT_POLICY.backoffMs[0]]);
+});
+
+test('the retry policy stays inside the workflow step timeout and never retries a model or evaluator', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch4.yml', import.meta.url), 'utf8');
+  assert.ok(PREPARE_TRANSPORT_POLICY.totalDeadlineMs < 900_000, 'The transport budget stays inside the recorded 900s prepare-step timeout');
+  assert.equal(PREPARE_TRANSPORT_POLICY.attempts, 3);
+  const controller = fs.readFileSync(new URL('../scripts/node-bundle-controller.mjs', import.meta.url), 'utf8');
+  // Only the environment preparation step is wrapped; the model and evaluator steps stay single-shot.
+  assert.equal((controller.match(/prepareWithTransportRetry\(/g) ?? []).length, 2, 'One definition plus exactly one call site');
+  assert.equal((controller.match(/generateNodeBundleTask\(\{/g) ?? []).length, 1, 'Exactly one model-generation call site');
+  assert.equal((controller.match(/generate-node-bundle-one\.mjs/g) ?? []).length, 2, 'The generation module appears only as a control file and one import');
+  // The three batch-4 jobs share one anchored step list, so the single-shot model and evaluation
+  // steps are declared exactly once and can never multiply per job.
+  assert.equal((workflow.match(/Run the sole frozen model attempt/g) ?? []).length, 1, 'The model attempt step is declared once in the shared step list');
+  assert.equal((workflow.match(/Evaluate frozen prediction in fresh official Docker container/g) ?? []).length, 1, 'The official evaluation step is declared once in the shared step list');
+  assert.equal((workflow.match(/steps: \*job-steps/g) ?? []).length, 2, 'Both remaining batch-4 jobs reuse that exact step list');
+});

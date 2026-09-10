@@ -15,6 +15,61 @@ const generation = read(path.join(repository, 'config/node-bundle-generation.jso
 const singleTaskWorkflow = 'node-bundle-one.yml';
 const batchWorkflow = 'node-bundle-batch.yml';
 
+// Bounded transport recovery for the pre-model environment preparation step only. The pinned corpus
+// fetch talks to the HuggingFace datasets-server, which intermittently answers 5xx (observed:
+// "HTTP Error 502: Bad Gateway" on run 34432740844 before model admission). This policy retries only
+// that environment step: it invokes no model, freezes no prediction, and cannot change a task's
+// verdict or tally, because the corpus bytes are still verified against the tracked profile hash
+// before any manifest exists. It is not a Harness retry and never re-runs a model or an evaluator.
+export const PREPARE_TRANSPORT_POLICY = {
+  attempts: 3,
+  backoffMs: [5_000, 15_000],
+  perAttemptTimeoutMs: 240_000,
+  totalDeadlineMs: 780_000,
+};
+
+function sleepSync(milliseconds) {
+  if (!(milliseconds > 0)) return;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+export async function prepareWithTransportRetry(options) {
+  const policy = {...PREPARE_TRANSPORT_POLICY, ...options.policy};
+  const run = options.run;
+  const sleep = options.sleep ?? sleepSync;
+  const now = options.now ?? (() => Date.now());
+  const startedAt = now();
+  const attempts = [];
+  const record = extra => fs.writeFileSync(
+    path.join(options.evidenceDir, 'prepare-transport-retry.json'),
+    JSON.stringify({runId: options.runId, step: 'evaluator-prepare', policy, attempts, ...extra}, null, 2) + '\n',
+    {flag: 'wx'},
+  );
+  for (let attempt = 1; attempt <= policy.attempts; attempt += 1) {
+    const remainingMs = policy.totalDeadlineMs - (now() - startedAt);
+    if (remainingMs <= 0) break;
+    // A failed attempt must not leave the write-once manifest behind, or every retry would fail on
+    // EEXIST instead of exercising the environment. The manifest is a deterministic product of the
+    // frozen corpus and source revision, and a successful attempt rewrites it byte-identically.
+    const clearedManifest = fs.existsSync(options.manifestPath);
+    if (clearedManifest) fs.rmSync(options.manifestPath);
+    try {
+      await run(Math.min(policy.perAttemptTimeoutMs, remainingMs), attempt);
+      attempts.push({attempt, status: 'succeeded', clearedManifest});
+      // A clean first attempt keeps the historical evidence shape byte-identical.
+      if (attempt > 1) record({exhausted: false});
+      return attempts;
+    } catch (error) {
+      attempts.push({attempt, status: 'failed', clearedManifest, error: String(error?.message ?? error).slice(0, 800)});
+      process.stderr.write(JSON.stringify({event: 'prepare-attempt-failed', attempt, attempts: policy.attempts, error: String(error?.message ?? error).slice(0, 400)}) + '\n');
+      const backoffMs = policy.backoffMs[Math.min(attempt - 1, policy.backoffMs.length - 1)];
+      if (attempt < policy.attempts && policy.totalDeadlineMs - (now() - startedAt) - backoffMs > 0) sleep(backoffMs);
+    }
+  }
+  record({exhausted: true});
+  throw new Error(`evaluator-prepare failed after ${attempts.length} attempt(s): ${attempts.at(-1)?.error ?? 'no attempt ran within the transport deadline'}`);
+}
+
 export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(batch.schemaVersion, 1);
   assert.match(batch.batchId, /^remaining63-node-batch\d$/, 'Batch id must name its frozen batch number');
@@ -389,7 +444,14 @@ async function prepare(candidateDir, evidenceDir, runId, batchTask = null) {
   const imports = JSON.parse((await step('evaluator-imports', [python, '-s', '-c', check, source])).stdout);
   assert.equal(imports.version, generation.officialEvaluatorVersion);
   assert(imports.source.startsWith(source + '/'));
-  await step('evaluator-prepare', [process.execPath, path.join(repository, 'scripts/prepare-swe-bench.mjs'), '--evaluator-source', source, '--evaluator-python', python, '--corpus', path.join(privateRoot, 'corpus.jsonl'), '--manifest', path.join(evidenceDir, 'official-evaluator-manifest.json')], 900_000);
+  await prepareWithTransportRetry({
+    runId,
+    evidenceDir,
+    manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'),
+    // Receipts are write-once, so each attempt keeps its own step name and raw stdout/stderr; the
+    // first attempt keeps the historical `evaluator-prepare` receipt identity.
+    run: (timeout, attempt) => step(attempt === 1 ? 'evaluator-prepare' : 'evaluator-prepare-retry-' + attempt, [process.execPath, path.join(repository, 'scripts/prepare-swe-bench.mjs'), '--evaluator-source', source, '--evaluator-python', python, '--corpus', path.join(privateRoot, 'corpus.jsonl'), '--manifest', path.join(evidenceDir, 'official-evaluator-manifest.json')], timeout),
+  });
   write(path.join(evidenceDir, 'controller-prepared.json'), {runId, privateRoot, corpusPath: path.join(privateRoot, 'corpus.jsonl'), providerPath: path.join(privateRoot, 'provider/provider.json'), manifestPath: path.join(evidenceDir, 'official-evaluator-manifest.json'), modelAttempt: false});
 }
 

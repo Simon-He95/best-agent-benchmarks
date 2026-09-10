@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "batchId": "remaining63-node-batch4",
+  "workflowName": "node-bundle-batch4.yml",
+  "candidateId": "local-spec100-epoch002-not-published",
+  "selectionId": "remaining63-node-bundle-20260909",
+  "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "priorBatchRuns": [],
+  "recoveryProvenance": {
+    "batchId": "remaining63-node-batch3",
+    "workflowName": "node-bundle-batch3.yml",
+    "runId": "34432740844",
+    "headSha": "d9fe6cf07a7e143acd74df27c3132a5c6ed3bd8a",
+    "classification": "pre-model environment failure",
+    "failedStep": "Verify controller and official evaluator environment before model admission",
+    "failureDetail": "evaluator-prepare exited 1: datasets-server corpus fetch returned HTTP Error 502: Bad Gateway before model admission",
+    "modelAttempt": false,
+    "predictionPresent": false,
+    "canonicalRecordPresent": false,
+    "alreadyVerdictedExcluded": [
+      "django__django-10554"
+    ],
+    "evidenceDir": "evidence/b3-10999-34432740844",
+    "tasksToRecover": [
+      "django__django-10999",
+      "django__django-11141",
+      "django__django-11400"
+    ]
+  },
+  "tasks": [
+    {
+      "taskIndex": 8,
+      "instanceId": "django__django-10999",
+      "repo": "django/django",
+      "baseCommit": "36300ef336e3f130a0dadc1143163ff3d23dc843",
+      "promptSha256": "40cea84cc62e4981836f08933afc63f4005f9533f1ae45c9dba0d796a3fbe5d0",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10999@sha256:22a35ae325dc5abdd397b1d474d66aad62da6d23c4e9c8763478e82bcf63af7b",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 9,
+      "instanceId": "django__django-11141",
+      "repo": "django/django",
+      "baseCommit": "5d9cf79baf07fc4aed7ad1b06990532a65378155",
+      "promptSha256": "8046fd19bbadedb44f248b7069fa4e19167a1f85e1569788bc5b62a00d51903d",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11141@sha256:f2decac6250608a5fa4edd0d388d34983a612c7d9951e6246591a7d3a61a8d66",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 10,
+      "instanceId": "django__django-11400",
+      "repo": "django/django",
+      "baseCommit": "1f8382d34d54061eddc41df6994e20ee38c60907",
+      "promptSha256": "a68f903920fa686b8ee6ebc826f8ec7a5ee52aed3d2d4f384b305cc6fad405f1",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11400@sha256:513ed50493a651e0fa171b199872b57c81fedba92bf1a1a8fdad8976dc47dd33",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    }
+  ]
+}

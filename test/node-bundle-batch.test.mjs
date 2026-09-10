@@ -539,3 +539,72 @@ test('batchModeTask routes a batch-3 task through the batch-3 config', t => {
   assert.equal(resolved.entry.pythonModule, 'django');
   assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 3 has no consumed attempts; every task keeps its full first-attempt pipeline');
 });
+
+test('batch 4 recovers exactly the un-attempted tasks from the interrupted batch-3 chain', () => {
+  const batch4Bytes = fs.readFileSync(new URL('../config/node-bundle-batch-4.json', import.meta.url));
+  const batch4 = JSON.parse(batch4Bytes);
+  validateBatchConfig(batch4, selectionBytes);
+  assert.equal(batch4.batchId, 'remaining63-node-batch4');
+  assert.equal(batch4.workflowName, 'node-bundle-batch4.yml');
+  assert.equal(batch4.priorBatchRuns.length, 0, 'Batch 4 has no prior runs of its own workflow; admission starts clean');
+  assert.deepEqual(batch4.tasks.map(task => task.taskIndex), [8, 9, 10], 'Batch 4 carries only the three tasks that never reached a model attempt');
+  assert.deepEqual(batch4.tasks.map(task => task.instanceId), ['django__django-10999', 'django__django-11141', 'django__django-11400']);
+  const batch3 = JSON.parse(fs.readFileSync(new URL('../config/node-bundle-batch-3.json', import.meta.url)));
+  for (const task of batch4.tasks) {
+    const pinned = batch3.tasks.find(entry => entry.instanceId === task.instanceId);
+    assert(pinned, 'Batch 4 task came from the reviewed batch-3 pins');
+    assert.deepEqual(task, pinned, 'Batch 4 task entry is byte-identical to its reviewed batch-3 pin');
+  }
+  assert(!batch4.tasks.some(task => ['django__django-10554', 'astropy__astropy-7606', 'django__django-10097'].includes(task.instanceId)), 'A task with a canonical verdict is never re-attempted');
+  const provenance = batch4.recoveryProvenance;
+  assert.equal(provenance.batchId, 'remaining63-node-batch3');
+  assert.equal(provenance.workflowName, 'node-bundle-batch3.yml');
+  assert.equal(provenance.runId, '34432740844');
+  assert.match(provenance.headSha, /^d9fe6cf07a7e143acd74df27c3132a5c6ed3bd8a$/);
+  assert.equal(provenance.modelAttempt, false, 'The recovery source run never invoked the model for these tasks');
+  assert.equal(provenance.predictionPresent, false);
+  assert.equal(provenance.canonicalRecordPresent, false);
+  assert.deepEqual(provenance.tasksToRecover, batch4.tasks.map(task => task.instanceId));
+  assert.deepEqual(provenance.alreadyVerdictedExcluded, ['django__django-10554']);
+  assert.match(provenance.failureDetail, /502/);
+});
+
+test('batch 4 workflow mirrors the audited batch-3 structure for its recovered tasks', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch4.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(workflow, /inputs:/);
+  assert.match(workflow, /group: frozen-node-failed-tasks/);
+  assert.equal((workflow.match(/steps: \x26job-steps/g) ?? []).length, 1, 'Exactly one shared step anchor');
+  assert.equal((workflow.match(/steps: \*job-steps/g) ?? []).length, 2, 'The remaining jobs reuse the audited step list');
+  assert.doesNotMatch(workflow, /batch1|batch2|batch3|7606|13033|13398|13977|14365|14598|10554/, 'Batch 4 must not reference earlier batches or verdicted tasks');
+  const jobNames = ['django-10999', 'django-11141', 'django-11400'];
+  const positions = jobNames.map(job => workflow.indexOf('\n  ' + job + ':\n'));
+  assert.ok(positions.every(position => position > 0), 'All three jobs exist at top level');
+  for (const [index, job] of jobNames.entries()) {
+    const section = workflow.slice(positions[index], index + 1 < positions.length ? positions[index + 1] : workflow.length);
+    assert.match(section, new RegExp('NODE_BUNDLE_TASK: django__django-' + job.split('-')[1]), job + ' pins its task');
+    assert.match(section, /NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-4\.json/, job + ' selects the batch-4 config');
+    if (index > 0) assert.match(section, new RegExp('needs: ' + jobNames[index - 1]), job + ' waits for the previous task');
+    assert.match(section, /steps: (\x26job-steps|\*job-steps)/);
+    assert.match(section, /timeout-minutes: 180/);
+  }
+  assert.match(workflow, /node-bundle-batch4-\$\{\{ env\.NODE_BUNDLE_TASK \}\}-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/);
+});
+
+test('batchModeTask routes a batch-4 task through the batch-4 config', t => {
+  const ambientTask = process.env.NODE_BUNDLE_TASK;
+  const ambientConfig = process.env.NODE_BUNDLE_BATCH_CONFIG;
+  process.env.NODE_BUNDLE_TASK = 'django__django-11141';
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-4.json';
+  t.after(() => {
+    if (ambientTask === undefined) delete process.env.NODE_BUNDLE_TASK;
+    else process.env.NODE_BUNDLE_TASK = ambientTask;
+    if (ambientConfig === undefined) delete process.env.NODE_BUNDLE_BATCH_CONFIG;
+    else process.env.NODE_BUNDLE_BATCH_CONFIG = ambientConfig;
+  });
+  const resolved = batchModeTask();
+  assert.equal(resolved.configPath, 'config/node-bundle-batch-4.json');
+  assert.equal(resolved.entry.taskIndex, 9);
+  assert.equal(resolved.entry.pythonModule, 'django');
+  assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 4 has no consumed attempts; every task keeps its full first-attempt pipeline');
+});
