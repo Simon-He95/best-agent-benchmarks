@@ -149,6 +149,18 @@ test('admitBatchRun admits declared failed priors with five-job shape and reject
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
 });
 
+test('admitBatchRun admits a declared cancelled prior and rejects mismatched or fabricated shapes', () => {
+  const current = {id: 600, head_sha: 'a'.repeat(40), status: 'in_progress', conclusion: null, run_attempt: 1};
+  const cancelledJobs = jobId => [jobId, 31, 32, 33, 34].map(id => ({id, status: 'completed', conclusion: 'cancelled'}));
+  const withCancelled = {...batch2, priorBatchRuns: [...batch2.priorBatchRuns, {runId: '555', headSha: 'c'.repeat(40), priorConclusion: 'cancelled', modelAttempt: false, predictionPresent: false}]};
+  admitBatchRun([current, {id: 555, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'cancelled', run_attempt: 1}], '600', withCancelled, {555: {jobs: cancelledJobs(9)}});
+  assert.throws(() => admitBatchRun([current, {id: 555, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '600', withCancelled, {555: {jobs: cancelledJobs(9)}}), /must actually be cancelled/);
+  const halfRun = jobId => [jobId, 31, 32, 33, 34].map((id, index) => ({id, status: 'completed', conclusion: index === 0 ? 'failure' : 'skipped'}));
+  assert.throws(() => admitBatchRun([current, {id: 555, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'cancelled', run_attempt: 1}], '600', withCancelled, {555: {jobs: halfRun(9)}}), /every job cancelled/);
+  assert.throws(() => admitBatchRun([current, {id: 555, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '600', withCancelled, {555: {jobs: cancelledJobs(9)}}), /forbids any further dispatch/);
+  assert.throws(() => validateBatchConfig({...batch2, priorBatchRuns: [...batch2.priorBatchRuns, {runId: '556', headSha: 'd'.repeat(40), priorConclusion: 'cancelled', modelAttempt: false, predictionPresent: false, failedStep: 'x', skippedSteps: []}]}, selectionBytes), /fabricate a failure shape/);
+});
+
 test('admitBatchRun admits a declared prior with one succeeded and one failed job and rejects the rest', () => {
   const current = {id: 500, head_sha: 'a'.repeat(40), status: 'in_progress', conclusion: null, run_attempt: 1};
   const mixedJobs = failedJobId => [9, failedJobId, 22, 23, 24].map((id, index) => ({id, status: 'completed', conclusion: index === 0 ? 'success' : index === 1 ? 'failure' : 'skipped', steps: index === 1 ? [
@@ -376,9 +388,18 @@ test('batch 2 config is frozen, diagnostic, mixed-repo, and consistent with the 
   validateBatchConfig(batch2, selectionBytes);
   assert.equal(batch2.batchId, 'remaining63-node-batch2');
   assert.equal(batch2.workflowName, 'node-bundle-batch2.yml');
-  assert.equal(batch2.priorBatchRuns.length, 1, 'Batch 2 declares its single pre-model failed run');
-  assert.equal(batch2.priorBatchRuns[0].runId, '34419635726');
+  assert.equal(batch2.priorBatchRuns.length, 3, 'Batch 2 declares its pre-model failed run, its double-dispatch prepare failure, and the cancelled duplicate');
+  assert.deepEqual(batch2.priorBatchRuns.map(run => run.runId), ['34419635726', '34421764305', '34421778355']);
   assert.equal(batch2.priorBatchRuns[0].modelAttempt, false, 'The declared prior made no model attempt');
+  const cancelledPrior = batch2.priorBatchRuns[2];
+  assert.equal(cancelledPrior.priorConclusion, 'cancelled');
+  assert.equal(cancelledPrior.modelAttempt, false);
+  assert.equal(cancelledPrior.jobId, undefined);
+  assert.equal(cancelledPrior.failedStep, undefined);
+  assert.equal(cancelledPrior.skippedSteps, undefined);
+  assert.equal(cancelledPrior.succeededJobs, undefined);
+  assert.equal(batch2.priorBatchRuns[1].jobId, 102698527731, 'The prepare-failure prior declares its failed job');
+  assert.equal(batch2.priorBatchRuns[1].artifactId, 10131154927);
   assert.deepEqual(batch2.tasks.map(task => task.taskIndex), [6, 7, 8, 9, 10]);
   assert.deepEqual(batch2.tasks.map(task => task.instanceId), [
     'astropy__astropy-7606',

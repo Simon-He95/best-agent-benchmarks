@@ -72,6 +72,14 @@ export function validateBatchConfig(batch, selectionBytes) {
     }
   }
   for (const prior of batch.priorBatchRuns) {
+    if (prior.priorConclusion === 'cancelled') {
+      assert.equal(prior.modelAttempt, false, 'A cancelled prior made no model attempt');
+      assert.equal(prior.predictionPresent, false, 'A cancelled prior froze no prediction');
+      assert.equal(prior.jobId, undefined, 'A cancelled prior has no failed job; declaration must not fabricate a failure shape');
+      assert.equal(prior.failedStep, undefined, 'A cancelled prior must not fabricate a failure shape');
+      assert.equal(prior.skippedSteps, undefined, 'A cancelled prior must not fabricate a failure shape');
+      assert.equal(prior.succeededJobs, undefined, 'A cancelled prior must not fabricate a failure shape');
+    }
     for (const job of prior.succeededJobs ?? []) {
       assert(Number.isInteger(job.jobId) && job.jobId > 0, 'A declared succeeded job needs a numeric job id');
     }
@@ -190,10 +198,15 @@ export function admitBatchRun(runs, runId, batch, jobsByRun = {}) {
     assert(declaration, 'A prior batch run is not declared; no new batch dispatch');
     assert.equal(previous.head_sha, declaration.headSha);
     assert.equal(previous.status, 'completed');
-    assert.equal(previous.conclusion, 'failure');
     assert.equal(previous.run_attempt, 1);
     const jobs = jobsByRun[declaration.runId]?.jobs;
     assert(Array.isArray(jobs) && jobs.length === 5, 'The declared batch run must show all five jobs');
+    if (declaration.priorConclusion === 'cancelled') {
+      assert.equal(previous.conclusion, 'cancelled', 'A declared cancelled prior must actually be cancelled');
+      for (const job of jobs) assert.equal(job.conclusion, 'cancelled', 'A declared cancelled prior must show every job cancelled');
+      continue;
+    }
+    assert.equal(previous.conclusion, 'failure');
     const succeeded = new Set((declaration.succeededJobs ?? []).map(item => item.jobId));
     for (const job of jobs) {
       if (job.id !== declaration.jobId) {
