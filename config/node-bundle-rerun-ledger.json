@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "ledgerId": "remaining63-node-bundle-rerun",
+  "selectionId": "remaining63-node-bundle-20260909",
+  "candidateId": "local-spec100-epoch002-not-published",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "lastUpdated": "2026-09-10",
+  "historicalComposite": {
+    "note": "Frozen snapshot from config/node-bundle-failed-tasks.json; never modified by rerun results.",
+    "total": 500,
+    "resolved": 437,
+    "testFailed": 54,
+    "noPrediction": 9,
+    "pending": 0,
+    "rate": 0.874,
+    "passAt1": null
+  },
+  "rerunComposite": {
+    "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
+    "total": 63,
+    "evaluated": 15,
+    "resolved": 1,
+    "testFailed": 14,
+    "notEvaluated": 1,
+    "inFlight": 5,
+    "notAttempted": 42,
+    "passAt1": null
+  },
+  "crossCandidateCombinedDiagnostic": {
+    "note": "Diagnostic cross-candidate count of tasks with at least one official resolution across program history: historical 437 + rerun-resolved 1. Cross-candidate combination is diagnostic only and can never be reported as pass@1 under the frozen rules.",
+    "total": 500,
+    "resolved": 438,
+    "rate": 0.876,
+    "passAt1": null
+  },
+  "tasks": [
+    {
+      "taskIndex": 0,
+      "instanceId": "django__django-10097",
+      "batch": "first-task+recovery",
+      "generationRunId": "34376814789",
+      "evaluationRunId": "34388930674",
+      "attemptId": "django__django-10097-node-34376814789-001",
+      "verdict": "test-failed",
+      "patchSha256": "d6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5",
+      "note": "Capture-only recovery evaluated the sole model attempt after the capture-stage infra bug."
+    },
+    {
+      "taskIndex": 1,
+      "instanceId": "astropy__astropy-13033",
+      "batch": "batch-1",
+      "runId": "34414080709",
+      "attemptId": "astropy__astropy-13033-node-34404487703-001",
+      "verdict": "test-failed",
+      "note": "Evaluation-only continuation of the user-ratified predeclared attempt; orphan verdict from run 34407065559 permanently excludedFromTally."
+    },
+    {
+      "taskIndex": 2,
+      "instanceId": "astropy__astropy-13398",
+      "batch": "batch-1",
+      "runId": "34414080709",
+      "attemptId": "astropy__astropy-13398-node-34414080709-001",
+      "verdict": "test-failed"
+    },
+    {
+      "taskIndex": 3,
+      "instanceId": "astropy__astropy-13977",
+      "batch": "batch-1",
+      "runId": "34414080709",
+      "attemptId": "astropy__astropy-13977-node-34414080709-001",
+      "verdict": "test-failed"
+    },
+    {
+      "taskIndex": 4,
+      "instanceId": "astropy__astropy-14365",
+      "batch": "batch-1",
+      "runId": "34414080709",
+      "attemptId": "astropy__astropy-14365-node-34414080709-001",
+      "verdict": "test-failed"
+    },
+    {
+      "taskIndex": 5,
+      "instanceId": "astropy__astropy-14598",
+      "batch": "batch-1",
+      "runId": "34414080709",
+      "attemptId": "astropy__astropy-14598-node-34414080709-001",
+      "verdict": "test-failed"
+    },
+    {
+      "taskIndex": 6,
+      "instanceId": "astropy__astropy-7606",
+      "batch": "batch-2",
+      "runId": "34430368273",
+      "attemptId": "astropy__astropy-7606-node-34430368273-001",
+      "verdict": "test-failed",
+      "note": "F2P passed; single unrelated flaky PASS_TO_PASS failure (units test_compose_roundtrip)."
+    },
+    {
+      "taskIndex": 7,
+      "instanceId": "django__django-10554",
+      "batch": "batch-3",
+      "runId": "34432740844",
+      "attemptId": "django__django-10554-node-34432740844-001",
+      "verdict": "test-failed",
+      "patchSha256": "be7d82953d920e746020c654962a072b2c6391ed3743531949499c376f55fd30"
+    },
+    {
+      "taskIndex": 8,
+      "instanceId": "django__django-10999",
+      "batch": "batch-4",
+      "runId": "34436490804",
+      "attemptId": "django__django-10999-node-34436490804-001",
+      "verdict": "test-failed",
+      "patchSha256": "6dbbe23f979f317add939f15d6c326512efde0a70bc084d2c88954834b3f7b10",
+      "note": "Genuine model failure: F2P failing on assertions."
+    },
+    {
+      "taskIndex": 9,
+      "instanceId": "django__django-11141",
+      "batch": "batch-4",
+      "runId": "34436490804",
+      "attemptId": "django__django-11141-node-34436490804-001",
+      "verdict": "test-failed",
+      "patchSha256": "344b3e3ec2f2bd1e4ca52f26c5aeba674cb4914ac66ea482cdaac7995fb415af",
+      "note": "Genuine model failure: incomplete fix; test-patch-modified test_load_empty_dir not satisfied."
+    },
+    {
+      "taskIndex": 10,
+      "instanceId": "django__django-11400",
+      "batch": "batch-4",
+      "runId": "34436490804",
+      "attemptId": "django__django-11400-node-34436490804-001",
+      "verdict": "resolved",
+      "patchSha256": "a8fd07c3cfca16257263a9fe07f12364620a673242095f2355a3d2748f14a142",
+      "note": "First official resolution of the rerun round: F2P 6/6 and P2P 58/58."
+    },
+    {
+      "taskIndex": 11,
+      "instanceId": "django__django-11477",
+      "batch": "batch-5",
+      "runId": "34439789324",
+      "attemptId": "django__django-11477-node-34439789324-001",
+      "verdict": "test-failed",
+      "note": "Incomplete fix per independent verification."
+    },
+    {
+      "taskIndex": 12,
+      "instanceId": "django__django-11820",
+      "batch": "batch-5",
+      "runId": "34439789324",
+      "attemptId": "django__django-11820-node-34439789324-001",
+      "verdict": "test-failed",
+      "note": "Incomplete fix per independent verification."
+    },
+    {
+      "taskIndex": 13,
+      "instanceId": "django__django-12325",
+      "batch": "batch-5",
+      "runId": "34439789324",
+      "attemptId": "django__django-12325-node-34439789324-001",
+      "verdict": "test-failed",
+      "note": "Incomplete fix per independent verification."
+    },
+    {
+      "taskIndex": 14,
+      "instanceId": "django__django-13212",
+      "batch": "batch-5",
+      "runId": "34439789324",
+      "attemptId": "django__django-13212-node-34439789324-001",
+      "verdict": "test-failed"
+    },
+    {
+      "taskIndex": 15,
+      "instanceId": "django__django-13513",
+      "batch": "batch-5",
+      "runId": "34439789324",
+      "verdict": "not-evaluated",
+      "note": "No prediction; disposition not-evaluated per evaluation-disposition record. Not counted as pass or fail; re-verification in progress by the owner sessions."
+    },
+    {
+      "taskIndex": 16,
+      "instanceId": "django__django-14034",
+      "batch": "batch-6",
+      "runId": "34442964146",
+      "verdict": "in-flight",
+      "note": "Run in progress at ledger update; no verdict yet."
+    },
+    {
+      "taskIndex": 17,
+      "instanceId": "django__django-14155",
+      "batch": "batch-6",
+      "runId": "34442964146",
+      "verdict": "in-flight"
+    },
+    {
+      "taskIndex": 18,
+      "instanceId": "django__django-14170",
+      "batch": "batch-6",
+      "runId": "34442964146",
+      "verdict": "in-flight"
+    },
+    {
+      "taskIndex": 19,
+      "instanceId": "django__django-14315",
+      "batch": "batch-6",
+      "runId": "34442964146",
+      "verdict": "in-flight"
+    },
+    {
+      "taskIndex": 20,
+      "instanceId": "django__django-14376",
+      "batch": "batch-6",
+      "runId": "34442964146",
+      "verdict": "in-flight"
+    }
+  ],
+  "notAttempted": {
+    "count": 42,
+    "note": "Frozen selection tasks 21-63 have no run yet; they are not listed per-task until dispatched. See docs/node-bundle-generation-plan.md batch entries and config/node-bundle-failed-tasks.json for the frozen order."
+  },
+  "rules": {
+    "passAt1": "null everywhere; a selected-failure rerun is diagnostic only and never combinable into a pass@1 claim.",
+    "canonicalSource": "Only per-run official-record.json from the pinned official evaluator counts as a verdict; this ledger aggregates those records and never reinterprets them.",
+    "immutability": "Prior canonical records and the historicalComposite snapshot are never overwritten; ledger entries are append/freeze-per-verdict."
+  }
+}
