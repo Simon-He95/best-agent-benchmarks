@@ -103,8 +103,19 @@ test('controller batchModeTask reads the real frozen selection bytes for its has
   // config bytes where the failed-task selection bytes are required, so the
   // frozen selection-hash gate threw before any admission or model call. This
   // test exercises the controller's real batch entry path, not a re-implementation.
+  // Regression for batch run 34419635726: the batch-2 workflow's job-level
+  // NODE_BUNDLE_BATCH_CONFIG leaked into this test, so the pinned batch-1 task
+  // routed to the batch-2 config and failed the gate before any model call. The
+  // config is pinned explicitly here and restored so the test is hermetic in
+  // every workflow job, and the cross-batch fail-closed path is asserted.
+  const ambientConfig = process.env.NODE_BUNDLE_BATCH_CONFIG;
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-1.json';
   process.env.NODE_BUNDLE_TASK = 'astropy__astropy-13033';
-  t.after(() => { delete process.env.NODE_BUNDLE_TASK; });
+  t.after(() => {
+    delete process.env.NODE_BUNDLE_TASK;
+    if (ambientConfig === undefined) delete process.env.NODE_BUNDLE_BATCH_CONFIG;
+    else process.env.NODE_BUNDLE_BATCH_CONFIG = ambientConfig;
+  });
   const resolved = batchModeTask();
   assert.equal(resolved.batch.batchId, 'remaining63-node-batch1');
   assert.equal(resolved.batch.selectionSourceSha256, createHash('sha256').update(selectionBytes).digest('hex'));
@@ -115,6 +126,9 @@ test('controller batchModeTask reads the real frozen selection bytes for its has
   assert.equal(batchModeTask().entry.taskIndex, 5);
   delete process.env.NODE_BUNDLE_TASK;
   assert.equal(batchModeTask(), null, 'No NODE_BUNDLE_TASK means the single-task controller path');
+  process.env.NODE_BUNDLE_TASK = 'astropy__astropy-13033';
+  process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-2.json';
+  assert.throws(() => batchModeTask(), /not part of the frozen batch/, 'A batch-1 task under the batch-2 config fails closed before any model call');
 });
 
 test('admitBatchRun admits declared failed priors with five-job shape and rejects the rest', () => {
@@ -362,7 +376,9 @@ test('batch 2 config is frozen, diagnostic, mixed-repo, and consistent with the 
   validateBatchConfig(batch2, selectionBytes);
   assert.equal(batch2.batchId, 'remaining63-node-batch2');
   assert.equal(batch2.workflowName, 'node-bundle-batch2.yml');
-  assert.equal(batch2.priorBatchRuns.length, 0, 'Batch 2 starts with a clean prior-run history');
+  assert.equal(batch2.priorBatchRuns.length, 1, 'Batch 2 declares its single pre-model failed run');
+  assert.equal(batch2.priorBatchRuns[0].runId, '34419635726');
+  assert.equal(batch2.priorBatchRuns[0].modelAttempt, false, 'The declared prior made no model attempt');
   assert.deepEqual(batch2.tasks.map(task => task.taskIndex), [6, 7, 8, 9, 10]);
   assert.deepEqual(batch2.tasks.map(task => task.instanceId), [
     'astropy__astropy-7606',
@@ -391,9 +407,16 @@ test('batch 2 config is frozen, diagnostic, mixed-repo, and consistent with the 
 });
 
 test('batchModeTask routes batch-2 tasks through NODE_BUNDLE_BATCH_CONFIG', t => {
+  const ambientTask = process.env.NODE_BUNDLE_TASK;
+  const ambientConfig = process.env.NODE_BUNDLE_BATCH_CONFIG;
   process.env.NODE_BUNDLE_TASK = 'django__django-11141';
   process.env.NODE_BUNDLE_BATCH_CONFIG = 'config/node-bundle-batch-2.json';
-  t.after(() => { delete process.env.NODE_BUNDLE_TASK; delete process.env.NODE_BUNDLE_BATCH_CONFIG; });
+  t.after(() => {
+    if (ambientTask === undefined) delete process.env.NODE_BUNDLE_TASK;
+    else process.env.NODE_BUNDLE_TASK = ambientTask;
+    if (ambientConfig === undefined) delete process.env.NODE_BUNDLE_BATCH_CONFIG;
+    else process.env.NODE_BUNDLE_BATCH_CONFIG = ambientConfig;
+  });
   const resolved = batchModeTask();
   assert.equal(resolved.configPath, 'config/node-bundle-batch-2.json');
   assert.equal(resolved.batch.batchId, 'remaining63-node-batch2');

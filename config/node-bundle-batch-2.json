@@ -7,7 +7,25 @@
   "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
   "diagnosticOnly": true,
   "passAt1": null,
-  "priorBatchRuns": [],
+  "priorBatchRuns": [
+    {
+      "runId": "34419635726",
+      "headSha": "09a841b5e47ab7aa0a2930c8c821e2cf3575b019",
+      "jobId": 102692050292,
+      "failedStep": "Check batch admission, evidence and lifecycle tests",
+      "skippedSteps": [
+        "Verify controller and official evaluator environment before model admission",
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "artifactName": "node-bundle-batch2-astropy__astropy-7606-34419635726-1",
+      "artifactId": 10130405853,
+      "reason": "Pre-model CI failure: the unit test 'controller batchModeTask reads the real frozen selection bytes for its hash gate' is not hermetic against the workflow job-level NODE_BUNDLE_BATCH_CONFIG; under the batch-2 job env it routed the pinned batch-1 regression task to the batch-2 config and the frozen-batch gate threw before admission. No model invocation, no prediction, no official evaluation, no canonical record; the four trailing jobs were skipped and the fail-closed upload recorded rawEvidenceUploaded=false."
+    }
+  ],
   "tasks": [
     {
       "taskIndex": 6,
