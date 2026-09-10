@@ -79,6 +79,34 @@
       "artifactName": "node-bundle-batch2-astropy__astropy-7606-34428240778-1",
       "artifactId": 10133509173,
       "reason": "Pre-model environment failure, second stage of the astropy-7606 submodule git shape: the submodule-blind fix let sanitation proceed, then the root-archive needle scan flagged the official image's own vendored-submodule pointer file /testbed/astropy_helpers/.git as additional-git-material (finding was the scan's only entry). The gitfile is one line of text pointing at a module store the image does not ship; it is part of the as-shipped official state, carries no git objects, and was mechanically approved in the scanner only as an exact frozen-base-gitlink path, regular file, single relative gitdir pointer. Model never invoked (modelAttempt false, no claim, model-final-absence), containers closed+removed, evaluation not-evaluated; fail-closed audited evidence uploaded (artifact 10133509173)."
+    },
+    {
+      "runId": "34430368273",
+      "headSha": "fea7c49cb6019581c71f06867a85d3b7ed6cc10b",
+      "jobId": 102725422476,
+      "failedStep": "Verify controller and official evaluator environment before model admission",
+      "skippedSteps": [
+        "Run the sole frozen model attempt and audit terminal evidence",
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "succeededJobs": [
+        {
+          "jobId": 102724431822
+        }
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Split-outcome run. Job1 (astropy-7606, 102724431822) SUCCEEDED end-to-end: the gitfile-scan fix let the full pipeline run; canonical official-record.json verdict test-failed on the single first attempt astropy__astropy-7606-node-34430368273-001 (patch 750ef394..., official evaluator 4.1.0, image digest sha256:45c4f681... matching the pinned batch-2 digest, upload-manifest 275 files 0 mismatches, terminal summary modelAttempt:true/predictionPresent:true, containers closed+removed). Job2 (django-10554, 102725422476) failed at prepare admission BEFORE model admission: a concurrent duplicate dispatch (run 34430621348, cancelled with zero jobs) appeared among the workflow's prior runs and was not declared, so admitBatchRun refused fail-closed ('A prior batch run is not declared'; no model attempt, no prediction). Jobs 3-5 skipped by the needs chain."
+    },
+    {
+      "runId": "34430621348",
+      "headSha": "5f4db60b349fcc9f181ac58070cd9d044f95e781",
+      "priorConclusion": "cancelled",
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "reason": "Duplicate dispatch created 4 minutes after 34430368273 by an overlapping wakeup cycle of the same coordinator task; cancelled by GitHub while still queued behind the in-progress run, with ZERO jobs created (jobs API total_count 0). No step executed, no model invocation, no prediction, no artifact. Declared as a cancelled prior; the zero-job cancelled shape is admitted by the extended admitBatchRun."
     }
   ],
   "tasks": [
