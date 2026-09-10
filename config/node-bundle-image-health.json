@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "purpose": "No-model official-image environment health diagnostic: detects degraded package-data state in the importable install (the django-10097 defect class) before or independently of any task attempt. Controller-side only; results never enter a model prompt, never alter an attempt, and are never a verdict source.",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "modelFree": true,
+  "testMaterialFree": true,
+  "neverVerdictSource": true,
+  "knownBadControlInstanceId": "django__django-10097",
+  "controlExpectation": "The known-bad control should report degraded-install-data-in-build per the post-terminal diagnosis of run 34376814789/34388930674; a healthy control instead indicates host/run-dependent variance and is recorded as-is without reinterpretation.",
+  "images": [
+    {
+      "instanceId": "django__django-10097",
+      "role": "known-bad-control",
+      "repo": "django/django",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10097@sha256:faf07f1d70370e9a4f76dac2cab0758300018f0eb4346b28aa55ac13630b873a",
+      "pythonModule": "django",
+      "sourcePackageDir": "/testbed/django",
+      "buildDir": "/testbed/build/lib/django",
+      "workdir": "/testbed",
+      "envActivation": "source /opt/miniconda3/bin/activate && conda activate testbed",
+      "installCommand": "python setup.py install",
+      "provenance": "config/node-bundle-candidate.json:task.imageRef"
+    },
+    {
+      "instanceId": "django__django-10554",
+      "role": "attribution-inflight",
+      "repo": "django/django",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10554@sha256:3e799bbbf2aa8ad8201cf7fa1302d3a8c2d0885bcd8141dbfcf67ae9d68ab2d1",
+      "pythonModule": "django",
+      "sourcePackageDir": "/testbed/django",
+      "buildDir": "/testbed/build/lib/django",
+      "workdir": "/testbed",
+      "envActivation": "source /opt/miniconda3/bin/activate && conda activate testbed",
+      "installCommand": "python setup.py install",
+      "provenance": "config/node-bundle-batch-3.json:tasks[0].imageRef"
+    },
+    {
+      "instanceId": "django__django-10999",
+      "role": "attribution-inflight",
+      "repo": "django/django",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10999@sha256:22a35ae325dc5abdd397b1d474d66aad62da6d23c4e9c8763478e82bcf63af7b",
+      "pythonModule": "django",
+      "sourcePackageDir": "/testbed/django",
+      "buildDir": "/testbed/build/lib/django",
+      "workdir": "/testbed",
+      "envActivation": "source /opt/miniconda3/bin/activate && conda activate testbed",
+      "installCommand": "python setup.py install",
+      "provenance": "config/node-bundle-batch-3.json:tasks[1].imageRef"
+    },
+    {
+      "instanceId": "django__django-11141",
+      "role": "attribution-inflight",
+      "repo": "django/django",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11141@sha256:f2decac6250608a5fa4edd0d388d34983a612c7d9951e6246591a7d3a61a8d66",
+      "pythonModule": "django",
+      "sourcePackageDir": "/testbed/django",
+      "buildDir": "/testbed/build/lib/django",
+      "workdir": "/testbed",
+      "envActivation": "source /opt/miniconda3/bin/activate && conda activate testbed",
+      "installCommand": "python setup.py install",
+      "provenance": "config/node-bundle-batch-3.json:tasks[2].imageRef"
+    },
+    {
+      "instanceId": "django__django-11400",
+      "role": "attribution-inflight",
+      "repo": "django/django",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11400@sha256:513ed50493a651e0fa171b199872b57c81fedba92bf1a1a8fdad8976dc47dd33",
+      "pythonModule": "django",
+      "sourcePackageDir": "/testbed/django",
+      "buildDir": "/testbed/build/lib/django",
+      "workdir": "/testbed",
+      "envActivation": "source /opt/miniconda3/bin/activate && conda activate testbed",
+      "installCommand": "python setup.py install",
+      "provenance": "config/node-bundle-batch-3.json:tasks[3].imageRef"
+    }
+  ]
+}

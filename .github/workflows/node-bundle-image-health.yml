@@ -1,0 +1,36 @@
+name: Official image environment health diagnostic (no model)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frozen-node-failed-tasks
+  cancel-in-progress: false
+jobs:
+  health:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+      - name: Download frozen runtime
+        env:
+          BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+        run: node scripts/download-node-bundle.mjs "$RUNNER_TEMP/frozen-node-candidate"
+      - name: Check pinned official image environments without model or test material
+        run: |
+          mkdir "$RUNNER_TEMP/image-health-evidence"
+          "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node" scripts/node-bundle-image-health.mjs "$RUNNER_TEMP/image-health-evidence"
+      - name: Upload image health receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-health-${{ github.run_id }}
+          path: ${{ runner.temp }}/image-health-evidence/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
