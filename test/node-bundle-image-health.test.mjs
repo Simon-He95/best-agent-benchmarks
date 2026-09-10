@@ -17,7 +17,11 @@ test('image health config is frozen, diagnostic-only, and structurally valid', (
   assert.equal(health.images.length, 5);
   assert.equal(health.knownBadControlInstanceId, 'django__django-10097');
   const roles = health.images.map(entry => entry.role);
-  assert.deepEqual(roles.sort(), ['attribution-inflight', 'attribution-inflight', 'attribution-inflight', 'attribution-inflight', 'known-bad-control']);
+  assert.deepEqual(roles.sort(), ['attribution-terminal', 'known-bad-control', 'pre-dispatch-screen', 'pre-dispatch-screen', 'pre-dispatch-screen']);
+  assert.equal(health.images.find(entry => entry.instanceId === 'django__django-10554').role, 'attribution-terminal', '10554 is officially evaluated (test-failed at run 34432740844), so its check is attribution');
+  for (const entry of health.images.filter(item => item.role === 'pre-dispatch-screen')) {
+    assert.match(entry.instanceId, /django__django-(10999|11141|11400)/, 'The three un-attempted batch-4 tasks are pre-dispatch screens');
+  }
 });
 
 test('every health imageRef matches its declared frozen provenance source', () => {
@@ -39,9 +43,6 @@ test('known-bad control is the diagnostically proven degraded image, not an in-f
   const control = health.images.find(entry => entry.role === 'known-bad-control');
   assert.equal(control.instanceId, 'django__django-10097');
   assert.equal(control.imageRef, 'swebench/sweb.eval.x86_64.django_1776_django-10097@sha256:faf07f1d70370e9a4f76dac2cab0758300018f0eb4346b28aa55ac13630b873a');
-  for (const entry of health.images.filter(item => item.role === 'attribution-inflight')) {
-    assert.match(entry.instanceId, /django__django-(10554|10999|11141|11400)/);
-  }
 });
 
 test('computeHealthVerdict classifies the observed defect signatures', () => {

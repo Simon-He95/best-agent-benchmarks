@@ -37,7 +37,7 @@ export function validateHealthConfig(config) {
     assert.equal(entry.workdir, '/testbed');
     assert.match(entry.envActivation, /^source \/opt\/miniconda3\/bin\/activate && conda activate testbed$/);
     assert.match(entry.installCommand, /^[a-z0-9 ./_-]+$/, 'Only the plain public setup.py install form is admitted');
-    assert.ok(['known-bad-control', 'attribution-inflight', 'pre-dispatch-screen'].includes(entry.role));
+    assert.ok(['known-bad-control', 'attribution-terminal', 'attribution-inflight', 'pre-dispatch-screen'].includes(entry.role));
     assert.match(entry.provenance, /^config\/node-bundle-(candidate|batch-[0-9]+)\.json:(task|tasks\[[0-9]+\])\.imageRef$/);
   }
   const controls = config.images.filter(entry => entry.role === 'known-bad-control');

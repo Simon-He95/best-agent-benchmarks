@@ -24,7 +24,7 @@
     },
     {
       "instanceId": "django__django-10554",
-      "role": "attribution-inflight",
+      "role": "attribution-terminal",
       "repo": "django/django",
       "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10554@sha256:3e799bbbf2aa8ad8201cf7fa1302d3a8c2d0885bcd8141dbfcf67ae9d68ab2d1",
       "pythonModule": "django",
@@ -37,7 +37,7 @@
     },
     {
       "instanceId": "django__django-10999",
-      "role": "attribution-inflight",
+      "role": "pre-dispatch-screen",
       "repo": "django/django",
       "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-10999@sha256:22a35ae325dc5abdd397b1d474d66aad62da6d23c4e9c8763478e82bcf63af7b",
       "pythonModule": "django",
@@ -50,7 +50,7 @@
     },
     {
       "instanceId": "django__django-11141",
-      "role": "attribution-inflight",
+      "role": "pre-dispatch-screen",
       "repo": "django/django",
       "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11141@sha256:f2decac6250608a5fa4edd0d388d34983a612c7d9951e6246591a7d3a61a8d66",
       "pythonModule": "django",
@@ -63,7 +63,7 @@
     },
     {
       "instanceId": "django__django-11400",
-      "role": "attribution-inflight",
+      "role": "pre-dispatch-screen",
       "repo": "django/django",
       "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-11400@sha256:513ed50493a651e0fa171b199872b57c81fedba92bf1a1a8fdad8976dc47dd33",
       "pythonModule": "django",
