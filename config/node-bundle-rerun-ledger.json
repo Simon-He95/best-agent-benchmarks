@@ -5,7 +5,7 @@
   "candidateId": "local-spec100-epoch002-not-published",
   "diagnosticOnly": true,
   "passAt1": null,
-  "lastUpdated": "2026-09-10",
+  "lastUpdated": "2026-09-12",
   "historicalComposite": {
     "note": "Frozen snapshot from config/node-bundle-failed-tasks.json; never modified by rerun results.",
     "total": 500,
@@ -19,19 +19,19 @@
   "rerunComposite": {
     "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
     "total": 63,
-    "evaluated": 15,
-    "resolved": 1,
-    "testFailed": 14,
+    "evaluated": 20,
+    "resolved": 2,
+    "testFailed": 18,
     "notEvaluated": 1,
-    "inFlight": 5,
+    "inFlight": 0,
     "notAttempted": 42,
     "passAt1": null
   },
   "crossCandidateCombinedDiagnostic": {
-    "note": "Diagnostic cross-candidate count of tasks with at least one official resolution across program history: historical 437 + rerun-resolved 1. Cross-candidate combination is diagnostic only and can never be reported as pass@1 under the frozen rules.",
+    "note": "Diagnostic cross-candidate count of tasks with at least one official resolution across program history: historical 437 + rerun-resolved 2. Cross-candidate combination is diagnostic only and can never be reported as pass@1 under the frozen rules.",
     "total": 500,
-    "resolved": 438,
-    "rate": 0.876,
+    "resolved": 439,
+    "rate": 0.878,
     "passAt1": null
   },
   "tasks": [
@@ -183,41 +183,56 @@
       "instanceId": "django__django-14034",
       "batch": "batch-6",
       "runId": "34442964146",
-      "verdict": "in-flight",
-      "note": "Run in progress at ledger update; no verdict yet."
+      "verdict": "test-failed",
+      "note": "Run in progress at ledger update; no verdict yet.",
+      "attemptId": "django__django-14034-node-34442964146-001",
+      "patchSha256": "1ea8c15b7e7bf4c1c30aeeffc253802af730483e3101888d270a8bffa7a03af9",
+      "officialRecordSha256": "9c3c82730bbdb08b76ffefdde361807edcf0c00f41706f68bb1f8a56c3b6c482"
     },
     {
       "taskIndex": 17,
       "instanceId": "django__django-14155",
       "batch": "batch-6",
       "runId": "34442964146",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-14155-node-34442964146-001",
+      "patchSha256": "7e90999fd1010883aef6a63f345a6a58d3f9fd0fa5a28f7cc941bf858bf99fc0",
+      "officialRecordSha256": "4a5de1dde09100c4a7257bf9bee19e4967ce267f627b6705f8f7c8b5067d74ab"
     },
     {
       "taskIndex": 18,
       "instanceId": "django__django-14170",
       "batch": "batch-6",
       "runId": "34442964146",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-14170-node-34442964146-001",
+      "patchSha256": "8473f00bb19442a261d9d5e11432f0016f83481df65d6a4b673297ed0358fc4d",
+      "officialRecordSha256": "88f4d3903b9c0e99c262928f7c68ce9019a7b998635b2b5e1d5ed810c17dfaf5"
     },
     {
       "taskIndex": 19,
       "instanceId": "django__django-14315",
       "batch": "batch-6",
       "runId": "34442964146",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-14315-node-34442964146-001",
+      "patchSha256": "a75c5ad97f26da0a3af85e26d17f240c3dcb575fd08f41ace3e01877e7449c51",
+      "officialRecordSha256": "2e8081f772cf6254c637c3d55478b59226092d5ffaa4b718a67bdf8212773019"
     },
     {
       "taskIndex": 20,
       "instanceId": "django__django-14376",
       "batch": "batch-6",
       "runId": "34442964146",
-      "verdict": "in-flight"
+      "verdict": "resolved",
+      "attemptId": "django__django-14376-node-34442964146-001",
+      "patchSha256": "ef7e2ea90daedfd9e848804f9de9f1ba7c674e4ada00cedee7d07b462b02e554",
+      "officialRecordSha256": "574e3f5a8bbbb191304b03fa99cced97d8cc4c93ebb3833b8afa0a4b4201a7c4"
     }
   ],
   "notAttempted": {
     "count": 42,
-    "note": "Frozen selection tasks 21-63 have no run yet; they are not listed per-task until dispatched. See docs/node-bundle-generation-plan.md batch entries and config/node-bundle-failed-tasks.json for the frozen order."
+    "note": "Frozen zero-based selection indices21..62 have no dispatched run yet; batch7 indices21..25 are prepared and reviewed."
   },
   "rules": {
     "passAt1": "null everywhere; a selected-failure rerun is diagnostic only and never combinable into a pass@1 claim.",
