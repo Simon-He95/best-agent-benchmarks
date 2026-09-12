@@ -29,7 +29,6 @@
     "reasoningEffort": "max",
     "transportProfile": "dim-oauth"
   },
-  "workspace": "/app",
   "generation": {
     "maxBatchTasks": 10,
     "maxModelCycles": 2251799813685247,

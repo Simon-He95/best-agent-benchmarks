@@ -988,13 +988,20 @@ export function inspectAttemptEvidence(path) {
   if (bytes.byteLength > 1024 * 1024 * 1024) {
     return { prefixValid: false, complete: false, reason: "oversized" };
   }
-  const parts = bytes.toString("utf8").split("\n");
-  const partialTail = parts.pop();
+  const parts = [];
+  let lineStart = 0;
+  for (;;) {
+    const lineEnd = bytes.indexOf(10, lineStart);
+    if (lineEnd === -1) break;
+    parts.push(bytes.subarray(lineStart, lineEnd));
+    lineStart = lineEnd + 1;
+  }
+  const partialTail = bytes.subarray(lineStart);
   const records = [];
   try {
     for (const line of parts) {
       if (line.length === 0) continue;
-      records.push(JSON.parse(line));
+      records.push(JSON.parse(line.toString("utf8")));
     }
   } catch {
     return { prefixValid: false, complete: false, reason: "malformed-record" };
@@ -1107,8 +1114,9 @@ export function inspectAttemptEvidence(path) {
   if (!exactKeys(footer, footerKeys)) {
     return { prefixValid: false, complete: false, reason: "invalid-footer" };
   }
-  const prefix = `${parts.slice(0, -1).join("\n")}\n`;
-  if (createHash("sha256").update(prefix).digest("hex") !== footer.prefixSha256) {
+  const prefixHash = createHash("sha256");
+  for (const line of parts.slice(0, -1)) prefixHash.update(line).update("\n");
+  if (prefixHash.digest("hex") !== footer.prefixSha256) {
     return { prefixValid: false, complete: false, reason: "prefix-hash-mismatch" };
   }
   const paired =
