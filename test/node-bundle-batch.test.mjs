@@ -143,8 +143,12 @@ test('admitBatchRun admits declared failed priors with five-job shape and reject
   const declared = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'Verify controller and official evaluator environment before model admission', skippedSteps: ['Run the sole frozen model attempt and audit terminal evidence', 'Evaluate frozen prediction in fresh official Docker container']}]};
   admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9)}});
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'c'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9)}}));
-  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).slice(0, 1)}}), /five jobs/);
+  assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).slice(0, 1)}}), /frozen task count/);
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1}], '500', declared, {499: {jobs: fiveJobs(9).map(job => ({...job, conclusion: job.id === 9 ? 'failure' : 'success'}))}}), /non-declared job/);
+  const four = {...declared, tasks: declared.tasks.slice(0, 4)};
+  const priorRun = {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'failure', run_attempt: 1};
+  admitBatchRun([current, priorRun], '500', four, {499: {jobs: fiveJobs(9).slice(0, 4)}});
+  assert.throws(() => admitBatchRun([current, priorRun], '500', four, {499: {jobs: fiveJobs(9)}}), /frozen task count/);
   const successful = {...batch, priorBatchRuns: [{runId: '499', headSha: 'b'.repeat(40), jobId: 9, failedStep: 'anything', skippedSteps: []}]};
   assert.throws(() => admitBatchRun([current, {id: 499, head_sha: 'b'.repeat(40), status: 'completed', conclusion: 'success', run_attempt: 1}], '500', successful, {499: {jobs: fiveJobs(9)}}), /forbids any further dispatch/);
 });
@@ -737,4 +741,16 @@ test('batchModeTask routes a batch-6 task through the batch-6 config', t => {
   assert.equal(resolved.entry.taskIndex, 20);
   assert.equal(resolved.entry.pythonModule, 'django');
   assert.equal(frozenPredictionPrior(resolved.batch, resolved.entry), null, 'Batch 6 has no consumed attempts; every task keeps its full first-attempt pipeline');
+});
+
+
+test('batch8 freezes the last four Django tasks in original order', () => {
+  const next = readJson('config/node-bundle-batch-8.json');
+  validateBatchConfig(next, selectionBytes);
+  assert.deepEqual(next.tasks.map(task => task.taskIndex), [26, 27, 28, 29]);
+  for (const task of next.tasks) assert.equal(resolveBatchTask(next, selection, task.instanceId), task);
+  const source = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch6.yml', import.meta.url), 'utf8');
+  let expected = source.slice(0, source.indexOf('\n  django-14376:')).replaceAll('batch 6', 'batch 8').replaceAll('batch6', 'batch8').replaceAll('batch-6', 'batch-8');
+  for (const [oldId, newId] of [['14034', '16263'], ['14155', '16502'], ['14170', '16631'], ['14315', '16667']]) expected = expected.replaceAll(oldId, newId);
+  assert.equal(fs.readFileSync(new URL('../.github/workflows/node-bundle-batch8.yml', import.meta.url), 'utf8'), expected);
 });

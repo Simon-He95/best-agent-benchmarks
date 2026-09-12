@@ -257,11 +257,11 @@ export function admitBatchRun(runs, runId, batch, jobsByRun = {}) {
     const jobs = jobsByRun[declaration.runId]?.jobs;
     if (declaration.priorConclusion === 'cancelled') {
       assert.equal(previous.conclusion, 'cancelled', 'A declared cancelled prior must actually be cancelled');
-      assert(Array.isArray(jobs) && (jobs.length === 0 || jobs.length === 5), 'A declared cancelled prior must show either zero jobs (cancelled while queued) or all five jobs');
+      assert(Array.isArray(jobs) && (jobs.length === 0 || jobs.length === batch.tasks.length), 'A declared cancelled prior must show either zero jobs (cancelled while queued) or the frozen task count');
       for (const job of jobs) assert.equal(job.conclusion, 'cancelled', 'A declared cancelled prior must show every job cancelled');
       continue;
     }
-    assert(Array.isArray(jobs) && jobs.length === 5, 'The declared batch run must show all five jobs');
+    assert(Array.isArray(jobs) && jobs.length === batch.tasks.length, 'The declared batch run must match the frozen task count');
     assert.equal(previous.conclusion, 'failure');
     const succeeded = new Set((declaration.succeededJobs ?? []).map(item => item.jobId));
     for (const job of jobs) {
