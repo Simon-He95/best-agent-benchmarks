@@ -89,7 +89,8 @@ test("terminal-bench pins a current Linux x64 source candidate", () => {
     commandPolicy: "path",
     workspaceGrants: ["read", "write", "exec"],
   });
-  assert.equal(config.provider.model, "deepseek-v4-flash");
+  assert.equal(config.provider.model, "deepseek-v4.1-flash");
+  assert.equal(config.provider.reasoningEffort, "max");
   assert.equal(config.provider.transportProfile, "dim-oauth");
 });
 

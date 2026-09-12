@@ -16,17 +16,17 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.19",
+    "cliVersion": "0.0.3-beta.24",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "4bdb7623e0cf531f1079a2134340acc0093c1219",
+    "sourceCommit": "ee6e11cee8acac6a4098d706574cdda25d3f8fdd",
     "target": "linux-x64-gnu"
   },
   "provider": {
     "kind": "openai",
-    "model": "deepseek-v4-flash",
+    "model": "deepseek-v4.1-flash",
     "baseURL": "https://dimagent.cn/v1",
     "compatibilityMode": "compatible",
-    "reasoningEffort": "high",
+    "reasoningEffort": "max",
     "transportProfile": "dim-oauth"
   },
   "workspace": "/app",
