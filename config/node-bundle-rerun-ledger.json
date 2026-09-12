@@ -19,11 +19,11 @@
   "rerunComposite": {
     "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
     "total": 63,
-    "evaluated": 24,
+    "evaluated": 25,
     "resolved": 3,
-    "testFailed": 21,
+    "testFailed": 22,
     "notEvaluated": 1,
-    "inFlight": 1,
+    "inFlight": 0,
     "notAttempted": 37,
     "passAt1": null
   },
@@ -274,7 +274,10 @@
       "instanceId": "django__django-15732",
       "batch": "batch-7",
       "runId": "34704991417",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-15732-node-34704991417-001",
+      "patchSha256": "e7af872870a4e9f38e156222a340e4910ab810be5ab7f38a08fcd087d44c22b1",
+      "officialRecordSha256": "52c1a8abfdec8dc25039a1bd450f242d1536543b1cf344b692747f45a2f492c6"
     }
   ],
   "notAttempted": {
