@@ -66,12 +66,12 @@ uv tool install harbor==0.14.0
 uv pip install --python "$(uv tool dir)/harbor/bin/python" -e ./tools/terminal-bench-agent
 # 准备一个冻结清单(任何含 task.toml/instruction.md 的任务目录 + manifest.json)
 BEST_AGENT_PROVIDER_CONFIG=/path/provider.json DIMCODE_HOME=/path/dimcode-home \
-BEST_AGENT_PROVIDER_MODEL=deepseek-v4-flash \
+BEST_AGENT_PROVIDER_MODEL=deepseek-v4.1-flash \
 BEST_AGENT_CLI_CANDIDATE_DIR=/path/to/results/candidate \
 TB_ALLOW_UNPINNED_SOURCE=1 \
 node scripts/terminal-bench-harness.mjs --task terminal-bench/<name> \
   --corpus manifest.json --source <repo-dir> --output out.json \
-  --jobs-dir jobs --job-name local-smoke --model deepseek-v4-flash \
+  --jobs-dir jobs --job-name local-smoke --model deepseek-v4.1-flash \
   --agent-timeout-multiplier 0.05 --candidate-id cli-smoke \
   --batch-id smoke --formal-run-id diagnostic-smoke
 ```
