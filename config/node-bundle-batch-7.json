@@ -7,7 +7,24 @@
   "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
   "diagnosticOnly": true,
   "passAt1": null,
-  "priorBatchRuns": [],
+  "priorBatchRuns": [
+    {
+      "runId": "34683621450",
+      "headSha": "6ac7b8e92208ea52954d4cb441cd48678dfc0511",
+      "jobId": 103526619689,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "artifactName": "node-bundle-batch7-django__django-14792-34683621450-1",
+      "artifactId": 10295091302,
+      "artifactDigest": "sha256:856bbf8b2f1ba50467828cc79b01edd85532543368f86715c439e9a983266016",
+      "reason": "Provider materialization rejected expired OAuth JWT before generateNodeBundleTask.54 uploaded files independently hash/size verified; no model-claim, prediction, terminal model summary or canonical record. Remaining4 jobs skipped. CI secret metadata updated2026-09-12T15:36:05Z; the unchanged materializer must validate new token before any model admission."
+    }
+  ],
   "imageDigestSource": "anonymous Docker Hub registry metadata query (manifests/latest Docker-Content-Digest); same method that reproduced the batch-3 digests and produced the batch-5 pins; no image pulled locally",
   "tasks": [
     {
