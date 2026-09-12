@@ -17,9 +17,9 @@ const candidate = JSON.parse(
 const provider = candidate.provider;
 if (
   provider?.kind !== "openai" ||
-  provider.model !== "deepseek-v4.1-flash" ||
+  !((provider.model === "deepseek-v4-flash" && provider.reasoningEffort === "high") ||
+    (provider.model === "deepseek-v4.1-flash" && provider.reasoningEffort === "max")) ||
   provider.compatibilityMode !== "compatible" ||
-  provider.reasoningEffort !== "max" ||
   provider.transportProfile !== "dim-oauth" ||
   typeof provider.baseURL !== "string"
 ) {
