@@ -62,6 +62,7 @@ test("candidate preparation passes the frozen maximum budget and unrestricted pr
     const { verifyFrozenIdentity } = await import("../scripts/terminal-bench-harness.mjs");
     verifyFrozenIdentity();
     const args = JSON.parse(process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON);
+    assert.equal(args.includes("--workspace"), false);
     assert.equal(args.filter((arg) => arg === "--max-model-cycles").length, 1);
     assert.equal(args[args.indexOf("--max-model-cycles") + 1], String(config.generation.maxModelCycles));
     for (const [option, value] of [["--workspace-backend", "plain"], ["--workspace-authorization", "unrestricted"], ["--process-isolation", "host"], ["--command-policy", "path"]]) {
@@ -461,6 +462,7 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   );
   assert.match(workflow, /harbor==0\.14\.0/u);
   assert.match(workflow, /terminal-bench-harness\.mjs/u);
+  assert.match(workflow, /tb_agent_timeout_multiplier:[\s\S]+default: "1"/u);
   assert.match(workflow, /expected_list/u);
   assert.match(workflow, /Freeze current Linux candidate/u);
   assert.match(workflow, /terminal-bench-candidate-/u);
@@ -500,9 +502,8 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   );
   assert.match(harness, /BEST_AGENT_CLI_EXECUTION_ARGS_JSON/u);
   assert.match(harness, /inspectAttemptEvidence\(evidencePath\)/u);
-  assert.match(harness, /BEST_AGENT_CLI_WORKSPACE = config\.workspace/u);
   assert.match(agent, /BEST_AGENT_CLI_EXECUTION_ARGS_JSON/u);
-  assert.match(agent, /BEST_AGENT_CLI_WORKSPACE/u);
+  assert.match(agent, /command="pwd"/u);
   assert.doesNotMatch(agent, /--workspace-backend|--workspace-authorization|--process-isolation/u);
   assert.doesNotMatch(agent, /cd \/app/u);
   assert.doesNotMatch(agent, /apt-get[^\n]+\|\| true/u);

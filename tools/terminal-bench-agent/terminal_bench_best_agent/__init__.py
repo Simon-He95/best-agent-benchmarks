@@ -81,9 +81,9 @@ class BestAgentCli(BaseInstalledAgent):
     ) -> None:
         model = _required_env("BEST_AGENT_PROVIDER_MODEL")
         timeout_ms = _required_env("BEST_AGENT_TIMEOUT_MS")
-        workspace = _required_env("BEST_AGENT_CLI_WORKSPACE")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
         await self._prepare_provider(environment)
+        workspace = (await self.exec_as_agent(environment, command="pwd")).stdout.strip()
         command = "\n".join(
             [
                 "set -e",
@@ -99,6 +99,8 @@ class BestAgentCli(BaseInstalledAgent):
                 '"$HOME/.best-agent-cli/bin/best-agent" run '
                 + "--model "
                 + shlex.quote(model)
+                + " --workspace "
+                + shlex.quote(workspace)
                 + " "
                 + " ".join(shlex.quote(value) for value in execution_args)
                 + " --attempt-evidence /logs/agent/best-agent-evidence.jsonl"

@@ -39,9 +39,9 @@ on:
         type: boolean
         default: false
       tb_agent_timeout_multiplier:
-        description: Multiplier over each task's agent timeout (28800s * 0.1875 = 90min)
+        description: Multiplier over each task's declared agent timeout
         required: false
-        default: "0.1875"
+        default: "1"
       tb_timeout_ms:
         description: Per-task provider timeout in ms (empty = derived from multiplier)
         required: false

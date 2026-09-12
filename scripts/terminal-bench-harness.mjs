@@ -197,11 +197,8 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_NODE_VERSION = candidate.nodeVersion;
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_VERSION = candidate.cliVersion;
-  process.env.BEST_AGENT_CLI_WORKSPACE = config.workspace;
   const execution = config.generation.executionProfile;
   process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
-    "--workspace",
-    config.workspace,
     "--max-model-cycles",
     String(config.generation.maxModelCycles),
     "--workspace-backend",
