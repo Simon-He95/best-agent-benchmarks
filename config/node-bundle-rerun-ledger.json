@@ -19,19 +19,19 @@
   "rerunComposite": {
     "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
     "total": 63,
-    "evaluated": 20,
-    "resolved": 2,
+    "evaluated": 21,
+    "resolved": 3,
     "testFailed": 18,
     "notEvaluated": 1,
-    "inFlight": 5,
+    "inFlight": 4,
     "notAttempted": 37,
     "passAt1": null
   },
   "crossCandidateCombinedDiagnostic": {
-    "note": "Diagnostic cross-candidate count of tasks with at least one official resolution across program history: historical 437 + rerun-resolved 2. Cross-candidate combination is diagnostic only and can never be reported as pass@1 under the frozen rules.",
+    "note": "Diagnostic cross-candidate count of tasks with at least one official resolution across program history: historical 437 + rerun-resolved 3. Cross-candidate combination is diagnostic only and can never be reported as pass@1 under the frozen rules.",
     "total": 500,
-    "resolved": 439,
-    "rate": 0.878,
+    "resolved": 440,
+    "rate": 0.88,
     "passAt1": null
   },
   "tasks": [
@@ -234,7 +234,10 @@
       "instanceId": "django__django-14792",
       "batch": "batch-7",
       "runId": "34704991417",
-      "verdict": "in-flight"
+      "verdict": "resolved",
+      "attemptId": "django__django-14792-node-34704991417-001",
+      "patchSha256": "b3b1de42dfecfa1390e1c8e2ab5248dd3d69f593d72e87cb4ed2e43509f3afac",
+      "officialRecordSha256": "72e57bf65085858f17e203c1968fe61962a8d9235a6717453166852d32f4bf50"
     },
     {
       "taskIndex": 22,
