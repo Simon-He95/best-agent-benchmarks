@@ -23,8 +23,8 @@
     "resolved": 2,
     "testFailed": 18,
     "notEvaluated": 1,
-    "inFlight": 5,
-    "notAttempted": 37,
+    "inFlight": 0,
+    "notAttempted": 42,
     "passAt1": null
   },
   "crossCandidateCombinedDiagnostic": {
@@ -228,50 +228,27 @@
       "attemptId": "django__django-14376-node-34442964146-001",
       "patchSha256": "ef7e2ea90daedfd9e848804f9de9f1ba7c674e4ada00cedee7d07b462b02e554",
       "officialRecordSha256": "574e3f5a8bbbb191304b03fa99cced97d8cc4c93ebb3833b8afa0a4b4201a7c4"
-    },
-    {
-      "taskIndex": 21,
-      "instanceId": "django__django-14792",
-      "batch": "batch-7",
-      "runId": "34683621450",
-      "verdict": "in-flight"
-    },
-    {
-      "taskIndex": 22,
-      "instanceId": "django__django-15127",
-      "batch": "batch-7",
-      "runId": "34683621450",
-      "verdict": "in-flight"
-    },
-    {
-      "taskIndex": 23,
-      "instanceId": "django__django-15629",
-      "batch": "batch-7",
-      "runId": "34683621450",
-      "verdict": "in-flight"
-    },
-    {
-      "taskIndex": 24,
-      "instanceId": "django__django-15695",
-      "batch": "batch-7",
-      "runId": "34683621450",
-      "verdict": "in-flight"
-    },
-    {
-      "taskIndex": 25,
-      "instanceId": "django__django-15732",
-      "batch": "batch-7",
-      "runId": "34683621450",
-      "verdict": "in-flight"
     }
   ],
   "notAttempted": {
-    "count": 37,
-    "note": "Frozen zero-based selection indices26..62 have no run yet. Batch7 indices21..25 dispatched exactly once as34683621450."
+    "count": 42,
+    "note": "Selection indices21..62 have no model attempt. Batch7 run34683621450 failed in provider materialization before any model claim; later4 jobs skipped. Credential refresh and frozen prior-run admission are required before continuation."
   },
   "rules": {
     "passAt1": "null everywhere; a selected-failure rerun is diagnostic only and never combinable into a pass@1 claim.",
     "canonicalSource": "Only per-run official-record.json from the pinned official evaluator counts as a verdict; this ledger aggregates those records and never reinterprets them.",
     "immutability": "Prior canonical records and the historicalComposite snapshot are never overwritten; ledger entries are append/freeze-per-verdict."
-  }
+  },
+  "preModelFailures": [
+    {
+      "runId": "34683621450",
+      "batch": "batch-7",
+      "instanceId": "django__django-14792",
+      "reason": "Benchmark OAuth access token is expired",
+      "modelAttempt": false,
+      "artifactId": 10295091302,
+      "artifactDigest": "sha256:856bbf8b2f1ba50467828cc79b01edd85532543368f86715c439e9a983266016",
+      "verifiedFiles": 54
+    }
+  ]
 }
