@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "batchId": "remaining63-node-batch7",
+  "workflowName": "node-bundle-batch7.yml",
+  "candidateId": "local-spec100-epoch002-not-published",
+  "selectionId": "remaining63-node-bundle-20260909",
+  "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "priorBatchRuns": [],
+  "imageDigestSource": "anonymous Docker Hub registry metadata query (manifests/latest Docker-Content-Digest); same method that reproduced the batch-3 digests and produced the batch-5 pins; no image pulled locally",
+  "tasks": [
+    {
+      "taskIndex": 21,
+      "instanceId": "django__django-14792",
+      "repo": "django/django",
+      "baseCommit": "d89f976bddb49fb168334960acc8979c3de991fa",
+      "promptSha256": "7fb02f1b45fa30db8d4b91420a674ef08454e8ca076f0c64c82a819e8e333b71",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-14792@sha256:95b4576c207216a24962c777447737314d8a69e9beac97065f58995fc54ce7f8",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 22,
+      "instanceId": "django__django-15127",
+      "repo": "django/django",
+      "baseCommit": "9a6e2df3a8f01ea761529bec48e5a8dc0ea9575b",
+      "promptSha256": "7a9fd604bbb91c81d1d38dc6a3dc9e171838a21161e5bb6dbf341eff97d35c41",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-15127@sha256:2fbf01c7457fda0f49eef1e1c035b589ed12432ef307c368aac22af534f15fd4",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 23,
+      "instanceId": "django__django-15629",
+      "repo": "django/django",
+      "baseCommit": "694cf458f16b8d340a3195244196980b2dec34fd",
+      "promptSha256": "c59f2d0d01bae7bbbb5f13a5c3e8c2f215d12a3038e93369e079495993cbc20e",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-15629@sha256:59f1f89efe666569df30dd7dee656f4a4368cec715857e7e845010ed5dc29ed7",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 24,
+      "instanceId": "django__django-15695",
+      "repo": "django/django",
+      "baseCommit": "647480166bfe7532e8c471fef0146e3a17e6c0c9",
+      "promptSha256": "bec3f16c82686c3eb86f6e066fddab37f62af40175b568c7bedac7fd46df7dac",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-15695@sha256:c7697fff17b1d0580146de04672f7e71d2ab19b3a42a0cc08168c5920385bd69",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    },
+    {
+      "taskIndex": 25,
+      "instanceId": "django__django-15732",
+      "repo": "django/django",
+      "baseCommit": "ce69e34bd646558bb44ea92cecfd98b345a0b3e0",
+      "promptSha256": "03b9fdfea09d0dacf11f72590f6d72e1bbf7b177f1fa467b54f240b8fe427c07",
+      "priorDisposition": "test-failed",
+      "imageRef": "swebench/sweb.eval.x86_64.django_1776_django-15732@sha256:83ea0f1ce2aab3468ec104b3788afcfa76bb81ae31db2107e9cf73d284e5fb5e",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "django",
+      "pythonSource": "/testbed/django/__init__.py",
+      "pythonVersion": null,
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [
+          "build",
+          "dist",
+          "Django.egg-info"
+        ],
+        "installedEggPath": null
+      }
+    }
+  ]
+}

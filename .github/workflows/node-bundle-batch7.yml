@@ -1,0 +1,148 @@
+name: Frozen Node failed-task batch 7
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: frozen-node-failed-tasks
+  cancel-in-progress: false
+
+jobs:
+  django-14792:
+    name: django__django-14792 — one model attempt and official evaluation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      NODE_BUNDLE_TASK: django__django-14792
+      NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-7.json
+    steps: &job-steps
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+
+      - uses: actions/checkout@v4
+        with:
+          repository: SWE-bench/SWE-bench
+          ref: 726c5461e2ef52d83cf1ea2107870a8bb3328d57
+          path: tools/swe-bench-source
+          persist-credentials: false
+
+      - name: Download and verify private candidate and fixed Node
+        id: download
+        env:
+          BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {downloadCandidate} from './scripts/download-node-bundle.mjs';
+          const root = process.env.RUNNER_TEMP + '/frozen-node-candidate';
+          await downloadCandidate(root);
+          if (fs.readFileSync(root + '/download-receipt.json').includes(Buffer.from(process.env.BEST_AGENT_SOURCE_TOKEN))) throw new Error('Private download receipt cannot be uploaded');
+          JS
+
+      - name: Check batch admission, evidence and lifecycle tests
+        run: >-
+          "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node"
+          --experimental-test-module-mocks --test
+          test/download-node-bundle.test.mjs test/node-bundle-preflight.test.mjs
+          test/node-bundle-generation.test.mjs test/node-bundle-evaluation.test.mjs
+          test/node-bundle-controller.test.mjs test/node-bundle-batch.test.mjs
+
+      - name: Verify controller and official evaluator environment before model admission
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-controller.mjs prepare
+          "$RUNNER_TEMP/frozen-node-candidate" "$RUNNER_TEMP/node-bundle-batch-evidence" "$GITHUB_RUN_ID"
+
+      - name: Run the sole frozen model attempt and audit terminal evidence
+        env:
+          BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-controller.mjs generate
+          "$RUNNER_TEMP/frozen-node-candidate" "$RUNNER_TEMP/node-bundle-batch-evidence" "$GITHUB_RUN_ID"
+
+      - name: Evaluate frozen prediction in fresh official Docker container
+        run: >-
+          "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node"
+          scripts/node-bundle-controller.mjs evaluate
+          "$RUNNER_TEMP/frozen-node-candidate" "$RUNNER_TEMP/node-bundle-batch-evidence" "$GITHUB_RUN_ID"
+
+      - name: Audit and stage only immutable credential-safe evidence
+        if: always()
+        env:
+          BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+          DOWNLOAD_SUCCEEDED: ${{ steps.download.outcome == 'success' }}
+        run: |
+          if [ "$DOWNLOAD_SUCCEEDED" = "true" ]; then
+            "$RUNNER_TEMP/frozen-node-candidate/node-v24.15.0-linux-x64/bin/node" scripts/node-bundle-controller.mjs publish "$RUNNER_TEMP/frozen-node-candidate" "$RUNNER_TEMP/node-bundle-batch-evidence" "$GITHUB_RUN_ID"
+          else
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'node-bundle-batch-evidence-upload'
+          root.mkdir()
+          (root / 'upload-blocked.json').write_text(json.dumps({'runId': os.environ['GITHUB_RUN_ID'], 'stage': 'candidate-download', 'rawEvidenceUploaded': False, 'modelAttempt': False}) + '\n')
+          PY
+          fi
+
+      - name: Upload audited evidence even when the task fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-bundle-batch7-${{ env.NODE_BUNDLE_TASK }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/node-bundle-batch-evidence-upload/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
+
+  django-15127:
+    name: django__django-15127 — one model attempt and official evaluation
+    needs: django-14792
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      NODE_BUNDLE_TASK: django__django-15127
+      NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-7.json
+    steps: *job-steps
+
+  django-15629:
+    name: django__django-15629 — one model attempt and official evaluation
+    needs: django-15127
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      NODE_BUNDLE_TASK: django__django-15629
+      NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-7.json
+    steps: *job-steps
+
+  django-15695:
+    name: django__django-15695 — one model attempt and official evaluation
+    needs: django-15629
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      NODE_BUNDLE_TASK: django__django-15695
+      NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-7.json
+    steps: *job-steps
+
+  django-15732:
+    name: django__django-15732 — one model attempt and official evaluation
+    needs: django-15695
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      NODE_BUNDLE_TASK: django__django-15732
+      NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-7.json
+    steps: *job-steps
