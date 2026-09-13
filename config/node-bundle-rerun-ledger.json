@@ -19,11 +19,11 @@
   "rerunComposite": {
     "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
     "total": 63,
-    "evaluated": 29,
+    "evaluated": 30,
     "resolved": 3,
-    "testFailed": 26,
+    "testFailed": 27,
     "notEvaluated": 1,
-    "inFlight": 1,
+    "inFlight": 0,
     "notAttempted": 32,
     "passAt1": null
   },
@@ -324,8 +324,10 @@
       "instanceId": "matplotlib__matplotlib-21568",
       "batch": "batch-9",
       "runId": "34747616582",
-      "verdict": "in-flight",
-      "note": "Reviewed pre-model cache continuation of34744942664; prior failure preserved in preModelFailures. No previous model claim/prediction/canonical."
+      "verdict": "test-failed",
+      "note": "274 files verified; official patch applied,4 target formatting assertions fail,73 regressions pass. Model implementation failure; no dvipng execution error.",
+      "attemptId": "matplotlib__matplotlib-21568-node-34747616582-001",
+      "patchSha256": "ef95a3b53769c2a27b100b4f632a1633cb28f7db852b7bdf1093eddd826736af"
     }
   ],
   "notAttempted": {
