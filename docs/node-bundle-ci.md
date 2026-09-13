@@ -1,5 +1,7 @@
 # Frozen Node bundle CI
 
+> 本文是特定历史诊断候选的交接记录，不是“本地改完 best-agent 后一键重跑 SWE-bench”的通用说明。当前可执行能力和统一操作步骤见[Benchmark 操作手册](benchmark-operator-runbook.md)。该候选始终是 `diagnosticOnly=true`、`passAt1=null`。
+
 ## 接手入口与当前状态（2026-09-09）
 
 这是本轮运行交接入口，不依赖聊天上下文。先读本文件、仓库 `AGENTS.md` 和以下两个事实文件：
