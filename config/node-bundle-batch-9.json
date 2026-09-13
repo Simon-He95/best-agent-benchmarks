@@ -7,7 +7,24 @@
   "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
   "diagnosticOnly": true,
   "passAt1": null,
-  "priorBatchRuns": [],
+  "priorBatchRuns": [
+    {
+      "runId": "34744942664",
+      "headSha": "ad3d9d1beccec3685b790793b44d5a93661bf86d",
+      "jobId": 103691016916,
+      "failedStep": "Run the sole frozen model attempt and audit terminal evidence",
+      "skippedSteps": [
+        "Evaluate frozen prediction in fresh official Docker container"
+      ],
+      "modelAttempt": false,
+      "predictionPresent": false,
+      "officialEvaluation": "not-evaluated",
+      "artifactName": "node-bundle-batch9-matplotlib__matplotlib-21568-34744942664-1",
+      "artifactId": 10313896045,
+      "artifactDigest": "sha256:b292765560a1a5762bc6abc964161e22be14a53fac345b9916010a9e0b33ebd2",
+      "reason": "Root content scan rejected pip HTTP download cache containing Matplotlib source.120 uploaded files independently size/hash verified; terminal sanitation failure modelAttempt=false, all containers removed; no model-claim/prediction/canonical. Remove only /root/.cache/pip before unchanged full root scan; installed environment and official image unchanged."
+    }
+  ],
   "imageDigestSource": "anonymous Docker Hub registry metadata query (manifests/latest Docker-Content-Digest); same method that reproduced the batch-3 digests and produced the batch-5 pins; no image pulled locally",
   "tasks": [
     {

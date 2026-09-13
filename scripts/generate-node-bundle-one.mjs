@@ -190,6 +190,9 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     const headCommit = sanitation.git.headCommit;
     await step('remove-sanitizer', ['exec', containerId, 'rm', '/work/sanitize.mjs']);
     await step('freeze-base-git', ['cp', containerId + ':/testbed/.git', path.join(privateDir, 'base.git')]);
+    if (candidate.task.instanceId === 'matplotlib__matplotlib-21568') {
+      await step('remove-pip-download-cache', ['exec', containerId, 'rm', '-rf', '/root/.cache/pip']);
+    }
     const rootTar = path.join(privateDir, 'root.tar');
     await step('root-export', ['export', containerId], {timeoutMs: 300_000, stdoutPath: rootTar});
     // The root scan flags needle matches as prohibited-content. A match inside a /testbed
