@@ -9,8 +9,8 @@ const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
 export function validateInventory(config, selection) {
-  assert.equal(config.taskIndex, 30);
-  assert.equal(config.instanceId, 'matplotlib__matplotlib-21568');
+  assert([30, 31, 32, 33].includes(config.taskIndex));
+  assert.equal(selection.tasks[config.taskIndex].repo, 'matplotlib/matplotlib');
   const task = selection.tasks[config.taskIndex];
   assert.equal(task.instanceId, config.instanceId);
   assert.equal(task.baseCommit, config.baseCommit);
@@ -59,7 +59,7 @@ export async function inventory(evidenceDir) {
   assert.equal(process.platform, 'linux');
   assert.equal(process.arch, 'x64');
   assert.equal(process.env.GITHUB_RUN_ATTEMPT, '1');
-  const config = JSON.parse(fs.readFileSync(path.join(repository, 'config/node-bundle-matplotlib-inventory.json')));
+  const config = JSON.parse(fs.readFileSync(path.join(repository, process.env.NODE_BUNDLE_INVENTORY_CONFIG ?? 'config/node-bundle-matplotlib-inventory.json')));
   validateInventory(config, JSON.parse(fs.readFileSync(path.join(repository, 'config/node-bundle-failed-tasks.json'))));
   fs.mkdirSync(evidenceDir);
   fs.writeFileSync(path.join(evidenceDir, 'inventory-config.json'), JSON.stringify(config, null, 2) + '\n');

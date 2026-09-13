@@ -12,3 +12,13 @@ test('inventory admits only the next frozen instance and pinned official image',
     assert.throws(() => validateInventory({...config, ...change}, selection));
   }
 });
+
+test('remaining inventories stay in the frozen Matplotlib range and bind each base/image identity', () => {
+  for (const index of [31, 32, 33]) {
+    const next = JSON.parse(fs.readFileSync(new URL('../config/node-bundle-matplotlib-inventory-' + index + '.json', import.meta.url)));
+    validateInventory(next, selection);
+    assert.throws(() => validateInventory({...next, imageRef: config.imageRef}, selection));
+    assert.throws(() => validateInventory({...next, baseCommit: config.baseCommit}, selection));
+  }
+  assert.throws(() => validateInventory({...config, taskIndex: 34}, selection));
+});

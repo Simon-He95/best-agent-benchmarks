@@ -1,0 +1,9 @@
+{
+  "taskIndex": 33,
+  "instanceId": "matplotlib__matplotlib-25479",
+  "baseCommit": "7fdf772201e4c9bafbc16dfac23b5472d6a53fa2",
+  "imageRef": "swebench/sweb.eval.x86_64.matplotlib_1776_matplotlib-25479@sha256:8671675758c6e88cf80a493fbcd118667b3b20a4444636d3958f569672490eea",
+  "modelAttempt": false,
+  "diagnosticOnly": true,
+  "passAt1": null
+}
