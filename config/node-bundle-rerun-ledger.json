@@ -19,11 +19,11 @@
   "rerunComposite": {
     "note": "Official canonical verdicts of the 63-task diagnostic rerun (frozen candidate local-spec100-epoch002-not-published, Linux CI). Selected-failure rerun only; never a pass@1 claim.",
     "total": 63,
-    "evaluated": 27,
+    "evaluated": 29,
     "resolved": 3,
-    "testFailed": 24,
+    "testFailed": 26,
     "notEvaluated": 1,
-    "inFlight": 2,
+    "inFlight": 0,
     "notAttempted": 33,
     "passAt1": null
   },
@@ -304,14 +304,20 @@
       "instanceId": "django__django-16631",
       "batch": "batch-8",
       "runId": "34722497841",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-16631-node-34722497841-001",
+      "patchSha256": "40306d7c97525e73bbb7d5c2dae74b97fbab8f5e063822f794ac8b9ac29ae537",
+      "note": "Canonical official test-failed; 270 artifact files verified, patch applied, all container closures verified. Model assertion failure, not an environment failure."
     },
     {
       "taskIndex": 29,
       "instanceId": "django__django-16667",
       "batch": "batch-8",
       "runId": "34722497841",
-      "verdict": "in-flight"
+      "verdict": "test-failed",
+      "attemptId": "django__django-16667-node-34722497841-001",
+      "patchSha256": "f2661a7c8a2011900be86f2cd9b7618b0569588c23388ed4de9dd1d68c1a7534",
+      "note": "Canonical official test-failed; 270 artifact files verified, patch applied, all container closures verified. Model assertion failure, not an environment failure."
     }
   ],
   "notAttempted": {
