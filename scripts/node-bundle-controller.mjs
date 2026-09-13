@@ -91,12 +91,12 @@ export function validateBatchConfig(batch, selectionBytes) {
     // batches are validated against the frozen selection's repo instead of a single block.
     const frozenRepo = selection.tasks[entry.taskIndex]?.repo;
     assert.equal(entry.repo, frozenRepo, 'Batch task left the frozen selection repository');
-    const expectedModule = frozenRepo === 'astropy/astropy' ? 'astropy' : frozenRepo === 'django/django' ? 'django' : null;
+    const expectedModule = frozenRepo === 'astropy/astropy' ? 'astropy' : frozenRepo === 'django/django' ? 'django' : frozenRepo === 'matplotlib/matplotlib' ? 'matplotlib' : null;
     assert(expectedModule, 'Unsupported frozen batch repository: ' + frozenRepo);
     assert.equal(entry.pythonModule, expectedModule, 'Batch task python module must follow its repository');
-    assert.equal(entry.pythonSource, `/testbed/${expectedModule}/__init__.py`);
+    assert.equal(entry.pythonSource, `/testbed/${expectedModule === 'matplotlib' ? 'lib/' : ''}${expectedModule}/__init__.py`);
     const plan = entry.sanitationPlan;
-    assert(plan && plan.mode === 'as-shipped' && Array.isArray(plan.removals) && plan.removals.length > 0 && plan.removals.every(name => name && !name.includes('/') && !name.startsWith('.')) && (plan.installedEggPath === null || typeof plan.installedEggPath === 'string'), 'Batch tasks need a valid as-shipped sanitation plan');
+    assert(plan && plan.mode === 'as-shipped' && Array.isArray(plan.removals) && (plan.removals.length > 0 || expectedModule === 'matplotlib') && plan.removals.every(name => name && !name.includes('/') && !name.startsWith('.')) && (plan.installedEggPath === null || typeof plan.installedEggPath === 'string'), 'Batch tasks need a valid as-shipped sanitation plan');
   }
   if (batch.firstTaskProvenance) {
     const provenance = batch.firstTaskProvenance;

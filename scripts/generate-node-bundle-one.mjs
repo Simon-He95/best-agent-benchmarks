@@ -183,7 +183,7 @@ export async function generateNodeBundleTask({candidateDir, evidenceDir, corpusP
     await step('inventory-before', ['exec', containerId, '/usr/bin/find', '/', '-xdev', '-printf', '%y %s %p\n']);
     await step('copy-sanitizer', ['cp', path.join(repository, 'scripts/node-bundle-sanitize.mjs'), containerId + ':/work/sanitize.mjs']);
     const sanitationPlan = candidate.task.sanitationPlan ?? {mode: 'as-shipped', removals: ['build', 'dist', 'Django.egg-info'], installedEggPath: '/opt/miniconda3/envs/testbed/lib/python3.5/site-packages/Django-2.2.dev20180625180104-py3.5.egg/django'};
-    assert(sanitationPlan.mode === 'as-shipped' && Array.isArray(sanitationPlan.removals) && sanitationPlan.removals.length > 0 && (sanitationPlan.installedEggPath === null || typeof sanitationPlan.installedEggPath === 'string'), 'Invalid sanitation plan');
+    assert(sanitationPlan.mode === 'as-shipped' && Array.isArray(sanitationPlan.removals) && (sanitationPlan.removals.length > 0 || candidate.task.instanceId.startsWith('matplotlib__matplotlib-')) && (sanitationPlan.installedEggPath === null || typeof sanitationPlan.installedEggPath === 'string'), 'Invalid sanitation plan');
     const sanitation = jsonOutput(await step('sanitize-base', ['exec', containerId, node, '/work/sanitize.mjs', candidate.task.baseCommit, JSON.stringify(sanitationPlan)], {timeoutMs: 300_000}));
     assert.equal(sanitation.git.baseCommit, candidate.task.baseCommit);
     assert.match(sanitation.git.headCommit, /^[a-f0-9]{40}$/);

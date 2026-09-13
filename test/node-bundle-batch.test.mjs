@@ -754,3 +754,21 @@ test('batch8 freezes the last four Django tasks in original order', () => {
   for (const [oldId, newId] of [['14034', '16263'], ['14155', '16502'], ['14170', '16631'], ['14315', '16667']]) expected = expected.replaceAll(oldId, newId);
   assert.equal(fs.readFileSync(new URL('../.github/workflows/node-bundle-batch8.yml', import.meta.url), 'utf8'), expected);
 });
+
+test('batch9 admits only the inspected first Matplotlib task with its lib source and preserved build', () => {
+  const next = readJson('config/node-bundle-batch-9.json');
+  validateBatchConfig(next, selectionBytes);
+  assert.deepEqual(next.tasks.map(task => task.taskIndex), [30]);
+  assert.equal(next.tasks[0].pythonSource, '/testbed/lib/matplotlib/__init__.py');
+  assert.deepEqual(next.tasks[0].sanitationPlan.removals, []);
+  assert.equal(next.tasks[0].imageRef, readJson('config/node-bundle-matplotlib-inventory.json').imageRef);
+  const wrong = structuredClone(next);
+  wrong.tasks[0].pythonSource = '/testbed/matplotlib/__init__.py';
+  assert.throws(() => validateBatchConfig(wrong, selectionBytes));
+  const django = readJson('config/node-bundle-batch-8.json');
+  django.tasks[0].sanitationPlan.removals = [];
+  assert.throws(() => validateBatchConfig(django, selectionBytes));
+  const source = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch8.yml', import.meta.url), 'utf8');
+  const expected = source.split('\n  django-16502:')[0].replaceAll('batch 8', 'batch 9').replaceAll('batch8', 'batch9').replaceAll('batch-8', 'batch-9').replaceAll('django__django-16263', 'matplotlib__matplotlib-21568').replaceAll('django-16263', 'matplotlib-21568');
+  assert.equal(fs.readFileSync(new URL('../.github/workflows/node-bundle-batch9.yml', import.meta.url), 'utf8'), expected);
+});

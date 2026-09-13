@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "batchId": "remaining63-node-batch9",
+  "workflowName": "node-bundle-batch9.yml",
+  "candidateId": "local-spec100-epoch002-not-published",
+  "selectionId": "remaining63-node-bundle-20260909",
+  "selectionSourceSha256": "60a9abae07972805327603b60d38f2e2540ac2b37671cdea43c9e007741fb142",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "priorBatchRuns": [],
+  "imageDigestSource": "anonymous Docker Hub registry metadata query (manifests/latest Docker-Content-Digest); same method that reproduced the batch-3 digests and produced the batch-5 pins; no image pulled locally",
+  "tasks": [
+    {
+      "taskIndex": 30,
+      "instanceId": "matplotlib__matplotlib-21568",
+      "repo": "matplotlib/matplotlib",
+      "baseCommit": "f0632c0fc7339f68e992ed63ae4cfac76cd41aad",
+      "promptSha256": "f883ddaa1dde3ab2b8ad772405baa1d0f0f7651abe08441c7c79a0521380bc3e",
+      "priorDisposition": "no-prediction",
+      "imageRef": "swebench/sweb.eval.x86_64.matplotlib_1776_matplotlib-21568@sha256:406c7217f36ff5e27539fe1bb6f3bebd44473ca4deced319216896a63a6c2476",
+      "pythonPrefix": "/opt/miniconda3/envs/testbed",
+      "pythonModule": "matplotlib",
+      "pythonSource": "/testbed/lib/matplotlib/__init__.py",
+      "pythonVersion": "3.8.20",
+      "sanitationPlan": {
+        "mode": "as-shipped",
+        "removals": [],
+        "installedEggPath": null
+      }
+    }
+  ]
+}
