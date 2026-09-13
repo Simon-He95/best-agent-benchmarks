@@ -598,6 +598,30 @@ test("failure analysis classifies stages and emits per-task details", async () =
       snapshot: { terminalCause: "completed", transcript: [] },
     }) + "\n",
   );
+  const providerTrial = join(base, "jobs", "bar", "job-2", "bar__abc");
+  mkdirSync(join(providerTrial, "agent"), { recursive: true });
+  writeFileSync(join(providerTrial, "result.json"), "{}");
+  writeFileSync(
+    join(resultsDir, "terminal-bench-results.bar.json"),
+    JSON.stringify({
+      task: { name: "terminal-bench/bar" },
+      jobName: "job-2",
+      result: {
+        disposition: "error",
+        exception: { type: "RuntimeError", message: "container text from task prompt" },
+      },
+      durationMs: 1000,
+    }),
+  );
+  writeFileSync(
+    join(providerTrial, "agent", "best-agent-evidence.jsonl"),
+    JSON.stringify({ type: "model-failure" }) + "\n" +
+      JSON.stringify({
+        type: "terminal-snapshot",
+        sequence: 2,
+        snapshot: { terminalCause: "model-failure", transcript: [] },
+      }) + "\n",
+  );
   const output = join(base, "failures.md");
   const result = spawnSync(
     process.execPath,
@@ -615,6 +639,7 @@ test("failure analysis classifies stages and emits per-task details", async () =
   assert.equal(result.status, 0, result.stderr);
   const markdown = readFileSync(output, "utf8");
   assert.match(markdown, /— model/u);
+  assert.match(markdown, /bar — provider/u);
   assert.match(markdown, /FAILED test_final_output/u);
 
   writeFileSync(
