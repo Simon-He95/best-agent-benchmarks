@@ -1,0 +1,10 @@
+{
+  "instanceId": "matplotlib__matplotlib-21568",
+  "taskIndex": 30,
+  "baseCommit": "f0632c0fc7339f68e992ed63ae4cfac76cd41aad",
+  "imageRef": "swebench/sweb.eval.x86_64.matplotlib_1776_matplotlib-21568@sha256:406c7217f36ff5e27539fe1bb6f3bebd44473ca4deced319216896a63a6c2476",
+  "imageDigestSource": "Anonymous Docker Hub manifest metadata; response body SHA256 equals Docker-Content-Digest. No local image pull.",
+  "modelAttempt": false,
+  "diagnosticOnly": true,
+  "passAt1": null
+}

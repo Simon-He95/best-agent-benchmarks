@@ -1,0 +1,32 @@
+name: Matplotlib official image inventory (no model)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frozen-node-failed-tasks
+  cancel-in-progress: false
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate inventory identity and boundaries
+        run: node --test test/node-bundle-matplotlib-inventory.test.mjs
+      - name: Inspect pinned official image without model credentials
+        run: node scripts/node-bundle-matplotlib-inventory.mjs "$RUNNER_TEMP/matplotlib-inventory"
+      - name: Preserve inventory receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matplotlib-inventory-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/matplotlib-inventory/
+          if-no-files-found: error
+          retention-days: 30
