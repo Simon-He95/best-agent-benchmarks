@@ -333,7 +333,14 @@ jobs:
           const tasks = [];
           for (const batch of batches) {
             for (const name of batch.tasks.split(",")) {
-              tasks.push({ task: name, batchId: batch.id });
+              tasks.push({
+                task: name,
+                batchId: batch.id,
+                runner:
+                  name === "terminal-bench/cumulative-layout-shift"
+                    ? ["self-hosted", "terminal-bench-long"]
+                    : "ubuntu-latest",
+              });
             }
           }
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `tasks=${JSON.stringify(tasks)}\n`);
@@ -343,8 +350,10 @@ jobs:
     name: Generate (${{ matrix.entry.task }})
     if: ${{ (inputs.run_tb_smoke || inputs.run_tb) && needs.tb-plan.outputs.tasks != '[]' }}
     needs: [tb-candidate, tb-corpus, tb-plan]
-    runs-on: ubuntu-latest
-    timeout-minutes: 480
+    runs-on: ${{ matrix.entry.runner }}
+    timeout-minutes: 1440
+    env:
+      DOCKER_DEFAULT_PLATFORM: linux/amd64
     strategy:
       fail-fast: false
       max-parallel: 8
