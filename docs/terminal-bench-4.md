@@ -2,6 +2,8 @@
 
 本仓库在原有 SWE-bench Verified 流程之外,新增一条完全独立的 **Terminal-Bench 4.0** CI 跑分流水线。SWE-bench 的 workflow、脚本、配置与产物一律不动。
 
+日常更新候选、切换凭据/模型、执行 smoke/full run 和验收产物时，使用[统一操作手册](benchmark-operator-runbook.md)。本文保留 Terminal-Bench 的实现说明。
+
 ## 基准与运行方式
 
 Terminal-Bench 4.0 由 [Harbor](https://www.harborframework.com) 框架承载:
@@ -22,7 +24,7 @@ harbor run -p tasks/<task> --agent-import-path terminal_bench_best_agent:BestAge
 
 ## CI 用法
 
-Workflow:`Terminal-Bench 4.0`(`.github/workflows/terminal-bench.yml`),全部在 `ubuntu-latest` 上运行(GitHub macOS runner 不提供 Docker;arm64 不支持嵌套虚拟化)。
+Workflow:`Terminal-Bench 4.0`(`.github/workflows/terminal-bench.yml`)。candidate、corpus、plan、report 和绝大多数 generation job 使用 GitHub-hosted Ubuntu；`cumulative-layout-shift` 单独路由到带 `terminal-bench-long` 标签的一次性 self-hosted runner，并以 `linux/amd64` Docker 环境执行。没有该 runner 时该题会保持 queued，不能用其他环境静默替代。
 
 Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-bench.json` 所指定 private source repository 的最小权限 token；它只传给 source checkout，且 checkout 后不持久化。Provider token 仍由独立的 `BENCHMARK_PROVIDER_API_KEY` 拥有。
 
@@ -33,7 +35,7 @@ Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-
 | `tb_tasks` | 预声明任务列表(逗号分隔,覆盖 offset/limit,≤10) |
 | `tb_limit` / `tb_offset` | 按 corpus 顺序切片 |
 | `tb_run_full` | 63 个 eligible 任务全量(使用冻结批次计划,须 pin 配置模型) |
-| `tb_agent_timeout_multiplier` | 任务 agent 超时乘数,默认 0.1875(=8h×0.1875≈90min/任务) |
+| `tb_agent_timeout_multiplier` | 任务声明的 agent 超时乘数；workflow 默认和正式运行均为 `1`，完整保留官方任务预算 |
 | `tb_timeout_ms` | 显式 provider/CLI 超时;空值由任务 agent 预算推导 |
 
 流程:`tb-candidate`(从精确 source commit 构建一次 Linux SEA,冻结 binary/tarball/lockfile/build-report hash)与 `tb-corpus`(sparse 拉取任务元数据 + 冻结 manifest)→ `tb-plan`(批次校验)→ `tb-generate`(每任务下载同一 candidate artifact + sparse 检出一个任务目录 + `harbor run` 一次)→ `tb-report`(聚合报告)。
@@ -53,7 +55,7 @@ Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-
 - **环境真实、资源受限**:agent 在任务容器内执行(真实 Linux 环境),但 CI runner 为 4 CPU / 16 GB,故 `--cpus ignore --memory ignore`(不强行套用任务资源规格),超资源任务(`resourceExceededTasks`)会慢或失败,已在 config 中标出。
 - **GPU 任务排除**:3 个任务(`fp8-rmsnorm-gemm`、`jax-speedrun-gpu`、`math-eval-grader`)需要 GPU,Docker 环境无法运行,全量计划显式排除并记录。需要 GPU 时可另走 Modal(需 `MODAL_TOKEN_ID`/`MODAL_TOKEN_SECRET`)。
 - **网络边界**:CLI 的 network ToolBinding 被排除(`--tool-exclude network`),但容器网络对任务开放(TB 任务常需下载依赖),shell 子进程可达外网。适合诊断/内部测量,不宣称 "closed-book"。
-- **超时策略**:默认把每个任务的 8h 官方 agent 超时压到 ~90min(Harbor `--agent-timeout-multiplier`),超时任务的判定为 error,报告可见。
+- **超时策略**:正式运行使用 Harbor `--agent-timeout-multiplier 1`，不压缩任务声明的 agent 预算；`tb_timeout_ms` 留空，由任务预算推导 provider/CLI timeout。工具子进程使用 `workspaceProcessDurationMs=2147000000`，且不添加 `max_steps`。超时仍按 error 保留在报告中，不能据此自动重试已有 prediction。
 - **provider**:复用同一份 frozen provider 档案(`materialize-ci-provider.mjs`),插件把 `provider.json` + dimcode home 物化进容器,CLI 在容器内按正常解析路径读取。
 
 ## 本地冒烟(有 Docker 的 macOS)

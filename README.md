@@ -2,9 +2,11 @@
 
 Public macOS generation runner for the pinned best-agent CLI on SWE-bench Verified.
 
-## Current work / handoff
+## Operator entry points
 
-For the active fixed Node + frozen CJS Linux CI migration, start with [the runbook and current handoff](docs/node-bundle-ci.md), [the frozen remaining63 selection](config/node-bundle-failed-tasks.json), and [the single-task generation plan](docs/node-bundle-generation-plan.md). Linux engineering preflight has passed; that alone is not a new benchmark result. The sections below describe the existing npm/SEA workflow, not the new unpublished CJS candidate. Do not launch that older workflow merely to continue the new migration.
+Start with [the benchmark operator runbook](docs/benchmark-operator-runbook.md). It records the executable commands, credential/model changes, candidate refresh procedure, result verification, maximum task-container permission profile, and the current difference between the Terminal-Bench Linux SEA flow and the diagnostic SWE-bench fixed-Node+CJS flow.
+
+The historical fixed-Node+CJS handoff remains in [the Node bundle CI notes](docs/node-bundle-ci.md), with its frozen 63-task selection in [config/node-bundle-failed-tasks.json](config/node-bundle-failed-tasks.json). That path is diagnostic and is not a generic latest-source SWE-bench full-run workflow.
 
 ## Evaluation boundary
 
