@@ -323,9 +323,9 @@
       "taskIndex": 30,
       "instanceId": "matplotlib__matplotlib-21568",
       "batch": "batch-9",
-      "runId": "34744942664",
+      "runId": "34747616582",
       "verdict": "in-flight",
-      "note": "Pre-model sanitation blocked34744942664; no model claim/prediction/canonical, pending reviewed continuation; in-flight denotes unresolved diagnostic slot, not an active model."
+      "note": "Reviewed pre-model cache continuation of34744942664; prior failure preserved in preModelFailures. No previous model claim/prediction/canonical."
     }
   ],
   "notAttempted": {
