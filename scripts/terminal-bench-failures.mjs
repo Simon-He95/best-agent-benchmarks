@@ -100,7 +100,6 @@ function classifyFailure(record, evidence) {
   const message = `${exception?.type ?? ""} ${exception?.message ?? ""}`;
   if (disposition === "not-evaluated") return "inconclusive";
   if (disposition === "passed") return "passed";
-  if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
   if (exception?.type === "AgentTimeoutError") return "agent-timeout";
   if (exception?.type === "VerifierTimeoutError") return "verifier";
   if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
@@ -108,6 +107,7 @@ function classifyFailure(record, evidence) {
   }
   if (evidence.terminalCause === "tool-unknown") return "tool";
   if (evidence.terminalCause === "run-deadline") return "harness";
+  if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
   if (record.result?.rewards !== undefined && evidence.terminalCause === "completed") {
     return "model";
   }
