@@ -65,6 +65,8 @@ test("candidate preparation passes the frozen maximum budget and unrestricted pr
     assert.equal(args.includes("--workspace"), false);
     assert.equal(args.filter((arg) => arg === "--max-model-cycles").length, 1);
     assert.equal(args[args.indexOf("--max-model-cycles") + 1], String(config.generation.maxModelCycles));
+    assert.equal(args.filter((arg) => arg === "--workspace-process-duration-ms").length, 1);
+    assert.equal(args[args.indexOf("--workspace-process-duration-ms") + 1], "2147000000");
     for (const [option, value] of [["--workspace-backend", "plain"], ["--workspace-authorization", "unrestricted"], ["--process-isolation", "host"], ["--command-policy", "path"]]) {
       assert.equal(args[args.indexOf(option) + 1], value);
     }
@@ -88,6 +90,7 @@ test("terminal-bench pins a current Linux x64 source candidate", () => {
     workspaceAuthorization: "unrestricted",
     processIsolation: "host",
     commandPolicy: "path",
+    workspaceProcessDurationMs: 2147000000,
     workspaceGrants: ["read", "write", "exec"],
   });
   assert.equal(config.provider.model, "deepseek-v4.1-flash");
@@ -471,6 +474,9 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   assert.match(workflow, /eligible\.slice\(offset, offset \+ count\)/u);
   assert.match(workflow, /binarySha256/u);
   assert.match(workflow, /runtimeLockSha256/u);
+  assert.match(workflow, /terminal-bench\/cumulative-layout-shift[\s\S]+self-hosted[\s\S]+terminal-bench-long/u);
+  assert.match(workflow, /DOCKER_DEFAULT_PLATFORM: linux\/amd64/u);
+  assert.match(workflow, /timeout-minutes: 1440/u);
   assert.match(workflow, /npm install --prefix \.tmp\/npm\/release-stage\/linux-x64-gnu/u);
   assert.match(
     workflow,

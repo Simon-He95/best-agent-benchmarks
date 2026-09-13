@@ -209,6 +209,8 @@ export function verifyFrozenIdentity() {
     execution.processIsolation,
     "--command-policy",
     execution.commandPolicy,
+    "--workspace-process-duration-ms",
+    String(execution.workspaceProcessDurationMs),
     ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
     ...(config.generation.toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
   ]);
@@ -409,6 +411,7 @@ async function main() {
     agentTimeoutMultiplier: args.agentTimeoutMultiplier,
     effectiveAgentTimeoutSec,
     providerTimeoutMs,
+    workspaceProcessDurationMs: config.generation.executionProfile.workspaceProcessDurationMs,
     jobName: args.jobName,
     trialDir: trialDir ? relative(repoRoot, trialDir) : undefined,
     result: {
