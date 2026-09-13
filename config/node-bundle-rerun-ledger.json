@@ -328,8 +328,8 @@
     }
   ],
   "notAttempted": {
-    "count": 33,
-    "note": "Frozen indices30..62 unattempted;batch8 indices26..29 dispatched exactly once34722497841."
+    "count": 32,
+    "note": "Frozen indices31..62 unattempted;batch9 index30 dispatched exactly once34744942664."
   },
   "rules": {
     "passAt1": "null everywhere; a selected-failure rerun is diagnostic only and never combinable into a pass@1 claim.",
