@@ -14,8 +14,9 @@
  * canonical disposition or trigger another attempt.
  */
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -106,16 +107,22 @@ function classifyFailure(record, evidence) {
   return "inconclusive";
 }
 
-function analyzeEvidence(evidencePath) {
+async function analyzeEvidence(evidencePath) {
   if (!existsSync(evidencePath)) return { present: false };
-  const lines = readFileSync(evidencePath, "utf8").split("\n").filter((line) => line.trim());
-  const entries = [];
+  const lines = createInterface({
+    input: createReadStream(evidencePath, { encoding: "utf8" }),
+    crlfDelay: Infinity,
+  });
+  let entries = 0;
   let modelFailureCount = 0;
   let terminalCause;
   const failedTools = [];
-  for (const line of lines) {
+  let last;
+  for await (const line of lines) {
+    if (!line.trim()) continue;
     const parsed = JSON.parse(line);
-    entries.push(parsed);
+    entries += 1;
+    last = parsed;
     if (parsed.type === "model-failure") modelFailureCount += 1;
     if (parsed.type === "terminal-snapshot") {
       terminalCause = parsed.snapshot?.terminalCause;
@@ -135,10 +142,9 @@ function analyzeEvidence(evidencePath) {
       }
     }
   }
-  const last = entries[entries.length - 1];
   return {
     present: true,
-    entries: entries.length,
+    entries,
     modelFailureCount,
     terminalCause,
     failedTools,
@@ -159,7 +165,7 @@ function fenced(text, maxLines = 40, title) {
   ].join("\n");
 }
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   const records = [];
   for (const file of readdirSync(args.results)) {
@@ -190,7 +196,7 @@ function main() {
       ? readTextSafe(join(trialDir, "agent", "best-agent-stderr.txt"))
       : undefined;
     const evidence = trialDir
-      ? analyzeEvidence(join(trialDir, "agent", "best-agent-evidence.jsonl"))
+      ? await analyzeEvidence(join(trialDir, "agent", "best-agent-evidence.jsonl"))
       : { present: false };
     const stage = classifyFailure(record, evidence);
 
@@ -311,4 +317,4 @@ function main() {
   );
 }
 
-main();
+await main();
