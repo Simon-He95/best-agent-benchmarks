@@ -23,8 +23,8 @@
     "resolved": 3,
     "testFailed": 26,
     "notEvaluated": 1,
-    "inFlight": 0,
-    "notAttempted": 33,
+    "inFlight": 1,
+    "notAttempted": 32,
     "passAt1": null
   },
   "crossCandidateCombinedDiagnostic": {
@@ -318,6 +318,13 @@
       "attemptId": "django__django-16667-node-34722497841-001",
       "patchSha256": "f2661a7c8a2011900be86f2cd9b7618b0569588c23388ed4de9dd1d68c1a7534",
       "note": "Canonical official test-failed; 270 artifact files verified, patch applied, all container closures verified. Model assertion failure, not an environment failure."
+    },
+    {
+      "taskIndex": 30,
+      "instanceId": "matplotlib__matplotlib-21568",
+      "batch": "batch-9",
+      "runId": "34744942664",
+      "verdict": "in-flight"
     }
   ],
   "notAttempted": {
