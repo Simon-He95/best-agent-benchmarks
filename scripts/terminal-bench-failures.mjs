@@ -14,7 +14,7 @@
  * canonical disposition or trigger another attempt.
  */
 
-import { createReadStream, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { closeSync, createReadStream, existsSync, fstatSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
@@ -49,8 +49,16 @@ function parseArgs(argv) {
 
 function readTextSafe(path, limitBytes = 200_000) {
   if (!existsSync(path)) return undefined;
-  const text = readFileSync(path, "utf8");
-  return text.length > limitBytes ? text.slice(-limitBytes) : text;
+  const fd = openSync(path, "r");
+  try {
+    const size = fstatSync(fd).size;
+    const length = Math.min(size, limitBytes);
+    const buffer = Buffer.alloc(length);
+    readSync(fd, buffer, 0, length, size - length);
+    return buffer.toString("utf8");
+  } finally {
+    closeSync(fd);
+  }
 }
 
 function tail(text, lines) {

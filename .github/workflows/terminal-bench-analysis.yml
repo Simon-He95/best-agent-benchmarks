@@ -1,0 +1,80 @@
+name: Terminal-Bench frozen result analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Source Terminal-Bench workflow run ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: terminal-bench-corpus-${{ inputs.source_run_id }}
+          path: results/corpora
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run_id }}
+
+      - name: Download frozen task artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: terminal-bench-task-${{ inputs.source_run_id }}-*
+          path: results
+          merge-multiple: true
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.source_run_id }}
+
+      - name: Rebuild reports without model execution
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const manifest = JSON.parse(fs.readFileSync("results/corpora/terminal-bench-4.0.json", "utf8"));
+            const gpu = new Set(manifest.gpuTasks);
+            const tasks = manifest.tasks.map(task => task.name).filter(name => !gpu.has(name));
+            fs.writeFileSync("results/terminal-bench/expected-tasks.txt", tasks.join("\n") + "\n");
+          '
+          node scripts/terminal-bench-report.mjs \
+            --results "${GITHUB_WORKSPACE}/results/terminal-bench/results" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/terminal-bench-4.0.json" \
+            --expected-tasks "${GITHUB_WORKSPACE}/results/terminal-bench/expected-tasks.txt" \
+            --output "${GITHUB_WORKSPACE}/results/terminal-bench/report.json" \
+            --formal
+          node scripts/terminal-bench-failures.mjs \
+            --results "${GITHUB_WORKSPACE}/results/terminal-bench/results" \
+            --jobs "${GITHUB_WORKSPACE}/results/terminal-bench/jobs" \
+            --output "${GITHUB_WORKSPACE}/results/terminal-bench/failures.md" \
+            --json "${GITHUB_WORKSPACE}/results/terminal-bench/failures.json"
+
+      - name: Write job summary
+        run: |
+          cat results/terminal-bench/report.json.md >> "$GITHUB_STEP_SUMMARY"
+          head -40 results/terminal-bench/failures.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload compact analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-bench-analysis-${{ inputs.source_run_id }}-${{ github.run_id }}
+          path: |
+            results/terminal-bench/report.json
+            results/terminal-bench/report.json.md
+            results/terminal-bench/failures.json
+            results/terminal-bench/failures.md
+            results/terminal-bench/expected-tasks.txt
+          if-no-files-found: error
+          retention-days: 90
