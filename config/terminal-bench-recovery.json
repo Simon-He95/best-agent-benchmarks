@@ -71,17 +71,45 @@
       "tasks": [
         "terminal-bench/ctr-optimization"
       ],
-      "dispatched": false,
+      "dispatched": true,
       "classification": "provider-transport",
       "sourceRunId": 34757660356,
       "sourceEvidenceSha256": "eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243",
       "sourceTerminalCause": "model-failure",
-      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "runId": 34850704969,
+      "batchId": "recovery-beta27-02-ctr-optimization",
+      "candidateId": "cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26",
+      "durationMs": 77062,
+      "evidenceSha256": "447378c50b17a6e2a2fcc8a05917d8eb039f1ab411c138c04860565bfc5d74c8",
+      "outcome": {
+        "terminal-bench/ctr-optimization": "error"
+      },
+      "attemptConsumed": false,
+      "reason": "This dispatch aborted before any model work: the relay rejected the frozen provider credential with 'v3 run model-failure: transport: 无效的令牌 ... HTTP 401' after 77 s, because the repository secret still held the token superseded when the local dimcode OAuth reissued at 2026-09-14T11:17:22Z. The task record shows rootStatus failed, rootTerminalCause model-failure, rootModelFailureReason transport, evidence sha256 447378c50b17a6e2a2fcc8a05917d8eb039f1ab411c138c04860565bfc5d74c8 (77062 ms). Simon ruled on 2026-09-14 that a credential rejection with no model activity does not consume this declaration's attempt: the failure evidence is preserved and the predeclared attempt continues in recovery-beta27b-02-ctr-optimization after the secret was re-synced from the fresh local login (GET https://dimagent.cn/v1/models -> 200).",
       "constraints": [
         "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
         "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
         "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
         "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27b-02-ctr-optimization",
+      "tasks": [
+        "terminal-bench/ctr-optimization"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243",
+      "sourceTerminalCause": "model-failure",
+      "supersedes": "recovery-beta27-02-ctr-optimization",
+      "reason": "Replacement declaration for the same task in the same admitted class. The first dispatch (run 34850704969) aborted on the superseded provider credential within 77 s and produced no model work, so Simon ruled that it did not consume the attempt; this declaration carries the predeclared single attempt of terminal-bench/ctr-optimization after the provider secret was re-synced from the fresh local dimcode OAuth login on 2026-09-14. Source evidence: run 34757660356, terminalCause model-failure, frozen evidence sha256 eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; this task keeps exactly one new single attempt, in this run, on the frozen beta.27 pin.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of runs 34757660356 and 34850704969 is preserved and never overwritten."
       ]
     },
     {
@@ -360,6 +388,8 @@
     "Recovery classes admitted for this queue: provider transport (9), pre-model environment failure (2 task-image builds), and harness tool-outcome uncertainty (6, rootTerminalCause tool-unknown with model failures 0, explicitly authorized by Simon as an environment defect).",
     "The queue is diagnostic: it completes verdicts for those 17 tasks on beta.27. It cannot be merged with the beta.25 tally (8 passed / 38 failed / 17 error) into a single pass@1.",
     "2026-09-14 (Simon): freeze run 34832709392 built source commit 48218dba into the 0.0.3-beta.27 candidate; its artifact terminal-bench-candidate-34832709392 (artifact id 10342579371) was verified with this repository's verify-terminal-bench-candidate.mjs before the superseded beta.25 pin was replaced and the candidateFreeze marker removed. This declaration is now bound to cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26.",
-    "2026-09-14 (Simon): the freeze dispatch also exercised batched-eval-parity (recovery-beta27-01) on beta.27, which again produced no verdict (transport). Simon ruled that this single attempt is recorded as that declaration's recovery attempt, so batch 01 is marked dispatched with its outcome and is not dispatched again."
+    "2026-09-14 (Simon): the freeze dispatch also exercised batched-eval-parity (recovery-beta27-01) on beta.27, which again produced no verdict (transport). Simon ruled that this single attempt is recorded as that declaration's recovery attempt, so batch 01 is marked dispatched with its outcome and is not dispatched again.",
+    "2026-09-14 (Simon): the first recovery dispatch after the pin write-back (run 34850704969, ctr-optimization) aborted in 77 s on a superseded provider credential (HTTP 401 无效的令牌): the repository secret still held the 2026-09-12 token while the local dimcode OAuth had reissued at 11:17:22Z. The secret was re-synced from the fresh local login and the queue continues. The aborted dispatch is recorded with attemptConsumed false, and its replacement declaration recovery-beta27b-02-ctr-optimization carries the task's single predeclared attempt.",
+    "recovery-beta27-03-cumulative-layout-shift is bound to the self-hosted runner label terminal-bench-long. The repository currently registers no runner, so the queue skips it while it is offline and dispatches it once such a runner is online; it must never be dispatched to a GitHub-hosted runner."
   ]
 }
