@@ -143,17 +143,25 @@
       "tasks": [
         "terminal-bench/freecad-impeller"
       ],
-      "dispatched": false,
+      "dispatched": true,
       "classification": "pre-model-environment",
       "sourceRunId": 34790194397,
       "sourceEvidenceSha256": "9a2eef1a8563df59832c6350a3e194546e1c195ee2f1939a956566fc4f6c35cb",
       "sourceTerminalCause": "completed",
-      "reason": "The task's own image/environment build failed upstream (Dockerfile solve refused a distutils-installed project), so no model or Harness verdict exists. Run 34790194397, frozen evidence sha256 9a2eef1a8563df59832c6350a3e194546e1c195ee2f1939a956566fc4f6c35cb. Recovery is admitted under the pre-model environment failure class.",
+      "runId": 34901657631,
+      "batchId": "recovery-beta27-04-freecad-impeller",
+      "candidateId": "cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26",
+      "durationMs": 1811589,
+      "evidenceSha256": "09270e00695e1c37a0ba0db486f1cabe915fb1be2798cb05c8072c86beac8ffc",
+      "outcome": {
+        "terminal-bench/freecad-impeller": "error"
+      },
+      "reason": "This declaration's single predeclared attempt ran on the frozen beta.27 pin (task record candidateId matches) for 1811589 ms. The agent phase itself completed: the payload evidence (sha256 09270e00695e1c37a0ba0db486f1cabe915fb1be2798cb05c8072c86beac8ffc, 54748337 bytes, 237 entries, recomputed from the frozen artifact) records 117 model requests and 117 model outcomes with no model-failure, and evidenceAdmission reports rootStatus completed. The trial still has no verdict because the task's own image build failed upstream in Dockerfile:22, RUN pip install --no-cache-dir 'gnucleus-freecad-validator[render]==0.1.3', with 'Cannot uninstall vtk 9.2.6 ... It is a distutils installed project'; Harbor therefore records disposition error (RuntimeError, Docker compose build) with no reward. The 2026-09-14 re-run reproduces the failure of run 34790194397 exactly, so this is a deterministic upstream task-environment defect, not a candidate, harness or model outcome.",
       "constraints": [
-        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
-        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; this task keeps exactly one new single attempt, in this run, on the frozen beta.27 pin.",
+        "The attempt ran on the frozen candidate pin declared in config/terminal-bench.json (verified candidateId).",
         "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
-        "The failed evidence of the earlier runs is preserved and never overwritten."
+        "The failed evidence of runs 34790194397 and 34901657631 is preserved and never overwritten."
       ]
     },
     {
