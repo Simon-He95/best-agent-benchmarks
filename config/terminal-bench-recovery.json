@@ -169,17 +169,25 @@
       "tasks": [
         "terminal-bench/freecad-platform-drawing"
       ],
-      "dispatched": false,
+      "dispatched": true,
       "classification": "provider-transport",
       "sourceRunId": 34757660356,
       "sourceEvidenceSha256": "be51838f7b0b666c455e05bb88ed7dc9b83e4cee9ac32629e1c5fe6a9e4a5cbf",
       "sourceTerminalCause": "model-failure",
-      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 be51838f7b0b666c455e05bb88ed7dc9b83e4cee9ac32629e1c5fe6a9e4a5cbf, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "runId": 34906607743,
+      "batchId": "recovery-beta27-05-freecad-platform-drawing",
+      "candidateId": "cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26",
+      "durationMs": 400244,
+      "evidenceSha256": "6b83cbc28d8e88b9390cdef96fed4204065fa64bc7171faee8924de806afe7d6",
+      "outcome": {
+        "terminal-bench/freecad-platform-drawing": "error"
+      },
+      "reason": "This declaration's single predeclared attempt ran on the frozen beta.27 pin (task record candidateId matches) and ended after 400244 ms with no verdict. The payload evidence (sha256 6b83cbc28d8e88b9390cdef96fed4204065fa64bc7171faee8924de806afe7d6, 13950341 bytes, 87 entries, recomputed from the frozen artifact) records 42 model requests and 42 model outcomes with no model-failure, and evidenceAdmission reports rootStatus failed with rootTerminalCause tool-unknown. The CLI stderr shows 'v3 run tool: exec:unknown:uncertain' and 'signal=SIGSEGV; exitCode=null', so the attempt died in an uncertain tool execution rather than in the provider: Harbor records disposition error and no reward. The predeclared beta.27 attempt of this task therefore reproduces the 2026-09-14 tool-unknown class (6 tasks), not the provider transport class its source evidence was admitted under.",
       "constraints": [
-        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
-        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; this task keeps exactly one new single attempt, in this run, on the frozen beta.27 pin.",
+        "The attempt ran on the frozen candidate pin declared in config/terminal-bench.json (verified candidateId).",
         "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
-        "The failed evidence of the earlier runs is preserved and never overwritten."
+        "The failed evidence of runs 34757660356 and 34906607743 is preserved and never overwritten."
       ]
     },
     {
