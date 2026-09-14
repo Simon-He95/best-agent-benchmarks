@@ -48,7 +48,12 @@ on:
         default: ""
 
 concurrency:
-  group: terminal-bench-${{ inputs.tb_batch || 'default' }}
+  # One benchmark pipeline at a time. Overlapping runs (two full runs, or a full run
+  # plus a diagnostic batch) contend for the same model provider, stretch near-budget
+  # tasks past the 6h GitHub-hosted job cap, and lose the frozen evidence of whatever
+  # gets cancelled. tb_batch stays a per-run label recorded in every task record; it
+  # must not gate concurrency. GitHub keeps at most one pending run per group.
+  group: terminal-bench
   cancel-in-progress: false
 
 permissions:
@@ -443,6 +448,15 @@ jobs:
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
             --batch-id "${{ matrix.entry.batchId }}" \
             --formal-run-id "${{ inputs.tb_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"
+
+      - name: Make frozen evidence readable before upload
+        if: always()
+        run: |
+          # Container-side writes (e.g. best-agent-runtime/memory) land on the host as
+          # root-owned mode-700 paths, so actions/upload-artifact fails with EACCES when
+          # a job is cancelled at the 6h cap and the attempt keeps no evidence at all.
+          # Normalize readability first: a killed attempt must still freeze what it had.
+          sudo chmod -R a+rX results || true
 
       - name: Upload immutable generation artifacts
         if: always()

@@ -180,6 +180,8 @@ gh api "repos/Simon-He95/best-agent-benchmarks/actions/runs/$formal_run_id/artif
 
 预期是 66 个 job：3 个冻结 job + 63 个 generation job；generation 最多 8 个并行。三个冻结 job 成功、多个任务进入 `Generate and freeze the task attempt` 且没有成批 setup/provider/harness 失败后，才算正常启动。
 
+并发由 workflow 的全局并发组 `terminal-bench`（`cancel-in-progress: false`）串行化：同一时间只有一个 benchmark pipeline 在跑，第二次 dispatch 只会排队（该 group 最多保留一个 pending），不会再出现两个 run 并行争抢 provider、把接近 6h 上限的任务拖死的情况。`tb_batch` 仍然每次 run 单独取值并写进每题记录，但不再参与并发判定。generation job 上传前会把 `results/` 归一化为可读，因此即使 job 在 6h 平台上限被取消，已冻结的 evidence 仍会保留。
+
 ### 4. 完成后验证
 
 下载 aggregate report，或从冻结任务 artifacts 重新做只读分析：
