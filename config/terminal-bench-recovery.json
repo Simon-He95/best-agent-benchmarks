@@ -39,6 +39,318 @@
         "The attempt stays diagnostic: passAt1 null, formal false.",
         "The failed evidence of runs 34757660356 and 34798815742 is preserved and was never overwritten."
       ]
+    },
+    {
+      "id": "recovery-beta27-01-batched-eval-parity",
+      "tasks": [
+        "terminal-bench/batched-eval-parity"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "e2927ca5cd93503ab200a5d7ac94f18c2252d087c6f3e784de14424a6179d226",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 e2927ca5cd93503ab200a5d7ac94f18c2252d087c6f3e784de14424a6179d226, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-02-ctr-optimization",
+      "tasks": [
+        "terminal-bench/ctr-optimization"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 eac3d3eec4111d8abf57e6c4711cf99976a79d2e5a27a71e1384138c65ce3243, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-03-cumulative-layout-shift",
+      "tasks": [
+        "terminal-bench/cumulative-layout-shift"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "a8517d25fe8bfe00a92988a2bd5a9a168a7f2285c8953ec1fd39282bb51a23db",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 a8517d25fe8bfe00a92988a2bd5a9a168a7f2285c8953ec1fd39282bb51a23db. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-04-freecad-impeller",
+      "tasks": [
+        "terminal-bench/freecad-impeller"
+      ],
+      "dispatched": false,
+      "classification": "pre-model-environment",
+      "sourceRunId": 34790194397,
+      "sourceEvidenceSha256": "9a2eef1a8563df59832c6350a3e194546e1c195ee2f1939a956566fc4f6c35cb",
+      "sourceTerminalCause": "completed",
+      "reason": "The task's own image/environment build failed upstream (Dockerfile solve refused a distutils-installed project), so no model or Harness verdict exists. Run 34790194397, frozen evidence sha256 9a2eef1a8563df59832c6350a3e194546e1c195ee2f1939a956566fc4f6c35cb. Recovery is admitted under the pre-model environment failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-05-freecad-platform-drawing",
+      "tasks": [
+        "terminal-bench/freecad-platform-drawing"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "be51838f7b0b666c455e05bb88ed7dc9b83e4cee9ac32629e1c5fe6a9e4a5cbf",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 be51838f7b0b666c455e05bb88ed7dc9b83e4cee9ac32629e1c5fe6a9e4a5cbf, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-06-freecad-spring-clip",
+      "tasks": [
+        "terminal-bench/freecad-spring-clip"
+      ],
+      "dispatched": false,
+      "classification": "pre-model-environment",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "c705e86759dddb6e8699f9cab043e797a42fc5a26fc799a9f3c8d5cacbf63376",
+      "sourceTerminalCause": "completed",
+      "reason": "The task's own image/environment build failed upstream (Dockerfile solve refused a distutils-installed project), so no model or Harness verdict exists. Run 34757660356, frozen evidence sha256 c705e86759dddb6e8699f9cab043e797a42fc5a26fc799a9f3c8d5cacbf63376. Recovery is admitted under the pre-model environment failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-07-hof-topology-interpenetration",
+      "tasks": [
+        "terminal-bench/hof-topology-interpenetration"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "94c5a15f56de2b09aae95e0c0674be9ad7781db5d8ec39cf666166f081fcfd21",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 94c5a15f56de2b09aae95e0c0674be9ad7781db5d8ec39cf666166f081fcfd21, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-08-interleaved-vigenere",
+      "tasks": [
+        "terminal-bench/interleaved-vigenere"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "f24341b75c9844c789063b681d99fefc6467bbb56c159a0867dbf78f89c4151b",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 f24341b75c9844c789063b681d99fefc6467bbb56c159a0867dbf78f89c4151b. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-09-ks-solver-cpp",
+      "tasks": [
+        "terminal-bench/ks-solver-cpp"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "4b5fca86d18fd3da7f1036404bbb129bdeddf85e4face068be07ded2f87ff0bc",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 4b5fca86d18fd3da7f1036404bbb129bdeddf85e4face068be07ded2f87ff0bc. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-10-kv-live-surgery",
+      "tasks": [
+        "terminal-bench/kv-live-surgery"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "246c0c47d6005b276373f84d4207b3220bdd0dc44794f099b133bdda50c0ca9e",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 246c0c47d6005b276373f84d4207b3220bdd0dc44794f099b133bdda50c0ca9e. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-11-nextjs-performance",
+      "tasks": [
+        "terminal-bench/nextjs-performance"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "d38bb04d90150c7d6294a2cbc8f0036dbd0dea79cf08e5aaa1836b559d36cefe",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 d38bb04d90150c7d6294a2cbc8f0036dbd0dea79cf08e5aaa1836b559d36cefe, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-12-retro-console-soc",
+      "tasks": [
+        "terminal-bench/retro-console-soc"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "fd4bb8ece1045e716c537a5ba9aa7e8cb3ab068db60e42e73bb841a4b4f7de07",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 fd4bb8ece1045e716c537a5ba9aa7e8cb3ab068db60e42e73bb841a4b4f7de07, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-13-sglang-qwen-burst",
+      "tasks": [
+        "terminal-bench/sglang-qwen-burst"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "d5a0af7a20343b6765614b3874402d23c4b23122bbf43c90d35a1c4ce86d31b4",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 d5a0af7a20343b6765614b3874402d23c4b23122bbf43c90d35a1c4ce86d31b4, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-14-shadow-relay",
+      "tasks": [
+        "terminal-bench/shadow-relay"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "16b1f08eb1e50f041b518822ee1dd4285d5387afd3643d31084c134145957673",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 16b1f08eb1e50f041b518822ee1dd4285d5387afd3643d31084c134145957673, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-15-vba-userform-port",
+      "tasks": [
+        "terminal-bench/vba-userform-port"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "3695c7f3c5ff45683b149ff24b0a17dbff9ab70278a1a52b0e47d064163bbcc9",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 3695c7f3c5ff45683b149ff24b0a17dbff9ab70278a1a52b0e47d064163bbcc9. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-16-vpp-loss-divergence",
+      "tasks": [
+        "terminal-bench/vpp-loss-divergence"
+      ],
+      "dispatched": false,
+      "classification": "provider-transport",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "ffc064327bc1be05ad2b0f229bfeff21cd96a2fe0ccf79b51a2e3c5bf3ec1253",
+      "sourceTerminalCause": "model-failure",
+      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 ffc064327bc1be05ad2b0f229bfeff21cd96a2fe0ccf79b51a2e3c5bf3ec1253, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
+    },
+    {
+      "id": "recovery-beta27-17-wdm-design",
+      "tasks": [
+        "terminal-bench/wdm-design"
+      ],
+      "dispatched": false,
+      "classification": "harness-tool-outcome-uncertainty",
+      "sourceRunId": 34757660356,
+      "sourceEvidenceSha256": "24d64692426f429d02644459d6a3c7127b4afb1fd38128def1678a2c841b11c2",
+      "sourceTerminalCause": "tool-unknown",
+      "reason": "The frozen attempt ended with rootTerminalCause tool-unknown: the CLI reported 'v3 run tool: exec:unknown:uncertain' and terminated itself with SIGTERM while the recorded terminal cause carries model failures 0, so neither the model nor the grader produced a verdict. Run 34757660356, frozen evidence sha256 24d64692426f429d02644459d6a3c7127b4afb1fd38128def1678a2c841b11c2. Simon authorized classifying this harness tool-outcome uncertainty as an environment defect on 2026-09-14, so recovery is admitted on that basis and not as a model failure.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
+        "The failed evidence of the earlier runs is preserved and never overwritten."
+      ]
     }
+  ],
+  "notes": [
+    "2026-09-14 (Simon): the 17 tasks that errored without a model or verifier verdict are re-run once each, one task per dispatch, on the newest CLI candidate 0.0.3-beta.27 (source commit 48218dbae6ac5fc685b2c96ceae59ea99619ade6), which is frozen by a dedicated tb_freeze_candidate run and then pinned in config/terminal-bench.json.",
+    "Recovery classes admitted for this queue: provider transport (9), pre-model environment failure (2 task-image builds), and harness tool-outcome uncertainty (6, rootTerminalCause tool-unknown with model failures 0, explicitly authorized by Simon as an environment defect).",
+    "The queue is diagnostic: it completes verdicts for those 17 tasks on beta.27. It cannot be merged with the beta.25 tally (8 passed / 38 failed / 17 error) into a single pass@1.",
+    "top-level candidateId below stays bound to the currently pinned candidate until the beta.27 freeze completes; the follow-up commit re-pins it and rebinds this declaration."
   ]
 }

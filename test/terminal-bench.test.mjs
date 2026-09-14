@@ -715,15 +715,27 @@ test("failure analysis classifies stages and emits per-task details", async () =
 
 test("the frozen CLI candidate pin matches the declared source identity", () => {
   const pin = config.cli.candidate;
+  const freeze = config.cli.candidateFreeze ?? null;
   assert.ok(pin, "config must declare the frozen candidate artifact that every run reuses");
   assert.equal(pin.artifactName, `terminal-bench-candidate-${pin.runId}`);
   assert.ok(Number.isInteger(pin.runId) && pin.runId > 0);
   assert.ok(Number.isInteger(pin.artifactId) && pin.artifactId > 0);
-  assert.equal(
-    pin.candidateId,
-    `cli-${config.cli.cliVersion}-${config.cli.sourceCommit.slice(0, 7)}-${pin.binarySha256.slice(0, 12)}-${pin.tarballSha256.slice(0, 12)}`,
-    "the pinned candidate id must derive from the pinned source commit and build hashes",
-  );
+  if (freeze === null) {
+    assert.equal(
+      pin.candidateId,
+      `cli-${config.cli.cliVersion}-${config.cli.sourceCommit.slice(0, 7)}-${pin.binarySha256.slice(0, 12)}-${pin.tarballSha256.slice(0, 12)}`,
+      "the pinned candidate id must derive from the pinned source commit and build hashes",
+    );
+  } else {
+    assert.equal(freeze.state, "pending", "a declared transition must say what it is waiting for");
+    assert.equal(freeze.cliVersion, config.cli.cliVersion);
+    assert.equal(freeze.sourceCommit, config.cli.sourceCommit);
+    assert.notEqual(
+      pin.candidateId,
+      `cli-${config.cli.cliVersion}-${config.cli.sourceCommit.slice(0, 7)}-${pin.binarySha256.slice(0, 12)}-${pin.tarballSha256.slice(0, 12)}`,
+      "a pending freeze must never present the superseded pin as the current identity",
+    );
+  }
   for (const field of [
     "lockfileSha256",
     "runtimeLockSha256",
@@ -827,6 +839,12 @@ test("workflow reuses the pinned candidate and keeps the rebuild an explicit cho
     "the SEA rebuild must stay behind the explicit freeze input",
   );
   assert.match(workflow, /config\/terminal-bench-recovery\.json[\s\S]+must exactly match the frozen recovery declaration/u);
+  assert.match(
+    workflow,
+    /candidateFreeze\?\.state \?\? "frozen"\) === "pending"/u,
+    "a declared pending re-freeze must block every non-freeze dispatch",
+  );
+  assert.match(workflow, /only the freeze dispatch may run/u);
   const recovery = JSON.parse(
     readFileSync(new URL("../config/terminal-bench-recovery.json", import.meta.url), "utf8"),
   );

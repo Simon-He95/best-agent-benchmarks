@@ -16,10 +16,16 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.25",
+    "cliVersion": "0.0.3-beta.27",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "c692211d39d45884aba92675f28ad50e8a1dff10",
+    "sourceCommit": "48218dbae6ac5fc685b2c96ceae59ea99619ade6",
     "target": "linux-x64-gnu",
+    "candidateFreeze": {
+      "state": "pending",
+      "cliVersion": "0.0.3-beta.27",
+      "sourceCommit": "48218dbae6ac5fc685b2c96ceae59ea99619ade6",
+      "note": "The candidate below is the superseded beta.25 pin. A dedicated tb_freeze_candidate run must build this source commit, after which the pin is replaced and this marker is removed; until then a non-freeze dispatch is refused and reuse verification fails closed because the receipt cannot match this cli record."
+    },
     "candidate": {
       "runId": 34757660356,
       "artifactName": "terminal-bench-candidate-34757660356",

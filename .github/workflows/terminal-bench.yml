@@ -284,6 +284,7 @@ jobs:
         env:
           RUN_SMOKE: ${{ inputs.run_tb_smoke }}
           RUN_FULL: ${{ inputs.tb_run_full }}
+          RUN_FREEZE: ${{ inputs.tb_freeze_candidate }}
           BATCH_LABEL: ${{ inputs.tb_batch }}
           TASK_IDS: ${{ inputs.tb_tasks }}
           TASK_LIMIT: ${{ inputs.tb_limit }}
@@ -377,6 +378,11 @@ jobs:
             // dispatched for exactly the declared tasks; it may fill only a task whose
             // frozen attempt produced no prediction.
             const recovery = require("./config/terminal-bench-recovery.json");
+            if (process.env.RUN_FREEZE === "true") {
+              console.log("freeze dispatch: the candidate pin is being rebuilt in this run");
+            } else if ((config.cli.candidateFreeze?.state ?? "frozen") === "pending") {
+              throw new Error("The candidate pin is being re-frozen; only the freeze dispatch may run until it completes.");
+            }
             if (
               recovery.schemaVersion !== 1 ||
               recovery.profileId !== manifest.profileId ||
