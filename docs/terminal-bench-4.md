@@ -48,6 +48,27 @@ Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-
 
 `report.json` 语义:`passRate` = passed/expected;`passAt1` 仅在 full-run 且覆盖完整时非空,否则为 `null`(诊断)。
 
+## 诊断口径的当前跑分(2026-09-14,不是可发布的 pass@1)
+
+63 个 Docker-eligible 任务现在全部有判定记录(3 个 GPU 任务按计划排除),但**不能作为 pass@1 发布**:判定跨三个 candidate 身份(59 / 3 / 1),其中 4 题来自恢复 run,17 题没有 pass/fail 判定,且正式 run 并行期间有 4 题撞 6h 平台上限。
+
+| 判定 | 数量 | 说明 |
+| --- | --- | --- |
+| passed | 8 | embedding-drift-monitor、intrastat-meldung、layout-config-recreation2、medical-claims-processing、mvcc-lsm-compaction、protein-autointerp-disulfide、react-lead-form、telecom-entity-resolution |
+| failed | 38 | harness 完成、官方 verifier reward 0 |
+| error | 17 | 无判定:9 provider transport、6 tool terminal cause、2 harness/verifier 异常(其中 1 题为任务自身镜像构建失败) |
+
+两个口径都只是诊断值,`passAt1` 保持 `null`:仓库口径 `passRate = passed/expected` = **8/63 = 12.7%**(无判定题计为未通过);只看有 pass/fail 判定的 46 题则 8/46 = 17.4%。
+
+判定来源:
+
+- 正式全量 run 34757660356(candidate `…-565089632a08-…`,58/63 覆盖):8 passed / 34 failed / 16 error。
+- 恢复 run 34790194397(candidate `…-0289dc71725d-…`):layout-config-recreation failed、payments-pipeline-fix failed、freecad-impeller error。
+- 恢复 run 34798815742(candidate `…-fb439a62e41e-…`):formal-crypto failed。
+- 恢复 run 34819620610(复用 pin 的 `…-565089632a08-…`):distributed-dedup failed,2h02m。
+
+会污染该数字的因素:9 题的 provider transport 失败使它没有真实作答判定;重任务在 4 CPU / 16 GB hosted runner 上超出任务资源规格;4 题(含 distributed-dedup、formal-crypto)曾在 6h 平台上限被取消。要得到可发布的 pass@1,需要在**同一 frozen candidate、同一批 run** 下把 63 题全部重跑一次(每题仍只允许一次模型尝试)。
+
 ## 与本仓库 SWE-bench 流程的差异(如实标注)
 
 - **CLI candidate**:候选身份(candidateId)由构建出来的 SEA 与 tarball 字节派生,而 CI 重建同一 source commit 不保证字节一致:正式 run 34757660356 记录 `cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de`,同一 commit 的重建 run 34798815742 记录 `cli-0.0.3-beta.25-c692211-fb439a62e41e-fcfbfa548647`(source lockfile、Node 与 runtime deps 相同;build report 只有 bundleBytes 18125259→18125269、blobBytes 19487918→19488048 的差异),使判定曾分散在三个 candidate 身份上。现在 `config/terminal-bench.json` 的 `cli.candidate` 冻结唯一一份 candidate artifact(run/artifact id + receipt 与字节 hash),每条 run 复用并逐字段/逐字节校验(`scripts/verify-terminal-bench-candidate.mjs`,fail closed);重建只是显式动作(`tb_freeze_candidate=true`)。该 artifact 的 Actions retention 为 90 天(2026-09-13 冻结),过期后须重新冻结 pin 或改存 release asset。没有完整 receipt 时任务 fail closed,不回退到旧 npm Linux 包或 Darwin host bridge。

@@ -24,13 +24,20 @@
       "tasks": [
         "terminal-bench/distributed-dedup"
       ],
-      "dispatched": false,
-      "reason": "The single frozen attempt of this task has no prediction and no canonical verdict; its last attempt (run 34798815742, artifact terminal-bench-task-34798815742-distributed-dedup, id 10332425243) terminated with rootTerminalCause model-failure and rootModelFailureReason transport: 'Cannot connect to API: Connect Timeout Error (attempted address: dimagent.cn:443, timeout: 10000ms)', mechanically recorded in the frozen evidence sha256 09322ffa18fc916e032ce6243bb2479f0534c4b9c0e263fe38913bffa0591dfb (209 entries). Recovery may fill only a task with no prediction on that mechanical evidence.",
+      "dispatched": true,
+      "outcome": {
+        "terminal-bench/distributed-dedup": "failed"
+      },
+      "runId": 34819620610,
+      "candidateId": "cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de",
+      "durationMs": 7298737,
+      "evidenceSha256": "16983fbedc22edc14dd30a4f59f4633f076fc0b0dd56fb6062cf7d0e5cc462d7",
+      "reason": "The single frozen attempt of this task had no prediction and no canonical verdict; its previous attempt (run 34798815742, artifact terminal-bench-task-34798815742-distributed-dedup, id 10332425243) terminated with rootTerminalCause model-failure and rootModelFailureReason transport: 'Cannot connect to API: Connect Timeout Error (attempted address: dimagent.cn:443, timeout: 10000ms)', mechanically recorded in the frozen evidence sha256 09322ffa18fc916e032ce6243bb2479f0534c4b9c0e263fe38913bffa0591dfb (209 entries). Recovery filled only that task, which had no prediction.",
       "constraints": [
-        "No existing prediction and no canonical verdict is replaced or reinterpreted.",
-        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json.",
+        "No existing prediction and no canonical verdict was replaced or reinterpreted.",
+        "The attempt ran on the frozen candidate pin declared in config/terminal-bench.json (verified in-run by scripts/verify-terminal-bench-candidate.mjs; the recorded candidateId matches the pin).",
         "The attempt stays diagnostic: passAt1 null, formal false.",
-        "The failed evidence of runs 34757660356 and 34798815742 is preserved and never overwritten."
+        "The failed evidence of runs 34757660356 and 34798815742 is preserved and was never overwritten."
       ]
     }
   ]
