@@ -19,7 +19,26 @@
     "cliVersion": "0.0.3-beta.25",
     "sourceRepository": "Simon-He95/best-agent",
     "sourceCommit": "c692211d39d45884aba92675f28ad50e8a1dff10",
-    "target": "linux-x64-gnu"
+    "target": "linux-x64-gnu",
+    "candidate": {
+      "runId": 34757660356,
+      "artifactName": "terminal-bench-candidate-34757660356",
+      "artifactId": 10317627734,
+      "artifactCreatedAt": "2026-09-13T12:40:46Z",
+      "artifactRetentionDays": 90,
+      "candidateId": "cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de",
+      "lockfileSha256": "ae64d4a166a551bf9f0efd4fe87755d00693a6e411f635a31022a208256b4b7d",
+      "runtimeLockSha256": "e1859e47cb4a0024aa44146c4628e9fe6a96fb968b2c64d66f0c53f606c00470",
+      "binarySha256": "565089632a081f1fc6127f9bb902d2ecbc96e23ee92768f7c3495b69f3ddb61c",
+      "buildReportSha256": "7bd15f25068c65cf56029b0b254623e78742c0d7894e4f4110bf10b8cc60aeeb",
+      "tarballSha256": "21f3137069de5de88a23d793f54ec70a22cac0d034447394ce4cf0feb608736b",
+      "nodeVersion": "v24.15.0",
+      "nodeBinarySha256": "d1de76d8edf2fededf6f8b30d244e2c0529ac607923a018283b77e9c74bd932c",
+      "runtimeDependencies": {
+        "@modelcontextprotocol/sdk": "1.28.0",
+        "node-notifier": "10.0.1"
+      }
+    }
   },
   "provider": {
     "kind": "openai",

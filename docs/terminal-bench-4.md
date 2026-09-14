@@ -38,7 +38,7 @@ Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-
 | `tb_agent_timeout_multiplier` | 任务声明的 agent 超时乘数；workflow 默认和正式运行均为 `1`，完整保留官方任务预算 |
 | `tb_timeout_ms` | 显式 provider/CLI 超时;空值由任务 agent 预算推导 |
 
-流程:`tb-candidate`(从精确 source commit 构建一次 Linux SEA,冻结 binary/tarball/lockfile/build-report hash)与 `tb-corpus`(sparse 拉取任务元数据 + 冻结 manifest)→ `tb-plan`(批次校验)→ `tb-generate`(每任务下载同一 candidate artifact + sparse 检出一个任务目录 + `harbor run` 一次)→ `tb-report`(聚合报告)。
+流程:`tb-candidate`(每条 run 复用 `config/terminal-bench.json` 里冻结的 candidate pin，先在下载产物上校验 receipt/hash；只有显式 `tb_freeze_candidate=true` 才从精确 source commit 重新构建并冻结一次 Linux SEA)与 `tb-corpus`(sparse 拉取任务元数据 + 冻结 manifest)→ `tb-plan`(批次校验,恢复批次必须命中 `config/terminal-bench-recovery.json` 的冻结声明)→ `tb-generate`(每任务下载同一 candidate artifact + sparse 检出一个任务目录 + `harbor run` 一次)→ `tb-report`(聚合报告)。
 
 看结果:workflow run 页面的 Job summary,或下载 artifact:
 
@@ -50,7 +50,7 @@ Repository secret `BEST_AGENT_SOURCE_TOKEN` 必须是可读取 `config/terminal-
 
 ## 与本仓库 SWE-bench 流程的差异(如实标注)
 
-- **CLI candidate**:CI 从 `config/terminal-bench.json` 的精确 source commit 构建一次 Linux x64 SEA，并在同一个 job 安装 runtime dependency closure 后整体封包；所有 task 下载同一个 immutable artifact，不再各自解析 npm ranges。candidate receipt 同时冻结 source commit、source lockfile、runtime lockfile、binary、tarball 与 build report 的 SHA-256。没有完整 receipt 时任务 fail closed,不回退到旧 npm Linux 包或 Darwin host bridge。
+- **CLI candidate**:候选身份(candidateId)由构建出来的 SEA 与 tarball 字节派生,而 CI 重建同一 source commit 不保证字节一致:正式 run 34757660356 记录 `cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de`,同一 commit 的重建 run 34798815742 记录 `cli-0.0.3-beta.25-c692211-fb439a62e41e-fcfbfa548647`(source lockfile、Node 与 runtime deps 相同;build report 只有 bundleBytes 18125259→18125269、blobBytes 19487918→19488048 的差异),使判定曾分散在三个 candidate 身份上。现在 `config/terminal-bench.json` 的 `cli.candidate` 冻结唯一一份 candidate artifact(run/artifact id + receipt 与字节 hash),每条 run 复用并逐字段/逐字节校验(`scripts/verify-terminal-bench-candidate.mjs`,fail closed);重建只是显式动作(`tb_freeze_candidate=true`)。该 artifact 的 Actions retention 为 90 天(2026-09-13 冻结),过期后须重新冻结 pin 或改存 release asset。没有完整 receipt 时任务 fail closed,不回退到旧 npm Linux 包或 Darwin host bridge。
 - **执行 profile**:CLI 在 Harbor task container 内直接运行;`processIsolation=host` 指 container 内 CLI 的进程面。其规范身份是 `explicit-custom / plain / unrestricted / host / path / read+write+exec`,不是交互式 Product `full access`。
 - **环境真实、资源受限**:agent 在任务容器内执行(真实 Linux 环境),但 CI runner 为 4 CPU / 16 GB,故 `--cpus ignore --memory ignore`(不强行套用任务资源规格),超资源任务(`resourceExceededTasks`)会慢或失败,已在 config 中标出。
 - **失败归因(证据派生,不覆盖判定)**:`scripts/terminal-bench-failures.mjs` 把每个非通过记录归为 `env-blocked`、`infra`、`agent-timeout`、`provider`、`tool`、`harness`、`model`、`verifier`、`inconclusive`,只转录冻结记录与日志,既不改写 Harbor 的 canonical disposition,也从不触发重试。其中 `env-blocked` 专指**任务自身的镜像/环境构建失败**(Harbor 在 `tools/terminal-bench-source/tasks/<name>` 下 compose 任务与 verifier 容器时失败):该 attempt 根本无法被评测,属上游 dataset/环境漂移,既不是模型失败也不是本仓库 harness/CLI 失败,不得计入任何模型分数或恢复判定。已知实例(run `34757660356` 与补跑 `34790194397`):`terminal-bench/freecad-spring-clip`、`terminal-bench/freecad-impeller`,两者都停在任务 Dockerfile 的 `pip install 'gnucleus-freecad-validator[render]==0.1.3'`——它要卸载 conda 以 distutils 方式安装的 `vtk 9.2.6` 而失败(exit 1),是任务镜像与当前包索引漂移的结果。

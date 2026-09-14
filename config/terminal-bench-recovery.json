@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "profileId": "terminal-bench-4.0-v4.0.0",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "candidateId": "cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de",
+  "formalRunId": "formal-34757660356",
+  "batches": [
+    {
+      "id": "recovery-no-prediction-20260914T0219Z",
+      "tasks": [
+        "terminal-bench/distributed-dedup",
+        "terminal-bench/formal-crypto"
+      ],
+      "dispatched": true,
+      "outcome": {
+        "terminal-bench/formal-crypto": "failed",
+        "terminal-bench/distributed-dedup": "error"
+      },
+      "evidence": "Run 34798815742 (report.json, batchId recovery-no-prediction-20260914T0219Z); the recovery reused the same source pin but rebuilt the SEA, so it recorded candidateId cli-0.0.3-beta.25-c692211-fb439a62e41e-fcfbfa548647 instead of this frozen pin."
+    },
+    {
+      "id": "recovery-transport-20260914",
+      "tasks": [
+        "terminal-bench/distributed-dedup"
+      ],
+      "dispatched": false,
+      "reason": "The single frozen attempt of this task has no prediction and no canonical verdict; its last attempt (run 34798815742, artifact terminal-bench-task-34798815742-distributed-dedup, id 10332425243) terminated with rootTerminalCause model-failure and rootModelFailureReason transport: 'Cannot connect to API: Connect Timeout Error (attempted address: dimagent.cn:443, timeout: 10000ms)', mechanically recorded in the frozen evidence sha256 09322ffa18fc916e032ce6243bb2479f0534c4b9c0e263fe38913bffa0591dfb (209 entries). Recovery may fill only a task with no prediction on that mechanical evidence.",
+      "constraints": [
+        "No existing prediction and no canonical verdict is replaced or reinterpreted.",
+        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json.",
+        "The attempt stays diagnostic: passAt1 null, formal false.",
+        "The failed evidence of runs 34757660356 and 34798815742 is preserved and never overwritten."
+      ]
+    }
+  ]
+}

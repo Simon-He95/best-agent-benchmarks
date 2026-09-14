@@ -46,6 +46,11 @@ on:
         description: Per-task provider timeout in ms (empty = derived from multiplier)
         required: false
         default: ""
+      tb_freeze_candidate:
+        description: Rebuild and re-freeze the CLI candidate instead of reusing the pinned artifact
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   # One benchmark pipeline at a time. Overlapping runs (two full runs, or a full run
@@ -72,17 +77,59 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A candidate id is derived from the built SEA and tarball bytes, so a rebuild of the
+      # same source commit yields a different candidate id (see the two ids recorded on
+      # 2026-09-13/14). Every run reuses the one frozen candidate artifact declared in
+      # config/terminal-bench.json; tb_freeze_candidate rebuilds it deliberately.
+      - name: Resolve the candidate pin
+        id: pin
+        env:
+          FREEZE_CANDIDATE: ${{ inputs.tb_freeze_candidate }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const config = require("./config/terminal-bench.json");
+          const pin = config.cli.candidate ?? null;
+          const freeze = process.env.FREEZE_CANDIDATE === "true";
+          if (!freeze && pin === null) {
+            throw new Error("No frozen candidate pin is declared; dispatch with tb_freeze_candidate to build one.");
+          }
+          console.log(`freeze=${freeze}`);
+          console.log(`run_id=${pin === null ? "" : pin.runId}`);
+          console.log(`artifact_name=${pin === null ? "" : pin.artifactName}`);
+          NODE
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.pin.outputs.freeze != 'true' }}
+        with:
+          node-version: 24
+
+      - name: Reuse the pinned candidate artifact
+        if: ${{ steps.pin.outputs.freeze != 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.pin.outputs.artifact_name }}
+          run-id: ${{ steps.pin.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: results/candidate
+
+      - name: Verify the pinned candidate identity
+        if: ${{ steps.pin.outputs.freeze != 'true' }}
+        run: node scripts/verify-terminal-bench-candidate.mjs results/candidate
+
       - name: Resolve the candidate source
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         id: source
         run: |
           node -e "const c=require('./config/terminal-bench.json').cli; console.log('repository='+c.sourceRepository); console.log('commit='+c.sourceCommit)" >> "$GITHUB_OUTPUT"
 
       - name: Require private source access
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         env:
           BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
         run: test -n "$BEST_AGENT_SOURCE_TOKEN"
 
       - uses: actions/checkout@v4
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         with:
           repository: ${{ steps.source.outputs.repository }}
           ref: ${{ steps.source.outputs.commit }}
@@ -91,13 +138,16 @@ jobs:
           token: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
 
       - uses: actions/setup-node@v4
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         with:
           node-version-file: tools/best-agent-source/.nvmrc
 
       - name: Validate Terminal-Bench contracts
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         run: node --test test/terminal-bench.test.mjs
 
       - name: Build the exact Linux SEA
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         working-directory: tools/best-agent-source
         run: |
           test "$(git rev-parse HEAD)" = "${{ steps.source.outputs.commit }}"
@@ -113,6 +163,7 @@ jobs:
           cp "$(command -v node)" .tmp/npm/release-stage/linux-x64-gnu/runtime/bin/node
 
       - name: Freeze the candidate receipt
+        if: ${{ steps.pin.outputs.freeze == 'true' }}
         env:
           SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
           SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
@@ -322,6 +373,26 @@ jobs:
             const selected = preselect.length
               ? preselect
               : eligible.slice(offset, offset + count);
+            // A recovery batch must be declared, bound to the frozen candidate pin, and
+            // dispatched for exactly the declared tasks; it may fill only a task whose
+            // frozen attempt produced no prediction.
+            const recovery = require("./config/terminal-bench-recovery.json");
+            if (
+              recovery.schemaVersion !== 1 ||
+              recovery.profileId !== manifest.profileId ||
+              recovery.diagnosticOnly !== true ||
+              recovery.passAt1 !== null ||
+              recovery.candidateId !== (config.cli.candidate?.candidateId ?? null)
+            ) {
+              throw new Error("The frozen recovery declaration does not match the profile or the pinned candidate.");
+            }
+            const declared = recovery.batches.find((batch) => batch.id === id);
+            if (id.startsWith("recovery-") && declared === undefined) {
+              throw new Error("A recovery batch label must be declared in config/terminal-bench-recovery.json.");
+            }
+            if (declared !== undefined && JSON.stringify(declared.tasks) !== JSON.stringify(selected)) {
+              throw new Error("Recovery tasks must exactly match the frozen recovery declaration.");
+            }
             output("expected_list", selected.join(","));
             output("batches", JSON.stringify([{ id, tasks: selected.join(",") }]));
           }
