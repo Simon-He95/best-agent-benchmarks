@@ -477,6 +477,17 @@ test("workflow pins harbor and never touches the SWE-bench workflow", () => {
   assert.match(workflow, /terminal-bench\/cumulative-layout-shift[\s\S]+self-hosted[\s\S]+terminal-bench-long/u);
   assert.match(workflow, /DOCKER_DEFAULT_PLATFORM: linux\/amd64/u);
   assert.match(workflow, /timeout-minutes: 1440/u);
+  assert.match(
+    workflow,
+    /\n  group: terminal-bench\n  cancel-in-progress: false/u,
+    "the pipeline must serialize globally, not per tb_batch label",
+  );
+  assert.doesNotMatch(workflow, /group: terminal-bench-\$\{\{/u);
+  assert.match(
+    workflow,
+    /chmod -R a\+rX results/u,
+    "a cancelled job must normalize evidence readability before upload",
+  );
   assert.match(workflow, /npm install --prefix \.tmp\/npm\/release-stage\/linux-x64-gnu/u);
   assert.match(
     workflow,
