@@ -3,7 +3,7 @@
   "profileId": "terminal-bench-4.0-v4.0.0",
   "diagnosticOnly": true,
   "passAt1": null,
-  "candidateId": "cli-0.0.3-beta.25-c692211-565089632a08-21f3137069de",
+  "candidateId": "cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26",
   "formalRunId": "formal-34757660356",
   "batches": [
     {
@@ -45,15 +45,23 @@
       "tasks": [
         "terminal-bench/batched-eval-parity"
       ],
-      "dispatched": false,
+      "dispatched": true,
       "classification": "provider-transport",
       "sourceRunId": 34757660356,
       "sourceEvidenceSha256": "e2927ca5cd93503ab200a5d7ac94f18c2252d087c6f3e784de14424a6179d226",
       "sourceTerminalCause": "model-failure",
-      "reason": "The frozen attempt of this task produced no prediction and no canonical verdict: harness record shows rootTerminalCause model-failure. Run 34757660356, frozen evidence sha256 e2927ca5cd93503ab200a5d7ac94f18c2252d087c6f3e784de14424a6179d226, terminalCause model-failure. Recovery is admitted under the explicit provider transport failure class.",
+      "runId": 34832709392,
+      "batchId": "freeze-beta27-20260914",
+      "candidateId": "cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26",
+      "durationMs": 3703457,
+      "evidenceSha256": "add5989b96213e9a0d74584d20095488c626caaf3f3264de31fe97b23962b127",
+      "outcome": {
+        "terminal-bench/batched-eval-parity": "error"
+      },
+      "reason": "The beta.27 freeze dispatch (run 34832709392, batch label freeze-beta27-20260914) also exercised exactly this task on the frozen beta.27 candidate; it again produced no prediction and no canonical verdict (disposition error, NonZeroAgentExitCodeError, evidenceAdmission rootStatus failed with rootTerminalCause model-failure and rootModelFailureReason transport). Simon ruled on 2026-09-14 that this single beta.27 attempt counts as this declaration's one recovery attempt, so the batch is recorded here and is not dispatched a second time. Payload evidence sha256 add5989b96213e9a0d74584d20095488c626caaf3f3264de31fe97b23962b127 (83264433 bytes) reproduces the freeze run's report record.",
       "constraints": [
-        "No existing prediction and no canonical verdict is replaced or reinterpreted; each task keeps exactly one new single attempt in its own run.",
-        "The attempt must run on the frozen candidate pin declared in config/terminal-bench.json; a mismatching candidateId in the task record is a failure, not a result.",
+        "No existing prediction and no canonical verdict is replaced or reinterpreted; the beta.27 attempt of this task happened inside the freeze dispatch and is recorded here as this declaration's single new attempt.",
+        "The attempt ran on the frozen candidate pin declared in config/terminal-bench.json: the task record's candidateId is cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26 and its batchId is freeze-beta27-20260914.",
         "The attempt stays diagnostic: passAt1 null, formal false. These verdicts are not mergeable with the beta.25 tally recorded in docs/terminal-bench-4.md.",
         "The failed evidence of the earlier runs is preserved and never overwritten."
       ]
@@ -351,6 +359,7 @@
     "2026-09-14 (Simon): the 17 tasks that errored without a model or verifier verdict are re-run once each, one task per dispatch, on the newest CLI candidate 0.0.3-beta.27 (source commit 48218dbae6ac5fc685b2c96ceae59ea99619ade6), which is frozen by a dedicated tb_freeze_candidate run and then pinned in config/terminal-bench.json.",
     "Recovery classes admitted for this queue: provider transport (9), pre-model environment failure (2 task-image builds), and harness tool-outcome uncertainty (6, rootTerminalCause tool-unknown with model failures 0, explicitly authorized by Simon as an environment defect).",
     "The queue is diagnostic: it completes verdicts for those 17 tasks on beta.27. It cannot be merged with the beta.25 tally (8 passed / 38 failed / 17 error) into a single pass@1.",
-    "top-level candidateId below stays bound to the currently pinned candidate until the beta.27 freeze completes; the follow-up commit re-pins it and rebinds this declaration."
+    "2026-09-14 (Simon): freeze run 34832709392 built source commit 48218dba into the 0.0.3-beta.27 candidate; its artifact terminal-bench-candidate-34832709392 (artifact id 10342579371) was verified with this repository's verify-terminal-bench-candidate.mjs before the superseded beta.25 pin was replaced and the candidateFreeze marker removed. This declaration is now bound to cli-0.0.3-beta.27-48218db-4ccd15d6c5c5-2c3c847c8c26.",
+    "2026-09-14 (Simon): the freeze dispatch also exercised batched-eval-parity (recovery-beta27-01) on beta.27, which again produced no verdict (transport). Simon ruled that this single attempt is recorded as that declaration's recovery attempt, so batch 01 is marked dispatched with its outcome and is not dispatched again."
   ]
 }
