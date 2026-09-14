@@ -639,6 +639,38 @@ test("failure analysis classifies stages and emits per-task details", async () =
         snapshot: { terminalCause: "model-failure", transcript: [] },
       }) + "\n",
   );
+  // The task's own image build failed while composing its verifier container: the attempt
+  // could never be evaluated, so the derived stage is env-blocked rather than a model or
+  // Harness cause.
+  const envBlockedTrial = join(base, "jobs", "baz", "job-3", "baz__abc");
+  mkdirSync(join(envBlockedTrial, "agent"), { recursive: true });
+  writeFileSync(join(envBlockedTrial, "result.json"), "{}");
+  writeFileSync(
+    join(resultsDir, "terminal-bench-results.baz.json"),
+    JSON.stringify({
+      task: { name: "terminal-bench/baz" },
+      jobName: "job-3",
+      result: {
+        disposition: "error",
+        exception: {
+          type: "RuntimeError",
+          message:
+            "Docker compose command failed for environment baz. Command: docker compose " +
+            "--project-directory /home/runner/work/x/tools/terminal-bench-source/tasks/baz/tests build. " +
+            "Return code: 1. failed to solve: process \"pip install\" did not complete successfully: exit code: 1",
+        },
+      },
+      durationMs: 1000,
+    }),
+  );
+  writeFileSync(
+    join(envBlockedTrial, "agent", "best-agent-evidence.jsonl"),
+    JSON.stringify({
+      type: "terminal-snapshot",
+      sequence: 2,
+      snapshot: { terminalCause: "completed", transcript: [] },
+    }) + "\n",
+  );
   const output = join(base, "failures.md");
   const result = spawnSync(
     process.execPath,
@@ -657,6 +689,7 @@ test("failure analysis classifies stages and emits per-task details", async () =
   const markdown = readFileSync(output, "utf8");
   assert.match(markdown, /— model/u);
   assert.match(markdown, /bar — provider/u);
+  assert.match(markdown, /baz — env-blocked/u);
   assert.match(markdown, /FAILED test_final_output/u);
 
   writeFileSync(

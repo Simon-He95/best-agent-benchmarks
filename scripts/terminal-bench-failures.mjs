@@ -11,7 +11,10 @@
  *     --results <dir> --jobs <dir> --output <report.md> [--json <summary.json>]
  *
  * Categories are evidence-backed derived views. They never replace Harbor's
- * canonical disposition or trigger another attempt.
+ * canonical disposition or trigger another attempt. The `env-blocked` category is
+ * reserved for a failed build of the task's own image/environment (upstream
+ * dataset/environment drift); it never reclassifies a model, provider, tool or
+ * Harness verdict.
  */
 
 import { closeSync, createReadStream, existsSync, fstatSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -102,6 +105,15 @@ function classifyFailure(record, evidence) {
   if (disposition === "passed") return "passed";
   if (exception?.type === "AgentTimeoutError") return "agent-timeout";
   if (exception?.type === "VerifierTimeoutError") return "verifier";
+  // The task's own environment/image build failed: Harbor composes the task and verifier
+  // containers under tools/terminal-bench-source/tasks/<name>, so the attempt could never be
+  // evaluated. Upstream dataset/environment drift is reported before any agent-side cause.
+  if (
+    /Docker compose command failed for environment/iu.test(message) &&
+    /\/tasks\//u.test(message)
+  ) {
+    return "env-blocked";
+  }
   if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
     return "provider";
   }
@@ -296,6 +308,8 @@ async function main() {
         ([stage, count]) =>
           `| ${stage} | ${count} | ${{
             infra: "task container, image, setup, or candidate installation failed",
+            "env-blocked":
+              "the task's own image/environment build failed upstream; no model or Harness verdict exists",
             "agent-timeout": "Harbor stopped the agent at its task timeout",
             provider: "model provider invocation failed",
             harness: "Harness terminal cause prevented completion",
