@@ -712,3 +712,156 @@ test("failure analysis classifies stages and emits per-task details", async () =
   assert.notEqual(corrupt.status, 0);
   assert.match(corrupt.stderr, /SyntaxError|JSON/u);
 });
+
+test("the frozen CLI candidate pin matches the declared source identity", () => {
+  const pin = config.cli.candidate;
+  const freeze = config.cli.candidateFreeze ?? null;
+  assert.ok(pin, "config must declare the frozen candidate artifact that every run reuses");
+  assert.equal(pin.artifactName, `terminal-bench-candidate-${pin.runId}`);
+  assert.ok(Number.isInteger(pin.runId) && pin.runId > 0);
+  assert.ok(Number.isInteger(pin.artifactId) && pin.artifactId > 0);
+  if (freeze === null) {
+    assert.equal(
+      pin.candidateId,
+      `cli-${config.cli.cliVersion}-${config.cli.sourceCommit.slice(0, 7)}-${pin.binarySha256.slice(0, 12)}-${pin.tarballSha256.slice(0, 12)}`,
+      "the pinned candidate id must derive from the pinned source commit and build hashes",
+    );
+  } else {
+    assert.equal(freeze.state, "pending", "a declared transition must say what it is waiting for");
+    assert.equal(freeze.cliVersion, config.cli.cliVersion);
+    assert.equal(freeze.sourceCommit, config.cli.sourceCommit);
+    assert.notEqual(
+      pin.candidateId,
+      `cli-${config.cli.cliVersion}-${config.cli.sourceCommit.slice(0, 7)}-${pin.binarySha256.slice(0, 12)}-${pin.tarballSha256.slice(0, 12)}`,
+      "a pending freeze must never present the superseded pin as the current identity",
+    );
+  }
+  for (const field of [
+    "lockfileSha256",
+    "runtimeLockSha256",
+    "binarySha256",
+    "buildReportSha256",
+    "tarballSha256",
+    "nodeBinarySha256",
+  ]) {
+    assert.match(pin[field], /^[0-9a-f]{64}$/u, `${field} must be a SHA-256 digest`);
+  }
+});
+
+test("candidate reuse verifies the pinned identity and fails closed on any change", async () => {
+  const { mkdtempSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { createHash } = await import("node:crypto");
+  const { candidateId, verifyPinnedCandidate } = await import(
+    "../scripts/verify-terminal-bench-candidate.mjs"
+  );
+  const hash = (buffer) => createHash("sha256").update(buffer).digest("hex");
+  const dir = mkdtempSync(join(tmpdir(), "tb-pinned-candidate-"));
+  const tarball = Buffer.from("frozen candidate tarball");
+  const buildReport = Buffer.from('{"artifact":{"target":"linux-x64-gnu"}}\n');
+  const receipt = {
+    schemaVersion: 1,
+    packageName: config.cli.packageName,
+    cliVersion: config.cli.cliVersion,
+    sourceRepository: config.cli.sourceRepository,
+    sourceCommit: config.cli.sourceCommit,
+    target: config.cli.target,
+    lockfileSha256: "1".repeat(64),
+    runtimeLockSha256: "2".repeat(64),
+    binarySha256: "3".repeat(64),
+    buildReportSha256: hash(buildReport),
+    tarballSha256: hash(tarball),
+    runtimeDependencies: config.cli.candidate.runtimeDependencies,
+    nodeVersion: config.cli.candidate.nodeVersion,
+    nodeBinarySha256: "4".repeat(64),
+  };
+  const write = (name, contents) => writeFileSync(join(dir, name), contents);
+  const pinned = {
+    cli: {
+      ...config.cli,
+      candidate: {
+        ...config.cli.candidate,
+        candidateId: candidateId(receipt),
+        lockfileSha256: receipt.lockfileSha256,
+        runtimeLockSha256: receipt.runtimeLockSha256,
+        binarySha256: receipt.binarySha256,
+        buildReportSha256: receipt.buildReportSha256,
+        tarballSha256: receipt.tarballSha256,
+        nodeVersion: receipt.nodeVersion,
+        nodeBinarySha256: receipt.nodeBinarySha256,
+      },
+    },
+  };
+  try {
+    write("best-agent-cli.tgz", tarball);
+    write("build-report.json", buildReport);
+    write("candidate.json", `${JSON.stringify(receipt, null, 2)}\n`);
+    assert.equal(verifyPinnedCandidate(dir, pinned).candidateId, pinned.cli.candidate.candidateId);
+
+    write("best-agent-cli.tgz", Buffer.from("frozen candidate tarbaM"));
+    assert.throws(() => verifyPinnedCandidate(dir, pinned), /tarball bytes changed/u);
+    write("best-agent-cli.tgz", tarball);
+
+    write("candidate.json", `${JSON.stringify({ ...receipt, binarySha256: "5".repeat(64) }, null, 2)}\n`);
+    assert.throws(() => verifyPinnedCandidate(dir, pinned), /binarySha256 mismatch/u);
+    write("candidate.json", `${JSON.stringify(receipt, null, 2)}\n`);
+
+    write("extra.json", "{}\n");
+    assert.throws(() => verifyPinnedCandidate(dir, pinned), /must contain exactly/u);
+    rmSync(join(dir, "extra.json"));
+
+    write("candidate.json", `${JSON.stringify({ ...receipt, runtimeDependencies: {} }, null, 2)}\n`);
+    assert.throws(() => verifyPinnedCandidate(dir, pinned), /runtime dependency tree changed/u);
+    write("candidate.json", `${JSON.stringify(receipt, null, 2)}\n`);
+
+    assert.throws(
+      () => verifyPinnedCandidate(dir, { cli: { ...config.cli, candidate: undefined } }),
+      /No frozen candidate pin is declared/u,
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("workflow reuses the pinned candidate and keeps the rebuild an explicit choice", () => {
+  const workflow = readFileSync(
+    new URL("../.github/workflows/terminal-bench.yml", import.meta.url),
+    "utf8",
+  );
+  assert.match(workflow, /tb_freeze_candidate:[\s\S]+default: false/u);
+  assert.match(workflow, /Reuse the pinned candidate artifact/u);
+  assert.match(workflow, /run-id: \$\{\{ steps\.pin\.outputs\.run_id \}\}/u);
+  assert.match(workflow, /node scripts\/verify-terminal-bench-candidate\.mjs results\/candidate/u);
+  assert.match(
+    workflow,
+    /Build the exact Linux SEA\n\s+if: \$\{\{ steps\.pin\.outputs\.freeze == 'true' \}\}/u,
+    "the SEA rebuild must stay behind the explicit freeze input",
+  );
+  assert.match(workflow, /config\/terminal-bench-recovery\.json[\s\S]+must exactly match the frozen recovery declaration/u);
+  assert.match(
+    workflow,
+    /candidateFreeze\?\.state \?\? "frozen"\) === "pending"/u,
+    "a declared pending re-freeze must block every non-freeze dispatch",
+  );
+  assert.match(workflow, /only the freeze dispatch may run/u);
+  const recovery = JSON.parse(
+    readFileSync(new URL("../config/terminal-bench-recovery.json", import.meta.url), "utf8"),
+  );
+  assert.equal(recovery.diagnosticOnly, true);
+  assert.equal(recovery.passAt1, null);
+  assert.equal(recovery.candidateId, config.cli.candidate.candidateId);
+  assert.equal(recovery.profileId, config.profileId);
+  for (const batch of recovery.batches) {
+    assert.match(batch.id, /^recovery-[a-zA-Z0-9._-]+$/u);
+    for (const task of batch.tasks) {
+      assert.equal(plan.batches.flatMap((entry) => entry.tasks).includes(task), true);
+    }
+    if (batch.dispatched === true) {
+      assert.ok(Object.keys(batch.outcome ?? {}).length > 0, "a dispatched recovery batch records its outcome");
+    } else {
+      assert.equal(typeof batch.reason, "string", "a pending recovery batch declares its mechanical evidence");
+      assert.ok(Array.isArray(batch.constraints) && batch.constraints.length > 0);
+    }
+  }
+});
