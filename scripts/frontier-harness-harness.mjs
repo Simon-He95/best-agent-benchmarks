@@ -290,6 +290,33 @@ async function main() {
     throw new Error(`task.toml missing under ${taskDir}.`);
   }
 
+  // Stage a Pier-compatible task directory: the frontier-harness-eval repo
+  // publishes only task.toml + instruction.md (the environment is a pre-built
+  // Docker image from task.toml and verification is configured via [verifier]),
+  // but Pier's TaskPaths.is_valid() requires environment/ and tests/test.sh
+  // to recognize a directory as a runnable task.
+  const pierTaskDir = join(args.jobsDir, "pier-task");
+  mkdirSync(join(pierTaskDir, "environment"), { recursive: true });
+  mkdirSync(join(pierTaskDir, "tests"), { recursive: true });
+  copyFileSync(join(taskDir, "task.toml"), join(pierTaskDir, "task.toml"));
+  copyFileSync(join(taskDir, "instruction.md"), join(pierTaskDir, "instruction.md"));
+  const dockerCompose = `services:\n  default:\n    image: ${task.dockerImage}\n`;
+  writeFileSync(
+    join(pierTaskDir, "environment", "docker-compose.yaml"),
+    dockerCompose,
+  );
+  writeFileSync(
+    join(pierTaskDir, "tests", "test.sh"),
+    [
+      "#!/bin/bash",
+      "# Verification is driven by the [verifier] section in task.toml;",
+      "# this stub satisfies Pier's TaskPaths.is_valid() structure check.",
+      "exit 0",
+      "",
+    ].join("\n"),
+    { mode: 0o755 },
+  );
+
   const candidate = verifyFrozenIdentity();
   const { cliVersion, model } = candidate;
 
@@ -310,7 +337,7 @@ async function main() {
   const pierArgs = [
     "run",
     "-p",
-    taskDir,
+    pierTaskDir,
     "--agent-import-path",
     "frontier_harness_best_agent:BestAgentCli",
     "-m",
