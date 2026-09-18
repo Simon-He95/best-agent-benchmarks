@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 from pier.agents.installed.base import BaseInstalledAgent, with_prompt_template
 from pier.environments.base import BaseEnvironment
 from pier.models.agent.context import AgentContext
-from pier.models.agent.install import AgentInstallSpec
+from pier.models.agent.install import AgentInstallSpec, InstallStep
 from pier.models.agent.network import NetworkAllowlist
 
 
@@ -36,15 +36,51 @@ class BestAgentCli(BaseInstalledAgent):
         return text
 
     def install_spec(self) -> AgentInstallSpec:
-        # The frozen CLI tarball (CLI plus its bundled node runtime) is uploaded
-        # from the benchmark host by install() below, so there are no network
-        # install steps to declare for Dockerfile prebuilds.
+        # Pier 0.3.1 requires at least one install step and inlines the steps
+        # into the build-time agent Dockerfile (FROM <task image>). The frozen
+        # CLI tarball cannot be baked that way: for docker_image tasks Pier
+        # builds from an empty context, so the real install happens at trial
+        # time via install() (tarball upload from the benchmark host). The
+        # single root step below is a harmless marker that mirrors what
+        # BaseInstalledAgent.setup() does before install() runs.
+        tarball_sha = os.environ.get("BEST_AGENT_CLI_TARBALL_SHA256")
         return AgentInstallSpec(
             agent_name=self.name(),
             version=self._version,
-            steps=[],
+            steps=[InstallStep(user="root", run="mkdir -p /installed-agent")],
             verification_command=self.get_version_command(),
+            # Identity of the frozen CLI candidate: keeps the per-task agent
+            # image name (and its fingerprint) tied to the tarball actually
+            # uploaded at trial time.
+            cache_key=(
+                f"best-agent-cli-{tarball_sha[:16]}"
+                if tarball_sha
+                else "best-agent-cli-unpinned"
+            ),
         )
+
+    async def setup(self, environment: BaseEnvironment) -> None:
+        # BaseInstalledAgent.setup() skips install() when the environment's
+        # install spec carries this agent's name (the preinstalled-agent fast
+        # path for build-time installs). Our install is a trial-time tarball
+        # upload, so always run it, then keep the base contract for the
+        # /installed-agent marker and best-effort version detection.
+        await environment.exec(command="mkdir -p /installed-agent", user="root")
+        try:
+            await self.install(environment)
+        except RuntimeError:
+            raise
+        except Exception as exc:
+            raise RuntimeError(f"Agent install failed: {exc}") from exc
+        if self._version is None:
+            version_cmd = self.get_version_command()
+            if version_cmd:
+                try:
+                    version_result = await environment.exec(command=version_cmd)
+                    if version_result.return_code == 0 and version_result.stdout:
+                        self._version = self.parse_version(version_result.stdout)
+                except Exception:
+                    pass  # Version detection is best-effort
 
     def network_allowlist(self) -> NetworkAllowlist:
         # Air-gapped tasks (allow_internet = false / no-network) still need the

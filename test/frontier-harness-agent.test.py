@@ -96,6 +96,44 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(RuntimeError):
             self.agent.network_allowlist()
 
+    def test_install_spec_declares_marker_step_and_cli_tied_cache_key(self):
+        spec = self.agent.install_spec()
+        self.assertEqual(spec.agent_name, "best-agent-cli")
+        # Pier 0.3.1 requires at least one step; the marker mirrors what
+        # setup() does and the real install stays a trial-time upload.
+        self.assertEqual(len(spec.steps), 1)
+        self.assertEqual(spec.steps[0].user, "root")
+        self.assertEqual(spec.steps[0].run, "mkdir -p /installed-agent")
+        self.assertEqual(spec.cache_key, "best-agent-cli-" + "a" * 16)
+        self.assertEqual(spec.verification_command, self.agent.get_version_command())
+
+    async def test_setup_always_installs_despite_matching_install_spec(self):
+        env = RecordedEnvironment("/root", 0, 0)
+        # Even when the environment carries this agent's own install spec (the
+        # preinstalled fast path), the frozen tarball upload must still run.
+        env.agent_install_spec = SimpleNamespace(agent_name=self.agent.name())
+        await self.agent.setup(env)
+        self.assertEqual(
+            [record["command"] for record in env.records],
+            [
+                "mkdir -p /installed-agent",
+                "set -o pipefail; bash /tmp/best-agent-install-cli.sh",
+                '"$HOME/.best-agent-cli/bin/best-agent" --version',
+            ],
+        )
+        self.assertTrue(any("install-cli.sh" in target for target, _ in env.uploads))
+        # Best-effort version detection fills the unknown version.
+        self.assertEqual(self.agent.version(), "0.0.3-beta.17")
+
+    async def test_setup_install_failure_surfaces_the_original_error(self):
+        env = RecordedEnvironment("/root", 0, 0, "install")
+        with self.assertLogs(self.agent.logger, logging.DEBUG) as logs:
+            with self.assertRaises(NonZeroAgentExitCodeError) as raised:
+                await self.agent.setup(env)
+        self.assertIn("exit 23", str(raised.exception))
+        self.assertIn("synthetic original error", str(raised.exception))
+        self.assert_no_transfer_secrets(env.records, str(logs.records), str(raised.exception))
+
     async def test_install_uploads_frozen_tarball_and_runs_hash_checked_script(self):
         env = RecordedEnvironment("/home/agent space", 1234, 2345)
         await self.agent.install(env)

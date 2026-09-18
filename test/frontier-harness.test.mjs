@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -150,6 +151,152 @@ test("harness fails closed when the current candidate identity mismatches", asyn
     if (previous === undefined) delete process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
     else process.env.BEST_AGENT_CLI_CANDIDATE_DIR = previous;
   }
+});
+
+test("frontier-harness pins the authoritative per-suite task sources", () => {
+  const { terminalBench, deepSwe } = config.taskSources;
+  assert.equal(terminalBench.repository, "laude-institute/terminal-bench-2");
+  assert.match(terminalBench.sourceCommit, /^[0-9a-f]{40}$/u);
+  assert.equal(terminalBench.taskPath, "<name>");
+  assert.ok(terminalBench.provenance.includes("terminal-bench@2.0"));
+  assert.equal(deepSwe.repository, "datacurve-ai/deep-swe");
+  assert.match(deepSwe.sourceCommit, /^[0-9a-f]{40}$/u);
+  assert.equal(deepSwe.taskPath, "tasks/<name>");
+  assert.ok(deepSwe.provenance.length > 0);
+});
+
+test("normalizeTaskTomlNetwork only rewrites the agent phase", async () => {
+  const { normalizeTaskTomlNetwork } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  const datacurveLike = [
+    'schema_version = "1.3"',
+    "artifacts = [\"/logs/artifacts/model.patch\"]",
+    "[verifier]",
+    'network_mode = "no-network"',
+    'environment_mode = "separate"',
+    "timeout_sec = 1800.0",
+    "[verifier.environment]",
+    "build_timeout_sec = 1800.0",
+    "[[verifier.collect]]",
+    'command = "cd /app && git diff HEAD > /logs/artifacts/model.patch"',
+    "[agent]",
+    'network_mode = "no-network"',
+    "timeout_sec = 5400.0",
+    "[environment]",
+    'docker_image = "public.ecr.aws/example:pin"',
+    "[environment.env]",
+  ].join("\n");
+  const normalized = normalizeTaskTomlNetwork(datacurveLike);
+  assert.deepEqual(normalized.changes, [
+    '[agent] network_mode = "no-network" -> network_mode = "public"',
+  ]);
+  assert.match(normalized.text, /^# Staged by frontier-harness-harness\.mjs/u);
+  assert.doesNotMatch(normalized.text, /\[agent\][^\[]*network_mode = "no-network"/u);
+  // The verifier's own network policy must survive verbatim.
+  assert.match(normalized.text, /\[verifier\]\nnetwork_mode = "no-network"/u);
+  assert.match(normalized.text, /environment_mode = "separate"/u);
+  assert.match(normalized.text, /docker_image = "public\.ecr\.aws\/example:pin"/u);
+
+  const terminalBenchLike = [
+    'schema_version = "1.0"',
+    "[verifier]",
+    "timeout_sec = 900.0",
+    "[agent]",
+    "timeout_sec = 900.0",
+    "[environment]",
+    'docker_image = "alexgshaw/regex-log:20251031"',
+    'memory = "2G"',
+  ].join("\n");
+  const untouched = normalizeTaskTomlNetwork(terminalBenchLike);
+  assert.deepEqual(untouched.changes, []);
+  assert.equal(untouched.text, terminalBenchLike);
+
+  const alreadyPublic = '[agent]\nnetwork_mode = "public"\n';
+  const noChange = normalizeTaskTomlNetwork(alreadyPublic);
+  assert.deepEqual(noChange.changes, []);
+  assert.equal(noChange.text, alreadyPublic);
+
+  const restrictedEnv = "[environment]\nallow_internet = false\n";
+  const opened = normalizeTaskTomlNetwork(restrictedEnv);
+  assert.deepEqual(opened.changes, [
+    "[environment] allow_internet = false -> allow_internet = true",
+  ]);
+  assert.match(opened.text, /allow_internet = true/u);
+});
+
+test("stagePierTask copies the source task verbatim with network normalization", async () => {
+  const { stagePierTask } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+  const sourceRoot = mkdtempSync(join(tmpdir(), "fh-stage-source-"));
+  const pierTaskDir = mkdtempSync(join(tmpdir(), "fh-stage-dest-"));
+
+  const instruction = "Write a regex that matches dates.\n";
+  const instructionSha256 = createHash("sha256").update(instruction).digest("hex");
+  const taskDir = join(sourceRoot, "tasks", "example-task");
+  mkdirSync(join(taskDir, "environment"), { recursive: true });
+  mkdirSync(join(taskDir, "tests"), { recursive: true });
+  mkdirSync(join(taskDir, "solution"), { recursive: true });
+  writeFileSync(
+    join(taskDir, "task.toml"),
+    [
+      'schema_version = "1.3"',
+      "[agent]",
+      'network_mode = "no-network"',
+      "timeout_sec = 5400.0",
+      "[verifier]",
+      'network_mode = "no-network"',
+      'environment_mode = "separate"',
+      "[environment]",
+      'docker_image = "public.ecr.aws/example:pin"',
+      "",
+    ].join("\n"),
+  );
+  writeFileSync(join(taskDir, "instruction.md"), instruction);
+  writeFileSync(join(taskDir, "environment", "Dockerfile"), "FROM ubuntu:24.04\n");
+  writeFileSync(join(taskDir, "tests", "test.sh"), "#!/bin/bash\necho 1 > /logs/verifier/reward.txt\n", { mode: 0o755 });
+  writeFileSync(join(taskDir, "tests", "grader.py"), "print('grade')\n");
+  writeFileSync(join(taskDir, "solution", "solve.sh"), "exit 0\n");
+
+  const task = {
+    name: "datacurve/example-task",
+    suite: "datacurve",
+    sourceTaskDir: "tasks/example-task",
+    instructionSha256,
+  };
+  const staged = stagePierTask({ task, sourceRoot, pierTaskDir });
+  assert.equal(staged.networkChanges.length, 1);
+
+  const stagedToml = readFileSync(join(pierTaskDir, "task.toml"), "utf8");
+  assert.match(stagedToml, /network_mode = "public"/u);
+  assert.match(stagedToml, /\[verifier\]\nnetwork_mode = "no-network"/u);
+  assert.equal(
+    readFileSync(join(pierTaskDir, "instruction.md"), "utf8"),
+    instruction,
+  );
+  assert.equal(
+    statSync(join(pierTaskDir, "tests", "test.sh")).mode & 0o111,
+    0o111,
+    "test.sh must keep its executable bit",
+  );
+  assert.ok(existsSync(join(pierTaskDir, "solution", "solve.sh")));
+  assert.ok(existsSync(join(pierTaskDir, "tests", "grader.py")));
+
+  // Re-staging over an existing task.toml must fail closed.
+  assert.throws(
+    () => stagePierTask({ task, sourceRoot, pierTaskDir }),
+    /Refusing to restage/u,
+  );
+
+  // A mutated instruction (hash mismatch) must fail closed.
+  const freshDest = mkdtempSync(join(tmpdir(), "fh-stage-dest2-"));
+  const tamperedTask = { ...task, instructionSha256: "0".repeat(64) };
+  assert.throws(
+    () => stagePierTask({ task: tamperedTask, sourceRoot, pierTaskDir: freshDest }),
+    /does not match the frozen corpus hash/u,
+  );
 });
 
 test("provider materialization rejects a non-frozen provider profile", () => {

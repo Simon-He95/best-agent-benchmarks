@@ -11,13 +11,22 @@ name: Frontier-Harness 1.0
 # BEST_AGENT_SOURCE_TOKEN secret and the linux-x64-gnu SEA is built on the
 # ubuntu-24.04 runner of this free public repository. Nothing is published.
 #
+# Task definitions are staged from the authoritative per-suite sources pinned
+# in config/frontier-harness.json#taskSources (terminal-bench ->
+# laude-institute/terminal-bench-2, datacurve -> datacurve-ai/deep-swe); the
+# eval repo's tasks/ directory is public metadata without tests/.
+#
 # Fairness composition (frozen): one headless `best-agent run` attempt per
 # predeclared task (no TUI, no interaction tools), full workspace permissions
-# (unrestricted + read/write/exec), the network tool excluded because the task
-# environments are air-gapped, one frozen candidate, no evaluator output
-# ever re-enters a model attempt, and the task's own verifier is the only
-# grader. Results are a diagnostic self-run; they are not comparable to the
-# published frontierharness.org leaderboard.
+# (unrestricted + read/write/exec), the CLI's network tool excluded, one frozen
+# candidate, no evaluator output ever re-enters a model attempt, and the task's
+# own verifier is the only grader. Task environments are internet-connected
+# (the task verifiers install dependencies at trial time, matching the original
+# benchmark's egress-allowlisted runtime; the agent phase of no-network tasks
+# is normalized to public because the CLI needs direct provider egress). This
+# matches the repo's Terminal-Bench 4.0 diagnostic composition: no closed-book
+# claim is made. Results are a diagnostic self-run; they are not comparable to
+# the published frontierharness.org leaderboard.
 
 on:
   workflow_dispatch:
@@ -181,6 +190,7 @@ jobs:
         id: benchmark
         run: |
           node -e "const c=require('./config/frontier-harness.json').source;console.log('repository='+c.sourceRepository);console.log('commit='+c.sourceCommit)" >> "$GITHUB_OUTPUT"
+          node -e "const c=require('./config/frontier-harness.json').taskSources;console.log('tb_repository='+c.terminalBench.repository);console.log('tb_commit='+c.terminalBench.sourceCommit);console.log('ds_repository='+c.deepSwe.repository);console.log('ds_commit='+c.deepSwe.sourceCommit)" >> "$GITHUB_OUTPUT"
 
       - name: Checkout the benchmark at the pinned commit
         run: |
@@ -191,10 +201,27 @@ jobs:
           git checkout "${{ steps.benchmark.outputs.commit }}"
           test "$(git rev-parse HEAD)" = "${{ steps.benchmark.outputs.commit }}"
 
+      - name: Checkout the per-suite task sources at the pinned commits
+        run: |
+          set -euo pipefail
+          git clone --quiet "https://github.com/${{ steps.benchmark.outputs.tb_repository }}.git" \
+            tools/terminal-bench-2-source
+          cd tools/terminal-bench-2-source
+          git checkout "${{ steps.benchmark.outputs.tb_commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.benchmark.outputs.tb_commit }}"
+          cd "${GITHUB_WORKSPACE}"
+          git clone --quiet "https://github.com/${{ steps.benchmark.outputs.ds_repository }}.git" \
+            tools/deep-swe-source
+          cd tools/deep-swe-source
+          git checkout "${{ steps.benchmark.outputs.ds_commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.benchmark.outputs.ds_commit }}"
+
       - name: Freeze the task manifest
         run: |
           node scripts/prepare-frontier-harness.mjs \
             --source "${GITHUB_WORKSPACE}/tools/frontier-harness-source" \
+            --terminal-bench-source "${GITHUB_WORKSPACE}/tools/terminal-bench-2-source" \
+            --deep-swe-source "${GITHUB_WORKSPACE}/tools/deep-swe-source" \
             --output "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.json" \
             --task-list "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.tasks.txt"
 
@@ -373,6 +400,10 @@ jobs:
           console.log(`benchmark_commit=${config.source.sourceCommit}`);
           console.log(`candidate_id=cli-${cli.cliVersion}-${cli.sourceCommit.slice(0, 7)}-${cli.binarySha256.slice(0, 12)}`);
           console.log(`task_short=${name}`);
+          console.log(`tb_repository=${config.taskSources.terminalBench.repository}`);
+          console.log(`tb_commit=${config.taskSources.terminalBench.sourceCommit}`);
+          console.log(`ds_repository=${config.taskSources.deepSwe.repository}`);
+          console.log(`ds_commit=${config.taskSources.deepSwe.sourceCommit}`);
           NODE
 
       - uses: actions/setup-node@v4
@@ -405,6 +436,21 @@ jobs:
           git checkout "${{ steps.candidate.outputs.benchmark_commit }}"
           test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.benchmark_commit }}"
 
+      - name: Checkout the per-suite task sources at the pinned commits
+        run: |
+          set -euo pipefail
+          git clone --quiet "https://github.com/${{ steps.candidate.outputs.tb_repository }}.git" \
+            tools/terminal-bench-2-source
+          cd tools/terminal-bench-2-source
+          git checkout "${{ steps.candidate.outputs.tb_commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.tb_commit }}"
+          cd "${GITHUB_WORKSPACE}"
+          git clone --quiet "https://github.com/${{ steps.candidate.outputs.ds_repository }}.git" \
+            tools/deep-swe-source
+          cd tools/deep-swe-source
+          git checkout "${{ steps.candidate.outputs.ds_commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.ds_commit }}"
+
       - name: Verify provider credential
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
 
@@ -423,6 +469,8 @@ jobs:
             --task "${{ matrix.entry.task }}" \
             --corpus "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.json" \
             --source "${GITHUB_WORKSPACE}/tools/frontier-harness-source" \
+            --terminal-bench-source "${GITHUB_WORKSPACE}/tools/terminal-bench-2-source" \
+            --deep-swe-source "${GITHUB_WORKSPACE}/tools/deep-swe-source" \
             --output "${GITHUB_WORKSPACE}/results/frontier-harness/results/frontier-harness-results.${TASK_SHORT}.json" \
             --jobs-dir "${GITHUB_WORKSPACE}/results/frontier-harness/jobs/${TASK_SHORT}" \
             --job-name "fh-${{ github.run_id }}-${TASK_SHORT}" \

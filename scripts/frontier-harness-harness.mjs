@@ -5,14 +5,29 @@
  * Runs exactly one frozen task attempt through Pier's Docker environment with
  * the pinned best-agent CLI (installed-agent plugin), then freezes the trial
  * outcome and the complete inference-time artifacts. The task's own verifier
- * (inside the frozen task image) is the only grader; this script only
- * transcribes Pier's canonical trial record and never re-parses test output.
+ * (the per-suite source task definition staged below) is the only grader; this
+ * script only transcribes Pier's canonical trial record and never re-parses
+ * test output.
+ *
+ * Staging: the eval repo's tasks/ directory carries public metadata only (no
+ * tests/). The Pier task directory is therefore staged from the authoritative
+ * per-suite sources frozen in the corpus (terminal-bench -> terminal-bench-2,
+ * datacurve -> deep-swe): the complete task directory (task.toml,
+ * instruction.md, environment/, tests/, solution/) is copied verbatim, and the
+ * only edit is network normalization — the best-agent CLI has no HTTP-proxy
+ * support, so an air-gapped agent phase would cut off the model provider.
+ * [agent] network_mode="no-network" is rewritten to "public" and
+ * [environment] allow_internet=false to true, with a provenance comment left
+ * in the staged task.toml. Verifier-side network policy is never touched.
+ * Task environments are therefore internet-connected (matching the original
+ * benchmark's egress-allowlisted runtime and this repo's Terminal-Bench 4.0
+ * diagnostic composition); the CLI's network tool stays excluded and no
+ * closed-book claim is made.
  *
  * Composition fairness: one headless `best-agent run` per task (no TUI, no
- * interaction tools), full workspace permissions, tools that cannot work in
- * the air-gapped task environment (network) are excluded up front, one frozen
- * candidate, one predeclared attempt, and no evaluator output ever re-enters
- * the model attempt.
+ * interaction tools), full workspace permissions, one frozen candidate, one
+ * predeclared attempt, and no evaluator output ever re-enters the model
+ * attempt.
  *
  * Usage:
  *   node scripts/frontier-harness-harness.mjs [options]
@@ -20,7 +35,9 @@
  * Options:
  *   --task <id>                       suite-prefixed task id (terminal-bench/<dir> | datacurve/<dir>)
  *   --corpus <path>                   frozen manifest from prepare-frontier-harness.mjs
- *   --source <path>                   frontier-harness-eval checkout (pinned commit)
+ *   --source <path>                   frontier-harness-eval checkout (pinned commit; dataset validation)
+ *   --terminal-bench-source <path>    terminal-bench-2 checkout (pinned commit; task staging)
+ *   --deep-swe-source <path>          deep-swe checkout (pinned commit; task staging)
  *   --output <path>                   frozen per-task result JSON
  *   --jobs-dir <path>                 pier -o jobs dir for this task
  *   --job-name <name>                 pier job name
@@ -42,7 +59,6 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
-  copyFileSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -83,6 +99,8 @@ function parseArgs(argv) {
     task: undefined,
     corpus: undefined,
     source: undefined,
+    terminalBenchSource: undefined,
+    deepSweSource: undefined,
     output: undefined,
     jobsDir: undefined,
     jobName: undefined,
@@ -103,6 +121,12 @@ function parseArgs(argv) {
         break;
       case "--source":
         parsed.source = resolve(argv[++i]);
+        break;
+      case "--terminal-bench-source":
+        parsed.terminalBenchSource = resolve(argv[++i]);
+        break;
+      case "--deep-swe-source":
+        parsed.deepSweSource = resolve(argv[++i]);
         break;
       case "--output":
         parsed.output = resolve(argv[++i]);
@@ -137,8 +161,18 @@ function parseArgs(argv) {
         throw new Error(`Unknown argument: ${argv[i]}`);
     }
   }
-  for (const key of ["task", "corpus", "source", "output", "jobsDir", "jobName", "model"]) {
-    if (!parsed[key]) throw new Error(`--${key} is required.`);
+  for (const key of [
+    "task",
+    "corpus",
+    "source",
+    "terminalBenchSource",
+    "deepSweSource",
+    "output",
+    "jobsDir",
+    "jobName",
+    "model",
+  ]) {
+    if (!parsed[key]) throw new Error(`--${key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())} is required.`);
   }
   if (
     !Number.isFinite(parsed.agentTimeoutMultiplier) ||
@@ -233,6 +267,107 @@ export function verifyFrozenIdentity() {
   };
 }
 
+const NETWORK_PROVENANCE_COMMENT =
+  "# Staged by frontier-harness-harness.mjs: the agent phase is network-enabled" +
+  " because the best-agent CLI needs direct model-provider egress (no proxy" +
+  " support). This deviates from the task's declared agent network_mode and is" +
+  " recorded as a diagnostic composition difference. The verifier's own network" +
+  " policy is untouched.";
+
+/**
+ * Line-scoped TOML normalization: rewrite agent-phase network restrictions so
+ * the model provider stays reachable. Only the [agent] network_mode and
+ * [environment] allow_internet lines are touched; [verifier] sections (and any
+ * other field) pass through verbatim.
+ *
+ * @returns {{ text: string, changes: string[] }} the normalized TOML text and
+ *   a list of human-readable change descriptions (empty when unrestricted).
+ */
+export function normalizeTaskTomlNetwork(tomlText) {
+  const lines = tomlText.split("\n");
+  const changes = [];
+  let section = "";
+  for (let i = 0; i < lines.length; i++) {
+    const header = lines[i].trim().match(/^\[+([^\]]+)\]+$/);
+    if (header) {
+      section = header[1];
+      continue;
+    }
+    if (section === "agent") {
+      const match = lines[i].match(/^(\s*network_mode\s*=\s*)"[^"]*"(\s*(?:#.*)?)$/);
+      if (match) {
+        const before = lines[i].trim();
+        lines[i] = `${match[1]}"public"${match[2]}`;
+        if (before !== lines[i].trim()) {
+          changes.push(`[agent] ${before} -> ${lines[i].trim()}`);
+        }
+      }
+    }
+    if (section === "environment") {
+      const match = lines[i].match(/^(\s*allow_internet\s*=\s*)false(\s*(?:#.*)?)$/);
+      if (match) {
+        const before = lines[i].trim();
+        lines[i] = `${match[1]}true${match[2]}`;
+        changes.push(`[environment] ${before} -> ${lines[i].trim()}`);
+      }
+    }
+  }
+  return {
+    text: changes.length
+      ? `${NETWORK_PROVENANCE_COMMENT}\n${lines.join("\n")}`
+      : lines.join("\n"),
+    changes,
+  };
+}
+
+/**
+ * Stage the Pier task directory from the frozen per-suite source checkout:
+ * copy the complete task directory verbatim (modes preserved so tests keep
+ * their executable bits), then apply the network normalization above.
+ */
+export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
+  const sourceTaskDir = join(sourceRoot, ...task.sourceTaskDir.split("/"));
+  if (!existsSync(join(sourceTaskDir, "task.toml"))) {
+    throw new Error(`task.toml missing under ${sourceTaskDir}.`);
+  }
+  if (!existsSync(join(sourceTaskDir, "instruction.md"))) {
+    throw new Error(`instruction.md missing under ${sourceTaskDir}.`);
+  }
+  if (!existsSync(join(sourceTaskDir, "tests", "test.sh"))) {
+    throw new Error(`tests/test.sh missing under ${sourceTaskDir}.`);
+  }
+  if (
+    !existsSync(join(sourceTaskDir, "environment", "Dockerfile")) &&
+    !existsSync(join(sourceTaskDir, "environment", "docker-compose.yaml"))
+  ) {
+    throw new Error(
+      `environment/Dockerfile or environment/docker-compose.yaml missing under ${sourceTaskDir}.`,
+    );
+  }
+  mkdirSync(pierTaskDir, { recursive: true });
+  if (existsSync(join(pierTaskDir, "task.toml"))) {
+    throw new Error(`Refusing to restage over ${pierTaskDir}.`);
+  }
+  const copy = spawnSync("cp", ["-a", `${sourceTaskDir}/.`, `${pierTaskDir}/`]);
+  if (copy.status !== 0) {
+    throw new Error(`Failed to stage ${sourceTaskDir}: ${copy.stderr || "unknown error"}`);
+  }
+  const stagedTomlPath = join(pierTaskDir, "task.toml");
+  const original = readFileSync(stagedTomlPath, "utf8");
+  const normalized = normalizeTaskTomlNetwork(original);
+  if (normalized.changes.length) {
+    writeFileSync(stagedTomlPath, normalized.text);
+  }
+  const stagedInstruction = readFileSync(join(pierTaskDir, "instruction.md"));
+  const instructionSha256 = createHash("sha256").update(stagedInstruction).digest("hex");
+  if (instructionSha256 !== task.instructionSha256) {
+    throw new Error(
+      `Staged instruction for ${task.name} does not match the frozen corpus hash.`,
+    );
+  }
+  return { pierTaskDir, networkChanges: normalized.changes };
+}
+
 function runPier(pierBin, args, env, stdioBase) {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(pierBin, args, {
@@ -291,32 +426,42 @@ async function main() {
     throw new Error(`task.toml missing under ${taskDir}.`);
   }
 
-  // Stage a Pier-compatible task directory: the frontier-harness-eval repo
-  // publishes only task.toml + instruction.md (the environment is a pre-built
-  // Docker image from task.toml and verification is configured via [verifier]),
-  // but Pier's TaskPaths.is_valid() requires environment/ and tests/test.sh
-  // to recognize a directory as a runnable task.
+  // Resolve the authoritative per-suite source checkout for this task and
+  // verify it sits at the commit frozen in the corpus (and pinned in config).
+  const isTerminalBench = task.suite === "terminal-bench";
+  const sourceRoot = isTerminalBench ? args.terminalBenchSource : args.deepSweSource;
+  const sourcePin = isTerminalBench
+    ? config.taskSources.terminalBench
+    : config.taskSources.deepSwe;
+  if (task.sourceRepository !== sourcePin.repository) {
+    throw new Error(
+      `Frozen corpus sources ${task.name} from ${task.sourceRepository}, but config pins ${sourcePin.repository}.`,
+    );
+  }
+  if (task.sourceCommit !== sourcePin.sourceCommit) {
+    throw new Error(
+      `Frozen corpus pins ${task.name} at ${task.sourceCommit}, but config pins ${sourcePin.sourceCommit}.`,
+    );
+  }
+  const sourceHead = spawnSync("git", ["rev-parse", "HEAD"], {
+    cwd: sourceRoot,
+    encoding: "utf8",
+  });
+  if (sourceHead.status !== 0 || sourceHead.stdout.trim() !== task.sourceCommit) {
+    throw new Error(
+      `${sourcePin.repository} checkout HEAD mismatch: expected ${task.sourceCommit}.`,
+    );
+  }
+
+  // Stage the complete task directory from the authoritative source; the only
+  // edit is the agent-phase network normalization documented in stagePierTask.
   const pierTaskDir = join(args.jobsDir, "pier-task");
-  mkdirSync(join(pierTaskDir, "environment"), { recursive: true });
-  mkdirSync(join(pierTaskDir, "tests"), { recursive: true });
-  copyFileSync(join(taskDir, "task.toml"), join(pierTaskDir, "task.toml"));
-  copyFileSync(join(taskDir, "instruction.md"), join(pierTaskDir, "instruction.md"));
-  const dockerCompose = `services:\n  default:\n    image: ${task.dockerImage}\n`;
-  writeFileSync(
-    join(pierTaskDir, "environment", "docker-compose.yaml"),
-    dockerCompose,
-  );
-  writeFileSync(
-    join(pierTaskDir, "tests", "test.sh"),
-    [
-      "#!/bin/bash",
-      "# Verification is driven by the [verifier] section in task.toml;",
-      "# this stub satisfies Pier's TaskPaths.is_valid() structure check.",
-      "exit 0",
-      "",
-    ].join("\n"),
-    { mode: 0o755 },
-  );
+  const staged = stagePierTask({ task, sourceRoot, pierTaskDir });
+  if (staged.networkChanges.length) {
+    process.stderr.write(
+      `Staging note (${task.name}): ${staged.networkChanges.join("; ")}\n`,
+    );
+  }
 
   const candidate = verifyFrozenIdentity();
   const { cliVersion, model } = candidate;

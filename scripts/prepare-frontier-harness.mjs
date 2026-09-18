@@ -2,21 +2,29 @@
 /**
  * FrontierHarness Eval v1.0 corpus freeze.
  *
- * Verifies a local checkout of frontier-harness-eval/eval at the pinned
- * commit, cross-checks the frozen benchmark task ids in benchmark.json against
- * config/frontier-harness.json, reads every task's `task.toml` +
- * `instruction.md`, and writes one frozen manifest that the generation harness
- * and the report job consume. The manifest is the single source for task
- * identity, prompt hashes, environment images, timeouts, and eligibility
+ * Verifies a local checkout of frontier-harness-eval/eval at the pinned commit
+ * (the task-list authority), then freezes every task's operative definition
+ * from the authoritative per-suite sources pinned in
+ * config/frontier-harness.json#taskSources:
+ *
+ *   terminal-bench/<name> -> laude-institute/terminal-bench-2 (the
+ *       terminal-bench@2.0 registry corpus the official runner used; the eval
+ *       repo's tasks/ copies are public metadata without tests/)
+ *   datacurve/<name>      -> datacurve-ai/deep-swe (the official skill's
+ *       reproduction ref; its -v1.1 separate-verifier images are the
+ *       reproduction-correct environments)
+ *
+ * Writes one frozen manifest that the generation harness and the report job
+ * consume. The manifest is the single source for task identity, prompt hashes,
+ * environment images, timeouts, verifier topology, and eligibility
  * classification (GPU / runner-resource bound).
  *
  * Usage:
- *   node scripts/prepare-frontier-harness.mjs --source <checkout> [--output <path>]
- *
- * Options:
- *   --source <path>        frontier-harness-eval git checkout (pinned commit)
- *   --output <path>        frozen manifest JSON (default: results/corpora/frontier-harness-1.0.json)
- *   --task-list <path>     (optional) write one task id per line
+ *   node scripts/prepare-frontier-harness.mjs \
+ *     --source <eval checkout> \
+ *     --terminal-bench-source <terminal-bench-2 checkout> \
+ *     --deep-swe-source <deep-swe checkout> \
+ *     [--output <path>] [--task-list <path>]
  */
 
 import { createHash } from "node:crypto";
@@ -30,6 +38,7 @@ const config = JSON.parse(
   readFileSync(join(repoRoot, "config", "frontier-harness.json"), "utf8"),
 );
 const pinned = config.source;
+const taskSources = config.taskSources;
 
 function sha256(input) {
   return createHash("sha256").update(input).digest("hex");
@@ -38,6 +47,8 @@ function sha256(input) {
 function parseArgs(argv) {
   const parsed = {
     source: undefined,
+    terminalBenchSource: undefined,
+    deepSweSource: undefined,
     output: resolve(repoRoot, "results", "corpora", "frontier-harness-1.0.json"),
     taskList: undefined,
   };
@@ -45,6 +56,12 @@ function parseArgs(argv) {
     switch (argv[i]) {
       case "--source":
         parsed.source = resolve(argv[++i]);
+        break;
+      case "--terminal-bench-source":
+        parsed.terminalBenchSource = resolve(argv[++i]);
+        break;
+      case "--deep-swe-source":
+        parsed.deepSweSource = resolve(argv[++i]);
         break;
       case "--output":
         parsed.output = resolve(argv[++i]);
@@ -56,7 +73,13 @@ function parseArgs(argv) {
         throw new Error(`Unknown argument: ${argv[i]}`);
     }
   }
-  if (!parsed.source) throw new Error("--source <frontier-harness-eval checkout> is required.");
+  for (const [key, label] of [
+    ["source", "frontier-harness-eval checkout"],
+    ["terminalBenchSource", "terminal-bench-2 checkout"],
+    ["deepSweSource", "deep-swe checkout"],
+  ]) {
+    if (!parsed[key]) throw new Error(`--${key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())} <${label}> is required.`);
+  }
   return parsed;
 }
 
@@ -71,7 +94,7 @@ function gitHead(source) {
   return result.stdout.trim();
 }
 
-function readTomlDict(source, taskDir, fields) {
+function readTomlDict(tomlPath, fields) {
   // task.toml is TOML; Node has no built-in parser. python3's tomllib is part of
   // stdlib on 3.11+ (present on GitHub ubuntu runners and modern macOS).
   const script = `
@@ -88,15 +111,43 @@ for path in ${JSON.stringify(fields)}:
     out[".".join(path)] = node
 print(json.dumps(out))
 `;
-  const result = spawnSync("python3", ["-c", script, join(source, "tasks", taskDir, "task.toml")], {
+  const result = spawnSync("python3", ["-c", script, tomlPath], {
     encoding: "utf8",
   });
   if (result.status !== 0) {
     throw new Error(
-      `Failed to parse task.toml for ${taskDir}: ${result.stderr || "unknown error"}`,
+      `Failed to parse ${tomlPath}: ${result.stderr || "unknown error"}`,
     );
   }
   return JSON.parse(result.stdout);
+}
+
+function parseSizeToMb(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return value;
+  const text = String(value).trim().toUpperCase();
+  if (text.endsWith("G")) return Math.round(parseFloat(text.slice(0, -1)) * 1024);
+  if (text.endsWith("M")) return Math.round(parseFloat(text.slice(0, -1)));
+  if (text.endsWith("K")) return Math.round(parseFloat(text.slice(0, -1)) / 1024);
+  throw new Error(`Cannot parse size ${JSON.stringify(value)}.`);
+}
+
+function sourceRootFor(suite) {
+  if (suite === "terminal-bench") {
+    return {
+      root: "terminalBenchSource",
+      pin: taskSources.terminalBench,
+      taskDirTemplate: taskSources.terminalBench.taskPath,
+    };
+  }
+  if (suite === "datacurve") {
+    return {
+      root: "deepSweSource",
+      pin: taskSources.deepSwe,
+      taskDirTemplate: taskSources.deepSwe.taskPath,
+    };
+  }
+  throw new Error(`Unknown suite ${suite}.`);
 }
 
 function main() {
@@ -115,6 +166,20 @@ function main() {
       `Checkout HEAD ${head} does not match pinned ${pinned.sourceCommit}.`,
     );
   }
+  const sourceHeads = {
+    terminalBenchSource: gitHead(args.terminalBenchSource),
+    deepSweSource: gitHead(args.deepSweSource),
+  };
+  if (sourceHeads.terminalBenchSource !== taskSources.terminalBench.sourceCommit) {
+    throw new Error(
+      `terminal-bench-2 HEAD ${sourceHeads.terminalBenchSource} does not match pinned ${taskSources.terminalBench.sourceCommit}.`,
+    );
+  }
+  if (sourceHeads.deepSweSource !== taskSources.deepSwe.sourceCommit) {
+    throw new Error(
+      `deep-swe HEAD ${sourceHeads.deepSweSource} does not match pinned ${taskSources.deepSwe.sourceCommit}.`,
+    );
+  }
 
   const benchmark = JSON.parse(readFileSync(join(source, "benchmark.json"), "utf8"));
   if (benchmark.task_count !== pinned.taskCount) {
@@ -130,61 +195,98 @@ function main() {
 
   const tasks = pinned.taskIds.map((taskId, index) => {
     const suite = taskId.split("/")[0];
-    const taskDir = taskId.split("/").pop();
-    const taskConfig = readTomlDict(source, taskDir, [
+    const short = taskId.split("/").pop();
+    const origin = sourceRootFor(suite);
+    const sourceTaskDir = origin.taskDirTemplate.replace("<name>", short);
+    const taskDir = join(args[origin.root], ...sourceTaskDir.split("/"));
+    if (!existsSync(join(taskDir, "task.toml"))) {
+      throw new Error(`Task ${taskId} has no task.toml under ${taskDir}.`);
+    }
+    if (!existsSync(join(taskDir, "instruction.md"))) {
+      throw new Error(`Task ${taskId} is missing instruction.md under ${taskDir}.`);
+    }
+    if (!existsSync(join(taskDir, "tests", "test.sh"))) {
+      throw new Error(
+        `Task ${taskId} has no tests/test.sh under ${taskDir}; Pier's verifier requires it.`,
+      );
+    }
+    if (
+      !existsSync(join(taskDir, "environment", "Dockerfile")) &&
+      !existsSync(join(taskDir, "environment", "docker-compose.yaml"))
+    ) {
+      throw new Error(
+        `Task ${taskId} has no environment/Dockerfile or environment/docker-compose.yaml under ${taskDir}.`,
+      );
+    }
+    const taskConfig = readTomlDict(join(taskDir, "task.toml"), [
       ["task", "name"],
       ["agent", "timeout_sec"],
       ["agent", "network_mode"],
       ["verifier", "timeout_sec"],
       ["verifier", "environment_mode"],
       ["verifier", "network_mode"],
+      ["verifier", "environment"],
       ["environment", "docker_image"],
       ["environment", "workdir"],
       ["environment", "cpus"],
       ["environment", "memory_mb"],
+      ["environment", "memory"],
       ["environment", "storage_mb"],
+      ["environment", "storage"],
       ["environment", "gpus"],
       ["environment", "allow_internet"],
     ]);
-    if (taskConfig["task.name"] !== taskId) {
+    const declaredName = taskConfig["task.name"];
+    if (declaredName !== null && declaredName !== undefined && declaredName !== taskId) {
       throw new Error(
-        `task.toml name ${taskConfig["task.name"]} does not match the frozen task id ${taskId}.`,
+        `task.toml name ${declaredName} does not match the frozen task id ${taskId}.`,
       );
     }
-    const instructionPath = join(source, "tasks", taskDir, "instruction.md");
-    if (!existsSync(instructionPath)) {
-      throw new Error(`Task ${taskDir} is missing instruction.md.`);
-    }
-    const instruction = readFileSync(instructionPath, "utf8");
+    const instruction = readFileSync(join(taskDir, "instruction.md"), "utf8");
     if (instruction.trim().length === 0) {
-      throw new Error(`Task ${taskDir} has an empty instruction.md.`);
+      throw new Error(`Task ${taskId} has an empty instruction.md.`);
     }
     const dockerImage = String(taskConfig["environment.docker_image"] ?? "");
     if (!dockerImage) {
-      throw new Error(`Task ${taskDir} declares no environment docker_image.`);
+      throw new Error(`Task ${taskId} declares no environment docker_image.`);
     }
     const agentTimeoutSec = Number(taskConfig["agent.timeout_sec"] ?? 0);
     if (!(agentTimeoutSec > 0)) {
-      throw new Error(`Task ${taskDir} declares no agent timeout_sec.`);
+      throw new Error(`Task ${taskId} declares no agent timeout_sec.`);
     }
+    const verifierEnvironmentMode =
+      taskConfig["verifier.environment_mode"] ??
+      (taskConfig["verifier.environment"] !== null &&
+      taskConfig["verifier.environment"] !== undefined
+        ? "separate"
+        : "shared");
     const gpus = Number(taskConfig["environment.gpus"] ?? 0);
     const cpus = Number(taskConfig["environment.cpus"] ?? 1);
-    const memoryMb = Number(taskConfig["environment.memory_mb"] ?? 1024);
-    const storageMb = Number(taskConfig["environment.storage_mb"] ?? 10240);
+    const memoryMb =
+      parseSizeToMb(taskConfig["environment.memory_mb"]) ??
+      parseSizeToMb(taskConfig["environment.memory"]) ??
+      1024;
+    const storageMb =
+      parseSizeToMb(taskConfig["environment.storage_mb"]) ??
+      parseSizeToMb(taskConfig["environment.storage"]) ??
+      10240;
     return {
       name: taskId,
       suite,
       datasetOrder: index + 1,
+      sourceRepository: origin.pin.repository,
+      sourceCommit: origin.pin.sourceCommit,
+      sourceTaskDir,
       instructionSha256: sha256(instruction),
       instructionBytes: Buffer.byteLength(instruction, "utf8"),
       dockerImage,
-      workdir: taskConfig["environment.workdir"] ?? "/app",
+      workdir: taskConfig["environment.workdir"] ?? null,
       agentTimeoutSec,
       agentNetworkMode: taskConfig["agent.network_mode"] ?? null,
       verifierTimeoutSec: Number(taskConfig["verifier.timeout_sec"] ?? 0),
-      verifierEnvironmentMode: taskConfig["verifier.environment_mode"] ?? "separate",
+      verifierEnvironmentMode,
       verifierNetworkMode: taskConfig["verifier.network_mode"] ?? null,
-      allowInternet: taskConfig["environment.allow_internet"] === true,
+      allowInternet: taskConfig["environment.allow_internet"] !== false,
       cpus,
       memoryMb,
       storageMb,
@@ -233,6 +335,10 @@ function main() {
       sourceCommit: pinned.sourceCommit,
       benchmarkTaskCount: benchmark.task_count,
       taskCount: tasks.length,
+      terminalBenchSourceRepository: taskSources.terminalBench.repository,
+      terminalBenchSourceCommit: taskSources.terminalBench.sourceCommit,
+      deepSweSourceRepository: taskSources.deepSwe.repository,
+      deepSweSourceCommit: taskSources.deepSwe.sourceCommit,
     },
     gpuTasks,
     resourceExceededTasks: exceededTasks,
@@ -250,6 +356,8 @@ function main() {
       {
         profileId: manifest.profileId,
         sourceCommit: pinned.sourceCommit,
+        terminalBenchSourceCommit: taskSources.terminalBench.sourceCommit,
+        deepSweSourceCommit: taskSources.deepSwe.sourceCommit,
         taskCount: tasks.length,
         terminalBenchTasks: suiteCounts["terminal-bench"],
         datacurveTasks: suiteCounts["datacurve"],

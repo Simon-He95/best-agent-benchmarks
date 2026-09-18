@@ -49,6 +49,20 @@
     "sourceTag": "v0.3.1",
     "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
   },
+  "taskSources": {
+    "terminalBench": {
+      "repository": "laude-institute/terminal-bench-2",
+      "sourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+      "taskPath": "<name>",
+      "provenance": "Per-task commits resolved from harbor-framework/harbor registry.json@v0.22.0 dataset terminal-bench@2.0 (the legacy-registry corpus the official runner used via `harbor run -d terminal-bench@2.0`); all 21 corpus tasks resolve to this single snapshot commit. The eval repo's tasks/ copies are public metadata only: they carry no tests/ and their [agent] timeouts, [environment] env/allow_internet fields diverge from what actually ran."
+    },
+    "deepSwe": {
+      "repository": "datacurve-ai/deep-swe",
+      "sourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9",
+      "taskPath": "tasks/<name>",
+      "provenance": "DEEP_SWE_REF default of the official skill's provision-golden-checkpoint.sh (benchmark.json reproduction_ref is a corrupted transcription of this sha). The -v1.1 separate-verifier images at this ref are the reproduction-correct environments and differ from the frozen public task metadata for three tasks."
+    }
+  },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.3-beta.17",
