@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "frontier-harness-best-agent"
+version = "0.1.0"
+description = "Pier installed-agent plugin driving the pinned best-agent CLI inside FrontierHarness task environments."
+requires-python = ">=3.12"
+dependencies = ["datacurve-pier==0.3.1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["frontier_harness_best_agent"]

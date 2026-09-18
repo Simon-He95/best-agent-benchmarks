@@ -1,0 +1,528 @@
+name: Frontier-Harness 1.0
+
+# Additive benchmark harness for the FrontierHarness Eval v1.0 task set
+# (21 Terminal-Bench tasks + 9 DeepSWE tasks) through Pier (a Harbor fork)
+# on the Docker environment of free GitHub-hosted runners. This workflow is
+# completely separate from the SWE-bench `Benchmark` and Terminal-Bench 4.0
+# workflows and never modifies their logic or artifacts.
+#
+# Candidate: exactly the terminal-bench 4.0 pattern — the private best-agent
+# source repository is checked out at the pinned commit with the
+# BEST_AGENT_SOURCE_TOKEN secret and the linux-x64-gnu SEA is built on the
+# ubuntu-24.04 runner of this free public repository. Nothing is published.
+#
+# Fairness composition (frozen): one headless `best-agent run` attempt per
+# predeclared task (no TUI, no interaction tools), full workspace permissions
+# (unrestricted + read/write/exec), the network tool excluded because the task
+# environments are air-gapped, one frozen candidate, no evaluator output
+# ever re-enters a model attempt, and the task's own verifier is the only
+# grader. Results are a diagnostic self-run; they are not comparable to the
+# published frontierharness.org leaderboard.
+
+on:
+  workflow_dispatch:
+    inputs:
+      fh_smoke:
+        description: Run a single-task plumbing smoke (config smokeTask)
+        required: false
+        type: boolean
+        default: false
+      fh_run:
+        description: Generate frozen frontier-harness predictions
+        required: false
+        type: boolean
+        default: false
+      fh_tasks:
+        description: Predeclared comma-separated task ids; overrides offset/limit
+        required: false
+        default: ""
+      fh_limit:
+        description: Number of tasks after offset (0 = full corpus population)
+        required: false
+        default: "1"
+      fh_offset:
+        description: Skip the first N corpus tasks
+        required: false
+        default: "0"
+      fh_batch:
+        description: Immutable diagnostic batch label
+        required: false
+        default: "diagnostic"
+      fh_run_full:
+        description: One frozen attempt for every task in tracked batches of 10
+        required: false
+        type: boolean
+        default: false
+      fh_agent_timeout_multiplier:
+        description: Multiplier over each task's declared agent timeout
+        required: false
+        default: "1"
+      fh_timeout_ms:
+        description: Per-task provider timeout in ms (empty = derived from task timeout)
+        required: false
+        default: ""
+
+concurrency:
+  group: frontier-harness-${{ inputs.fh_batch || 'default' }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+
+jobs:
+  fh-candidate:
+    name: Freeze current Linux candidate
+    if: ${{ inputs.fh_smoke || inputs.fh_run }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the candidate source
+        id: source
+        run: |
+          node -e "const c=require('./config/frontier-harness.json').cli; console.log('repository='+c.sourceRepository); console.log('commit='+c.sourceCommit)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.source.outputs.repository }}
+          ref: ${{ steps.source.outputs.commit }}
+          token: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+          path: tools/best-agent-source
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: tools/best-agent-source/.nvmrc
+
+      - name: Validate benchmark contracts
+        run: npm test
+
+      - name: Build the exact Linux SEA
+        working-directory: tools/best-agent-source
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ steps.source.outputs.commit }}"
+          corepack enable
+          corepack install
+          pnpm install --frozen-lockfile
+          pnpm pack:tui
+          node --input-type=module -e 'import path from "node:path"; import { stageCliSeaPackages } from "./scripts/stage-cli-sea-packages.mjs"; stageCliSeaPackages({ artifactRoot: path.resolve(".tmp/sea"), stageRoot: path.resolve(".tmp/npm/release-stage"), targetIds: ["linux-x64-gnu"] });'
+
+      - name: Freeze the candidate receipt
+        env:
+          SOURCE_REPOSITORY: ${{ steps.source.outputs.repository }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.commit }}
+        run: |
+          mkdir -p results/candidate
+          CLI_STAGE=tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu
+          npm install --prefix "$CLI_STAGE" --omit=dev --ignore-scripts --no-audit --no-fund
+          npm ls --prefix "$CLI_STAGE" --omit=dev --all
+          mkdir -p "$CLI_STAGE/runtime/bin"
+          cp "$(command -v node)" "$CLI_STAGE/runtime/bin/node"
+          tar czf results/candidate/best-agent-cli.tgz -C "$CLI_STAGE" .
+          cp tools/best-agent-source/.tmp/sea/linux-x64-gnu/build-report.json \
+            results/candidate/build-report.json
+          node <<'NODE'
+          const { createHash } = require("node:crypto");
+          const { readFileSync, writeFileSync } = require("node:fs");
+          const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+          const config = require("./config/frontier-harness.json");
+          const report = require("./results/candidate/build-report.json");
+          const staged = require("./tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/package.json");
+          if (
+            report.artifact.target !== config.cli.target ||
+            report.artifact.version !== config.cli.cliVersion ||
+            staged.name !== config.cli.packageName ||
+            staged.version !== config.cli.cliVersion
+          ) throw new Error("Built Linux candidate does not match the frozen config.");
+          const receipt = {
+            schemaVersion: 1,
+            packageName: staged.name,
+            cliVersion: staged.version,
+            sourceRepository: process.env.SOURCE_REPOSITORY,
+            sourceCommit: process.env.SOURCE_COMMIT,
+            target: report.artifact.target,
+            lockfileSha256: sha256("tools/best-agent-source/pnpm-lock.yaml"),
+            binarySha256: sha256("tools/best-agent-source/.tmp/sea/linux-x64-gnu/best-agent"),
+            buildReportSha256: sha256("results/candidate/build-report.json"),
+            tarballSha256: sha256("results/candidate/best-agent-cli.tgz"),
+            runtimeDependencies: staged.dependencies,
+            runtimeLockSha256: sha256("tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/package-lock.json"),
+            nodeVersion: process.version,
+            nodeBinarySha256: sha256("tools/best-agent-source/.tmp/npm/release-stage/linux-x64-gnu/runtime/bin/node"),
+          };
+          writeFileSync("results/candidate/candidate.json", JSON.stringify(receipt, null, 2) + "\n");
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-harness-candidate-${{ github.run_id }}
+          path: results/candidate
+          if-no-files-found: error
+          retention-days: 90
+
+  fh-corpus:
+    name: Freeze frontier-harness corpus
+    if: ${{ inputs.fh_smoke || inputs.fh_run }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Resolve the pinned benchmark commit
+        id: benchmark
+        run: |
+          node -e "const c=require('./config/frontier-harness.json').source;console.log('repository='+c.sourceRepository);console.log('commit='+c.sourceCommit)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the benchmark at the pinned commit
+        run: |
+          set -euo pipefail
+          git clone "https://github.com/${{ steps.benchmark.outputs.repository }}.git" \
+            tools/frontier-harness-source
+          cd tools/frontier-harness-source
+          git checkout "${{ steps.benchmark.outputs.commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.benchmark.outputs.commit }}"
+
+      - name: Freeze the task manifest
+        run: |
+          node scripts/prepare-frontier-harness.mjs \
+            --source "${GITHUB_WORKSPACE}/tools/frontier-harness-source" \
+            --output "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.json" \
+            --task-list "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.tasks.txt"
+
+      - name: Upload frozen corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontier-harness-corpus-${{ github.run_id }}
+          path: |
+            results/corpora/frontier-harness-1.0.json
+            results/corpora/frontier-harness-1.0.tasks.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  fh-plan:
+    name: Freeze frontier-harness batches
+    if: ${{ inputs.fh_smoke || inputs.fh_run }}
+    needs: fh-corpus
+    runs-on: ubuntu-latest
+    outputs:
+      batches: ${{ steps.plan.outputs.batches }}
+      tasks: ${{ steps.tasks.outputs.tasks }}
+      expected_list: ${{ steps.plan.outputs.expected_list }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: frontier-harness-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Build bounded plan
+        id: plan
+        env:
+          RUN_SMOKE: ${{ inputs.fh_smoke }}
+          RUN_FULL: ${{ inputs.fh_run_full }}
+          BATCH_LABEL: ${{ inputs.fh_batch }}
+          TASK_IDS: ${{ inputs.fh_tasks }}
+          TASK_LIMIT: ${{ inputs.fh_limit }}
+          TASK_OFFSET: ${{ inputs.fh_offset }}
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const config = require("./config/frontier-harness.json");
+          const manifest = JSON.parse(
+            fs.readFileSync("./results/corpora/frontier-harness-1.0.json", "utf8"),
+          );
+          const corpus = manifest.tasks.map((task) => task.name);
+          const corpusSet = new Set(corpus);
+          const gpuSet = new Set(manifest.gpuTasks);
+          const runSmoke = process.env.RUN_SMOKE === "true";
+          const runFull = process.env.RUN_FULL === "true";
+          const id = process.env.BATCH_LABEL ?? "";
+          const output = (key, value) =>
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
+          if (runSmoke && runFull) {
+            throw new Error("Select either the smoke gate or the full run, not both.");
+          }
+          if (runFull) {
+            const plan = require("./config/frontier-harness-batches.json");
+            if (
+              plan.profileId !== manifest.profileId ||
+              plan.datasetCommit !== manifest.dataset.sourceCommit
+            ) {
+              throw new Error("Tracked plan does not match the frozen corpus.");
+            }
+            const planned = plan.batches.flatMap((batch) => batch.tasks);
+            if (
+              !Number.isInteger(plan.maxBatchSize) ||
+              plan.maxBatchSize < 1 ||
+              plan.maxBatchSize > 10 ||
+              planned.length !== corpus.length ||
+              new Set(planned).size !== planned.length ||
+              planned.some((name, index) => name !== corpus[index])
+            ) {
+              throw new Error(
+                "Full plan must exact-cover the frozen corpus in corpus order.",
+              );
+            }
+            const batches = plan.batches.map((batch) => ({
+              id: batch.id,
+              tasks: batch.tasks.join(","),
+            }));
+            output("expected_list", corpus.join(","));
+            output("batches", JSON.stringify(batches));
+          } else {
+            const taskIds = (process.env.TASK_IDS ?? "")
+              .split(",")
+              .map((value) => value.trim())
+              .filter(Boolean);
+            const limit = Number(process.env.TASK_LIMIT);
+            const offset = Number(process.env.TASK_OFFSET);
+            if (!/^[a-zA-Z0-9._-]+$/.test(id)) {
+              throw new Error("Batch label must be filesystem-safe.");
+            }
+            const preselect = runSmoke ? [config.smokeTask] : taskIds;
+            const count = preselect.length || limit;
+            if (!Number.isInteger(count) || count < 1 || count > 10) {
+              throw new Error("Each workflow run must preselect between 1 and 10 tasks.");
+            }
+            if (new Set(preselect).size !== preselect.length) {
+              throw new Error("Task IDs must be unique.");
+            }
+            for (const taskId of preselect) {
+              if (!corpusSet.has(taskId)) {
+                throw new Error(
+                  `Predeclared task is outside the frozen corpus: ${taskId}`,
+                );
+              }
+              if (gpuSet.has(taskId)) {
+                throw new Error(
+                  `Task ${taskId} requires a GPU and cannot run in the Docker environment.`,
+                );
+              }
+            }
+            if (!Number.isInteger(offset) || offset < 0 || offset + count > corpus.length) {
+              throw new Error("Task offset/limit must stay inside the frozen corpus.");
+            }
+            const selected = preselect.length
+              ? preselect
+              : corpus.slice(offset, offset + count);
+            output("expected_list", selected.join(","));
+            output("batches", JSON.stringify([{ id, tasks: selected.join(",") }]));
+          }
+          NODE
+
+      - name: Flatten per-task matrix
+        id: tasks
+        env:
+          PLAN_BATCHES: ${{ steps.plan.outputs.batches }}
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const batches = JSON.parse(process.env.PLAN_BATCHES);
+          const tasks = [];
+          for (const batch of batches) {
+            for (const name of batch.tasks.split(",")) {
+              tasks.push({ task: name, batchId: batch.id });
+            }
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `tasks=${JSON.stringify(tasks)}\n`);
+          NODE
+
+  fh-generate:
+    name: Generate (${{ matrix.entry.task }})
+    if: ${{ (inputs.fh_smoke || inputs.fh_run) && needs.fh-plan.outputs.tasks != '[]' }}
+    needs: [fh-candidate, fh-corpus, fh-plan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        entry: ${{ fromJSON(needs.fh-plan.outputs.tasks) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the frozen current candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: frontier-harness-candidate-${{ github.run_id }}
+          path: results/candidate
+
+      - name: Resolve the single candidate record
+        id: candidate
+        env:
+          TASK_NAME: ${{ matrix.entry.task }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const config = require("./config/frontier-harness.json");
+          const cli = require("./results/candidate/candidate.json");
+          const name = process.env.TASK_NAME.split("/").pop();
+          console.log(`package=${cli.packageName}`);
+          console.log(`version=${cli.cliVersion}`);
+          console.log(`model=${config.provider.model}`);
+          console.log(`benchmark_commit=${config.source.sourceCommit}`);
+          console.log(`candidate_id=cli-${cli.cliVersion}-${cli.sourceCommit.slice(0, 7)}-${cli.binarySha256.slice(0, 12)}`);
+          console.log(`task_short=${name}`);
+          NODE
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install pinned Pier with the agent plugin
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv tool install datacurve-pier==0.3.1
+          uv pip install --python "$(uv tool dir)/pier/bin/python" -e ./tools/frontier-harness-agent
+          pier --version
+
+      - name: Download the frozen corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: frontier-harness-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Checkout the single task at the pinned commit
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          git clone "https://github.com/frontier-harness-eval/eval.git" \
+            tools/frontier-harness-source
+          cd tools/frontier-harness-source
+          git checkout "${{ steps.candidate.outputs.benchmark_commit }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.candidate.outputs.benchmark_commit }}"
+
+      - name: Verify provider credential
+        run: test -n "$BENCHMARK_PROVIDER_API_KEY"
+
+      - name: Materialize the frozen provider identity
+        run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json
+
+      - name: Generate and freeze the task attempt
+        env:
+          BEST_AGENT_CLI_CANDIDATE_DIR: ${{ github.workspace }}/results/candidate
+          BEST_AGENT_PROVIDER_MODEL: ${{ steps.candidate.outputs.model }}
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          TASK_SHORT="${{ steps.candidate.outputs.task_short }}"
+          mkdir -p "results/frontier-harness/results" "results/frontier-harness/jobs"
+          node scripts/frontier-harness-harness.mjs \
+            --task "${{ matrix.entry.task }}" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.json" \
+            --source "${GITHUB_WORKSPACE}/tools/frontier-harness-source" \
+            --output "${GITHUB_WORKSPACE}/results/frontier-harness/results/frontier-harness-results.${TASK_SHORT}.json" \
+            --jobs-dir "${GITHUB_WORKSPACE}/results/frontier-harness/jobs/${TASK_SHORT}" \
+            --job-name "fh-${{ github.run_id }}-${TASK_SHORT}" \
+            --model "${{ steps.candidate.outputs.model }}" \
+            --agent-timeout-multiplier "${{ inputs.fh_agent_timeout_multiplier }}" \
+            --timeout-ms "${{ inputs.fh_timeout_ms }}" \
+            --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
+            --batch-id "${{ matrix.entry.batchId }}" \
+            --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"
+
+      - name: Upload immutable generation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontier-harness-task-${{ github.run_id }}-${{ steps.candidate.outputs.task_short }}
+          path: |
+            results/frontier-harness/**
+            results/corpora/frontier-harness-1.0.json
+            results/candidate/**
+          if-no-files-found: error
+          retention-days: 90
+
+  fh-report:
+    name: Aggregate frontier-harness report
+    if: ${{ always() && (inputs.fh_smoke || inputs.fh_run) }}
+    needs: [fh-corpus, fh-plan, fh-generate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download frozen corpus
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: frontier-harness-corpus-${{ github.run_id }}
+          path: results/corpora
+
+      - name: Download per-task artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: frontier-harness-task-${{ github.run_id }}-*
+          path: results
+          merge-multiple: true
+
+      - name: Rebuild the expected task list
+        env:
+          EXP_EXPLICIT: ${{ needs.fh-plan.outputs.expected_list }}
+        run: |
+          mkdir -p results/frontier-harness
+          if [ -n "$EXP_EXPLICIT" ]; then
+            echo "$EXP_EXPLICIT" | tr ',' '\n' > results/frontier-harness/expected-tasks.txt
+          else
+            node -e '
+              const fs = require("node:fs");
+              const manifest = JSON.parse(
+                fs.readFileSync("results/corpora/frontier-harness-1.0.json", "utf8"),
+              );
+              const gpu = new Set(manifest.gpuTasks);
+              const lines = manifest.tasks
+                .map((t) => t.name)
+                .filter((name) => !gpu.has(name))
+                .join("\n");
+              fs.mkdirSync("results/frontier-harness", { recursive: true });
+              fs.writeFileSync("results/frontier-harness/expected-tasks.txt", lines + "\n");
+            '
+          fi
+
+      - name: Build aggregate report
+        run: |
+          node scripts/frontier-harness-report.mjs \
+            --results "${GITHUB_WORKSPACE}/results/frontier-harness/results" \
+            --corpus "${GITHUB_WORKSPACE}/results/corpora/frontier-harness-1.0.json" \
+            --expected-tasks "${GITHUB_WORKSPACE}/results/frontier-harness/expected-tasks.txt" \
+            --output "${GITHUB_WORKSPACE}/results/frontier-harness/report.json" \
+            ${{ inputs.fh_run_full && '--formal' || '' }}
+
+      - name: Build failure analysis
+        continue-on-error: true
+        run: |
+          node scripts/frontier-harness-failures.mjs \
+            --results "${GITHUB_WORKSPACE}/results/frontier-harness/results" \
+            --jobs "${GITHUB_WORKSPACE}/results/frontier-harness/jobs" \
+            --output "${GITHUB_WORKSPACE}/results/frontier-harness/failures.md" \
+            --json "${GITHUB_WORKSPACE}/results/frontier-harness/failures.json"
+
+      - name: Write job summary
+        run: |
+          cat results/frontier-harness/report.json.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -f results/frontier-harness/failures.md ]; then
+            head -40 results/frontier-harness/failures.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload frontier report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontier-harness-report-${{ github.run_id }}
+          path: results/frontier-harness/**
+          if-no-files-found: error

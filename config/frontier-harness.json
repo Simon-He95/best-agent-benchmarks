@@ -1,0 +1,89 @@
+{
+  "benchmarkName": "frontier-harness-eval-v1.0",
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "source": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "terminalBenchTaskCount": 21,
+    "deepSweTaskCount": 9,
+    "taskIds": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.17",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "f98a9bf53f166d80bf0133484b74f2273e0d5495",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "transportProfile": "dim-oauth"
+  },
+  "workspace": "/app",
+  "generation": {
+    "maxBatchTasks": 10,
+    "defaultAgentTimeoutMultiplier": 1,
+    "agentSetupTimeoutMultiplier": 3,
+    "environmentBuildTimeoutMultiplier": 3,
+    "defaultHarnessTimeoutMs": 10800000,
+    "hostCpus": 4,
+    "hostMemoryMb": 16384,
+    "toolExclude": ["network"],
+    "executionProfile": {
+      "source": "explicit-custom",
+      "workspaceBackend": "plain",
+      "workspaceAuthorization": "unrestricted",
+      "processIsolation": "host",
+      "commandPolicy": "path",
+      "workspaceGrants": ["read", "write", "exec"]
+    }
+  },
+  "gpuTasks": [],
+  "resourceExceededTasks": [],
+  "smokeTask": "terminal-bench/regex-log"
+}
