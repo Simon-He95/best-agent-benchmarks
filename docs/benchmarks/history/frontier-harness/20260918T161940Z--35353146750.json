@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.30",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "6a9f15ed76bb34134fbace37efd7b44c8daee86d",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "transportProfile": "dim-oauth"
+  },
+  "formal": true,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "coverage": {
+    "expected": 30,
+    "expectedEligible": 30,
+    "present": 30,
+    "missing": []
+  },
+  "results": {
+    "passed": 20,
+    "failed": 10,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "passRate": 0.6666666666666666,
+  "passAt1": 0.6666666666666666,
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 9,
+        "f2p_passed": 9,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2210898,
+      "evidenceSha256": "d8a138efccc2ce431cdb79136ffc2f9e38419623bb9d23bafe8fecd0a00d9e72",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 25,
+        "f2p_passed": 0,
+        "p2p_total": 1679,
+        "p2p_passed": 1679,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9853286384976526
+      },
+      "durationMs": 3816930,
+      "evidenceSha256": "a00d3dcd6520919f25da3695f6618a49bf80bf5eeaf4db4f2bb80200d83f2119",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 0,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9988092367056554
+      },
+      "durationMs": 3735740,
+      "evidenceSha256": "684f97bda3bc06af4c494c7384b01789ab3bc9e79f6975abe4037db5af9700f8",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 137,
+        "f2p_passed": 137,
+        "p2p_total": 3134,
+        "p2p_passed": 3134,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2595719,
+      "evidenceSha256": "c5d76987eaa4685496c70deffbb7d705e5c0dcb41f636247e1af0e13742acd2c",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 122,
+        "f2p_passed": 122,
+        "p2p_total": 1272,
+        "p2p_passed": 1272,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2078179,
+      "evidenceSha256": "05c508f7b1af824c3f2978112d4634d682110afd1dbd0e5b37a158174d5a7386",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 94,
+        "f2p_passed": 0,
+        "p2p_total": 599,
+        "p2p_passed": 599,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.8643578643578643
+      },
+      "durationMs": 3717545,
+      "evidenceSha256": "9ed6613f0c3a7473fdc6e4b3d418294a7207589cf422c10f726c26bbe1720d9b",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 0,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9990488761209674
+      },
+      "durationMs": 3770623,
+      "evidenceSha256": "b3b6c566416bd81a3d56c9c3840de96842de4de158357c407255f707c6481374",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 72,
+        "f2p_passed": 0,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.946980854197349
+      },
+      "durationMs": 3722722,
+      "evidenceSha256": "4177cdeb9a6030af97c01f2d9ab45e97d752da3999af70df99ad52618caa4723",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 31,
+        "f2p_passed": 0,
+        "p2p_total": 286,
+        "p2p_passed": 286,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9022082018927445
+      },
+      "durationMs": 3720084,
+      "evidenceSha256": "7ead58d97bf765ec0e1c0e7f7e946bb89c081a74d6cb944e8d5658d59afefe4a",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 938454,
+      "evidenceSha256": "82f95c8bbffefad3ed764276bfeb72fec66e11743b8b6e78ce676f850c5338dd",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 943873,
+      "evidenceSha256": "1fdcaf6a049780a112b8b6e39ca714c8308c0bb687939b0ec1359765deacf558",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1234066,
+      "evidenceSha256": "73f8cf00f1271a77284a4f3cf34b379a59b21f16fad4a0067ebeb749e30fc5ec",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/constraints-scheduling",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 403895,
+      "evidenceSha256": "5e1785f7f6475054edd981316533a4fedb519fca18eb226e6fde634ab0a96b7a",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 223935,
+      "evidenceSha256": "0b011f8b280c3f18d343131d48deee3b9324c45b96124d4edba6d2eadfdf71fc",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1833492,
+      "evidenceSha256": "0708eb1dd492de3144379879bbf8185521d6583e74f89c1c8af45883c91434ec",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 957859,
+      "evidenceSha256": "92858a500a5cc6ecf9463177081a7d41562e5399603cc7d5a8b4625d9e9f2c9d",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 931151,
+      "evidenceSha256": "fb25c7f6a449953b964567030e1eba2962ce0d67cff71ebc38990ac91c796288",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/git-leak-recovery",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 496135,
+      "evidenceSha256": "b73521bd58804944a55da19e97618a2293dcc01375b78da3089fa92297fe5d8e",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/kv-store-grpc",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 478772,
+      "evidenceSha256": "157ccc17cb62ca178251b9d8015eb4b7c2a34ea2aa9e8174c664ea32126860cf",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 929905,
+      "evidenceSha256": "c9c1b6539e322911dd78e725c46447c557f7c4490098ffa5d3c741244fa4211d",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/log-summary-date-ranges",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 246406,
+      "evidenceSha256": "1a02d4bf01d8602f0c205bb59ad5f67edecac5485a017220f04d7125717f6027",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/merge-diff-arc-agi-task",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 558588,
+      "evidenceSha256": "2d28a3337fa9e75be4f57a74b38129d7a756f52ca9c810940b1c9c2f857ba33c",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/modernize-scientific-stack",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 318725,
+      "evidenceSha256": "db4fd90ad2bdce013b0c1079c90c2ed9aa6e56f98d8a567c70304fb4f7a83cb1",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/multi-source-data-merger",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 456382,
+      "evidenceSha256": "dff2b0834141c1b7d17b4b139b6b73f537a7656a0f608bd47c80921a3ef2918a",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 911621,
+      "evidenceSha256": "19723af67adc204090817b5db2414949c351beaffcdc0206c138975f9803d265",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 882060,
+      "evidenceSha256": "e098e1f4396d46cc19da93e12fd757fabf4610c94cee104dfa7c8baf64729a17",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 880898,
+      "evidenceSha256": "aa4aa49c4f2b21fb2a9626ff0dccd5bda78efb7d2527808b0be35d60fb8cd2e7",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 600212,
+      "evidenceSha256": "e5b9e94a6a7da6668a9697505273e811b138b9c342084787875ee538e0db75bd",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sqlite-db-truncate",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 542094,
+      "evidenceSha256": "52b59587db5fa3f71a3f6fabedc3c9b4c232bf6e2f153d2ac1084914fd352f87",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 167742,
+      "evidenceSha256": "a1b853599b7af786cfd69e6e2310acd2d0efabaa7583066f492f3229a44ce875",
+      "batchId": "fh-batch-03"
+    }
+  ]
+}

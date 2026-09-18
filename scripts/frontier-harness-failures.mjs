@@ -85,12 +85,21 @@ function findTrialDir(jobsRoot, taskShort, jobName) {
   return candidates.sort().pop();
 }
 
-function classifyFailure(record, evidence) {
+function classifyFailure(record, evidence, trialExceptionText) {
   const disposition = record.result?.disposition;
   const exception = record.result?.exception;
   const message = `${exception?.type ?? ""} ${exception?.message ?? ""}`;
   if (disposition === "not-evaluated") return "inconclusive";
   if (disposition === "passed") return "passed";
+  // The agent used its whole declared budget and Pier killed the run: the
+  // model was still working, so this is a budget outcome, not a model failure.
+  if (
+    /Agent execution timed out|AgentTimeoutError|Agent setup timed out|AgentSetupTimeoutError/iu.test(
+      `${message}\n${trialExceptionText ?? ""}`,
+    )
+  ) {
+    return "agent-timeout";
+  }
   if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
   if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
     return "provider";
@@ -199,7 +208,7 @@ function main() {
     const evidence = trialDir
       ? analyzeEvidence(join(trialDir, "agent", "best-agent-evidence.jsonl"))
       : { present: false };
-    const stage = classifyFailure(record, evidence);
+    const stage = classifyFailure(record, evidence, exceptionText);
 
     summaries.push({
       task: record.task.name,

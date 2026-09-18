@@ -344,6 +344,35 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
     classifyTrialOutcome({ trialResult: { verifier_result: { rewards: { reward: 1 } } } }),
     { disposition: "passed", rewards: { reward: 1 } },
   );
+  // The canonical key wins: `reward: 0` with a diagnostic `p2p: 1` (all
+  // pass-to-pass tests still pass) is a task FAILURE — the fail-to-pass
+  // suite proves the task was not solved.
+  const multiKeyRewards = {
+    reward: 0,
+    f2p_total: 25,
+    f2p_passed: 0,
+    p2p_total: 1679,
+    p2p_passed: 1679,
+    f2p: 0,
+    p2p: 1,
+  };
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: { verifier_result: { rewards: multiKeyRewards } },
+    }),
+    { disposition: "failed", rewards: multiKeyRewards },
+  );
+  // Rewards without a canonical `reward` key fall back to the legacy
+  // any-key>=1 rule (no such verifier exists in the frozen corpus; both real
+  // verifiers write `reward`).
+  assert.equal(
+    classifyTrialOutcome({ trialResult: { verifier_result: { rewards: { f2p: 1 } } } }).disposition,
+    "passed",
+  );
+  assert.equal(
+    classifyTrialOutcome({ trialResult: { verifier_result: { rewards: { f2p: 0, p2p: 1 } } } }).disposition,
+    "passed",
+  );
   // A real task failure: the model responded (outcomes > 0) and the verifier graded 0.
   assert.deepEqual(
     classifyTrialOutcome({

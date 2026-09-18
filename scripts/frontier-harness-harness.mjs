@@ -369,6 +369,23 @@ export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
 }
 
 /**
+ * The task's own canonical pass verdict from its verifier rewards.
+ *
+ * `reward` is the canonical key when the verifier writes one (the deep-swe
+ * grader: binary 1 iff |f2p| > 0, every fail-to-pass test passes and no
+ * pass-to-pass test fails; terminal-bench test.sh writes reward.txt => {reward}).
+ * Its companion keys (p2p=1, partial, ...) are diagnostics — `p2p: 1` alone
+ * means "no regression", not "the task was solved". Only rewards without a
+ * `reward` key fall back to any-key>=1.
+ */
+export function canonicalPassed(rewards) {
+  if (rewards && typeof rewards === "object" && "reward" in rewards) {
+    return Number(rewards.reward) >= 1;
+  }
+  return Object.values(rewards ?? {}).some((value) => Number(value) >= 1);
+}
+
+/**
  * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
  * were written, and the run's terminal cause. The footer's writtenCounts are
  * authoritative when present; otherwise model-outcome entries are counted.
@@ -457,9 +474,7 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
   if (hasRewards) {
     const rewards = verifier.rewards;
     return {
-      disposition: Object.values(rewards).some((value) => Number(value) >= 1)
-        ? "passed"
-        : "failed",
+      disposition: canonicalPassed(rewards) ? "passed" : "failed",
       rewards,
       ...(exception ? { exception } : {}),
       ...evidenceFields,
