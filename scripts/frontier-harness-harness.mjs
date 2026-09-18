@@ -368,6 +368,109 @@ export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
   return { pierTaskDir, networkChanges: normalized.changes };
 }
 
+/**
+ * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
+ * were written, and the run's terminal cause. The footer's writtenCounts are
+ * authoritative when present; otherwise model-outcome entries are counted.
+ *
+ * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null }}
+ */
+export function summarizeAttemptEvidence(evidenceText) {
+  if (typeof evidenceText !== "string" || evidenceText.trim() === "") {
+    return { present: false, modelOutcomes: null, terminalCause: null };
+  }
+  let footerOutcomes = null;
+  let countedOutcomes = 0;
+  let terminalCause = null;
+  for (const line of evidenceText.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let entry;
+    try {
+      entry = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+    if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
+      countedOutcomes += 1;
+    }
+    if (entry?.type === "footer" && entry.writtenCounts) {
+      if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
+        footerOutcomes = entry.writtenCounts.modelOutcome;
+      }
+    }
+    if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
+      terminalCause = String(entry.snapshot.terminalCause);
+    }
+  }
+  return {
+    present: true,
+    modelOutcomes: footerOutcomes ?? countedOutcomes,
+    terminalCause,
+  };
+}
+
+/**
+ * Transcribe one Pier trial into the harness disposition vocabulary.
+ *
+ * The task's own verifier reward is the only grader, but a trial whose agent
+ * process failed before receiving a single model response (attempt evidence
+ * recorded zero model outcomes) never started the attempt: that is an
+ * environment/provider death, recorded as `error` — never scored as a task
+ * failure — matching the benchmark rule that infrastructure deaths are marked
+ * rather than graded.
+ */
+export function classifyTrialOutcome({ trialResult, evidenceText }) {
+  const evidence = summarizeAttemptEvidence(evidenceText);
+  const verifier = trialResult?.verifier_result;
+  const hasRewards =
+    verifier && verifier.rewards && Object.keys(verifier.rewards).length > 0;
+  let exception;
+  if (trialResult?.exception_info) {
+    exception = {
+      type: String(
+        trialResult.exception_info.exception_type ??
+          trialResult.exception_info.type ??
+          "error",
+      ),
+      message: String(
+        trialResult.exception_info.exception_message ??
+          trialResult.exception_info.message ??
+          "",
+      ).slice(0, 2000),
+    };
+  }
+  const evidenceFields = {
+    ...(evidence.present ? { modelOutcomes: evidence.modelOutcomes } : {}),
+    ...(evidence.terminalCause ? { terminalCause: evidence.terminalCause } : {}),
+  };
+  // The agent process errored out without ever receiving a model response.
+  const preModelFailure = Boolean(exception) && evidence.modelOutcomes === 0;
+  if (preModelFailure) {
+    return {
+      disposition: "error",
+      exception,
+      preModelFailure: true,
+      ...evidenceFields,
+    };
+  }
+  if (hasRewards) {
+    const rewards = verifier.rewards;
+    return {
+      disposition: Object.values(rewards).some((value) => Number(value) >= 1)
+        ? "passed"
+        : "failed",
+      rewards,
+      ...(exception ? { exception } : {}),
+      ...evidenceFields,
+    };
+  }
+  if (exception) {
+    return { disposition: "error", exception, ...evidenceFields };
+  }
+  return { disposition: "inconclusive", ...evidenceFields };
+}
+
 function runPier(pierBin, args, env, stdioBase) {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(pierBin, args, {
@@ -514,39 +617,19 @@ async function main() {
   const durationMs = Date.now() - startMs;
 
   const trialDir = findResultJson(args.jobsDir, args.jobName);
-  let disposition;
-  let rewardValues;
-  let exception;
-  if (!trialDir) {
-    disposition = "not-evaluated";
-  } else {
-    const trialResult = JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8"));
-    const verifier = trialResult.verifier_result;
-    if (verifier && verifier.rewards && Object.keys(verifier.rewards).length > 0) {
-      rewardValues = verifier.rewards;
-      disposition = Object.values(verifier.rewards).some((value) => Number(value) >= 1)
-        ? "passed"
-        : "failed";
-    } else if (trialResult.exception_info) {
-      exception = {
-        type: String(
-          trialResult.exception_info.exception_type ??
-            trialResult.exception_info.type ??
-            "error",
-        ),
-        message: String(
-          trialResult.exception_info.exception_message ??
-            trialResult.exception_info.message ??
-            "",
-        ).slice(0, 2000),
-      };
-      disposition = "error";
-    } else {
-      disposition = "inconclusive";
-    }
-  }
+  const evidencePath = trialDir
+    ? join(trialDir, "agent", "best-agent-evidence.jsonl")
+    : undefined;
+  const outcome = trialDir
+    ? classifyTrialOutcome({
+        trialResult: JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8")),
+        evidenceText: evidencePath && existsSync(evidencePath)
+          ? readFileSync(evidencePath, "utf8")
+          : undefined,
+      })
+    : { disposition: "not-evaluated" };
+  const { disposition, rewards: rewardValues, exception } = outcome;
 
-  const evidencePath = trialDir ? join(trialDir, "agent", "best-agent-evidence.jsonl") : undefined;
   const stdoutPath = trialDir ? join(trialDir, "agent", "best-agent-stdout.txt") : undefined;
   const stderrPath = trialDir ? join(trialDir, "agent", "best-agent-stderr.txt") : undefined;
   const processReceiptPath = trialDir
@@ -584,6 +667,9 @@ async function main() {
       disposition,
       ...(rewardValues === undefined ? {} : { rewards: rewardValues }),
       ...(exception === undefined ? {} : { exception }),
+      ...(outcome.preModelFailure ? { preModelFailure: true } : {}),
+      ...(outcome.modelOutcomes === undefined ? {} : { modelOutcomes: outcome.modelOutcomes }),
+      ...(outcome.terminalCause ? { terminalCause: outcome.terminalCause } : {}),
     },
     artifacts: {
       ...(evidencePath && existsSync(evidencePath)
@@ -625,6 +711,11 @@ async function main() {
     `| field | value |`,
     `| --- | --- |`,
     `| disposition | ${disposition} |`,
+    ...(outcome.preModelFailure
+      ? [
+          "| note | agent never received a model response; recorded as an environment/provider error, not scored as a task failure |",
+        ]
+      : []),
     ...(rewardValues
       ? Object.entries(rewardValues).map(
           ([key, value]) => `| reward ${key} | ${value} |`,

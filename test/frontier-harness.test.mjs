@@ -299,6 +299,115 @@ test("stagePierTask copies the source task verbatim with network normalization",
   );
 });
 
+test("classifyTrialOutcome marks pre-model provider deaths as errors", async () => {
+  const { classifyTrialOutcome, summarizeAttemptEvidence } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  // Evidence summaries: the footer's writtenCounts are authoritative.
+  assert.deepEqual(summarizeAttemptEvidence(undefined), {
+    present: false,
+    modelOutcomes: null,
+    terminalCause: null,
+  });
+  const footerEvidence = [
+    '{"type":"model-request","sequence":1}',
+    '{"type":"model-failure","sequence":2,"reason":"transport"}',
+    '{"type":"terminal-snapshot","sequence":3,"snapshot":{"terminalCause":"model-failure"}}',
+    '{"type":"footer","sequence":4,"writtenCounts":{"modelRequest":1,"modelOutcome":0,"modelFailure":1,"terminalSnapshot":1}}',
+    "",
+  ].join("\n");
+  assert.deepEqual(summarizeAttemptEvidence(footerEvidence), {
+    present: true,
+    modelOutcomes: 0,
+    terminalCause: "model-failure",
+  });
+  const countedEvidence = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-outcome","sequence":2}',
+    '{"type":"terminal-snapshot","sequence":3,"snapshot":{"terminalCause":"completed"}}',
+    "",
+  ].join("\n");
+  assert.deepEqual(summarizeAttemptEvidence(countedEvidence), {
+    present: true,
+    modelOutcomes: 2,
+    terminalCause: "completed",
+  });
+
+  const exception = {
+    exception_type: "NonZeroAgentExitCodeError",
+    exception_message: "Command failed (exit 1)",
+  };
+
+  // A real pass.
+  assert.deepEqual(
+    classifyTrialOutcome({ trialResult: { verifier_result: { rewards: { reward: 1 } } } }),
+    { disposition: "passed", rewards: { reward: 1 } },
+  );
+  // A real task failure: the model responded (outcomes > 0) and the verifier graded 0.
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+      evidenceText: countedEvidence,
+    }),
+    {
+      disposition: "failed",
+      rewards: { reward: 0 },
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+      modelOutcomes: 2,
+      terminalCause: "completed",
+    },
+  );
+  // A pre-model provider death: the CLI errored before receiving any model
+  // response, so the graded 0 is an environment/provider failure, not a task
+  // failure.
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+      evidenceText: footerEvidence,
+    }),
+    {
+      disposition: "error",
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+      preModelFailure: true,
+      modelOutcomes: 0,
+      terminalCause: "model-failure",
+    },
+  );
+  // Missing evidence stays conservative: keep the verifier's verdict.
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+    }),
+    {
+      disposition: "failed",
+      rewards: { reward: 0 },
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+    },
+  );
+  // No verifier result: the agent exception is the outcome.
+  assert.deepEqual(
+    classifyTrialOutcome({ trialResult: { exception_info: exception } }),
+    {
+      disposition: "error",
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+    },
+  );
+  // Neither rewards nor an exception.
+  assert.deepEqual(classifyTrialOutcome({ trialResult: {} }), {
+    disposition: "inconclusive",
+  });
+});
+
 test("provider materialization rejects a non-frozen provider profile", () => {
   const root = mkdtempSync(join(tmpdir(), "fh-provider-"));
   const wrongProfile = mkdtempSync(join(tmpdir(), "fh-provider-config-"));
