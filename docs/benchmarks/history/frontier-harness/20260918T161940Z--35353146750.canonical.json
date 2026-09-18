@@ -343,10 +343,21 @@
       "reward": 0,
       "f2p": null,
       "p2p": null,
-      "stage": "provider",
-      "worked": "否（未收到任何模型响应）",
-      "note": "首个模型请求 840s deadline 内无响应（modelOutcome=0）→ CLI 退出",
-      "durationMin": 15
+      "stage": "agent-timeout",
+      "worked": "是（10 次模型响应后被 900s 预算终止）",
+      "note": "recovery run 35385270103：provider 死亡未复现，agent 真正开始做题，用满 900s 预算被 Pier 终止（AgentTimeoutError）；verifier 判 0（/app/polyglot 不存在）",
+      "durationMin": 15,
+      "recovery": {
+        "runId": "35385270103",
+        "canonical": "failed",
+        "reward": 0,
+        "modelOutcomes": 10,
+        "terminalCause": null,
+        "preModelFailure": false,
+        "exception": "AgentTimeoutError: Agent execution timed out after 900.0 seconds",
+        "durationSec": 935,
+        "stage": "agent-timeout"
+      }
     },
     {
       "task": "terminal-bench/regex-log",
@@ -358,8 +369,20 @@
       "p2p": null,
       "stage": "provider",
       "worked": "否（未收到任何模型响应）",
-      "note": "首个模型请求 840s deadline 内无响应（modelOutcome=0）→ CLI 退出",
-      "durationMin": 15
+      "note": "recovery run 35385270103 复现了同一 provider 死亡：首个模型请求 840s deadline 内无响应（modelOutcomes=0, preModelFailure=true, terminalCause=model-failure），CLI 退出 1",
+      "durationMin": 15,
+      "recovery": {
+        "runId": "35385270103",
+        "canonical": "failed",
+        "reward": null,
+        "modelOutcomes": 0,
+        "terminalCause": "model-failure",
+        "preModelFailure": true,
+        "exception": "NonZeroAgentExitCodeError (exit 1) after model-failure: timeout",
+        "durationSec": 877,
+        "stage": "provider",
+        "reproduced": true
+      }
     },
     {
       "task": "terminal-bench/sanitize-git-repo",
@@ -404,7 +427,19 @@
   "score": {
     "passed": 14,
     "total": 30,
-    "passRate": 0.4666666666666667
+    "passRate": 0.4666666666666667,
+    "postRecovery": {
+      "passed": 14,
+      "total": 30,
+      "passRate": 0.4666666666666667,
+      "note": "canonical 通过数不变（polyglot-c-py 仍为 failed，只是从 provider 死亡改判为预算超时的真实失败）",
+      "officialStyle": {
+        "validCells": 29,
+        "passRate": 0.4827586206896552,
+        "validCoverage": 0.9666666666666667,
+        "note": "按官方 FrontierHarness 口径，regex-log 无有效判定（infra_invalid），pass_rate = passes/valid cells = 14/29"
+      }
+    }
   },
   "harnessReported": {
     "passed": 20,
@@ -414,5 +449,32 @@
     "model": 7,
     "agent-timeout": 7,
     "provider": 2
+  },
+  "recovery": {
+    "runId": "35385270103",
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/35385270103",
+    "batch": "recovery-20260918",
+    "formalRunId": "diagnostic-35385270103",
+    "tasks": [
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log"
+    ],
+    "report": "20260918T194839Z--35385270103.json",
+    "candidate": {
+      "cliVersion": "0.0.3-beta.30",
+      "cliSourceCommit": "6a9f15ed76bb34134fbace37efd7b44c8daee86d",
+      "cliBinarySha256": "10e76abd4a7677428717efeff9b9315ea80188c8fb229d266fb67e8d55330365",
+      "candidateId": "cli-0.0.3-beta.30-6a9f15e-10e76abd4a76",
+      "identityWarning": "二进制 sha256 与全量 run 不同（4a48aa24… vs 10e76abd…）：同一 source commit 重新构建的 SEA 二进制不是逐字节可复现的（build-report 仅 blobBytes/bundleBytes 相差 2–86 字节，入口源码哈希、node 版本、依赖完全一致）。verifyFrozenIdentity() 只钉 sourceCommit/version/package/target，binarySha256 仅校验格式，因此重建会得到新的 candidateId 而不会被拦下。两轮结果因此并非同一二进制产物。"
+    },
+    "outcomes": {
+      "terminal-bench/polyglot-c-py": "real task failure (agent-timeout, 10 model outcomes)",
+      "terminal-bench/regex-log": "environment/provider death reproduced (0 model outcomes)"
+    }
+  },
+  "failureStagesPostRecovery": {
+    "model": 7,
+    "agent-timeout": 8,
+    "provider": 1
   }
 }
