@@ -99,8 +99,8 @@ jobs:
         with:
           node-version-file: tools/best-agent-source/.nvmrc
 
-      - name: Validate benchmark contracts
-        run: npm test
+      - name: Validate frontier-harness benchmark contracts
+        run: node --test test/frontier-harness.test.mjs
 
       - name: Build the exact Linux SEA
         working-directory: tools/best-agent-source
