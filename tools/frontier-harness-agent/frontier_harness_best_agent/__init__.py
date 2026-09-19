@@ -3,6 +3,9 @@
 import json
 import os
 import shlex
+import shutil
+import sqlite3
+import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -18,6 +21,54 @@ def _required_env(key: str) -> str:
     if not value:
         raise RuntimeError(f"{key} is required")
     return value
+
+
+def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
+    """Read the run's provider-reported usage from the CLI's durable thread store.
+
+    ``thread_metrics`` is the single durable projection of provider-reported
+    usage; a headless run writes one row under a ``run:<taskRef>`` thread. The
+    CLI is killed on agent timeout, so the newest data can still sit in the
+    write-ahead log: read the store in place when possible and otherwise read a
+    copy of the database together with its sidecar files.
+    """
+    if not database_path.is_file():
+        return None
+
+    def query(path: Path) -> list[tuple[str, str]]:
+        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            return list(
+                connection.execute("SELECT thread_id, data_json FROM thread_metrics")
+            )
+        finally:
+            connection.close()
+
+    try:
+        rows = query(database_path)
+    except sqlite3.Error:
+        rows = []
+        with tempfile.TemporaryDirectory() as scratch:
+            copied = Path(scratch) / database_path.name
+            shutil.copy2(database_path, copied)
+            for suffix in ("-wal", "-shm"):
+                sidecar = database_path.with_name(database_path.name + suffix)
+                if sidecar.is_file():
+                    shutil.copy2(sidecar, copied.with_name(copied.name + suffix))
+            try:
+                rows = query(copied)
+            except sqlite3.Error:
+                return None
+
+    candidates = [row for row in rows if row[0].startswith("run:")] or rows
+    for _, data_json in candidates:
+        try:
+            metrics = json.loads(data_json)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(metrics, dict) and isinstance(metrics.get("usage"), dict):
+            return metrics
+    return None
 
 
 class BestAgentCli(BaseInstalledAgent):
@@ -183,9 +234,37 @@ class BestAgentCli(BaseInstalledAgent):
         await self.exec_as_agent(environment, command=command)
 
     def populate_context_post_run(self, context: AgentContext) -> None:
+        metadata: dict[str, object] = {}
         stdout_path = Path(self.logs_dir) / "best-agent-stdout.txt"
-        if not stdout_path.exists():
-            return
-        text = stdout_path.read_text(errors="replace")
-        if text.strip():
-            context.metadata = {"stdout_tail": text[-8000:]}
+        if stdout_path.exists():
+            text = stdout_path.read_text(errors="replace")
+            if text.strip():
+                metadata["stdout_tail"] = text[-8000:]
+        # Provider-reported usage is read from the CLI's durable projection
+        # (thread_metrics). The benchmark prices it with its own frozen table;
+        # the CLI reports raw tokens only, never money.
+        metrics = _read_thread_metrics(
+            Path(self.logs_dir) / "best-agent-runtime" / "v3-threads.sqlite"
+        )
+        if metrics is not None:
+            usage = metrics.get("usage") or {}
+            cache = metrics.get("cacheUsage") or {}
+            prompt_tokens = int(usage.get("promptTokens") or 0)
+            completion_tokens = int(usage.get("completionTokens") or 0)
+            context.n_input_tokens = prompt_tokens
+            context.n_output_tokens = completion_tokens
+            if cache.get("cacheReadTokens") is not None:
+                context.n_cache_tokens = int(cache["cacheReadTokens"])
+            metadata["usage"] = {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": int(usage.get("totalTokens") or 0),
+                "cache_read_tokens": cache.get("cacheReadTokens"),
+                "cache_write_tokens": cache.get("cacheWriteTokens"),
+                "no_cache_input_tokens": cache.get("noCacheTokens"),
+                "model_call_count": cache.get("modelCallCount"),
+                "reported_call_count": cache.get("reportedCallCount"),
+                "reported_input_tokens": cache.get("reportedInputTokens"),
+            }
+        if metadata:
+            context.metadata = metadata
