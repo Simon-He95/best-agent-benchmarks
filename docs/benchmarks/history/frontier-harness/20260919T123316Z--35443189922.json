@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.30",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "f329c2f49db6b1a18e0fdb33e8aa42dd2ae4c716",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "coverage": {
+    "expected": 1,
+    "expectedEligible": 1,
+    "present": 1,
+    "missing": []
+  },
+  "results": {
+    "passed": 1,
+    "failed": 0,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "passRate": 1,
+  "passAt1": null,
+  "usage": {
+    "tasks": 1,
+    "promptTokens": 147752,
+    "completionTokens": 5931,
+    "cacheReadTokens": 133504,
+    "totalTokens": 153683,
+    "modelCallCount": 12,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 186311,
+      "usage": {
+        "promptTokens": 147752,
+        "completionTokens": 5931,
+        "cacheReadTokens": 133504,
+        "costUsd": null,
+        "totalTokens": 153683,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 14248,
+        "modelCallCount": 12,
+        "reportedCallCount": 12,
+        "reportedInputTokens": 147752
+      },
+      "evidenceSha256": "3b5b0958104c6aa8f4fe4e477945495633a1caaf02d7f1383e2da231db8bd446",
+      "batchId": "usage-accounting-proof-2"
+    }
+  ]
+}

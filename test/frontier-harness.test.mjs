@@ -437,6 +437,51 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   });
 });
 
+test("projectAgentUsage reads the plugin's usage facts and keeps missing ones missing", async () => {
+  const { projectAgentUsage } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  // No usage metadata at all (a pre-change candidate, or a run with no model call).
+  assert.equal(projectAgentUsage(undefined), undefined);
+  assert.equal(projectAgentUsage({ n_input_tokens: 5 }), undefined);
+
+  // The shape the plugin writes from the CLI's durable thread_metrics row.
+  assert.deepEqual(
+    projectAgentUsage({
+      n_input_tokens: 161419,
+      n_output_tokens: 7449,
+      n_cache_tokens: 142080,
+      cost_usd: null,
+      metadata: {
+        usage: {
+          prompt_tokens: 161419,
+          completion_tokens: 7449,
+          total_tokens: 168868,
+          cache_read_tokens: 142080,
+          cache_write_tokens: 0,
+          no_cache_input_tokens: 19339,
+          model_call_count: 13,
+          reported_call_count: 13,
+          reported_input_tokens: 161419,
+        },
+      },
+    }),
+    {
+      promptTokens: 161419,
+      completionTokens: 7449,
+      cacheReadTokens: 142080,
+      costUsd: null,
+      totalTokens: 168868,
+      cacheWriteTokens: 0,
+      noCacheInputTokens: 19339,
+      modelCallCount: 13,
+      reportedCallCount: 13,
+      reportedInputTokens: 161419,
+    },
+  );
+});
+
 test("provider materialization rejects a non-frozen provider profile", () => {
   const root = mkdtempSync(join(tmpdir(), "fh-provider-"));
   const wrongProfile = mkdtempSync(join(tmpdir(), "fh-provider-config-"));
