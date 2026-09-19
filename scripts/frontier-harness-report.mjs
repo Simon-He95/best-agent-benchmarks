@@ -103,6 +103,27 @@ function main() {
   const complete = missing.length === 0;
   const passRate = passed / expectedEligible.length;
 
+  // Provider-reported usage is summed over the tasks that reported it; a task
+  // without a usage record is absent, never a zero, and cost stays null until the
+  // benchmark has a frozen price table (the CLI reports raw tokens only).
+  const usageRecords = counted.filter((record) => record.usage !== undefined);
+  const usageSum = (key) =>
+    usageRecords.reduce((total, record) => total + (record.usage[key] ?? 0), 0);
+  const usage =
+    usageRecords.length === 0
+      ? null
+      : {
+          tasks: usageRecords.length,
+          promptTokens: usageSum("promptTokens"),
+          completionTokens: usageSum("completionTokens"),
+          cacheReadTokens: usageSum("cacheReadTokens"),
+          totalTokens: usageSum("totalTokens"),
+          modelCallCount: usageSum("modelCallCount"),
+          costUsd: usageRecords.every((record) => record.usage.costUsd === null)
+            ? null
+            : usageSum("costUsd"),
+        };
+
   const report = {
     schemaVersion: 1,
     profileId: frozen.profileId,
@@ -127,6 +148,7 @@ function main() {
     },
     passRate,
     passAt1: args.formal && complete ? passRate : null,
+    usage,
     perTask: expectedEligible.map((name) => {
       const record = byTask.get(name);
       if (!record) {
@@ -138,6 +160,7 @@ function main() {
         rewards: record.result.rewards ?? undefined,
         exception: record.result.exception ?? undefined,
         durationMs: record.durationMs,
+        usage: record.usage ?? undefined,
         evidenceSha256: record.artifacts.evidenceSha256 ?? undefined,
         batchId: record.batchId,
       };
@@ -160,7 +183,10 @@ function main() {
             .map(([key, value]) => `${key}=${value}`)
             .join(", ")
         : "";
-      return `| ${icon} ${entry.task} | ${entry.disposition} | ${rewards} |`;
+      const tokens = entry.usage
+        ? `in ${entry.usage.promptTokens ?? "-"} / cache ${entry.usage.cacheReadTokens ?? "-"} / out ${entry.usage.completionTokens ?? "-"}`
+        : "-";
+      return `| ${icon} ${entry.task} | ${entry.disposition} | ${rewards} | ${tokens} |`;
     })
     .join("\n");
   const markdown = [
@@ -186,8 +212,8 @@ function main() {
     "",
     "## Per-task verdicts",
     "",
-    "| task | disposition | rewards |",
-    "| --- | --- | --- |",
+    "| task | disposition | rewards | tokens (in / cache / out) |",
+    "| --- | --- | --- | --- |",
     rows,
     "",
   ].join("\n");

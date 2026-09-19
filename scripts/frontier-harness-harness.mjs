@@ -378,6 +378,32 @@ export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
  * means "no regression", not "the task was solved". Only rewards without a
  * `reward` key fall back to any-key>=1.
  */
+/**
+ * Project the provider-reported usage of a Pier trial's `agent_result` (filled by
+ * the agent plugin from the CLI's durable `thread_metrics` row). A trial without
+ * usage metadata answers `undefined`, so a missing fact stays missing instead of
+ * turning into a zero; the benchmark prices the raw tokens itself.
+ *
+ * @returns {{ promptTokens: number|null, completionTokens: number|null, cacheReadTokens: number|null, costUsd: number|null, totalTokens: number|null, cacheWriteTokens: number|null, noCacheInputTokens: number|null, modelCallCount: number|null, reportedCallCount: number|null, reportedInputTokens: number|null } | undefined}
+ */
+export function projectAgentUsage(agentResult) {
+  const usage = agentResult?.metadata?.usage;
+  if (!usage || typeof usage !== "object") return undefined;
+  const reported = (value) => (Number.isFinite(value) ? Number(value) : null);
+  return {
+    promptTokens: reported(agentResult.n_input_tokens),
+    completionTokens: reported(agentResult.n_output_tokens),
+    cacheReadTokens: reported(agentResult.n_cache_tokens),
+    costUsd: reported(agentResult.cost_usd),
+    totalTokens: reported(usage.total_tokens),
+    cacheWriteTokens: reported(usage.cache_write_tokens),
+    noCacheInputTokens: reported(usage.no_cache_input_tokens),
+    modelCallCount: reported(usage.model_call_count),
+    reportedCallCount: reported(usage.reported_call_count),
+    reportedInputTokens: reported(usage.reported_input_tokens),
+  };
+}
+
 export function canonicalPassed(rewards) {
   if (rewards && typeof rewards === "object" && "reward" in rewards) {
     return Number(rewards.reward) >= 1;
@@ -635,15 +661,19 @@ async function main() {
   const evidencePath = trialDir
     ? join(trialDir, "agent", "best-agent-evidence.jsonl")
     : undefined;
-  const outcome = trialDir
+  const trialResult = trialDir
+    ? JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8"))
+    : undefined;
+  const outcome = trialResult
     ? classifyTrialOutcome({
-        trialResult: JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8")),
+        trialResult,
         evidenceText: evidencePath && existsSync(evidencePath)
           ? readFileSync(evidencePath, "utf8")
           : undefined,
       })
     : { disposition: "not-evaluated" };
   const { disposition, rewards: rewardValues, exception } = outcome;
+  const usage = projectAgentUsage(trialResult?.agent_result);
 
   const stdoutPath = trialDir ? join(trialDir, "agent", "best-agent-stdout.txt") : undefined;
   const stderrPath = trialDir ? join(trialDir, "agent", "best-agent-stderr.txt") : undefined;
@@ -686,6 +716,7 @@ async function main() {
       ...(outcome.modelOutcomes === undefined ? {} : { modelOutcomes: outcome.modelOutcomes }),
       ...(outcome.terminalCause ? { terminalCause: outcome.terminalCause } : {}),
     },
+    ...(usage === undefined ? {} : { usage }),
     artifacts: {
       ...(evidencePath && existsSync(evidencePath)
         ? { evidence: relative(repoRoot, evidencePath), evidenceSha256 }
