@@ -1,0 +1,56 @@
+{
+  "runId": "35443189922",
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/35443189922",
+  "batch": "usage-accounting-proof-2",
+  "formalRunId": "diagnostic-35443189922",
+  "purpose": "Prove the headless-run usage accounting end to end: candidate rebuilt from best-agent feat/run-usage-accounting f329c2f4 (spec 176) plus a plugin that reads the run's durable thread_metrics row, and a harness/report that surfaces the reported tokens.",
+  "predecessorRun": {
+    "runId": "35442528442",
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/35442528442",
+    "batch": "usage-accounting-proof",
+    "note": "Same candidate and task; the Pier trial's agent_result already carried the usage (n_input_tokens 161419 / n_cache_tokens 142080 / n_output_tokens 7449, 13 model calls), but the frozen per-task record and report dropped it, which is what run 35443189922 fixes."
+  },
+  "candidate": {
+    "cliPackage": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.30",
+    "cliSourceCommit": "f329c2f49db6b1a18e0fdb33e8aa42dd2ae4c716",
+    "cliBinarySha256": "6ac51129eba1afa6b8e9955880618e25533814bd8ddced8804bd0c05ed343b1a",
+    "candidateId": "cli-0.0.3-beta.30-f329c2f-6ac51129eba1",
+    "note": "Source commit is best-agent PR #74 (spec 176). The SEA binary is still not byte-reproducible: this run's sha256 differs from run 35442528442's 899075e8f56a… for the same source commit."
+  },
+  "model": "glm-5.3",
+  "results": {
+    "terminal-bench/vulnerable-secret": {
+      "disposition": "passed",
+      "reward": 1,
+      "modelOutcomes": 12,
+      "terminalCause": "completed",
+      "durationSec": 186,
+      "usage": {
+        "promptTokens": 147752,
+        "completionTokens": 5931,
+        "cacheReadTokens": 133504,
+        "totalTokens": 153683,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 14248,
+        "modelCallCount": 12,
+        "reportedCallCount": 12,
+        "reportedInputTokens": 147752,
+        "costUsd": null
+      },
+      "classification": "real pass with provider-reported usage"
+    }
+  },
+  "agentTimeoutSec": 900,
+  "providerTimeoutMs": 840000,
+  "evidence": {
+    "terminal-bench/vulnerable-secret": {
+      "trialDir": "results/frontier-harness/jobs/vulnerable-secret/fh-35443189922-vulnerable-secret/pier-task__TGqCrQJ",
+      "note": "Pier's trial result.json agent_result carries n_input_tokens/n_output_tokens/n_cache_tokens plus metadata.usage (model_call_count, reported_call_count, reported_input_tokens), written by the plugin from <logs_dir>/best-agent-runtime/v3-threads.sqlite; the harness now projects the same block into the frozen per-task record and the report sums it."
+    }
+  },
+  "openItems": {
+    "costUsd": "null by design: the CLI reports raw tokens only and the benchmark has no frozen price table yet; pricing needs an owner-supplied table before cost can be aggregated.",
+    "localDockerIsolation": "Not re-run for this slice; the provider-death investigation of run 35436979733 stayed with the runner-side conclusion."
+  }
+}
