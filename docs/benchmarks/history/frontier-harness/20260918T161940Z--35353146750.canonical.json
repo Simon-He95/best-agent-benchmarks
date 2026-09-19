@@ -338,14 +338,14 @@
     {
       "task": "terminal-bench/polyglot-c-py",
       "suite": "terminal-bench",
-      "canonical": "failed",
-      "harnessReported": "failed",
-      "reward": 0,
+      "canonical": "passed",
+      "harnessReported": "passed",
+      "reward": 1,
       "f2p": null,
       "p2p": null,
-      "stage": "agent-timeout",
-      "worked": "是（10 次模型响应后被 900s 预算终止）",
-      "note": "recovery run 35385270103：provider 死亡未复现，agent 真正开始做题，用满 900s 预算被 Pier 终止（AgentTimeoutError）；verifier 判 0（/app/polyglot 不存在）",
+      "stage": "passed",
+      "worked": "是",
+      "note": "validation run 35436979733（候选 e4bd99d0）：真通过——16 次模型响应、terminalCause=completed、verifier reward=1",
       "durationMin": 15,
       "recovery": {
         "runId": "35385270103",
@@ -356,7 +356,17 @@
         "preModelFailure": false,
         "exception": "AgentTimeoutError: Agent execution timed out after 900.0 seconds",
         "durationSec": 935,
-        "stage": "agent-timeout"
+        "stage": "agent-timeout",
+        "validation": {
+          "runId": "35436979733",
+          "candidateId": "cli-0.0.3-beta.30-e4bd99d-6e67bc62393e",
+          "cliBinarySha256": "6e67bc62393e65061f4fb10b3b431d2945902ee9fcdc73e467a9104c3308c037",
+          "canonical": "passed",
+          "reward": 1,
+          "modelOutcomes": 16,
+          "terminalCause": "completed",
+          "durationSec": 896
+        }
       }
     },
     {
@@ -369,7 +379,7 @@
       "p2p": null,
       "stage": "provider",
       "worked": "否（未收到任何模型响应）",
-      "note": "recovery run 35385270103 复现了同一 provider 死亡：首个模型请求 840s deadline 内无响应（modelOutcomes=0, preModelFailure=true, terminalCause=model-failure），CLI 退出 1",
+      "note": "provider 死亡第 3 次复现（validation run 35436979733，候选 e4bd99d0）：首个模型请求仍无响应（modelOutcomes=0, preModelFailure=true, terminalCause=model-failure），attempt evidence 仅 5 条",
       "durationMin": 15,
       "recovery": {
         "runId": "35385270103",
@@ -381,7 +391,19 @@
         "exception": "NonZeroAgentExitCodeError (exit 1) after model-failure: timeout",
         "durationSec": 877,
         "stage": "provider",
-        "reproduced": true
+        "reproduced": true,
+        "validation": {
+          "runId": "35436979733",
+          "candidateId": "cli-0.0.3-beta.30-e4bd99d-6e67bc62393e",
+          "cliBinarySha256": "6e67bc62393e65061f4fb10b3b431d2945902ee9fcdc73e467a9104c3308c037",
+          "canonical": "failed",
+          "reward": null,
+          "modelOutcomes": 0,
+          "terminalCause": "model-failure",
+          "preModelFailure": true,
+          "durationSec": 879,
+          "reproduced": 3
+        }
       }
     },
     {
@@ -439,6 +461,18 @@
         "validCoverage": 0.9666666666666667,
         "note": "按官方 FrontierHarness 口径，regex-log 无有效判定（infra_invalid），pass_rate = passes/valid cells = 14/29"
       }
+    },
+    "validation": {
+      "passed": 15,
+      "total": 30,
+      "passRate": 0.5,
+      "note": "validation run 35436979733 后：polyglot-c-py 由 failed 转为 passed（新候选 e4bd99d0），其余 29 题判定不变",
+      "officialStyle": {
+        "validCells": 29,
+        "passRate": 0.5172413793103449,
+        "validCoverage": 0.9666666666666667,
+        "note": "按官方口径 regex-log 仍为 infra_invalid（无有效判定），pass_rate = 15/29"
+      }
     }
   },
   "harnessReported": {
@@ -475,6 +509,29 @@
   "failureStagesPostRecovery": {
     "model": 7,
     "agent-timeout": 8,
+    "provider": 1
+  },
+  "validation": {
+    "runId": "35436979733",
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/35436979733",
+    "batch": "recovery-20260919",
+    "candidate": {
+      "cliVersion": "0.0.3-beta.30",
+      "cliSourceCommit": "e4bd99d08beacaca6ef684f4c80dc8207f731470",
+      "cliBinarySha256": "6e67bc62393e65061f4fb10b3b431d2945902ee9fcdc73e467a9104c3308c037",
+      "candidateId": "cli-0.0.3-beta.30-e4bd99d-6e67bc62393e"
+    },
+    "tasks": [
+      "terminal-bench/regex-log",
+      "terminal-bench/polyglot-c-py"
+    ],
+    "report": "20260919T104644Z--35436979733.json",
+    "record": "20260919T104644Z--35436979733.md",
+    "outcome": "polyglot-c-py 真通过（16 model outcomes, reward=1）；regex-log provider 死亡第 3 次复现"
+  },
+  "failureStagesValidation": {
+    "model": 7,
+    "agent-timeout": 7,
     "provider": 1
   }
 }
