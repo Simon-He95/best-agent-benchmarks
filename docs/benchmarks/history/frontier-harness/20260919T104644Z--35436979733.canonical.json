@@ -1,0 +1,55 @@
+{
+  "runId": "35436979733",
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/35436979733",
+  "batch": "recovery-20260919",
+  "formalRunId": "diagnostic-35436979733",
+  "purpose": "Re-test the two provider-death tasks against a candidate rebuilt from best-agent main e4bd99d0 (spec 171 progress-based Run lease + spec 172 CLI-owned model ceiling).",
+  "candidate": {
+    "cliPackage": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.30",
+    "cliSourceCommit": "e4bd99d08beacaca6ef684f4c80dc8207f731470",
+    "cliBinarySha256": "6e67bc62393e65061f4fb10b3b431d2945902ee9fcdc73e467a9104c3308c037",
+    "candidateId": "cli-0.0.3-beta.30-e4bd99d-6e67bc62393e",
+    "note": "Same source commit as the config pin, but the SEA binary sha256 differs from every earlier run (4a48aa24… full run, 10e76abd… recovery run, 6e67bc62… here): the frozen-style rebuild is not byte-reproducible."
+  },
+  "model": "glm-5.3",
+  "results": {
+    "terminal-bench/polyglot-c-py": {
+      "disposition": "passed",
+      "reward": 1,
+      "modelOutcomes": 16,
+      "terminalCause": "completed",
+      "durationSec": 896,
+      "classification": "real pass",
+      "history": "provider death (modelOutcomes 0) in run 35353146750 -> agent-timeout with 10 model outcomes in run 35385270103 -> PASSED here"
+    },
+    "terminal-bench/regex-log": {
+      "disposition": "error",
+      "reward": null,
+      "modelOutcomes": 0,
+      "preModelFailure": true,
+      "terminalCause": "model-failure",
+      "exception": "NonZeroAgentExitCodeError",
+      "durationSec": 879,
+      "classification": "environment/provider death (3rd occurrence)",
+      "history": "provider death in run 35353146750 -> reproduced in run 35385270103 -> reproduced again here; every attempt ends at the harness-set 840s model-invocation ceiling with modelOutcomes 0"
+    }
+  },
+  "agentTimeoutSec": 900,
+  "providerTimeoutMs": 840000,
+  "evidence": {
+    "terminal-bench/regex-log": {
+      "evidenceSha256": "9bf0d7129e17f2ebe38577c2855b286c544455d920ad99d4eaef2b9ae9ad72b0",
+      "terminalSnapshotDeadlineAt": 3600326.067351,
+      "failureReason": "timeout",
+      "entries": [
+        "header",
+        "model-request",
+        "terminal-snapshot",
+        "model-failure",
+        "footer"
+      ],
+      "note": "The first model invocation produced no model-outcome within 840s. The Run lease in the snapshot is 3600s, so the governing limit is the harness-set providerTimeoutMs (840s), not the lease."
+    }
+  }
+}
