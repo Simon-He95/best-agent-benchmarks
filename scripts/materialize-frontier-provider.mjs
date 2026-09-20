@@ -1,11 +1,22 @@
 #!/usr/bin/env node
+/**
+ * Materializes the frozen frontier-harness provider identity.
+ *
+ * Usage:
+ *   node scripts/materialize-frontier-provider.mjs <root> <github-env-file> \
+ *     <provider-config> [reasoning-effort]
+ *
+ * The reasoning effort is the frozen profile's default unless the run declares
+ * one of the profile's own `reasoningEffortOptions`; an undeclared effort is
+ * refused here, so every attempt runs at an effort the frozen config names.
+ */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const [rootInput, githubEnvInput, configInput] = process.argv.slice(2);
+const [rootInput, githubEnvInput, configInput, reasoningEffortInput] = process.argv.slice(2);
 if (!rootInput || !githubEnvInput || !configInput) {
   throw new Error(
-    "Usage: materialize-frontier-provider.mjs <root> <github-env-file> <provider-config>",
+    "Usage: materialize-frontier-provider.mjs <root> <github-env-file> <provider-config> [reasoning-effort]",
   );
 }
 const apiKey = process.env.BENCHMARK_PROVIDER_API_KEY;
@@ -15,15 +26,26 @@ const candidate = JSON.parse(
   readFileSync(resolve(configInput), "utf8"),
 );
 const provider = candidate.provider;
+const options = provider?.reasoningEffortOptions;
 if (
   provider?.kind !== "openai" ||
   provider.model !== "glm-5.3" ||
   provider.compatibilityMode !== "compatible" ||
-  provider.reasoningEffort !== "max" ||
   provider.transportProfile !== "dim-oauth" ||
-  typeof provider.baseURL !== "string"
+  typeof provider.baseURL !== "string" ||
+  !Array.isArray(options) ||
+  options.length < 1 ||
+  new Set(options).size !== options.length ||
+  !options.includes(provider.reasoningEffort)
 ) {
   throw new Error("The frozen frontier-harness provider profile is invalid.");
+}
+const requested = (reasoningEffortInput ?? "").trim();
+const reasoningEffort = requested === "" ? provider.reasoningEffort : requested;
+if (!options.includes(reasoningEffort)) {
+  throw new Error(
+    `Reasoning effort ${reasoningEffort} is not a declared option of the frozen frontier-harness provider profile.`,
+  );
 }
 
 const tokenParts = apiKey.split(".");
@@ -84,7 +106,7 @@ writeFileSync(
       apiKey,
       baseURL: provider.baseURL,
       compatibilityMode: provider.compatibilityMode,
-      reasoningEffort: provider.reasoningEffort,
+      reasoningEffort,
       credentialRef,
       transportProfile: provider.transportProfile,
     },
@@ -99,5 +121,5 @@ writeFileSync(
   { flag: "a" },
 );
 process.stdout.write(
-  `${JSON.stringify({ model: provider.model, reasoningEffort: provider.reasoningEffort, transportProfile: provider.transportProfile })}\n`,
+  `${JSON.stringify({ model: provider.model, reasoningEffort, transportProfile: provider.transportProfile })}\n`,
 );

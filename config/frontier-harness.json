@@ -67,7 +67,7 @@
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.3-beta.32",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "3dd37ef607d79ed92e93bd2a910c9f44f131e772",
+    "sourceCommit": "716f64ec639f8087e8ad3f6f871a42fedf869e29",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -76,6 +76,7 @@
     "baseURL": "https://dimagent.cn/v1",
     "compatibilityMode": "compatible",
     "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max", "high"],
     "transportProfile": "dim-oauth"
   },
   "workspace": "/app",

@@ -226,6 +226,22 @@ export function verifyFrozenIdentity() {
   if (!providerOverride || !existsSync(providerOverride)) {
     throw new Error("BEST_AGENT_PROVIDER_CONFIG must point to the frozen provider.json.");
   }
+  // The effort is read back from the materialized identity the CLI actually
+  // consumes, so the frozen record states the effort this attempt ran at; an
+  // effort outside the profile's declared options fails closed here instead of
+  // being recorded as something the profile never named.
+  const materialized = JSON.parse(readFileSync(providerOverride, "utf8"));
+  const effortOptions = provider.reasoningEffortOptions;
+  const reasoningEffort = materialized?.reasoningEffort;
+  if (
+    materialized?.model !== provider.model ||
+    !Array.isArray(effortOptions) ||
+    !effortOptions.includes(reasoningEffort)
+  ) {
+    throw new Error(
+      "The materialized provider identity does not match the frozen frontier-harness provider profile.",
+    );
+  }
   const dimcodeHome = process.env.DIMCODE_HOME;
   if (!dimcodeHome || !existsSync(join(dimcodeHome, "config.json"))) {
     throw new Error("DIMCODE_HOME must point to the frozen dimcode home.");
@@ -264,6 +280,7 @@ export function verifyFrozenIdentity() {
     candidateManifestSha256: sha256File(candidatePath),
     candidatePath,
     model,
+    reasoningEffort,
   };
 }
 
@@ -656,7 +673,7 @@ async function main() {
   }
 
   const candidate = verifyFrozenIdentity();
-  const { cliVersion, model } = candidate;
+  const { cliVersion, model, reasoningEffort } = candidate;
 
   if (existsSync(args.output)) {
     throw new Error(`Refusing to overwrite ${args.output}.`);
@@ -748,6 +765,7 @@ async function main() {
     cliBinarySha256: candidate.binarySha256,
     candidateManifestSha256: candidate.candidateManifestSha256,
     model,
+    reasoningEffort,
     batchId: args.batchId,
     formalRunId: args.formalRunId,
     pierVersion: config.pier.version,
@@ -819,6 +837,7 @@ async function main() {
     `| candidate | ${args.candidateId} |`,
     `| cli | ${cliVersion} |`,
     `| model | ${model} |`,
+    `| reasoning effort | ${reasoningEffort} |`,
     ...(exception ? [`| exception | ${exception.type}: ${exception.message.slice(0, 300)} |`] : []),
     "",
   ].join("\n");

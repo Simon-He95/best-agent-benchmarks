@@ -60,6 +60,10 @@ test("frontier-harness freezes the glm-5.3 max-effort provider profile", () => {
   assert.equal(config.provider.model, "glm-5.3");
   assert.equal(config.provider.compatibilityMode, "compatible");
   assert.equal(config.provider.reasoningEffort, "max");
+  // The profile declares the efforts a run may select, and its default is one of
+  // them: an attempt can never run at an effort the frozen record never named.
+  assert.deepEqual(config.provider.reasoningEffortOptions, ["max", "high"]);
+  assert.ok(config.provider.reasoningEffortOptions.includes(config.provider.reasoningEffort));
   assert.equal(config.provider.transportProfile, "dim-oauth");
   assert.equal(config.provider.baseURL, "https://dimagent.cn/v1");
 });
@@ -150,6 +154,95 @@ test("harness fails closed when the current candidate identity mismatches", asyn
   } finally {
     if (previous === undefined) delete process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
     else process.env.BEST_AGENT_CLI_CANDIDATE_DIR = previous;
+  }
+});
+
+test("the harness freezes the materialized reasoning effort and refuses an undeclared one", async () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-effort-"));
+  const candidateDir = join(root, "candidate");
+  const dimcodeHome = join(root, "dimcode-home");
+  mkdirSync(candidateDir, { recursive: true });
+  mkdirSync(dimcodeHome, { recursive: true });
+  writeFileSync(join(dimcodeHome, "config.json"), "{}\n");
+  const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+  writeFileSync(join(candidateDir, "best-agent-cli.tgz"), "candidate");
+  writeFileSync(join(candidateDir, "build-report.json"), "{}\n");
+  writeFileSync(
+    join(candidateDir, "candidate.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      packageName: config.cli.packageName,
+      cliVersion: config.cli.cliVersion,
+      sourceRepository: config.cli.sourceRepository,
+      sourceCommit: config.cli.sourceCommit,
+      target: config.cli.target,
+      tarballSha256: sha256(join(candidateDir, "best-agent-cli.tgz")),
+      buildReportSha256: sha256(join(candidateDir, "build-report.json")),
+      binarySha256: "1".repeat(64),
+      lockfileSha256: "2".repeat(64),
+      runtimeLockSha256: "3".repeat(64),
+      nodeBinarySha256: "4".repeat(64),
+      nodeVersion: "v24.16.0",
+      runtimeDependencies: {},
+    }),
+  );
+  const providerPath = join(root, "provider.json");
+  const writeProvider = (reasoningEffort) =>
+    writeFileSync(
+      providerPath,
+      JSON.stringify({
+        kind: config.provider.kind,
+        model: config.provider.model,
+        apiKey: "synthetic-key",
+        baseURL: config.provider.baseURL,
+        compatibilityMode: config.provider.compatibilityMode,
+        reasoningEffort,
+        credentialRef: "benchmark-ci-dim-oauth",
+        transportProfile: config.provider.transportProfile,
+      }),
+    );
+
+  const envKeys = [
+    "BEST_AGENT_CLI_CANDIDATE_DIR",
+    "BEST_AGENT_PROVIDER_CONFIG",
+    "BEST_AGENT_PROVIDER_MODEL",
+    "BEST_AGENT_PROVIDER_BASE_URL",
+    "DIMCODE_HOME",
+  ];
+  const saved = new Map(envKeys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.BEST_AGENT_CLI_CANDIDATE_DIR = candidateDir;
+    process.env.BEST_AGENT_PROVIDER_CONFIG = providerPath;
+    process.env.BEST_AGENT_PROVIDER_MODEL = config.provider.model;
+    process.env.BEST_AGENT_PROVIDER_BASE_URL = config.provider.baseURL;
+    process.env.DIMCODE_HOME = dimcodeHome;
+    const { verifyFrozenIdentity } = await import(
+      `../scripts/frontier-harness-harness.mjs?effort=${Date.now()}`
+    );
+
+    // The declared variant and the profile default are both carried into the
+    // frozen identity the record transcribes.
+    writeProvider("high");
+    assert.equal(verifyFrozenIdentity().reasoningEffort, "high");
+    writeProvider(config.provider.reasoningEffort);
+    assert.equal(
+      verifyFrozenIdentity().reasoningEffort,
+      config.provider.reasoningEffort,
+    );
+
+    // An effort the frozen profile never declared fails closed instead of being
+    // recorded as an attempt that ran at it.
+    writeProvider("low");
+    assert.throws(
+      () => verifyFrozenIdentity(),
+      /provider identity does not match/u,
+    );
+  } finally {
+    for (const key of envKeys) {
+      const value = saved.get(key);
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
   }
 });
 
@@ -631,6 +724,58 @@ test("provider materialization rejects a non-frozen provider profile", () => {
   assert.match(result.stderr, /frozen frontier-harness provider profile is invalid/u);
 });
 
+test("provider materialization selects a declared effort and refuses an undeclared one", () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-effort-materialize-"));
+  const token =
+    "fixture." +
+    Buffer.from(
+      JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+    ).toString("base64url") +
+    ".fixture";
+  const materialize = (effort) => {
+    const label = effort === "" ? "default" : effort;
+    const target = join(root, label);
+    const result = spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "scripts/materialize-frontier-provider.mjs"),
+        target,
+        join(root, `${label}.env`),
+        resolve(repoRoot, "config/frontier-harness.json"),
+        effort,
+      ],
+      {
+        encoding: "utf8",
+        env: { ...process.env, BENCHMARK_PROVIDER_API_KEY: token },
+      },
+    );
+    return { result, providerPath: join(target, "provider.json") };
+  };
+
+  // A declared variant is materialized verbatim, and the printed summary names it.
+  const declared = materialize("high");
+  assert.equal(declared.result.status, 0, declared.result.stderr);
+  assert.equal(
+    JSON.parse(readFileSync(declared.providerPath, "utf8")).reasoningEffort,
+    "high",
+  );
+  assert.equal(JSON.parse(declared.result.stdout).reasoningEffort, "high");
+
+  // An empty selection keeps the frozen profile's own default.
+  const fallback = materialize("");
+  assert.equal(fallback.result.status, 0, fallback.result.stderr);
+  assert.equal(
+    JSON.parse(readFileSync(fallback.providerPath, "utf8")).reasoningEffort,
+    config.provider.reasoningEffort,
+  );
+
+  // An effort outside the declared options never reaches the credential files.
+  const refused = materialize("low");
+  assert.notEqual(refused.result.status, 0);
+  assert.match(refused.result.stderr, /is not a declared option/u);
+  assert.ok(!existsSync(refused.providerPath));
+});
+
 test("classifyTrialOutcome grades a run whose fatal failure was its own budget", async () => {
   const { classifyTrialOutcome } = await import(
     `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
@@ -745,6 +890,7 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
         candidateId: "synthetic",
         batchId: "synthetic",
         durationMs: 1000,
+        reasoningEffort: config.provider.reasoningEffort,
         result,
         artifacts: {},
       }),
@@ -809,4 +955,87 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
   assert.equal(subset.coverage.fullExpected, false);
   assert.equal(subset.scoreable, false);
   assert.equal(subset.passAt1, null);
+
+  // The provider effort is transcribed from the frozen records, not from the
+  // config default, so a run is reported at the effort its attempts ran at.
+  assert.equal(graded.provider.reasoningEffort, config.provider.reasoningEffort);
+  assert.match(
+    readFileSync(join(root, "graded.json.md"), "utf8"),
+    new RegExp(`reasoning ${config.provider.reasoningEffort}`, "u"),
+  );
+});
+
+test("frontier report refuses records whose reasoning effort is not declared", () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-report-effort-"));
+  const results = join(root, "results");
+  mkdirSync(results);
+  const tasks = ["datacurve/one", "terminal-bench/two"];
+  writeFileSync(
+    join(root, "corpus.json"),
+    JSON.stringify({
+      profileId: config.profileId,
+      dataset: {
+        name: "frontier-harness-eval-v1",
+        sourceCommit: config.source.sourceCommit,
+        taskCount: 30,
+      },
+      gpuTasks: [],
+      tasks: tasks.map((name) => ({ name })),
+    }),
+  );
+  const expectedPath = join(root, "expected.txt");
+  writeFileSync(expectedPath, `${tasks.join("\n")}\n`);
+  const writeRecord = (task, reasoningEffort) =>
+    writeFileSync(
+      join(results, `frontier-harness-results.${task.split("/").pop()}.json`),
+      JSON.stringify({
+        schemaVersion: 1,
+        task: { name: task, suite: task.split("/")[0] },
+        candidateId: "synthetic",
+        batchId: "synthetic",
+        durationMs: 1000,
+        reasoningEffort,
+        result: { disposition: "passed", rewards: { reward: 1 } },
+        artifacts: {},
+      }),
+    );
+  const report = () =>
+    spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "scripts/frontier-harness-report.mjs"),
+        "--results",
+        results,
+        "--corpus",
+        join(root, "corpus.json"),
+        "--expected-tasks",
+        expectedPath,
+        "--output",
+        join(root, "report.json"),
+        "--formal",
+      ],
+      { encoding: "utf8" },
+    );
+
+  // Two efforts in one run is not one frozen provider identity.
+  writeRecord(tasks[0], "max");
+  writeRecord(tasks[1], "high");
+  const mixed = report();
+  assert.notEqual(mixed.status, 0);
+  assert.match(mixed.stderr, /disagree on the reasoning effort/u);
+
+  // An effort the frozen profile never declared is refused, not reported.
+  writeRecord(tasks[1], "low");
+  const undeclared = report();
+  assert.notEqual(undeclared.status, 0);
+  assert.match(undeclared.stderr, /carries no declared reasoning effort/u);
+
+  // The same records under one declared effort report normally.
+  writeRecord(tasks[1], "max");
+  const agreed = report();
+  assert.equal(agreed.status, 0, agreed.stderr);
+  assert.equal(
+    JSON.parse(readFileSync(join(root, "report.json"), "utf8")).provider.reasoningEffort,
+    "max",
+  );
 });

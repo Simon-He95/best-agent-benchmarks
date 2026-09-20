@@ -27,6 +27,10 @@ name: Frontier-Harness 1.0
 # matches the repo's Terminal-Bench 4.0 diagnostic composition: no closed-book
 # claim is made. Results are a diagnostic self-run; they are not comparable to
 # the published frontierharness.org leaderboard.
+# The provider reasoning effort is one the frozen profile itself declares
+# (`config/frontier-harness.json#provider.reasoningEffortOptions`, default
+# `reasoningEffort`), and the materialized effort is frozen into every per-task
+# record, so a run is always reported at the effort its attempts actually ran.
 
 on:
   workflow_dispatch:
@@ -68,6 +72,10 @@ on:
         default: "1"
       fh_timeout_ms:
         description: Per-task provider timeout in ms (empty = derived from task timeout)
+        required: false
+        default: ""
+      fh_reasoning_effort:
+        description: Declared reasoning effort for this run (empty = the frozen config default)
         required: false
         default: ""
 
@@ -455,7 +463,7 @@ jobs:
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json
+        run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json "${{ inputs.fh_reasoning_effort }}"
 
       - name: Generate and freeze the task attempt
         env:

@@ -106,6 +106,29 @@ function main() {
     ["not-evaluated", "inconclusive"].includes(r.result.disposition),
   ).length;
 
+  // The report states the effort the attempts actually ran at. Each frozen
+  // record carries the materialized effort, the records of one run must agree on
+  // it, and it must be one the frozen provider profile declares — a run can
+  // therefore never be reported under an effort it did not use.
+  const effortOptions = config.provider.reasoningEffortOptions;
+  const efforts = new Set(
+    counted.map((record) => {
+      const effort = record.reasoningEffort;
+      if (!Array.isArray(effortOptions) || !effortOptions.includes(effort)) {
+        throw new Error(
+          `${record.task.name} carries no declared reasoning effort (${String(effort)}).`,
+        );
+      }
+      return effort;
+    }),
+  );
+  if (efforts.size > 1) {
+    throw new Error(
+      `Frozen records disagree on the reasoning effort: ${[...efforts].sort().join(", ")}.`,
+    );
+  }
+  const reasoningEffort = efforts.size === 1 ? [...efforts][0] : config.provider.reasoningEffort;
+
   const complete = missing.length === 0;
   // `fullExpected` mirrors the terminal-bench report: the predeclared expected
   // list must be the whole Docker-eligible corpus, not a subset.
@@ -160,7 +183,7 @@ function main() {
     dataset: frozen.dataset,
     pier: config.pier,
     cli: config.cli,
-    provider: config.provider,
+    provider: { ...config.provider, reasoningEffort },
     formal: args.formal,
     comparability: "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
     gpuExcludedTasks: [...gpuTasks].filter((name) => expectedSet.has(name)),
@@ -231,7 +254,7 @@ function main() {
     `| dataset | ${frozen.dataset.name}@${frozen.dataset.sourceCommit.slice(0, 7)} (${frozen.dataset.taskCount} tasks) |`,
     `| runner | pier ${config.pier.version} (${config.pier.environment}) on GitHub-hosted runners |`,
     `| cli | ${config.cli.packageName}@${config.cli.cliVersion} |`,
-    `| model | ${config.provider.model} (reasoning ${config.provider.reasoningEffort}) |`,
+    `| model | ${config.provider.model} (reasoning ${reasoningEffort}) |`,
     `| expected tasks | ${report.coverage.expected} (${report.coverage.expectedEligible} eligible in Docker, ${report.gpuExcludedTasks.length} GPU-excluded) |`,
     `| present | ${report.coverage.present} |`,
     `| missing | ${report.coverage.missing.length} |`,
@@ -260,6 +283,7 @@ function main() {
       {
         coverage: report.coverage,
         results: report.results,
+        reasoningEffort,
         passRate,
         validCells,
         passRateValidCells,
