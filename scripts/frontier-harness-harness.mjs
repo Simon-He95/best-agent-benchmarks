@@ -412,19 +412,40 @@ export function canonicalPassed(rewards) {
 }
 
 /**
- * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
- * were written, and the run's terminal cause. The footer's writtenCounts are
- * authoritative when present; otherwise model-outcome entries are counted.
+ * The `reason` values of a best-agent `model-failure` evidence entry, as defined
+ * by the CLI's own `classifyModelFailure` (packages/model-binding-ai-sdk): the
+ * provider was unreachable at the transport level (DNS/connect/reset) or the
+ * request was rejected provider-side (HTTP status, TLS, upstream). Neither is a
+ * model outcome — the request never produced an answer — so a trial that ends on
+ * one carries no gradeable attempt.
  *
- * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null }}
+ * `timeout` is deliberately absent: it means the invocation was aborted on the
+ * deadline this harness itself pinned (agent budget minus the guard interval), so
+ * a task that used that budget up is a budget outcome, not an outage.
+ */
+const PROVIDER_FAILURE_REASONS = new Set(["connection", "transport"]);
+
+/**
+ * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
+ * were written, the run's terminal cause, and why each model failure failed.
+ * The footer's writtenCounts are authoritative when present; otherwise
+ * model-outcome entries are counted.
+ *
+ * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
  */
 export function summarizeAttemptEvidence(evidenceText) {
   if (typeof evidenceText !== "string" || evidenceText.trim() === "") {
-    return { present: false, modelOutcomes: null, terminalCause: null };
+    return {
+      present: false,
+      modelOutcomes: null,
+      terminalCause: null,
+      modelFailureReasons: [],
+    };
   }
   let footerOutcomes = null;
   let countedOutcomes = 0;
   let terminalCause = null;
+  const modelFailureReasons = [];
   for (const line of evidenceText.split("\n")) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -436,6 +457,14 @@ export function summarizeAttemptEvidence(evidenceText) {
     }
     if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
       countedOutcomes += 1;
+    }
+    if (entry?.type === "model-failure") {
+      // The frozen CLI nests the fact as `failure.reason`; older artifacts
+      // carry the same value as a flat `reason`.
+      const reason = entry.failure?.reason ?? entry.reason;
+      if (typeof reason === "string" && reason.trim() !== "") {
+        modelFailureReasons.push(reason.trim());
+      }
     }
     if (entry?.type === "footer" && entry.writtenCounts) {
       if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
@@ -450,18 +479,20 @@ export function summarizeAttemptEvidence(evidenceText) {
     present: true,
     modelOutcomes: footerOutcomes ?? countedOutcomes,
     terminalCause,
+    modelFailureReasons,
   };
 }
 
 /**
  * Transcribe one Pier trial into the harness disposition vocabulary.
  *
- * The task's own verifier reward is the only grader, but a trial whose agent
- * process failed before receiving a single model response (attempt evidence
- * recorded zero model outcomes) never started the attempt: that is an
- * environment/provider death, recorded as `error` — never scored as a task
- * failure — matching the benchmark rule that infrastructure deaths are marked
- * rather than graded.
+ * The task's own verifier reward is the only grader, but a trial that never
+ * received a model answer has no gradeable attempt: either the agent process
+ * failed before its first model response (attempt evidence recorded zero model
+ * outcomes), or the run ended on a provider transport failure (endpoint
+ * unreachable, quota exhausted, gateway error). Both are environment/provider
+ * deaths, recorded as `error` — never scored as a task failure — matching the
+ * benchmark rule that infrastructure deaths are marked rather than graded.
  */
 export function classifyTrialOutcome({ trialResult, evidenceText }) {
   const evidence = summarizeAttemptEvidence(evidenceText);
@@ -494,6 +525,23 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
       disposition: "error",
       exception,
       preModelFailure: true,
+      ...evidenceFields,
+    };
+  }
+  // Only the failure that actually ended the run decides: the evidence is
+  // append-ordered, so the last model-failure is the fatal one. A provider
+  // outage that was survived must not excuse a later, fatal budget timeout.
+  // A verifier run over a workspace whose provider connection died cannot be
+  // attributed to the agent, so the verdict is withheld as an outage.
+  const fatalFailureReason = evidence.modelFailureReasons.at(-1);
+  const infraFailure =
+    evidence.terminalCause === "model-failure" &&
+    PROVIDER_FAILURE_REASONS.has(fatalFailureReason);
+  if (infraFailure) {
+    return {
+      disposition: "error",
+      ...(exception ? { exception } : {}),
+      infraFailure: true,
       ...evidenceFields,
     };
   }

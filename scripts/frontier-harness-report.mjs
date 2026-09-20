@@ -79,6 +79,12 @@ function main() {
   if (expectedSet.size === 0) throw new Error("--expected-tasks list is empty.");
 
   const gpuTasks = new Set(frozen.gpuTasks ?? []);
+  // The corpus' own Docker-eligible population, independent of the expected
+  // list this run declared: `fullExpected` compares the two, so a run that
+  // declares only a subset of the corpus can never be a formal full-corpus claim.
+  const corpusEligible = (frozen.tasks ?? [])
+    .map((task) => task.name)
+    .filter((name) => !gpuTasks.has(name));
   const expectedEligible = [...expectedSet].filter((name) => !gpuTasks.has(name));
   if (expectedEligible.length === 0) throw new Error("Expected set has no eligible tasks.");
 
@@ -101,7 +107,31 @@ function main() {
   ).length;
 
   const complete = missing.length === 0;
+  // `fullExpected` mirrors the terminal-bench report: the predeclared expected
+  // list must be the whole Docker-eligible corpus, not a subset.
+  const fullExpected =
+    corpusEligible.length > 0 &&
+    expectedSet.size === corpusEligible.length &&
+    corpusEligible.every((name) => expectedSet.has(name));
   const passRate = passed / expectedEligible.length;
+  // passAt1 is the formal headline and only a clean run may claim it: any trial
+  // without a verdict (infrastructure death) or an interrupted subset leaves it
+  // null. This is the same gate the terminal-bench report applies, so a run
+  // containing an outage can never be published as a formal pass@1 — the raw
+  // rate below stays visible either way.
+  const scoreable =
+    fullExpected &&
+    complete &&
+    errors === 0 &&
+    notEvaluated === 0;
+  // The published FrontierHarness convention scores passes over *valid cells*: a
+  // trial whose agent died on infrastructure carries no verdict, so it leaves the
+  // denominator instead of being graded as a task failure. It is a secondary
+  // view: it only holds if the invalid cells are unrelated to task difficulty,
+  // so `passRate` (raw, never inflated) stays the primary number and the
+  // coverage block always reports how many cells were dropped.
+  const validCells = passed + failed;
+  const passRateValidCells = validCells === 0 ? null : passed / validCells;
 
   // Provider-reported usage is summed over the tasks that reported it; a task
   // without a usage record is absent, never a zero, and cost stays null until the
@@ -139,6 +169,7 @@ function main() {
       expectedEligible: expectedEligible.length,
       present: present.length,
       missing,
+      fullExpected,
     },
     results: {
       passed,
@@ -147,7 +178,10 @@ function main() {
       notEvaluated,
     },
     passRate,
-    passAt1: args.formal && complete ? passRate : null,
+    validCells,
+    passRateValidCells,
+    scoreable,
+    passAt1: args.formal && scoreable ? passRate : null,
     usage,
     perTask: expectedEligible.map((name) => {
       const record = byTask.get(name);
@@ -206,7 +240,10 @@ function main() {
     `| error | ${errors} |`,
     `| not-evaluated | ${notEvaluated} |`,
     `| **pass rate** | **${(passRate * 100).toFixed(1)}%** |`,
-    `| pass@1 | ${report.passAt1 === null ? "null (diagnostic)" : `${(report.passAt1 * 100).toFixed(1)}%`} |`,
+    `| valid cells | ${validCells} of ${expectedEligible.length} (${expectedEligible.length - validCells} without a verdict) |`,
+    `| pass rate (valid cells, secondary) | ${passRateValidCells === null ? "null (no valid cell)" : `${(passRateValidCells * 100).toFixed(1)}% (${passed}/${validCells})`} |`,
+    `| scoreable | ${scoreable ? "yes" : "no — a verdict is missing"} |`,
+    `| pass@1 | ${report.passAt1 === null ? (args.formal ? "null (a verdict is missing)" : "null (diagnostic)") : `${(report.passAt1 * 100).toFixed(1)}%`} |`,
     "",
     "> Self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard.",
     "",
@@ -224,6 +261,9 @@ function main() {
         coverage: report.coverage,
         results: report.results,
         passRate,
+        validCells,
+        passRateValidCells,
+        scoreable,
         passAt1: report.passAt1,
       },
       null,

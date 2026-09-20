@@ -309,6 +309,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
     present: false,
     modelOutcomes: null,
     terminalCause: null,
+    modelFailureReasons: [],
   });
   const footerEvidence = [
     '{"type":"model-request","sequence":1}',
@@ -321,6 +322,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
     present: true,
     modelOutcomes: 0,
     terminalCause: "model-failure",
+    modelFailureReasons: ["transport"],
   });
   const countedEvidence = [
     '{"type":"model-outcome","sequence":1}',
@@ -332,6 +334,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
     present: true,
     modelOutcomes: 2,
     terminalCause: "completed",
+    modelFailureReasons: [],
   });
 
   const exception = {
@@ -437,6 +440,119 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   });
 });
 
+test("classifyTrialOutcome marks post-response provider deaths as errors", async () => {
+  const { classifyTrialOutcome, summarizeAttemptEvidence } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  const exception = {
+    exception_type: "NonZeroAgentExitCodeError",
+    exception_message: "Command failed (exit 1)",
+  };
+  // A quota death after two model responses: the frozen CLI writes the nested
+  // `failure.reason`, and the verifier's 0 was produced over an interrupted
+  // workspace, so it is an infrastructure event rather than a task failure.
+  const transportEvidence = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-outcome","sequence":2}',
+    '{"type":"model-failure","sequence":3,"failure":{"kind":"failure","reason":"transport"}}',
+    '{"type":"terminal-snapshot","sequence":4,"snapshot":{"terminalCause":"model-failure"}}',
+    "",
+  ].join("\n");
+  assert.deepEqual(summarizeAttemptEvidence(transportEvidence), {
+    present: true,
+    modelOutcomes: 2,
+    terminalCause: "model-failure",
+    modelFailureReasons: ["transport"],
+  });
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+      evidenceText: transportEvidence,
+    }),
+    {
+      disposition: "error",
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+      infraFailure: true,
+      modelOutcomes: 2,
+      terminalCause: "model-failure",
+    },
+  );
+  // The CLI's other provider-side reason: `connection` means the endpoint was
+  // unreachable at the transport level (DNS/connect/reset), which the CLI's own
+  // classifier documents and its tests pin. It is the same outage as `transport`
+  // and must not be graded as a task failure either.
+  const connectionEvidence = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-failure","sequence":2,"failure":{"kind":"failure","reason":"connection"}}',
+    '{"type":"terminal-snapshot","sequence":3,"snapshot":{"terminalCause":"model-failure"}}',
+    "",
+  ].join("\n");
+  assert.deepEqual(summarizeAttemptEvidence(connectionEvidence), {
+    present: true,
+    modelOutcomes: 1,
+    terminalCause: "model-failure",
+    modelFailureReasons: ["connection"],
+  });
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+      evidenceText: connectionEvidence,
+    }),
+    {
+      disposition: "error",
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+      infraFailure: true,
+      modelOutcomes: 1,
+      terminalCause: "model-failure",
+    },
+  );
+  // The CLI's own model-invocation deadline is this harness's pinned policy,
+  // not an infrastructure event: a timeout stays graded by the verifier.
+  const timeoutEvidence = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-failure","sequence":2,"failure":{"kind":"failure","reason":"timeout"}}',
+    '{"type":"terminal-snapshot","sequence":3,"snapshot":{"terminalCause":"model-failure"}}',
+    "",
+  ].join("\n");
+  assert.deepEqual(
+    classifyTrialOutcome({
+      trialResult: {
+        verifier_result: { rewards: { reward: 0 } },
+        exception_info: exception,
+      },
+      evidenceText: timeoutEvidence,
+    }),
+    {
+      disposition: "failed",
+      rewards: { reward: 0 },
+      exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+      modelOutcomes: 1,
+      terminalCause: "model-failure",
+    },
+  );
+  // A transport failure that did not end the run leaves the verdict alone.
+  const recoveredEvidence = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-failure","sequence":2,"failure":{"kind":"failure","reason":"transport"}}',
+    '{"type":"terminal-snapshot","sequence":3,"snapshot":{"terminalCause":"completed"}}',
+    "",
+  ].join("\n");
+  assert.equal(
+    classifyTrialOutcome({
+      trialResult: { verifier_result: { rewards: { reward: 1 } } },
+      evidenceText: recoveredEvidence,
+    }).disposition,
+    "passed",
+  );
+});
+
 test("projectAgentUsage reads the plugin's usage facts and keeps missing ones missing", async () => {
   const { projectAgentUsage } = await import(
     `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
@@ -513,4 +629,184 @@ test("provider materialization rejects a non-frozen provider profile", () => {
   );
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /frozen frontier-harness provider profile is invalid/u);
+});
+
+test("classifyTrialOutcome grades a run whose fatal failure was its own budget", async () => {
+  const { classifyTrialOutcome } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  const exception = {
+    exception_type: "NonZeroAgentExitCodeError",
+    exception_message: "Command failed (exit 1)",
+  };
+  const trialResult = {
+    verifier_result: { rewards: { reward: 0 } },
+    exception_info: exception,
+  };
+  const terminal = '{"type":"terminal-snapshot","sequence":9,"snapshot":{"terminalCause":"model-failure"}}';
+  const failure = (sequence, reason) =>
+    `{"type":"model-failure","sequence":${sequence},"failure":{"kind":"failure","reason":"${reason}"}}`;
+
+  // A transport failure the run survived must not excuse the fatal budget
+  // timeout that followed: only the failure that ended the run decides.
+  const survivedTransport = [
+    '{"type":"model-outcome","sequence":1}',
+    failure(2, "transport"),
+    '{"type":"model-outcome","sequence":3}',
+    failure(4, "timeout"),
+    terminal,
+    "",
+  ].join("\n");
+  assert.deepEqual(classifyTrialOutcome({ trialResult, evidenceText: survivedTransport }), {
+    disposition: "failed",
+    rewards: { reward: 0 },
+    exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+    modelOutcomes: 2,
+    terminalCause: "model-failure",
+  });
+
+  // The mirror image: an earlier budget timeout does not stop the fatal
+  // transport death from being infrastructure.
+  const fatalTransport = [
+    '{"type":"model-outcome","sequence":1}',
+    failure(2, "timeout"),
+    '{"type":"model-outcome","sequence":3}',
+    failure(4, "transport"),
+    terminal,
+    "",
+  ].join("\n");
+  assert.deepEqual(classifyTrialOutcome({ trialResult, evidenceText: fatalTransport }), {
+    disposition: "error",
+    exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+    infraFailure: true,
+    modelOutcomes: 2,
+    terminalCause: "model-failure",
+  });
+
+  // The same rule holds for the other provider reason: a `connection` outage the
+  // run survived does not excuse the fatal budget timeout that followed.
+  const survivedConnection = [
+    '{"type":"model-outcome","sequence":1}',
+    failure(2, "connection"),
+    '{"type":"model-outcome","sequence":3}',
+    failure(4, "timeout"),
+    terminal,
+    "",
+  ].join("\n");
+  assert.deepEqual(classifyTrialOutcome({ trialResult, evidenceText: survivedConnection }), {
+    disposition: "failed",
+    rewards: { reward: 0 },
+    exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
+    modelOutcomes: 2,
+    terminalCause: "model-failure",
+  });
+
+  // A model-failure with no recorded reason stays graded: the classifier never
+  // guesses an infrastructure death it cannot prove.
+  const unlabelled = [
+    '{"type":"model-outcome","sequence":1}',
+    '{"type":"model-failure","sequence":2}',
+    terminal,
+    "",
+  ].join("\n");
+  assert.equal(
+    classifyTrialOutcome({ trialResult, evidenceText: unlabelled }).disposition,
+    "failed",
+  );
+});
+
+test("formal frontier report never claims passAt1 while a verdict is missing", async () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-report-"));
+  const results = join(root, "results");
+  mkdirSync(results);
+  const tasks = ["datacurve/one", "terminal-bench/two"];
+  writeFileSync(
+    join(root, "corpus.json"),
+    JSON.stringify({
+      profileId: config.profileId,
+      dataset: {
+        name: "frontier-harness-eval-v1",
+        sourceCommit: config.source.sourceCommit,
+        taskCount: 30,
+      },
+      gpuTasks: [],
+      tasks: tasks.map((name) => ({ name })),
+    }),
+  );
+  const expectedPath = join(root, "expected.txt");
+  writeFileSync(expectedPath, `${tasks.join("\n")}\n`);
+  const writeRecord = (task, result) =>
+    writeFileSync(
+      join(results, `frontier-harness-results.${task.split("/").pop()}.json`),
+      JSON.stringify({
+        schemaVersion: 1,
+        task: { name: task, suite: task.split("/")[0] },
+        candidateId: "synthetic",
+        batchId: "synthetic",
+        durationMs: 1000,
+        result,
+        artifacts: {},
+      }),
+    );
+  writeRecord(tasks[0], { disposition: "passed", rewards: { reward: 1 } });
+  // An infrastructure death: the trial carries no verdict.
+  writeRecord(tasks[1], {
+    disposition: "error",
+    infraFailure: true,
+    exception: { type: "NonZeroAgentExitCodeError", message: "HTTP 402" },
+  });
+
+  const run = (expected, name) => {
+    const output = join(root, `${name}.json`);
+    const spawned = spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "scripts/frontier-harness-report.mjs"),
+        "--results",
+        results,
+        "--corpus",
+        join(root, "corpus.json"),
+        "--expected-tasks",
+        expected,
+        "--output",
+        output,
+        "--formal",
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(spawned.status, 0, spawned.stderr);
+    return JSON.parse(readFileSync(output, "utf8"));
+  };
+
+  // The raw rate is always reported, and it keeps the invalid cell in the
+  // denominator: an outage can never be read as a capability regression.
+  const withError = run(expectedPath, "with-error");
+  assert.deepEqual(withError.results, { passed: 1, failed: 0, error: 1, notEvaluated: 0 });
+  assert.equal(withError.passRate, 0.5);
+  assert.equal(withError.coverage.fullExpected, true);
+  // The secondary valid-cells view drops the cell, and says how many.
+  assert.equal(withError.validCells, 1);
+  assert.equal(withError.passRateValidCells, 1);
+  // ...but the formal headline is refused, because a verdict is missing.
+  assert.equal(withError.scoreable, false);
+  assert.equal(withError.passAt1, null);
+
+  // Once every cell has a verdict the formal headline is claimed.
+  writeRecord(tasks[1], { disposition: "failed", rewards: { reward: 0 } });
+  const graded = run(expectedPath, "graded");
+  assert.equal(graded.passRate, 0.5);
+  assert.equal(graded.validCells, 2);
+  assert.equal(graded.passRateValidCells, 0.5);
+  assert.equal(graded.scoreable, true);
+  assert.equal(graded.passAt1, 0.5);
+
+  // A subset of the corpus is not a formal full-corpus claim.
+  const subsetPath = join(root, "expected-subset.txt");
+  writeFileSync(subsetPath, `${tasks[0]}\n`);
+  const subset = run(subsetPath, "subset");
+  assert.equal(subset.passRate, 1);
+  assert.equal(subset.coverage.fullExpected, false);
+  assert.equal(subset.scoreable, false);
+  assert.equal(subset.passAt1, null);
 });
