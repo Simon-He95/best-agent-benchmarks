@@ -147,6 +147,68 @@ function main() {
     complete &&
     errors === 0 &&
     notEvaluated === 0;
+
+  // Acceptance: the named criteria a run must satisfy before any capability reading
+  // may be claimed from it. Every criterion is derived from facts this report owns —
+  // the frozen per-task records, the frozen corpus and the frozen provider profile —
+  // and every failure is reported rather than thrown, so a broken run still produces
+  // a report that says exactly why it cannot support a capability claim.
+  //
+  // `scoreable` above stays the narrower, older question ("does every expected task
+  // have a verdict?"); this block is the stricter one a published number needs, and
+  // `passAt1` requires it. The per-task delivery diagnosis (a build that never
+  // compiled) is deliberately not repeated here: it belongs to the failure analysis,
+  // which owns the verifier logs, and duplicating that judgement would create a
+  // second interpretation of the same fact.
+  const corpusInstruction = new Map(
+    (frozen.tasks ?? []).map((task) => [task.name, task.instructionSha256]),
+  );
+  const identityOf = (record) =>
+    [record.candidateId, record.cliVersion, record.cliBinarySha256, record.candidateManifestSha256]
+      .map((value) => (value === undefined || value === null ? "missing" : String(value)))
+      .join("|");
+  const identities = [...new Set(counted.map(identityOf))].sort();
+  const models = [...new Set(counted.map((record) => String(record.model)))].sort();
+  const driftedInstructions = counted.filter(
+    (record) => record.task.instructionSha256 !== corpusInstruction.get(record.task.name),
+  );
+  const acceptance = [
+    {
+      id: "coverage.full",
+      status: fullExpected ? "passed" : "failed",
+      detail: `${expectedSet.size} of ${corpusEligible.length} Docker-eligible corpus tasks were predeclared`,
+    },
+    {
+      id: "verdicts.complete",
+      status: complete && errors === 0 && notEvaluated === 0 ? "passed" : "failed",
+      detail: `${present.length} present, ${missing.length} missing, ${errors} error, ${notEvaluated} not-evaluated`,
+    },
+    {
+      id: "candidate.single",
+      status: counted.length > 0 && identities.length === 1 ? "passed" : "failed",
+      detail:
+        identities.length === 1
+          ? `${counted.length} records agree on one frozen candidate (${identities[0]})`
+          : `${identities.length} distinct candidate identities across ${counted.length} records: ${identities.join(" | ")}`,
+    },
+    {
+      id: "provider.single",
+      status: models.length === 1 && models[0] === config.provider.model ? "passed" : "failed",
+      detail: `model(s) ${models.join(", ") || "none"} at reasoning effort ${reasoningEffort}; the frozen profile is ${config.provider.model}`,
+    },
+    {
+      id: "instructions.frozen",
+      status: counted.length > 0 && driftedInstructions.length === 0 ? "passed" : "failed",
+      detail:
+        driftedInstructions.length === 0
+          ? `${counted.length} records match the frozen instruction hash of their task`
+          : `records do not match the frozen instruction hash of their task: ${driftedInstructions
+              .map((record) => record.task.name)
+              .sort()
+              .join(", ")}`,
+    },
+  ];
+  const capabilityMeasurement = acceptance.every((entry) => entry.status === "passed");
   // The published FrontierHarness convention scores passes over *valid cells*: a
   // trial whose agent died on infrastructure carries no verdict, so it leaves the
   // denominator instead of being graded as a task failure. It is a secondary
@@ -187,6 +249,13 @@ function main() {
     formal: args.formal,
     comparability: "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
     gpuExcludedTasks: [...gpuTasks].filter((name) => expectedSet.has(name)),
+    // Declared corpus fact, not a recomputed score: these tasks' pinned
+    // instructions omit a rule their hidden tests require, so their verdicts stay
+    // canonical while a capability comparison excludes them. passRate and passAt1
+    // are unchanged.
+    specificationGapTasks: (config.specificationGaps?.tasks ?? [])
+      .map((entry) => entry.task)
+      .filter((name) => expectedSet.has(name)),
     coverage: {
       expected: expectedSet.size,
       expectedEligible: expectedEligible.length,
@@ -204,7 +273,12 @@ function main() {
     validCells,
     passRateValidCells,
     scoreable,
-    passAt1: args.formal && scoreable ? passRate : null,
+    // Acceptance is the stricter gate: the formal headline requires every named
+    // criterion, so a run that mixes candidates, providers or instruction versions
+    // can never carry a capability number.
+    acceptance,
+    capabilityMeasurement,
+    passAt1: args.formal && capabilityMeasurement ? passRate : null,
     usage,
     perTask: expectedEligible.map((name) => {
       const record = byTask.get(name);
@@ -266,10 +340,35 @@ function main() {
     `| valid cells | ${validCells} of ${expectedEligible.length} (${expectedEligible.length - validCells} without a verdict) |`,
     `| pass rate (valid cells, secondary) | ${passRateValidCells === null ? "null (no valid cell)" : `${(passRateValidCells * 100).toFixed(1)}% (${passed}/${validCells})`} |`,
     `| scoreable | ${scoreable ? "yes" : "no — a verdict is missing"} |`,
-    `| pass@1 | ${report.passAt1 === null ? (args.formal ? "null (a verdict is missing)" : "null (diagnostic)") : `${(report.passAt1 * 100).toFixed(1)}%`} |`,
+    `| capability measurement | ${capabilityMeasurement ? "yes" : "no — an acceptance criterion failed"} |`,
+    `| pass@1 | ${
+      report.passAt1 === null
+        ? args.formal
+          ? `null (${capabilityMeasurement ? "a verdict is missing" : "an acceptance criterion failed"})`
+          : "null (diagnostic)"
+        : `${(report.passAt1 * 100).toFixed(1)}%`
+    } |`,
+    "",
+    "## Acceptance",
+    "",
+    "A published capability number requires every criterion below.",
+    "",
+    "| criterion | status | detail |",
+    "| --- | --- | --- |",
+    ...acceptance.map(
+      (entry) => `| ${entry.id} | ${entry.status === "passed" ? "passed" : "**failed**"} | ${entry.detail} |`,
+    ),
     "",
     "> Self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard.",
     "",
+    ...(report.specificationGapTasks.length === 0
+      ? []
+      : [
+          `> Excluded from capability comparisons: ${report.specificationGapTasks.length} task(s) whose pinned`,
+          "> instruction omits a rule their hidden tests require",
+          `> (${report.specificationGapTasks.join(", ")}). Their verdicts above stand unchanged.`,
+          "",
+        ]),
     "## Per-task verdicts",
     "",
     "| task | disposition | rewards | tokens (in / cache / out) |",

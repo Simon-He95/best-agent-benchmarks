@@ -69,6 +69,8 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { VERIFICATION_FILE } from "./verify-frontier-harness-candidate.mjs";
+
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const config = JSON.parse(
   readFileSync(join(repoRoot, "config", "frontier-harness.json"), "utf8"),
@@ -183,6 +185,36 @@ function parseArgs(argv) {
   return parsed;
 }
 
+/**
+ * The one projection of an execution profile onto the CLI's one-shot argv. `processClosePolicy` is
+ * opt-in per config: a released process outlives the agent phase, which is what every task whose
+ * verifier runs after the agent needs, while a run pinned to a CLI that predates
+ * `--process-close-policy` keeps its exact argv. An undeclared value fails closed instead of
+ * silently running `terminate`.
+ */
+export function projectExecutionArgs(execution, { workspace, toolExclude }) {
+  const closePolicy = execution.processClosePolicy;
+  if (closePolicy !== undefined && closePolicy !== "terminate" && closePolicy !== "release") {
+    throw new Error("executionProfile.processClosePolicy must be terminate or release.");
+  }
+  return [
+    "--no-base-instructions",
+    "--workspace",
+    workspace,
+    "--workspace-backend",
+    execution.workspaceBackend,
+    "--workspace-authorization",
+    execution.workspaceAuthorization,
+    "--process-isolation",
+    execution.processIsolation,
+    ...(closePolicy === undefined ? [] : ["--process-close-policy", closePolicy]),
+    "--command-policy",
+    execution.commandPolicy,
+    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
+    ...toolExclude.flatMap((tool) => ["--tool-exclude", tool]),
+  ];
+}
+
 export function verifyFrozenIdentity() {
   const cli = config.cli;
   const candidateDir = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
@@ -214,6 +246,27 @@ export function verifyFrozenIdentity() {
     candidate.runtimeDependencies === null
   ) {
     throw new Error("Current Linux candidate identity does not match config/frontier-harness.json.");
+  }
+  // The delivery gate owns exactly one fact: whether this candidate's packaging, its
+  // source typecheck and its packed artifact were verified for the frozen target. The
+  // harness requires that fact and never re-derives it, so a candidate directory that
+  // was never verified — or whose record belongs to other receipt bytes — cannot
+  // reach a task attempt.
+  const deliveryPath = join(candidateDir, VERIFICATION_FILE);
+  if (!existsSync(deliveryPath)) {
+    throw new Error(
+      `Current Linux candidate has no ${VERIFICATION_FILE}; run scripts/verify-frontier-harness-candidate.mjs on the target host before any task attempt.`,
+    );
+  }
+  const delivery = JSON.parse(readFileSync(deliveryPath, "utf8"));
+  if (
+    delivery.schemaVersion !== 1 ||
+    delivery.verified !== true ||
+    delivery.candidateManifestSha256 !== sha256File(candidatePath)
+  ) {
+    throw new Error(
+      `Current Linux candidate delivery verification is not a pass bound to this receipt (${VERIFICATION_FILE}).`,
+    );
   }
   const provider = config.provider;
   const model = process.env.BEST_AGENT_PROVIDER_MODEL ?? provider.model;
@@ -257,21 +310,12 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_WORKSPACE = config.workspace;
   const execution = config.generation.executionProfile;
-  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
-    "--no-base-instructions",
-    "--workspace",
-    config.workspace,
-    "--workspace-backend",
-    execution.workspaceBackend,
-    "--workspace-authorization",
-    execution.workspaceAuthorization,
-    "--process-isolation",
-    execution.processIsolation,
-    "--command-policy",
-    execution.commandPolicy,
-    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
-    ...(config.generation.toolExclude ?? []).flatMap((tool) => ["--tool-exclude", tool]),
-  ]);
+  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify(
+    projectExecutionArgs(execution, {
+      workspace: config.workspace,
+      toolExclude: config.generation.toolExclude ?? [],
+    }),
+  );
   return {
     packageName: candidate.packageName,
     cliVersion: candidate.cliVersion,

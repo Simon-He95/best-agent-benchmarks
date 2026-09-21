@@ -143,6 +143,40 @@ function parseArgs(argv) {
   return parsed;
 }
 
+/**
+ * The one projection of an execution profile onto the CLI's one-shot argv. `processClosePolicy` is
+ * opt-in per config: a released process outlives the agent phase, which is what every task whose
+ * verifier runs after the agent needs, while a run pinned to a CLI that predates
+ * `--process-close-policy` keeps its exact argv. An undeclared value fails closed instead of
+ * silently running `terminate`.
+ */
+export function projectExecutionArgs(
+  execution,
+  { maxModelCycles, workspaceProcessDurationMs, toolExcludeNetwork },
+) {
+  const closePolicy = execution.processClosePolicy;
+  if (closePolicy !== undefined && closePolicy !== "terminate" && closePolicy !== "release") {
+    throw new Error("executionProfile.processClosePolicy must be terminate or release.");
+  }
+  return [
+    "--max-model-cycles",
+    String(maxModelCycles),
+    "--workspace-backend",
+    execution.workspaceBackend,
+    "--workspace-authorization",
+    execution.workspaceAuthorization,
+    "--process-isolation",
+    execution.processIsolation,
+    ...(closePolicy === undefined ? [] : ["--process-close-policy", closePolicy]),
+    "--command-policy",
+    execution.commandPolicy,
+    "--workspace-process-duration-ms",
+    String(workspaceProcessDurationMs ?? execution.workspaceProcessDurationMs),
+    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
+    ...(toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
+  ];
+}
+
 export function verifyFrozenIdentity() {
   const cli = config.cli;
   const candidateDir = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
@@ -198,22 +232,12 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_VERSION = candidate.cliVersion;
   const execution = config.generation.executionProfile;
-  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
-    "--max-model-cycles",
-    String(config.generation.maxModelCycles),
-    "--workspace-backend",
-    execution.workspaceBackend,
-    "--workspace-authorization",
-    execution.workspaceAuthorization,
-    "--process-isolation",
-    execution.processIsolation,
-    "--command-policy",
-    execution.commandPolicy,
-    "--workspace-process-duration-ms",
-    String(execution.workspaceProcessDurationMs),
-    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
-    ...(config.generation.toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
-  ]);
+  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify(
+    projectExecutionArgs(execution, {
+      maxModelCycles: config.generation.maxModelCycles,
+      toolExcludeNetwork: config.generation.toolExcludeNetwork,
+    }),
+  );
   return {
     packageName: candidate.packageName,
     cliVersion: candidate.cliVersion,

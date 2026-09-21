@@ -18,9 +18,11 @@ name: Frontier-Harness 1.0
 #
 # Fairness composition (frozen): one headless `best-agent run` attempt per
 # predeclared task (no TUI, no interaction tools), full workspace permissions
-# (unrestricted + read/write/exec), the CLI's network tool excluded, one frozen
-# candidate, no evaluator output ever re-enters a model attempt, and the task's
-# own verifier is the only grader. Task environments are internet-connected
+# (unrestricted + read/write/exec), the CLI's network tool excluded, a released
+# process close policy so a service a task's verifier needs outlives the agent
+# phase, one frozen candidate, no evaluator output ever re-enters a model
+# attempt, and the task's own verifier is the only grader. Task environments are
+# internet-connected
 # (the task verifiers install dependencies at trial time, matching the original
 # benchmark's egress-allowlisted runtime; the agent phase of no-network tasks
 # is normalized to public because the CLI needs direct provider egress). This
@@ -174,6 +176,20 @@ jobs:
           };
           writeFileSync("results/candidate/candidate.json", JSON.stringify(receipt, null, 2) + "\n");
           NODE
+
+      # Delivery gate: a receipt proves which bytes were built, not that the
+      # delivery is usable. `pnpm pack:tui` runs the project's own build (including
+      # typecheck) and smoke-tests the packages it packs, but this job ships its own
+      # tarball (npm install into the stage + tar czf) which nothing starts or
+      # verifies. Fail here and fh-generate never runs. The step writes one record
+      # (results/candidate/delivery-verification.json) and never rewrites
+      # candidate.json, whose bytes are the frozen candidateManifestSha256.
+      - name: Verify the delivered candidate (typecheck, packaging, runtime)
+        run: |
+          node scripts/verify-frontier-harness-candidate.mjs \
+            --candidate-dir results/candidate \
+            --source-dir tools/best-agent-source \
+            --expect-runtime
 
       - uses: actions/upload-artifact@v4
         with:

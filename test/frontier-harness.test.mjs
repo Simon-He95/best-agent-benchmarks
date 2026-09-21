@@ -15,6 +15,30 @@ const plan = JSON.parse(
   readFileSync(new URL("../config/frontier-harness-batches.json", import.meta.url), "utf8"),
 );
 
+/**
+ * Write the delivery gate's record for a candidate directory. The harness requires
+ * this fact, so every synthetic candidate here must carry one; the negative cases
+ * in the candidate-delivery suite prove the gate itself fails closed.
+ */
+function writeDeliveryVerification(candidateDir, { verified = true, bind } = {}) {
+  const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+  const receiptPath = join(candidateDir, "candidate.json");
+  writeFileSync(
+    join(candidateDir, "delivery-verification.json"),
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        candidateManifestSha256: bind ?? sha256(receiptPath),
+        verified,
+        runner: { node: process.version, platform: process.platform, arch: process.arch },
+        checks: [{ id: "packaging.files", status: "passed", detail: "synthetic" }],
+      },
+      null,
+      2,
+    )}\n`,
+  );
+}
+
 test("frontier-harness config pins the frozen benchmark record", () => {
   assert.equal(config.profileId, "frontier-harness-v1.0-e837a70b");
   assert.equal(config.source.name, "frontier-harness-eval/eval");
@@ -74,6 +98,7 @@ test("frontier-harness composition is headless, full-permission, and excludes un
     workspaceBackend: "plain",
     workspaceAuthorization: "unrestricted",
     processIsolation: "host",
+    processClosePolicy: "release",
     commandPolicy: "path",
     workspaceGrants: ["read", "write", "exec"],
   });
@@ -141,6 +166,7 @@ test("harness fails closed when the current candidate identity mismatches", asyn
       runtimeDependencies: {},
     }),
   );
+  writeDeliveryVerification(candidateDir);
   const previous = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
   process.env.BEST_AGENT_CLI_CANDIDATE_DIR = candidateDir;
   try {
@@ -151,6 +177,56 @@ test("harness fails closed when the current candidate identity mismatches", asyn
       () => verifyFrozenIdentity(),
       /candidate identity does not match/u,
     );
+  } finally {
+    if (previous === undefined) delete process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
+    else process.env.BEST_AGENT_CLI_CANDIDATE_DIR = previous;
+  }
+});
+
+test("the harness refuses a candidate whose delivery was never verified, or verified other bytes", async () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-delivery-gate-"));
+  const candidateDir = join(root, "candidate");
+  mkdirSync(candidateDir, { recursive: true });
+  const sha256 = (path) => createHash("sha256").update(readFileSync(path)).digest("hex");
+  writeFileSync(join(candidateDir, "best-agent-cli.tgz"), "candidate");
+  writeFileSync(join(candidateDir, "build-report.json"), "{}\n");
+  writeFileSync(
+    join(candidateDir, "candidate.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      packageName: config.cli.packageName,
+      cliVersion: config.cli.cliVersion,
+      sourceRepository: config.cli.sourceRepository,
+      sourceCommit: config.cli.sourceCommit,
+      target: config.cli.target,
+      tarballSha256: sha256(join(candidateDir, "best-agent-cli.tgz")),
+      buildReportSha256: sha256(join(candidateDir, "build-report.json")),
+      binarySha256: "1".repeat(64),
+      lockfileSha256: "2".repeat(64),
+      runtimeLockSha256: "3".repeat(64),
+      nodeBinarySha256: "4".repeat(64),
+      nodeVersion: "v24.16.0",
+      runtimeDependencies: {},
+    }),
+  );
+  const previous = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
+  process.env.BEST_AGENT_CLI_CANDIDATE_DIR = candidateDir;
+  try {
+    const { verifyFrozenIdentity } = await import(
+      `../scripts/frontier-harness-harness.mjs?delivery=${Date.now()}`
+    );
+    // A directory that merely looks like a candidate is not a verified delivery.
+    assert.throws(() => verifyFrozenIdentity(), /has no delivery-verification\.json/u);
+    // A record that failed the gate is not a pass.
+    writeDeliveryVerification(candidateDir, { verified: false });
+    assert.throws(() => verifyFrozenIdentity(), /is not a pass bound to this receipt/u);
+    // A pass bound to other receipt bytes does not cover the bytes about to be used.
+    writeDeliveryVerification(candidateDir, { bind: "0".repeat(64) });
+    assert.throws(() => verifyFrozenIdentity(), /is not a pass bound to this receipt/u);
+    // Only a pass bound to exactly these receipt bytes is admitted: control then
+    // advances to the next frozen-identity requirement, not to a delivery refusal.
+    writeDeliveryVerification(candidateDir);
+    assert.throws(() => verifyFrozenIdentity(), /BEST_AGENT_PROVIDER_CONFIG/u);
   } finally {
     if (previous === undefined) delete process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
     else process.env.BEST_AGENT_CLI_CANDIDATE_DIR = previous;
@@ -186,6 +262,7 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
       runtimeDependencies: {},
     }),
   );
+  writeDeliveryVerification(candidateDir);
   const providerPath = join(root, "provider.json");
   const writeProvider = (reasoningEffort) =>
     writeFileSync(
@@ -876,7 +953,7 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
         taskCount: 30,
       },
       gpuTasks: [],
-      tasks: tasks.map((name) => ({ name })),
+      tasks: tasks.map((name) => ({ name, instructionSha256: `frozen-${name}` })),
     }),
   );
   const expectedPath = join(root, "expected.txt");
@@ -886,8 +963,16 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
       join(results, `frontier-harness-results.${task.split("/").pop()}.json`),
       JSON.stringify({
         schemaVersion: 1,
-        task: { name: task, suite: task.split("/")[0] },
-        candidateId: "synthetic",
+        task: {
+          name: task,
+          suite: task.split("/")[0],
+          instructionSha256: `frozen-${task}`,
+        },
+        candidateId: "cli-synthetic",
+        cliVersion: config.cli.cliVersion,
+        cliBinarySha256: "a".repeat(64),
+        candidateManifestSha256: "b".repeat(64),
+        model: config.provider.model,
         batchId: "synthetic",
         durationMs: 1000,
         reasoningEffort: config.provider.reasoningEffort,
@@ -936,6 +1021,7 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
   assert.equal(withError.passRateValidCells, 1);
   // ...but the formal headline is refused, because a verdict is missing.
   assert.equal(withError.scoreable, false);
+  assert.equal(withError.capabilityMeasurement, false);
   assert.equal(withError.passAt1, null);
 
   // Once every cell has a verdict the formal headline is claimed.
@@ -945,7 +1031,23 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
   assert.equal(graded.validCells, 2);
   assert.equal(graded.passRateValidCells, 0.5);
   assert.equal(graded.scoreable, true);
+  // Every acceptance criterion is named, and a clean run passes all of them.
+  assert.deepEqual(
+    graded.acceptance.map((entry) => [entry.id, entry.status]),
+    [
+      ["coverage.full", "passed"],
+      ["verdicts.complete", "passed"],
+      ["candidate.single", "passed"],
+      ["provider.single", "passed"],
+      ["instructions.frozen", "passed"],
+    ],
+  );
+  assert.equal(graded.capabilityMeasurement, true);
   assert.equal(graded.passAt1, 0.5);
+  assert.match(
+    readFileSync(join(root, "graded.json.md"), "utf8"),
+    /\| capability measurement \| yes \|/u,
+  );
 
   // A subset of the corpus is not a formal full-corpus claim.
   const subsetPath = join(root, "expected-subset.txt");
@@ -954,7 +1056,42 @@ test("formal frontier report never claims passAt1 while a verdict is missing", a
   assert.equal(subset.passRate, 1);
   assert.equal(subset.coverage.fullExpected, false);
   assert.equal(subset.scoreable, false);
+  assert.equal(subset.capabilityMeasurement, false);
   assert.equal(subset.passAt1, null);
+
+  // Each acceptance criterion is individually load-bearing: a run that is complete
+  // but mixes candidates, providers or instruction versions cannot carry a headline.
+  const writeAcceptanceProbe = (task, overrides) => {
+    const path = join(results, `frontier-harness-results.${task.split("/").pop()}.json`);
+    const record = JSON.parse(readFileSync(path, "utf8"));
+    writeFileSync(path, JSON.stringify({ ...record, ...overrides }));
+  };
+  const rejected = (overrides, expectedId, detail) => {
+    writeAcceptanceProbe(tasks[1], overrides);
+    const probe = run(expectedPath, `probe-${expectedId}`);
+    const entry = probe.acceptance.find((candidate) => candidate.id === expectedId);
+    assert.equal(entry.status, "failed", expectedId);
+    assert.match(entry.detail, detail);
+    assert.equal(probe.capabilityMeasurement, false);
+    assert.equal(probe.passAt1, null);
+    // The raw rate stays visible; only the claim is refused.
+    assert.equal(probe.passRate, 0.5);
+    writeAcceptanceProbe(tasks[1], {
+      candidateId: "cli-synthetic",
+      cliVersion: config.cli.cliVersion,
+      cliBinarySha256: "a".repeat(64),
+      candidateManifestSha256: "b".repeat(64),
+      model: config.provider.model,
+      task: { name: tasks[1], suite: "terminal-bench", instructionSha256: `frozen-${tasks[1]}` },
+    });
+  };
+  rejected({ cliBinarySha256: "c".repeat(64) }, "candidate.single", /2 distinct candidate identities/u);
+  rejected({ model: "another-model" }, "provider.single", /another-model/u);
+  rejected(
+    { task: { name: tasks[1], suite: "terminal-bench", instructionSha256: "rewritten" } },
+    "instructions.frozen",
+    /do not match the frozen instruction hash/u,
+  );
 
   // The provider effort is transcribed from the frozen records, not from the
   // config default, so a run is reported at the effort its attempts ran at.

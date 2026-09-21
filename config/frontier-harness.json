@@ -67,7 +67,7 @@
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.3-beta.32",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "38849a88d64eae86598aa23c2b2435c3a8620d73",
+    "sourceCommit": "f14935eb52bc98311e572735ba6878ffb880772f",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -94,11 +94,32 @@
       "workspaceBackend": "plain",
       "workspaceAuthorization": "unrestricted",
       "processIsolation": "host",
+      "processClosePolicy": "release",
       "commandPolicy": "path",
       "workspaceGrants": ["read", "write", "exec"]
     }
   },
   "gpuTasks": [],
   "resourceExceededTasks": [],
+  "specificationGaps": {
+    "note": "Diagnostic classification only. A task listed here was attempted exactly once under the frozen corpus and its canonical verdict stands unchanged; the record says that its pinned instruction never states a rule its hidden tests require, so its outcome cannot be read as a capability measurement and is excluded from capability comparisons. Nothing here rewrites an instruction, changes the corpus, or re-runs a task: the pinned instruction bytes stay exactly as the source froze them, and the only fix for a gap is an upstream task revision that re-freezes the corpus.",
+    "tasks": [
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "omission": "The instruction requires a continuation line to append to the previous header value but never states how the fold is normalized.",
+        "observed": "One fail-to-pass case failed on the fold: a HTAB-indented continuation was kept as written instead of unfolding to a single SP."
+      },
+      {
+        "task": "datacurve/fastapi-deprecation-response-headers",
+        "omission": "The instruction states nearest-wins precedence and that include_router parameters apply to omitted values, but never states what an include_router call does to a value that an inner include_router call already resolved.",
+        "observed": "One fail-to-pass case failed on a three-level include_router chain: an outer include_router value overrode a value an inner include_router call had already resolved."
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "omission": "The instruction says for-of heads accept using and await using, but never states how a head is disambiguated when the binding itself is named of.",
+        "observed": "One fail-to-pass case failed on that disambiguation: the head did not parse as a using-declaration with of as its binding name."
+      }
+    ]
+  },
   "smokeTask": "terminal-bench/regex-log"
 }

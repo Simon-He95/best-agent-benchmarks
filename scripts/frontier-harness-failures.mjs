@@ -16,9 +16,25 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const config = JSON.parse(
+  readFileSync(join(repoRoot, "config", "frontier-harness.json"), "utf8"),
+);
+
+/**
+ * Tasks whose pinned instruction omits a rule their hidden tests require, as
+ * declared in config/frontier-harness.json#specificationGaps.
+ *
+ * This is a declared corpus fact, not a derived guess: it labels why an attempt
+ * fell short and keeps that attempt out of capability comparisons. It never
+ * changes a canonical disposition or reward, and it never rewrites an instruction
+ * — the pinned bytes stay exactly as the source froze them.
+ */
+const specificationGaps = new Map(
+  (config.specificationGaps?.tasks ?? []).map((entry) => [entry.task, entry]),
+);
 
 function parseArgs(argv) {
   const parsed = { results: undefined, jobs: undefined, output: undefined, json: undefined };
@@ -113,6 +129,61 @@ function classifyFailure(record, evidence, trialExceptionText) {
   return "inconclusive";
 }
 
+/**
+ * The verifier's own record of *how* a delivered patch failed, as opposed to
+ * whether the task was solved.
+ *
+ * A grader that reports `f2p` rows "missing from report" while the raw log shows a
+ * build break is describing one delivery failure, not N functional failures: the
+ * scored suite never produced results at all, because the patch (or a test file it
+ * added) did not compile in the configuration the task scores in. Reporting that
+ * as "8 of 9 fail-to-pass tests failed" overstates how far the attempt got and
+ * hides a delivery defect behind a capability number, so it is derived here as its
+ * own evidence-backed view. The canonical disposition and rewards are untouched.
+ *
+ * @param {{ rewards?: object, log?: string }} input the frozen verifier rewards and
+ *   the captured verifier stdout (the frame appends run.log to it).
+ * @returns {{ delivery: string, missingFromReport: number, typecheckError: string|null, f2p: object|null, signals: string[] }}
+ */
+export function classifyVerifierDelivery({ rewards, log }) {
+  const text = typeof log === "string" ? log : "";
+  const missingFromReport = (text.match(/missing from report \(test did not run/gu) ?? []).length;
+  const buildSignals = [
+    ["go-build-failed", /\[build failed\]/u],
+    ["reporter-failed-build-event", /"FailedBuild"\s*:/u],
+    ["scored-report-missing", /missing or invalid JSON — every whitelisted id/iu],
+    ["compile-error", /cannot find package|undefined: \w|syntax error/iu],
+  ].filter(([, pattern]) => pattern.test(text));
+  const typecheckMatch = text.match(/\berror TS\d{3,5}\b/u);
+  const f2p =
+    rewards !== undefined && Number.isFinite(Number(rewards.f2p_total))
+      ? {
+          passed: Number(rewards.f2p_passed),
+          total: Number(rewards.f2p_total),
+          partial: Number.isFinite(Number(rewards.partial)) ? Number(rewards.partial) : null,
+        }
+      : null;
+  let delivery = "unknown";
+  if (missingFromReport > 0 && buildSignals.length > 0) {
+    delivery = "build-failed";
+  } else if (typecheckMatch !== null) {
+    delivery = "typecheck-failed";
+  } else if (missingFromReport > 0) {
+    // Rows that never produced a result without a visible build break: the
+    // report is incomplete, which is not the same claim as "the suite ran".
+    delivery = "incomplete-report";
+  } else if (f2p !== null) {
+    delivery = "ran";
+  }
+  return {
+    delivery,
+    missingFromReport,
+    typecheckError: typecheckMatch === null ? null : typecheckMatch[0],
+    f2p,
+    signals: buildSignals.map(([name]) => name),
+  };
+}
+
 function analyzeEvidence(evidencePath) {
   if (!existsSync(evidencePath)) return { present: false };
   let lines = [];
@@ -198,6 +269,15 @@ function main() {
     const verifierStderr = trialDir
       ? readTextSafe(join(trialDir, "verifier", "test-stderr.txt"))
       : undefined;
+    const verifierRewardPath = trialDir ? join(trialDir, "verifier", "reward.json") : undefined;
+    let verifierRewards;
+    if (verifierRewardPath && existsSync(verifierRewardPath)) {
+      try {
+        verifierRewards = JSON.parse(readFileSync(verifierRewardPath, "utf8"));
+      } catch {
+        verifierRewards = undefined;
+      }
+    }
     const exceptionText = trialDir ? readTextSafe(join(trialDir, "exception.txt")) : undefined;
     const agentStdout = trialDir
       ? readTextSafe(join(trialDir, "agent", "best-agent-stdout.txt"))
@@ -209,12 +289,28 @@ function main() {
       ? analyzeEvidence(join(trialDir, "agent", "best-agent-evidence.jsonl"))
       : { present: false };
     const stage = classifyFailure(record, evidence, exceptionText);
+    const verifier = classifyVerifierDelivery({
+      rewards: verifierRewards ?? record.result.rewards,
+      log: verifierStdout,
+    });
+    // A delivery that never compiled is not a capability result, and a task whose
+    // instruction omits a rule its grader requires is not a capability measurement
+    // either. Both are named separately while the canonical verdict stays untouched.
+    const gap = specificationGaps.get(record.task.name);
+    const derivedStage =
+      stage === "model" && verifier.delivery === "build-failed"
+        ? "delivery"
+        : stage === "model" && gap !== undefined
+          ? "specification-gap"
+          : stage;
 
     summaries.push({
       task: record.task.name,
-      stage,
+      stage: derivedStage,
       disposition: record.result.disposition,
       rewards: record.result.rewards ?? undefined,
+      verifier,
+      ...(gap === undefined ? {} : { specificationGap: gap }),
       durationMs: record.durationMs,
       exceptionType: record.result.exception?.type,
       terminalCause: evidence.terminalCause,
@@ -226,8 +322,20 @@ function main() {
       record.result.rewards === undefined
         ? ""
         : `| rewards | ${JSON.stringify(record.result.rewards)} |\n`;
+    const deliveryLine =
+      verifier.delivery === "build-failed"
+        ? `| delivery | **build-failed** — ${verifier.missingFromReport} fail-to-pass rows never produced a result (${verifier.signals.join(", ")}); this is one delivery defect, not ${verifier.missingFromReport} functional failures |`
+        : verifier.delivery === "typecheck-failed"
+          ? `| delivery | **typecheck-failed** (${verifier.typecheckError}) |`
+          : verifier.delivery === "incomplete-report"
+            ? `| delivery | **incomplete-report** — ${verifier.missingFromReport} fail-to-pass rows never produced a result, with no build break in the captured output |`
+            : verifier.f2p === null
+              ? ""
+              : `| delivery | ran — fail-to-pass ${verifier.f2p.passed}/${verifier.f2p.total}${
+                  verifier.f2p.partial === null ? "" : ` (partial ${verifier.f2p.partial.toFixed(4)})`
+                } |`;
     sections.push([
-      `### ${taskShort} — ${stage}`,
+      `### ${taskShort} — ${derivedStage}`,
       "",
       "| field | value |",
       "| --- | --- |",
@@ -236,6 +344,10 @@ function main() {
       rewardLine
         ? rewardLine.trimEnd()
         : `| exception | ${record.result.exception?.type ?? "n/a"} |`,
+      deliveryLine,
+      gap === undefined
+        ? ""
+        : `| specification gap | ${gap.omission} ${gap.observed} The canonical verdict stands; this outcome is excluded from capability comparisons. |`,
       `| duration | ${Math.round((record.durationMs ?? 0) / 1000)}s |`,
       `| agent budget | ${Math.round(record.effectiveAgentTimeoutSec ?? 0)}s |`,
       "",
@@ -301,10 +413,21 @@ function main() {
             tool: "a Tool terminal cause prevented completion",
             model: "Harness completed; the task verifier returned reward 0",
             verifier: "task verifier or grader execution failed",
+            delivery: "the delivered patch never built in the scored configuration",
+            "specification-gap":
+              "the pinned instruction omits a rule the hidden tests require, so the reward 0 is not a capability measurement",
             inconclusive: "available evidence does not prove one cause",
           }[stage] ?? ""} |`,
       ),
     "",
+    ...(byStage["specification-gap"] === undefined
+      ? []
+      : [
+          `${byStage["specification-gap"]} of the not-passed tasks are declared specification gaps`,
+          `(config/frontier-harness.json#specificationGaps): their instruction never states a rule the`,
+          "grader requires. Their canonical verdicts stand, and capability comparisons must exclude them.",
+          "",
+        ]),
     "## Per-task details",
     "",
     ...sections,
@@ -324,4 +447,6 @@ function main() {
   );
 }
 
-main();
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main();
+}

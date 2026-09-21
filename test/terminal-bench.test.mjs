@@ -71,6 +71,29 @@ test("candidate preparation passes the frozen maximum budget and unrestricted pr
       assert.equal(args[args.indexOf(option) + 1], value);
     }
     assert.deepEqual(args.flatMap((arg, index) => arg === "--workspace-grant" ? [args[index + 1]] : []), ["read", "write", "exec"]);
+    // The release close policy is opt-in per config and never restated: an undeclared policy keeps
+    // the exact argv above, a declared one adds exactly one flag, and an unknown value fails closed.
+    const { projectExecutionArgs } = await import("../scripts/terminal-bench-harness.mjs");
+    const execution = config.generation.executionProfile;
+    const project = (overrides) =>
+      projectExecutionArgs(
+        { ...execution, ...overrides },
+        {
+          maxModelCycles: config.generation.maxModelCycles,
+          toolExcludeNetwork: config.generation.toolExcludeNetwork,
+        },
+      );
+    assert.deepEqual(project({}), args);
+    for (const policy of ["release", "terminate"]) {
+      const withPolicy = project({ processClosePolicy: policy });
+      assert.equal(withPolicy.filter((arg) => arg === "--process-close-policy").length, 1);
+      assert.equal(withPolicy[withPolicy.indexOf("--process-close-policy") + 1], policy);
+      assert.deepEqual(
+        withPolicy.filter((arg) => arg !== "--process-close-policy" && arg !== policy),
+        args,
+      );
+    }
+    assert.throws(() => project({ processClosePolicy: "detach" }), /processClosePolicy/u);
   } finally {
     for (const key of Object.keys(process.env)) if (!(key in environment)) delete process.env[key];
     Object.assign(process.env, environment);
