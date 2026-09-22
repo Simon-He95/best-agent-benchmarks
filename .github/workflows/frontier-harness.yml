@@ -80,6 +80,10 @@ on:
         description: Declared reasoning effort for this run (empty = the frozen config default)
         required: false
         default: ""
+      fh_max_parallel:
+        description: Maximum concurrent generate jobs (1-8; empty = 8)
+        required: false
+        default: "8"
 
 concurrency:
   group: frontier-harness-${{ inputs.fh_batch || 'default' }}
@@ -397,7 +401,7 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 8
+      max-parallel: ${{ fromJSON(inputs.fh_max_parallel || '8') }}
       matrix:
         entry: ${{ fromJSON(needs.fh-plan.outputs.tasks) }}
     steps:
