@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.33",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "d631b6230528c7cde415f2779534e579faa1bb8d",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing"
+  ],
+  "coverage": {
+    "expected": 2,
+    "expectedEligible": 2,
+    "present": 2,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "passRate": 0.5,
+  "validCells": 2,
+  "passRateValidCells": 0.5,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "2 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "2 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "2 records agree on one frozen candidate (cli-0.0.3-beta.33-d631b62-8dbca400b33a|0.0.3-beta.33|8dbca400b33ae325128e8c6de1d9227ef682d46b527c631ecfdfda261078e9b6|2667f441f275912c75af2181a8c211fac7681f89b65681487f9650fa93ce860c)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "2 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 2,
+    "promptTokens": 12628680,
+    "completionTokens": 73607,
+    "cacheReadTokens": 12382656,
+    "totalTokens": 12702287,
+    "modelCallCount": 130,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 122,
+        "f2p_passed": 122,
+        "p2p_total": 1272,
+        "p2p_passed": 1272,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2333596,
+      "usage": {
+        "promptTokens": 10707383,
+        "completionTokens": 59486,
+        "cacheReadTokens": 10549568,
+        "costUsd": null,
+        "totalTokens": 10766869,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 157815,
+        "modelCallCount": 97,
+        "reportedCallCount": 97,
+        "reportedInputTokens": 10707383
+      },
+      "evidenceSha256": "361822c13ef77029379d0140fbc25d133f1971a92fbc82b88ccfd6e3343d25e1",
+      "batchId": "recovery-no-prediction-20260924"
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 549011,
+      "usage": {
+        "promptTokens": 1921297,
+        "completionTokens": 14121,
+        "cacheReadTokens": 1833088,
+        "costUsd": null,
+        "totalTokens": 1935418,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 88209,
+        "modelCallCount": 33,
+        "reportedCallCount": 33,
+        "reportedInputTokens": 1921297
+      },
+      "evidenceSha256": "2170bc8fa5d8f6ef014dd0cdf3840865fb8859aa6ee5f4447cffe1af708bb1b3",
+      "batchId": "recovery-no-prediction-20260924"
+    }
+  ]
+}

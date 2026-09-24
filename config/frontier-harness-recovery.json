@@ -35,7 +35,22 @@
         "The attempt reuses the frozen candidate pin of the source run (config/frontier-harness.json is unchanged); the recorded candidateId must match cli-0.0.3-beta.33-d631b62-*.",
         "The attempt stays diagnostic: passAt1 null, formal false.",
         "The failed evidence of run 35992545942 is preserved and is never overwritten."
-      ]
+      ],
+      "dispatched": true,
+      "runId": 36005371726,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36005371726",
+      "batchId": "recovery-no-prediction-20260924",
+      "candidateId": "cli-0.0.3-beta.33-d631b62-8dbca400b33a",
+      "outcome": {
+        "datacurve/httpx-multipart-response-parsing": "passed",
+        "terminal-bench/sanitize-git-repo": "failed"
+      },
+      "outcomeDetail": {
+        "datacurve/httpx-multipart-response-parsing": "Recovery filled the missing prediction with a real model outcome: 97 model outcomes, terminalCause completed, 2334s of a 5400s budget, verifier reward=1 (f2p 122/122, p2p 1272/1272).",
+        "terminal-bench/sanitize-git-repo": "Real model outcome now, no longer a no-prediction cell: 33 model outcomes, terminalCause completed, 549s of a 900s budget, verifier reward=0. This is a task failure with a gradeable attempt, not an environment death."
+      },
+      "evidence": "Artifact frontier-harness-report-36005371726 (report.json + report.json.md) and the per-task artifacts frontier-harness-task-36005371726-<task>; frozen record docs/benchmarks/history/frontier-harness/20260924T132351Z--36005371726.json. This recovery filled only the two tasks that had no prediction in run 35992545942; it changed no other task's verdict.",
+      "postRecoveryNote": "Both recovered cells now carry a verdict, so the corpus has no remaining no-prediction task. The recovery does NOT repair run 35992545942: that run's frozen report still shows 2 not-evaluated and pass@1 null, and per AGENTS.md a recovery may not be merged into it to produce a pass@1."
     },
     {
       "id": "diagnostic-timeout-rerun-20260924",
@@ -52,7 +67,26 @@
         "The candidate pin is unchanged from the source run.",
         "The official agent/verifier time budgets are preserved, never extended.",
         "The original verdicts and their evidence are preserved and are never overwritten."
-      ]
+      ],
+      "dispatched": true,
+      "runId": 36005393416,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36005393416",
+      "batchId": "diagnostic-timeout-rerun-20260924",
+      "candidateId": "cli-0.0.3-beta.33-d631b62-13907d1e3c8d",
+      "outcome": {
+        "terminal-bench/chess-best-move": "passed",
+        "terminal-bench/code-from-image": "failed",
+        "terminal-bench/gcode-to-text": "failed",
+        "terminal-bench/largest-eigenval": "failed"
+      },
+      "outcomeDetail": {
+        "terminal-bench/chess-best-move": "Variance proven: passed with reward=1 in 788s of the 900s budget (29 model outcomes, terminalCause completed), where run 35992545942 timed out at 946s. The canonical verdict of run 35992545942 stays failed; this only shows the task is passable inside the official budget.",
+        "terminal-bench/code-from-image": "Reproduced the timeout: AgentTimeoutError at 1231s of 1200s, 38 model outcomes, zero model-failure entries (39 requests, 38 answered).",
+        "terminal-bench/gcode-to-text": "Reproduced the timeout: AgentTimeoutError at 944s of 900s, 31 model outcomes, zero model-failure entries (32 requests, 31 answered).",
+        "terminal-bench/largest-eigenval": "Reproduced the timeout: AgentTimeoutError at 933s of 900s, 38 model outcomes, zero model-failure entries (39 requests, 38 answered)."
+      },
+      "evidence": "Artifact frontier-harness-report-36005393416 (report.json + report.json.md) and the per-task artifacts frontier-harness-task-36005393416-<task>; frozen record docs/benchmarks/history/frontier-harness/20260924T132402Z--36005393416.json.",
+      "conclusion": "3 of 4 timeout verdicts reproduced and every attempt again recorded zero model-failure entries, so the timeout remains a budget outcome of the agent, not an upstream/provider outage. 1 of 4 (chess-best-move) passed within budget, so the four timeout verdicts of run 35992545942 carry real run-to-run variance. No further rerun of these tasks is permitted."
     }
   ]
 }
