@@ -5,6 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import test from 'node:test';
+import {spawnSync} from 'node:child_process';
 import {admitBatchRun, admitFirstTaskProvenance, batchModeTask, copyFrozenEvidence, frozenPredictionPrior, validateBatchConfig, resolveBatchTask, verifyFrozenArtifact} from '../scripts/node-bundle-controller.mjs';
 import {verifyCandidate, verifyTaskIdentity} from '../scripts/swe-node-bundle-preflight.mjs';
 import {pythonEnvironmentExpectations} from '../scripts/generate-node-bundle-one.mjs';
@@ -795,4 +796,6 @@ test('batch10 freezes the remaining Matplotlib tasks in original order and seria
   assert.match(workflow, /matplotlib-25479:\n    name: matplotlib__matplotlib-25479[\s\S]*?needs: matplotlib-24870/);
   assert.equal((workflow.match(/NODE_BUNDLE_TASK:/g) ?? []).length, 3);
   assert.equal((workflow.match(/NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-10\.json/g) ?? []).length, 3);
+  const parsed = spawnSync('ruby', ['-e', 'require \"yaml\"; YAML.parse_file(ARGV[0])', new URL('../.github/workflows/node-bundle-batch10.yml', import.meta.url).pathname], {encoding: 'utf8'});
+  assert.equal(parsed.status, 0, parsed.stderr);
 });

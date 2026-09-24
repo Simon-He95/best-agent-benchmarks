@@ -114,7 +114,7 @@ jobs:
       NODE_BUNDLE_TASK: matplotlib__matplotlib-24870
       NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-10.json
     needs: matplotlib-23476
-    steps: *job-steps
+    steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -209,7 +209,7 @@ jobs:
       NODE_BUNDLE_TASK: matplotlib__matplotlib-25479
       NODE_BUNDLE_BATCH_CONFIG: config/node-bundle-batch-10.json
     needs: matplotlib-24870
-    steps: *job-steps
+    steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
