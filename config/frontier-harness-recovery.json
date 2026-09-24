@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "source": {
+    "runId": 35992545942,
+    "headSha": "edc927506fe00b51818c100d8e0cc3d94d84acb9",
+    "batchId": "latest-beta33-d631b62-high-20260924",
+    "formalRunId": "formal-35992545942",
+    "reportArtifact": "frontier-harness-report-35992545942",
+    "candidateId": "cli-0.0.3-beta.33-d631b62-5a2138498c37",
+    "candidatePin": "config/frontier-harness.json#cli (sourceCommit d631b6230528c7cde415f2779534e579faa1bb8d, cliVersion 0.0.3-beta.33)",
+    "verdicts": {
+      "passed": 20,
+      "failed": 8,
+      "error": 0,
+      "notEvaluated": 2,
+      "coverage": "30 of 30 Docker-eligible corpus tasks predeclared",
+      "passAt1": null,
+      "reasonPassAt1Null": "verdicts.complete failed: 2 tasks have no verdict (not-evaluated)"
+    }
+  },
+  "batches": [
+    {
+      "id": "recovery-no-prediction-20260924",
+      "kind": "recovery",
+      "tasks": [
+        "datacurve/httpx-multipart-response-parsing",
+        "terminal-bench/sanitize-git-repo"
+      ],
+      "reason": "Both tasks have no prediction and no canonical verdict in run 35992545942. Each attempt ended 13.8s/14.0s in with pierExitCode 1, no trial result.json, and no model evidence at all (no modelOutcomes, no terminalCause): the frozen Pier stderr is byte-identical for both tasks, sha256 a88325009349eea12e14313b842119da9174eb7b0fce0f7893569f663c3cece3, reading \"Docker daemon is not running. Please start Docker and try again.\" That is a mechanically proven pre-model environment failure of the GitHub-hosted runner, not a model attempt and not a task outcome. Frozen records: frontier-harness-results.httpx-multipart-response-parsing.json sha256 8f7056537d236da16a162f9982f79463fffc613cbce59fcad296e96ae98f049a; frontier-harness-results.sanitize-git-repo.json sha256 b47d2c03beca62f7f4fd381456461eed19f125ad64e774458932fd1311da1a0c.",
+      "constraints": [
+        "No existing prediction and no canonical verdict was replaced or reinterpreted: neither task had one.",
+        "The attempt reuses the frozen candidate pin of the source run (config/frontier-harness.json is unchanged); the recorded candidateId must match cli-0.0.3-beta.33-d631b62-*.",
+        "The attempt stays diagnostic: passAt1 null, formal false.",
+        "The failed evidence of run 35992545942 is preserved and is never overwritten."
+      ]
+    },
+    {
+      "id": "diagnostic-timeout-rerun-20260924",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "terminal-bench/chess-best-move",
+        "terminal-bench/code-from-image",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval"
+      ],
+      "reason": "User-authorized rerun of failures whose cause is a timeout. Each task carries an existing canonical verdict (failed) from run 35992545942, so this batch is a variance probe only and can never replace or reinterpret those verdicts. Mechanical classification of the timeout: every one of the four attempts ended on AgentTimeoutError at its own official agent budget (946s/900s, 1236s/1200s, 938s/900s, 928s/900s) while the agent was still iterating, and the frozen attempt evidence contains zero model-failure entries (chess-best-move 36/36 model requests answered, code-from-image 32 req/31 out, gcode-to-text 45 req/44 out, largest-eigenval 40 req/39 out). The agent was killed at the budget boundary, not by a provider transport or connection failure. The same four tasks also hit their official budget on the previous full run 35810093521 (candidate 0953e901), so the timeout is chronic across candidates rather than a one-off. The official agent budget is preserved (fh_agent_timeout_multiplier=1); it is never extended to convert a budget outcome into a pass.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace the canonical verdicts of run 35992545942 and cannot enter a pass@1.",
+        "The candidate pin is unchanged from the source run.",
+        "The official agent/verifier time budgets are preserved, never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten."
+      ]
+    }
+  ]
+}
