@@ -1,0 +1,391 @@
+{
+  "benchmark": "swe-bench-lite",
+  "candidateId": "28d89f8",
+  "generatedAt": "2026-08-18T01:22:57.343Z",
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "compatibilityMode": "compatible"
+  },
+  "composition": {
+    "fullAccess": true,
+    "permissionMode": "full",
+    "interactionTools": false,
+    "workspaceBackend": "plain",
+    "maxModelCycles": 600,
+    "reasoningEffort": "max",
+    "taskTimeoutMs": 1800000,
+    "shard": 2,
+    "shardTotal": 4
+  },
+  "corpus": {
+    "path": "/Users/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/corpora/swe-bench-verified.jsonl",
+    "dataset": "verified",
+    "label": "SWE-bench Verified",
+    "totalTasks": 500,
+    "tasksRun": 31
+  },
+  "summary": {
+    "resolved": 0,
+    "errored": 10,
+    "environmentBlocked": 4,
+    "timedOut": 2,
+    "passAt1": 0,
+    "wallMs": 8707866.9,
+    "avgTaskMs": 280898.9
+  },
+  "byRepo": {
+    "django/django": {
+      "total": 26,
+      "resolved": 0,
+      "errored": 9,
+      "environmentBlocked": 0,
+      "timedOut": 2,
+      "wallMs": 8383352.099999998,
+      "passAt1": 0,
+      "avgTaskMs": 322436.6
+    },
+    "astropy/astropy": {
+      "total": 5,
+      "resolved": 0,
+      "errored": 1,
+      "environmentBlocked": 4,
+      "timedOut": 0,
+      "wallMs": 2347131.3999999994,
+      "passAt1": 0,
+      "avgTaskMs": 469426.3
+    }
+  },
+  "tasks": [
+    {
+      "instance_id": "astropy__astropy-13236",
+      "repo": "astropy/astropy",
+      "wallMs": 25255.8,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run failed: tool-unknown\nv3 run tool: stat:unknown:malformed"
+    },
+    {
+      "instance_id": "astropy__astropy-13977",
+      "repo": "astropy/astropy",
+      "wallMs": 488236.1,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-13977-TUVB7F/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n  \n  × Preparing metadata (pyproject.toml) did not run successfully.\n  │ exit code: 1\n  ╰─> [46 lines of output]\n      Extension astropy.io.fits.compression contains source files (astropy/io/fits/src/compressionmodule.c) that are specified using an absolute path, which will not be supported in future.\n      /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-13977-TUVB7F/repo/.swe-bench-venv/lib/python3.11/site-packages/vcs_versioning/_backends/_git.py:431: UserWarning: \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-13977-TUVB7F/repo\" is shallow and may cause errors\n        pre_parse(wd)\n      running dist_info\n      creating /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/pip\n...\ngg_info_dir = self.ignore_egg_info_in_manifest  # type: ignore[attr-defined]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/distutils/cmd.py\", line 103, in __getattr__\n          raise AttributeError(attr)\n      AttributeError: ignore_egg_info_in_manifest\n      [end of output]\n  \n  note: This error originates from a subprocess, and is likely not a problem with pip.\nerror: metadata-generation-failed\n\n× Encountered error while generating package metadata.\n╰─> See above for output.\n\nnote: This is an issue with the package mentioned above, not pip.\nhint: See above for details.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "astropy__astropy-14365",
+      "repo": "astropy/astropy",
+      "wallMs": 518382,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14365-JsPY6b/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n  \n  × Preparing metadata (pyproject.toml) did not run successfully.\n  │ exit code: 1\n  ╰─> [46 lines of output]\n      Extension astropy.io.fits._tiled_compression._compression contains source files (astropy/io/fits/_tiled_compression/src/compression.c, astropy/io/fits/_tiled_compression/src/unquantize.c) that are specified using an absolute path, which will not be supported in future.\n      /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14365-JsPY6b/repo/.swe-bench-venv/lib/python3.11/site-packages/vcs_versioning/_backends/_git.py:431: UserWarning: \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14365-JsPY6b/repo\" is shallow and may cause errors\n        pre_parse(wd)\n      running\n...\ngg_info_dir = self.ignore_egg_info_in_manifest  # type: ignore[attr-defined]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/distutils/cmd.py\", line 103, in __getattr__\n          raise AttributeError(attr)\n      AttributeError: ignore_egg_info_in_manifest\n      [end of output]\n  \n  note: This error originates from a subprocess, and is likely not a problem with pip.\nerror: metadata-generation-failed\n\n× Encountered error while generating package metadata.\n╰─> See above for output.\n\nnote: This is an issue with the package mentioned above, not pip.\nhint: See above for details.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "astropy__astropy-14598",
+      "repo": "astropy/astropy",
+      "wallMs": 1231842.2,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14598-vpJ9gL/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n  \n  × Preparing metadata (pyproject.toml) did not run successfully.\n  │ exit code: 1\n  ╰─> [46 lines of output]\n      Extension astropy.io.fits._tiled_compression._compression contains source files (astropy/io/fits/_tiled_compression/src/compression.c, astropy/io/fits/_tiled_compression/src/unquantize.c) that are specified using an absolute path, which will not be supported in future.\n      /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14598-vpJ9gL/repo/.swe-bench-venv/lib/python3.11/site-packages/vcs_versioning/_backends/_git.py:431: UserWarning: \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14598-vpJ9gL/repo\" is shallow and may cause errors\n        pre_parse(wd)\n      running\n...\ngg_info_dir = self.ignore_egg_info_in_manifest  # type: ignore[attr-defined]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/distutils/cmd.py\", line 103, in __getattr__\n          raise AttributeError(attr)\n      AttributeError: ignore_egg_info_in_manifest\n      [end of output]\n  \n  note: This error originates from a subprocess, and is likely not a problem with pip.\nerror: metadata-generation-failed\n\n× Encountered error while generating package metadata.\n╰─> See above for output.\n\nnote: This is an issue with the package mentioned above, not pip.\nhint: See above for details.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "astropy__astropy-7606",
+      "repo": "astropy/astropy",
+      "wallMs": 83415.3,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7606-GUP4wr/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n    \n    × python setup.py develop did not run successfully.\n    │ exit code: 1\n    ╰─> [27 lines of output]\n        Traceback (most recent call last):\n          File \"<string>\", line 2, in <module>\n          File \"<pip-setuptools-caller>\", line 34, in <module>\n          File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7606-GUP4wr/repo/setup.py\", line 51, in <module>\n            package_info = get_package_info()\n                           ^^^^^^^^^^^^^^^^^^\n          File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7606-GUP4wr/repo/astropy_helpers/astropy_helpers/setup_helpers.py\", line 388, in get_package_info\n            ext_modules.extend(setuppkg.get_extensions())\n     \n...\ndule>\n        from .diff import FITSDiff, HDUDiff\n      File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7606-GUP4wr/repo/astropy/io/fits/diff.py\", line 25, in <module>\n        from .header import Header\n      File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7606-GUP4wr/repo/astropy/io/fits/header.py\", line 1907, in <module>\n        collections.MutableSequence.register(Header)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    AttributeError: module 'collections' has no attribute 'MutableSequence'\n    [end of output]\n\nnote: This error originates from a subprocess, and is likely not a problem with pip.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "django__django-10097",
+      "repo": "django/django",
+      "wallMs": 1062382.8,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 14,
+      "agentPatch": "diff --git a/django/core/validators.py b/django/core/validators.py\nindex 92394a7..c1c9cd1 100644\n--- a/django/core/validators.py\n+++ b/django/core/validators.py\n@@ -94,7 +94,7 @@ class URLValidator(RegexValidator):\n \n     regex = _lazy_re_compile(\n         r'^(?:[a-z0-9\\.\\-\\+]*)://'  # scheme is validated separately\n-        r'(?:\\S+(?::\\S*)?@)?'  # user:pass authentication\n+        r'(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?'  # user:pass authentication\n         r'(?:' + ipv4_re + '|' + ipv6_re + '|' + host_re + ')'\n         r'(?::\\d{2,5})?'  # port\n         r'(?:[/?#][^\\s]*)?'  # resource path\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_ascii_validator (auth_tests.test_validators.UsernameValidatorsTests)",
+      "verification": "reference-patch-match",
+      "failToPassCount": 438
+    },
+    {
+      "instance_id": "django__django-10973",
+      "repo": "django/django",
+      "wallMs": 71464,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 68,
+      "agentPatch": "diff --git a/django/db/backends/postgresql/client.py b/django/db/backends/postgresql/client.py\nindex 7fca6ef..32a719f 100644\n--- a/django/db/backends/postgresql/client.py\n+++ b/django/db/backends/postgresql/client.py\n@@ -2,17 +2,9 @@ import os\n import signal\n import subprocess\n \n-from django.core.files.temp import NamedTemporaryFile\n from django.db.backends.base.client import BaseDatabaseClient\n \n \n-def _escape_pgpass(txt):\n-    \"\"\"\n-    Escape a fragment of a PostgreSQL .pgpass file.\n-    \"\"\"\n-    return txt.replace('\\\\', '\\\\\\\\').replace(':', '\\\\:')\n-\n-\n class DatabaseClient(BaseDatabaseClient):\n     executable_name = 'psql'\n \n@@ -34,38 +26,19 @@ class DatabaseClient(BaseDatabaseClient):\n             args += ['-p', str(port)]\n         args += [dbname]\n \n-        temp_pgpass = None\n+        env = os.environ.copy()\n+        if passwd:\n+            # Force psql to use the password provided by Django.\n+            env['PGPASSWORD'] = passwd\n+\n         sigint_handler = signal.getsignal(signal.SIGINT)\n         try:\n-            if passwd:\n-                # Create temporary .pgpass file.\n-                temp_pgpass = NamedTemporaryFile(mode='w+')\n-                try:\n-                    print(\n-                        _escape_pgpass(host) or '*',\n-                        str(port) or '*',\n-                        _escape_pgpass(dbname) or '*',\n-                        _escape_pgpass(user) or '*',\n-                        _escape_pgpass(passwd),\n-                        file=temp_pgpass,\n-                        sep=':',\n-                        flush=True,\n-                    )\n-                    os.environ['PGPASSFILE'] = temp_pgpass.name\n-                except UnicodeEncodeError:\n-                    # If the current locale can't encode the data, let the\n-                    # user input the password manually.\n-                    pass\n             # Allow SIGINT to pass to psql to abort queries.\n             signal.signal(signal.SIGINT, signal.SIG_IGN)\n-            subprocess.check_call(args)\n+            subprocess.run(args, env=env, check=True)\n         finally:\n             # Restore the original SIGINT handler.\n             signal.signal(signal.SIGINT, sigint_handler)\n-            if temp_pgpass:\n-                temp_pgpass.close()\n-                if 'PGPASSFILE' in os.environ:  # unit tests need cleanup\n-                    del os.environ['PGPASSFILE']\n \n     def runshell(self):\n         DatabaseClient.runshell_db(self.connection.get_connection_params())\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_accent (dbshell.test_postgresql.PostgreSqlDbshellCommandTestCase)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 5
+    },
+    {
+      "instance_id": "django__django-11095",
+      "repo": "django/django",
+      "wallMs": 96659.6,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 80,
+      "agentPatch": "diff --git a/django/contrib/admin/options.py b/django/contrib/admin/options.py\nindex 5e7b23f..02ad899 100644\n--- a/django/contrib/admin/options.py\n+++ b/django/contrib/admin/options.py\n@@ -580,9 +580,18 @@ class ModelAdmin(BaseModelAdmin):\n     def __str__(self):\n         return \"%s.%s\" % (self.model._meta.app_label, self.__class__.__name__)\n \n+    def get_inlines(self, request, obj=None):\n+        \"\"\"\n+        Return the inline classes used by the admin site.\n+\n+        Can be overridden to return inlines based on the request or model\n+        instance.\n+        \"\"\"\n+        return self.inlines\n+\n     def get_inline_instances(self, request, obj=None):\n         inline_instances = []\n-        for inline_class in self.inlines:\n+        for inline_class in self.get_inlines(request, obj):\n             inline = inline_class(self.model, self.admin_site)\n             if request:\n                 if not (inline.has_view_or_change_permission(request, obj) or\ndiff --git a/docs/ref/contrib/admin/index.txt b/docs/ref/contrib/admin/index.txt\nindex 93679c4..245fdb7 100644\n--- a/docs/ref/contrib/admin/index.txt\n+++ b/docs/ref/contrib/admin/index.txt\n@@ -1608,6 +1608,27 @@ templates used by the :class:`ModelAdmin` views:\n             def get_sortable_by(self, request):\n                 return {*self.get_list_display(request)} - {'rank'}\n \n+.. method:: ModelAdmin.get_inlines(request, obj=None)\n+\n+    The ``get_inlines`` method is given the ``HttpRequest`` and the ``obj``\n+    being edited (or ``None`` on an add form) and is expected to return an\n+    iterable of inline classes. By default, it returns :attr:`inlines`.\n+\n+    Override this method to dynamically determine which inlines should be\n+    shown, for example, based on the request or the model instance::\n+\n+        class MyModelAdmin(admin.ModelAdmin):\n+            inlines = (MyInline, OtherInline)\n+\n+            def get_inlines(self, request, obj=None):\n+                if obj:\n+                    return (MyInline,)\n+                return (OtherInline,)\n+\n+    If you override this method, make sure that the returned inlines are\n+    instances of the classes defined in :attr:`inlines` or you might encounter\n+    a \"Bad Request\" error when adding related objects.\n+\n .. method:: ModelAdmin.get_inline_instances(request, obj=None)\n \n     The ``get_inline_instances`` method is given the ``HttpRequest`` and the\n@@ -1621,7 +1642,7 @@ templates used by the :class:`ModelAdmin` views:\n             inlines = (MyInline,)\n \n             def get_inline_instances(self, request, obj=None):\n-                return [inline(self.model, self.admin_site) for inline in self.inlines]\n+                return [inline(self.model, self.admin_site) for inline in self.get_inlines(request, obj)]\n \n     If you override this method, make sure that the returned inlines are\n     instances of the classes defined in :attr:`inlines` or you might encounter\ndiff --git a/docs/releases/3.0.txt b/docs/releases/3.0.txt\nindex d7ad7a8..259c0fd 100644\n--- a/docs/releases/3.0.txt\n+++ b/docs/releases/3.0.txt\n@@ -47,6 +47,9 @@ Minor features\n * Added support for the ``admin_order_field`` attribute on properties in\n   :attr:`.ModelAdmin.list_display`.\n \n+* Added the :meth:`.ModelAdmin.get_inlines()` hook to specify inlines based on\n+  the request or model instance.\n+\n :mod:`django.contrib.admindocs`\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n \n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_get_inline_instances_override_get_inlines (generic_inline_admin.tests.GenericInlineModelAdminTest)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11138",
+      "repo": "django/django",
+      "wallMs": 1812944.9,
+      "resolved": false,
+      "timedOut": true
+    },
+    {
+      "instance_id": "django__django-11179",
+      "repo": "django/django",
+      "wallMs": 60724.4,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 13,
+      "agentPatch": "diff --git a/django/db/models/deletion.py b/django/db/models/deletion.py\nindex 92fe4af..3a462f1 100644\n--- a/django/db/models/deletion.py\n+++ b/django/db/models/deletion.py\n@@ -277,6 +277,7 @@ class Collector:\n             if self.can_fast_delete(instance):\n                 with transaction.mark_for_rollback_on_error():\n                     count = sql.DeleteQuery(model).delete_batch([instance.pk], self.using)\n+                setattr(instance, model._meta.pk.attname, None)\n                 return count, {model._meta.label: count}\n \n         with transaction.atomic(using=self.using, savepoint=False):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_fast_delete_instance_set_pk_none (delete.tests.FastDeleteTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11265",
+      "repo": "django/django",
+      "wallMs": 1813232.9,
+      "resolved": false,
+      "timedOut": true
+    },
+    {
+      "instance_id": "django__django-11333",
+      "repo": "django/django",
+      "wallMs": 372611.6,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 43,
+      "agentPatch": "diff --git a/django/urls/base.py b/django/urls/base.py\nindex 0e1c3d9..dd9b2e4 100644\n--- a/django/urls/base.py\n+++ b/django/urls/base.py\n@@ -7,7 +7,7 @@ from django.utils.functional import lazy\n from django.utils.translation import override\n \n from .exceptions import NoReverseMatch, Resolver404\n-from .resolvers import get_ns_resolver, get_resolver\n+from .resolvers import _get_cached_resolver, get_ns_resolver, get_resolver\n from .utils import get_callable\n \n # SCRIPT_NAME prefixes for each thread are stored here. If there's no entry for\n@@ -92,7 +92,7 @@ reverse_lazy = lazy(reverse, str)\n \n def clear_url_caches():\n     get_callable.cache_clear()\n-    get_resolver.cache_clear()\n+    _get_cached_resolver.cache_clear()\n     get_ns_resolver.cache_clear()\n \n \ndiff --git a/django/urls/resolvers.py b/django/urls/resolvers.py\nindex 247e368..43095e7 100644\n--- a/django/urls/resolvers.py\n+++ b/django/urls/resolvers.py\n@@ -63,10 +63,14 @@ class ResolverMatch:\n         )\n \n \n-@functools.lru_cache(maxsize=None)\n def get_resolver(urlconf=None):\n     if urlconf is None:\n         urlconf = settings.ROOT_URLCONF\n+    return _get_cached_resolver(urlconf)\n+\n+\n+@functools.lru_cache(maxsize=None)\n+def _get_cached_resolver(urlconf):\n     return URLResolver(RegexPattern(r'^/'), urlconf)\n \n \n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_resolver_cache_default__root_urlconf (urlpatterns.test_resolvers.ResolverCacheTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11477",
+      "repo": "django/django",
+      "wallMs": 256430.5,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 18,
+      "agentPatch": "diff --git a/django/urls/base.py b/django/urls/base.py\nindex 0e1c3d9..df95897 100644\n--- a/django/urls/base.py\n+++ b/django/urls/base.py\n@@ -172,7 +172,11 @@ def translate_url(url, lang_code):\n         to_be_reversed = \"%s:%s\" % (match.namespace, match.url_name) if match.namespace else match.url_name\n         with override(lang_code):\n             try:\n-                url = reverse(to_be_reversed, args=match.args, kwargs=match.kwargs)\n+                url = reverse(\n+                    to_be_reversed,\n+                    args=match.args,\n+                    kwargs={k: v for k, v in match.kwargs.items() if v is not None},\n+                )\n             except NoReverseMatch:\n                 pass\n             else:\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_re_path_with_optional_parameter (urlpatterns.tests.SimplifiedURLTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 3
+    },
+    {
+      "instance_id": "django__django-11555",
+      "repo": "django/django",
+      "wallMs": 1013311.9,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 17,
+      "agentPatch": "diff --git a/django/db/models/sql/compiler.py b/django/db/models/sql/compiler.py\nindex eaccc96..52ea717 100644\n--- a/django/db/models/sql/compiler.py\n+++ b/django/db/models/sql/compiler.py\n@@ -722,6 +722,11 @@ class SQLCompiler:\n \n             results = []\n             for item in opts.ordering:\n+                if hasattr(item, 'resolve_expression') and not isinstance(item, OrderBy):\n+                    item = item.desc() if descending else item.asc()\n+                if isinstance(item, OrderBy):\n+                    results.append((item, False))\n+                    continue\n                 results.extend(self.find_ordering_name(item, opts, alias,\n                                                        order, already_seen))\n             return results\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_order_by_ptr_field_with_default_ordering_by_expression (ordering.tests.OrderingTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11740",
+      "repo": "django/django",
+      "wallMs": 395487.3,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 34,
+      "agentPatch": "diff --git a/django/db/migrations/autodetector.py b/django/db/migrations/autodetector.py\nindex 0dc1c77..d28758d 100644\n--- a/django/db/migrations/autodetector.py\n+++ b/django/db/migrations/autodetector.py\n@@ -904,7 +904,7 @@ class MigrationAutodetector:\n     def generate_altered_fields(self):\n         \"\"\"\n         Make AlterField operations, or possibly RemovedField/AddField if alter\n-        isn's possible.\n+        isn't possible.\n         \"\"\"\n         for app_label, model_name, field_name in sorted(self.old_field_keys & self.new_field_keys):\n             # Did the field change?\n@@ -963,6 +963,9 @@ class MigrationAutodetector:\n                             preserve_default = False\n                     else:\n                         field = new_field\n+                    dependencies = []\n+                    if field.remote_field and field.remote_field.model:\n+                        dependencies.extend(self._get_dependencies_for_foreign_key(field))\n                     self.add_operation(\n                         app_label,\n                         operations.AlterField(\n@@ -970,7 +973,8 @@ class MigrationAutodetector:\n                             name=field_name,\n                             field=field,\n                             preserve_default=preserve_default,\n-                        )\n+                        ),\n+                        dependencies=dependencies,\n                     )\n                 else:\n                     # We cannot alter between m2m and concrete fields\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_alter_field_to_fk_dependency_other_app (migrations.test_autodetector.AutodetectorTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11820",
+      "repo": "django/django",
+      "wallMs": 502781,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 14,
+      "agentPatch": "diff --git a/django/db/models/base.py b/django/db/models/base.py\nindex 3ce711f..36ec5fc 100644\n--- a/django/db/models/base.py\n+++ b/django/db/models/base.py\n@@ -1708,6 +1708,8 @@ class Model(metaclass=ModelBase):\n             fld = None\n             for part in field.split(LOOKUP_SEP):\n                 try:\n+                    if part == 'pk':\n+                        part = _cls._meta.pk.name\n                     fld = _cls._meta.get_field(part)\n                     if fld.is_relation:\n                         _cls = fld.get_path_info()[-1].to_opts.model\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_ordering_pointing_multiple_times_to_model_fields (invalid_models_tests.test_models.OtherModelTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-11951",
+      "repo": "django/django",
+      "wallMs": 47504.4,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 15,
+      "agentPatch": "diff --git a/django/db/models/query.py b/django/db/models/query.py\nindex 794e0fa..92349cd 100644\n--- a/django/db/models/query.py\n+++ b/django/db/models/query.py\n@@ -1209,7 +1209,8 @@ class QuerySet:\n         if ignore_conflicts and not connections[self.db].features.supports_ignore_conflicts:\n             raise NotSupportedError('This database backend does not support ignoring conflicts.')\n         ops = connections[self.db].ops\n-        batch_size = (batch_size or max(ops.bulk_batch_size(fields, objs), 1))\n+        max_batch_size = max(ops.bulk_batch_size(fields, objs), 1)\n+        batch_size = min(batch_size, max_batch_size) if batch_size else max_batch_size\n         inserted_rows = []\n         bulk_return = connections[self.db].features.can_return_rows_from_bulk_insert\n         for item in [objs[i:i + batch_size] for i in range(0, len(objs), batch_size)]:\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_explicit_batch_size_respects_max_batch_size (bulk_create.tests.BulkCreateTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12050",
+      "repo": "django/django",
+      "wallMs": 37866.4,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 14,
+      "agentPatch": "diff --git a/django/db/models/sql/query.py b/django/db/models/sql/query.py\nindex ea51912..90475d6 100644\n--- a/django/db/models/sql/query.py\n+++ b/django/db/models/sql/query.py\n@@ -1073,7 +1073,7 @@ class Query(BaseExpression):\n                         ))\n                 else:\n                     resolved_values.append(sub_value)\n-            value = tuple(resolved_values)\n+            value = type(value)(resolved_values)\n         return value\n \n     def solve_lookup_type(self, lookup):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_iterable_lookup_value (queries.test_query.TestQuery)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12193",
+      "repo": "django/django",
+      "wallMs": 207313.8,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 14,
+      "agentPatch": "diff --git a/django/forms/widgets.py b/django/forms/widgets.py\nindex 6fe220b..ddd052b 100644\n--- a/django/forms/widgets.py\n+++ b/django/forms/widgets.py\n@@ -524,6 +524,8 @@ class CheckboxInput(Input):\n         if self.check_test(value):\n             if attrs is None:\n                 attrs = {}\n+            else:\n+                attrs = attrs.copy()\n             attrs['checked'] = True\n         return super().get_context(name, value, attrs)\n \n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_get_context_does_not_mutate_attrs (forms_tests.widget_tests.test_checkboxinput.CheckboxInputTest)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12276",
+      "repo": "django/django",
+      "wallMs": 61298.6,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 25,
+      "agentPatch": "diff --git a/django/forms/widgets.py b/django/forms/widgets.py\nindex 338d54d..40ac1d3 100644\n--- a/django/forms/widgets.py\n+++ b/django/forms/widgets.py\n@@ -387,6 +387,9 @@ class FileInput(Input):\n     def value_omitted_from_data(self, data, files, name):\n         return name not in files\n \n+    def use_required_attribute(self, initial):\n+        return super().use_required_attribute(initial) and not initial\n+\n \n FILE_INPUT_CONTRADICTION = object()\n \n@@ -451,9 +454,6 @@ class ClearableFileInput(FileInput):\n             return False\n         return upload\n \n-    def use_required_attribute(self, initial):\n-        return super().use_required_attribute(initial) and not initial\n-\n     def value_omitted_from_data(self, data, files, name):\n         return (\n             super().value_omitted_from_data(data, files, name) and\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_use_required_attribute (forms_tests.widget_tests.test_fileinput.FileInputTest)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-12406",
+      "repo": "django/django",
+      "wallMs": 220770.1,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818091821757339168j98EFKN)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-12713",
+      "repo": "django/django",
+      "wallMs": 49938.8,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 33,
+      "agentPatch": "diff --git a/django/contrib/admin/options.py b/django/contrib/admin/options.py\nindex 69a5fbf..db7df89 100644\n--- a/django/contrib/admin/options.py\n+++ b/django/contrib/admin/options.py\n@@ -249,16 +249,17 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):\n             return None\n         db = kwargs.get('using')\n \n-        autocomplete_fields = self.get_autocomplete_fields(request)\n-        if db_field.name in autocomplete_fields:\n-            kwargs['widget'] = AutocompleteSelectMultiple(db_field.remote_field, self.admin_site, using=db)\n-        elif db_field.name in self.raw_id_fields:\n-            kwargs['widget'] = widgets.ManyToManyRawIdWidget(db_field.remote_field, self.admin_site, using=db)\n-        elif db_field.name in [*self.filter_vertical, *self.filter_horizontal]:\n-            kwargs['widget'] = widgets.FilteredSelectMultiple(\n-                db_field.verbose_name,\n-                db_field.name in self.filter_vertical\n-            )\n+        if 'widget' not in kwargs:\n+            autocomplete_fields = self.get_autocomplete_fields(request)\n+            if db_field.name in autocomplete_fields:\n+                kwargs['widget'] = AutocompleteSelectMultiple(db_field.remote_field, self.admin_site, using=db)\n+            elif db_field.name in self.raw_id_fields:\n+                kwargs['widget'] = widgets.ManyToManyRawIdWidget(db_field.remote_field, self.admin_site, using=db)\n+            elif db_field.name in [*self.filter_vertical, *self.filter_horizontal]:\n+                kwargs['widget'] = widgets.FilteredSelectMultiple(\n+                    db_field.verbose_name,\n+                    db_field.name in self.filter_vertical\n+                )\n \n         if 'queryset' not in kwargs:\n             queryset = self.get_field_queryset(db, db_field, request)\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_formfield_overrides_m2m_filter_widget (admin_widgets.tests.AdminFormfieldForDBFieldTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12858",
+      "repo": "django/django",
+      "wallMs": 38912,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092031582271574qFORKbdi)\nv3 run failed: model-failure\nv3 run tool: exec:succeeded"
+    },
+    {
+      "instance_id": "django__django-13028",
+      "repo": "django/django",
+      "wallMs": 48213.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 202608180920443670021861K73igGI)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-13112",
+      "repo": "django/django",
+      "wallMs": 39029.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 202608180921239813284189oomzzyN)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-13195",
+      "repo": "django/django",
+      "wallMs": 38365.8,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092127131277832AShPKDol)\nv3 run failed: model-failure\nv3 run tool: search:succeeded"
+    },
+    {
+      "instance_id": "django__django-13315",
+      "repo": "django/django",
+      "wallMs": 14750.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092141652481369zaAhcH0y)\nv3 run failed: model-failure"
+    },
+    {
+      "instance_id": "django__django-13363",
+      "repo": "django/django",
+      "wallMs": 12494.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092143124922669e0sJSNOR)\nv3 run failed: model-failure"
+    },
+    {
+      "instance_id": "django__django-13417",
+      "repo": "django/django",
+      "wallMs": 40884.5,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092224987094529czEOSYSV)\nv3 run failed: model-failure\nv3 run tool: search:succeeded"
+    },
+    {
+      "instance_id": "django__django-13516",
+      "repo": "django/django",
+      "wallMs": 61029.3,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 15,
+      "agentPatch": "diff --git a/django/core/management/base.py b/django/core/management/base.py\nindex e6cbf8c..862930f 100644\n--- a/django/core/management/base.py\n+++ b/django/core/management/base.py\n@@ -143,6 +143,9 @@ class OutputWrapper(TextIOBase):\n     def isatty(self):\n         return hasattr(self._out, 'isatty') and self._out.isatty()\n \n+    def flush(self):\n+        self._out.flush()\n+\n     def write(self, msg='', style_func=None, ending=None):\n         ending = self.ending if ending is None else ending\n         if ending and not msg.endswith(ending):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_outputwrapper_flush (user_commands.tests.CommandTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-13590",
+      "repo": "django/django",
+      "wallMs": 6950.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092256439675957IeZV2NGp)\nv3 run failed: model-failure"
+    }
+  ]
+}

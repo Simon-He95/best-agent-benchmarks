@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 
 export const WORKER = "benchworker";
 export const MAX_MODEL_CYCLES = 2251799813685247;
@@ -13,6 +13,9 @@ export function taskWorkspaceCliArgs(repoDir) {
     "--workspace-authorization", "unrestricted", "--command-policy", "path",
     "--process-isolation", "host", "--workspace-grant", "read",
     "--workspace-grant", "write", "--workspace-grant", "exec",
+    // The prepared public interpreter always lives at the reserved .benchmark-runtime
+    // prefix inside the workspace, so python3 binds to it instead of PATH resolution.
+    "--exec-alias", `python3=${join(repoDir, ".benchmark-runtime", "bin", "python3")}`,
     "--max-model-cycles", String(MAX_MODEL_CYCLES)];
 }
 
@@ -102,7 +105,7 @@ export async function prepareTaskEnvironment({ repoDir, baseCommit, runtimeDir, 
     if (profile) {
       for (const [kind, flag] of [["runtimeConstraints", "--constraint"], ["buildConstraints", "--build-constraint"]]) {
         if (!profile[kind].length) continue;
-        const path = join(dirname(runtimeDir), `public-${kind}.txt`);
+        const path = join(artifactDir, `public-${kind}.txt`);
         writeFileSync(path, profile[kind].join("\n") + "\n", { flag: "wx", mode: 0o644 });
         constraints.push(flag, path);
       }
@@ -147,7 +150,7 @@ export async function prepareTaskEnvironment({ repoDir, baseCommit, runtimeDir, 
     if (head.status !== 0 || head.stdout.trim() !== baseCommit || diff.status !== 0 || diff.stdout) {
       throw new Error("Public preparation changed frozen HEAD or tracked source: " + (head.stderr || diff.stderr || diff.stdout));
     }
-    const generated = await git("generated", ["ls-files", "--others"]);
+    const generated = await git("generated", ["ls-files", "--others", "--", ".", ":(exclude).benchmark-runtime"]);
     if (generated.status !== 0) throw new Error(generated.stderr);
     manifest.generatedFiles = generated.stdout.split("\n").filter(Boolean);
     manifest.status = "prepared";
