@@ -72,8 +72,8 @@ export async function prepareWithTransportRetry(options) {
 
 export function validateBatchConfig(batch, selectionBytes) {
   assert.equal(batch.schemaVersion, 1);
-  assert.match(batch.batchId, /^remaining63-node-batch\d$/, 'Batch id must name its frozen batch number');
-  assert(batch.workflowName === undefined || /^node-bundle-batch\d\.yml$/.test(batch.workflowName), 'Batch workflow name must match the batch number');
+  assert.match(batch.batchId, /^remaining63-node-batch\d+$/, 'Batch id must name its frozen batch number');
+  assert(batch.workflowName === undefined || /^node-bundle-batch\d+\.yml$/.test(batch.workflowName), 'Batch workflow name must match the batch number');
   assert.equal(batch.candidateId, candidate.candidateId);
   assert.equal(batch.selectionId, 'remaining63-node-bundle-20260909');
   assert.equal(hash(selectionBytes), batch.selectionSourceSha256, 'Frozen failed-task selection changed');
@@ -527,7 +527,7 @@ export function batchModeTask() {
   // The batch config is selected by the workflow through NODE_BUNDLE_BATCH_CONFIG;
   // the default keeps the single-batch behavior of the audited batch-1 workflow.
   const configPath = process.env.NODE_BUNDLE_BATCH_CONFIG ?? 'config/node-bundle-batch-1.json';
-  assert(/^config\/node-bundle-batch-\d\.json$/.test(configPath), 'NODE_BUNDLE_BATCH_CONFIG must name a frozen batch config');
+  assert(/^config\/node-bundle-batch-\d+\.json$/.test(configPath), 'NODE_BUNDLE_BATCH_CONFIG must name a frozen batch config');
   const batchBytes = fs.readFileSync(path.join(repository, configPath));
   const selectionBytes = fs.readFileSync(path.join(repository, 'config/node-bundle-failed-tasks.json'));
   const batch = validateBatchConfig(JSON.parse(batchBytes), selectionBytes);

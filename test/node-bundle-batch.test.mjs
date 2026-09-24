@@ -772,3 +772,27 @@ test('batch9 admits only the inspected first Matplotlib task with its lib source
   const expected = source.split('\n  django-16502:')[0].replaceAll('batch 8', 'batch 9').replaceAll('batch8', 'batch9').replaceAll('batch-8', 'batch-9').replaceAll('django__django-16263', 'matplotlib__matplotlib-21568').replaceAll('django-16263', 'matplotlib-21568');
   assert.equal(fs.readFileSync(new URL('../.github/workflows/node-bundle-batch9.yml', import.meta.url), 'utf8'), expected);
 });
+
+test('batch10 freezes the remaining Matplotlib tasks in original order and serial workflow jobs', () => {
+  const next = readJson('config/node-bundle-batch-10.json');
+  validateBatchConfig(next, selectionBytes);
+  assert.deepEqual(next.tasks.map(task => task.taskIndex), [31, 32, 33]);
+  assert.deepEqual(next.tasks.map(task => task.instanceId), [
+    'matplotlib__matplotlib-23476',
+    'matplotlib__matplotlib-24870',
+    'matplotlib__matplotlib-25479',
+  ]);
+  for (const task of next.tasks) {
+    assert.equal(task.pythonVersion, '3.11.11');
+    assert.equal(task.pythonSource, '/testbed/lib/matplotlib/__init__.py');
+    assert.deepEqual(task.sanitationPlan.removals, []);
+    assert.equal(resolveBatchTask(next, selection, task.instanceId), task);
+  }
+  const workflow = fs.readFileSync(new URL('../.github/workflows/node-bundle-batch10.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /group: frozen-node-failed-tasks/);
+  assert.match(workflow, /cancel-in-progress: false/);
+  assert.match(workflow, /matplotlib-24870:\n    name: matplotlib__matplotlib-24870[\s\S]*?needs: matplotlib-23476/);
+  assert.match(workflow, /matplotlib-25479:\n    name: matplotlib__matplotlib-25479[\s\S]*?needs: matplotlib-24870/);
+  assert.equal((workflow.match(/NODE_BUNDLE_TASK:/g) ?? []).length, 3);
+  assert.equal((workflow.match(/NODE_BUNDLE_BATCH_CONFIG: config\/node-bundle-batch-10\.json/g) ?? []).length, 3);
+});
