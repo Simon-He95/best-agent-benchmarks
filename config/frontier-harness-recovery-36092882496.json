@@ -265,10 +265,99 @@
           "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36171961895",
           "batchLabel": "diagnostic-failed-rerun-20260926b",
           "fhMaxParallel": 6,
-          "candidateId": null,
-          "outcome": null,
-          "outcomeDetail": null,
-          "evidence": null
+          "candidateId": "cli-0.0.3-beta.36-c9ae2e2-55b6e33f4e61",
+          "outcome": {
+            "terminal-bench/chess-best-move": "passed",
+            "terminal-bench/db-wal-recovery": "passed",
+            "terminal-bench/gcode-to-text": "failed",
+            "terminal-bench/largest-eigenval": "failed",
+            "terminal-bench/openssl-selfsigned-cert": "passed",
+            "datacurve/expr-try-catch-errors": "passed"
+          },
+          "outcomeDetail": {
+            "terminal-bench/chess-best-move": "Flipped from failed (AgentTimeoutError at 947s of the official 900s budget) to passed: reward=1, terminalCause=completed, 894s of the 900s budget, 35 model outcomes, 0 unanswered requests. It did not exhaust its budget this time; it has real run-to-run variance (it also passed inside budget in run 36005393416 and was killed at 941s in run 36103695160).",
+            "terminal-bench/db-wal-recovery": "Flipped from failed (model, 646s/900s, reward=0) to passed: reward=1, but this attempt did exhaust the budget (AgentTimeoutError at the 900s edge, 940s elapsed, 30 model outcomes, 1 request cut at the boundary). The verifier grades the delivered artifacts, so a budget-exhausted attempt still carries a real verdict.",
+            "terminal-bench/gcode-to-text": "Reproduced: failed, reward=0, AgentTimeoutError at the 900s edge (940s), 39 model outcomes, 1 request cut at the budget boundary.",
+            "terminal-bench/largest-eigenval": "Reproduced: failed, reward=0, AgentTimeoutError at the 900s edge (931s), 10 model outcomes, 1 request cut at the budget boundary.",
+            "terminal-bench/openssl-selfsigned-cert": "Flipped from failed (model, 215s/900s, reward=0) to passed: reward=1, terminalCause=completed, 158s, 22 model outcomes.",
+            "datacurve/expr-try-catch-errors": "Resolves the part A error cell: passed, reward=1, f2p 79/79, p2p 66265/66265, terminalCause=completed in 3306s, 214 model outcomes and 0 model-failure entries. The upstream transport failure of part A did not recur; that error record stands unchanged."
+          },
+          "aggregate": {
+            "present": 6,
+            "missing": 0,
+            "passed": 4,
+            "failed": 2,
+            "error": 0,
+            "notEvaluated": 0,
+            "budgetExhausted": 3,
+            "budgetExhaustedStillPassed": 1,
+            "passRate": 0.6666666666666666,
+            "acceptance": "verdicts.complete, candidate.single, provider.single and instructions.frozen passed; coverage.full failed by design (6 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+          },
+          "evidence": "Artifact frontier-harness-report-36171961895 (report.json sha256 8c1fc67cbe351b7224632f69a2c2366bdd91fa93b50f9a2579163d8b4f3c24ac, report.json.md, failures.json, failures.md, expected-tasks.txt) with the per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260925T181239Z--36171961895.json (same sha256) with its Chinese record. 10/10 jobs green in 57m53s; 4 passed / 2 failed / 0 error; 3 budget-exhausted of which 1 still passed.",
+          "candidateBinarySha256": "55b6e33f4e61965ac0192c658b6e633a783583ab5b9219715fc803d5f7c7f740",
+          "measuredCallDurations": {
+            "note": "Same measurement as part A (spec 241): startedAtMs on each model-request record, durationMs on its matching model-outcome or model-failure. calls = model-request records, including a request cut at the budget boundary; closures = requests with a matching outcome. Model share = sum of per-call durations / agent wall clock.",
+            "perTask": {
+              "terminal-bench/chess-best-move": {
+                "calls": 35,
+                "sumSec": 829,
+                "medianSec": 6.9,
+                "maxSec": 229.8,
+                "wallSec": 885,
+                "modelSharePct": 94
+              },
+              "terminal-bench/db-wal-recovery": {
+                "calls": 31,
+                "sumSec": 901,
+                "medianSec": 21.3,
+                "maxSec": 190.2,
+                "wallSec": 936,
+                "modelSharePct": 96
+              },
+              "terminal-bench/gcode-to-text": {
+                "calls": 40,
+                "sumSec": 743,
+                "medianSec": 5.3,
+                "maxSec": 208.3,
+                "wallSec": 936,
+                "modelSharePct": 79
+              },
+              "terminal-bench/largest-eigenval": {
+                "calls": 11,
+                "sumSec": 710,
+                "medianSec": 8.5,
+                "maxSec": 578.1,
+                "wallSec": 927,
+                "modelSharePct": 77
+              },
+              "terminal-bench/openssl-selfsigned-cert": {
+                "calls": 22,
+                "sumSec": 126,
+                "medianSec": 4.6,
+                "maxSec": 15.4,
+                "wallSec": 154,
+                "modelSharePct": 82
+              },
+              "datacurve/expr-try-catch-errors": {
+                "calls": 214,
+                "sumSec": 2540,
+                "medianSec": 5.8,
+                "maxSec": 193.0,
+                "wallSec": 3302,
+                "modelSharePct": 77
+              }
+            },
+            "unansweredRequests": 3,
+            "unansweredRequestsDetail": {
+              "terminal-bench/db-wal-recovery": "1 — startedAtMs 902137",
+              "terminal-bench/gcode-to-text": "1 — startedAtMs 873743",
+              "terminal-bench/largest-eigenval": "1 — startedAtMs 717213"
+            },
+            "modelFailures": 0,
+            "finding": "Model-call time is 77-96% of the agent wall clock on every cell, so tool and process waits are the minority. The hypothesis that recovering wasted tool waits would flip a timeout verdict is not supported by measurement: on db-wal-recovery the model-time sum alone (901s) exceeds the whole 900s budget, and on the two reproduced timeouts the model-time sum is 83% (gcode-to-text, 743s) and 79% (largest-eigenval, 710s) of the budget, while the spread of a single model call (max 190.2s / 208.3s / 578.1s) is far larger than the non-model time that remains. chess-best-move, the cell the earlier ~180s process-polling upper bound was derived from, measured only 56s of non-model time and finished inside its budget."
+          },
+          "conclusion": "4 of 6 cells flipped to passed on a candidate with no task-affecting change over the source run, which is run-to-run variance rather than improvement; the 2 reproduced failures are both budget outcomes at the official 900s edge. gcode-to-text and largest-eigenval have now hit their official budget in four measured attempts across three candidates (chronic), while chess-best-move and db-wal-recovery flipped. All six attempts again recorded zero model-failure entries with pierExitCode 0, and the part A error cell is resolved as a clean pass. No further rerun is proposed for these cells."
         }
       ],
       "partBAdditions": [

@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.36",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "c9ae2e2fefb9f20cc0f57e6dfd8d0c9120aa2bd6",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 6,
+    "expectedEligible": 6,
+    "present": 6,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 4,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 3,
+    "passed": 1,
+    "tasks": [
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval"
+    ],
+    "passedTasks": [
+      "terminal-bench/db-wal-recovery"
+    ]
+  },
+  "passRate": 0.6666666666666666,
+  "validCells": 6,
+  "passRateValidCells": 0.6666666666666666,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "6 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "6 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "6 records agree on one frozen candidate (cli-0.0.3-beta.36-c9ae2e2-55b6e33f4e61|0.0.3-beta.36|55b6e33f4e61965ac0192c658b6e633a783583ab5b9219715fc803d5f7c7f740|941c1ce7c2d7002aa5a0fbf4199ceb557f285bb0f6b191f87fac80ee7a5cdfbf)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "6 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 6,
+    "promptTokens": 30017904,
+    "completionTokens": 225504,
+    "cacheReadTokens": 29527680,
+    "totalTokens": 30243408,
+    "modelCallCount": 349,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 894295,
+      "usage": {
+        "promptTokens": 1289694,
+        "completionTokens": 35401,
+        "cacheReadTokens": 1230976,
+        "costUsd": null,
+        "totalTokens": 1325095,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 58718,
+        "modelCallCount": 35,
+        "reportedCallCount": 35,
+        "reportedInputTokens": 1289694
+      },
+      "evidenceSha256": "f1ca33dc20621b0b0e40fe36174d39f88a1bbcc0e754881ff2b5296f6cce6464",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "disposition": "passed",
+      "budgetExhausted": true,
+      "rewards": {
+        "reward": 1
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 900.0 seconds"
+      },
+      "durationMs": 940622,
+      "usage": {
+        "promptTokens": 821657,
+        "completionTokens": 39302,
+        "cacheReadTokens": 773120,
+        "costUsd": null,
+        "totalTokens": 860959,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 48537,
+        "modelCallCount": 29,
+        "reportedCallCount": 29,
+        "reportedInputTokens": 821657
+      },
+      "evidenceSha256": "ac668f71d974b7b08c3259612d1a0fb68b4551c30fc70fd632d21e635052965c",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": true,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 900.0 seconds"
+      },
+      "durationMs": 940059,
+      "usage": {
+        "promptTokens": 1383860,
+        "completionTokens": 30182,
+        "cacheReadTokens": 1320896,
+        "costUsd": null,
+        "totalTokens": 1414042,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 62964,
+        "modelCallCount": 39,
+        "reportedCallCount": 39,
+        "reportedInputTokens": 1383860
+      },
+      "evidenceSha256": "c8ac39148669b38b4fdc4d2941df8f6880eb67efcf142a6fbbce4b8da09ebb87",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": true,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 900.0 seconds"
+      },
+      "durationMs": 931051,
+      "usage": {
+        "promptTokens": 191422,
+        "completionTokens": 31415,
+        "cacheReadTokens": 157120,
+        "costUsd": null,
+        "totalTokens": 222837,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 34302,
+        "modelCallCount": 10,
+        "reportedCallCount": 10,
+        "reportedInputTokens": 191422
+      },
+      "evidenceSha256": "61f0d033b32bf2a83ca3d5af726f75dfdff0a7d6ed583365415284d27c613462",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 158118,
+      "usage": {
+        "promptTokens": 271788,
+        "completionTokens": 3993,
+        "cacheReadTokens": 262528,
+        "costUsd": null,
+        "totalTokens": 275781,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 9260,
+        "modelCallCount": 22,
+        "reportedCallCount": 22,
+        "reportedInputTokens": 271788
+      },
+      "evidenceSha256": "bf1f2a3312b15ced31868ae22767a162eedf9ff79b9b87686ca41aed399667d8",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 79,
+        "f2p_passed": 79,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3306584,
+      "usage": {
+        "promptTokens": 26059483,
+        "completionTokens": 85211,
+        "cacheReadTokens": 25783040,
+        "costUsd": null,
+        "totalTokens": 26144694,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 276443,
+        "modelCallCount": 214,
+        "reportedCallCount": 214,
+        "reportedInputTokens": 26059483
+      },
+      "evidenceSha256": "833d33be00a849825e7e7526fa8cdc7d32b4d158dfd127a515fb26436c910134",
+      "batchId": "diagnostic-failed-rerun-20260926b"
+    }
+  ]
+}
