@@ -259,9 +259,16 @@
             "terminal-bench/openssl-selfsigned-cert",
             "datacurve/expr-try-catch-errors"
           ],
-          "dispatched": false,
-          "runId": null,
-          "dispatchNote": "Part B is dispatched only after part A reached a terminal state, so the provider load stays comparable to the source run. It now carries 6 cells: the 5 originally declared plus the upstream-failed error cell of part A."
+          "dispatched": true,
+          "runId": 36171961895,
+          "dispatchNote": "Part B is dispatched only after part A reached a terminal state, so the provider load stays comparable to the source run. It now carries 6 cells: the 5 originally declared plus the upstream-failed error cell of part A.",
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36171961895",
+          "batchLabel": "diagnostic-failed-rerun-20260926b",
+          "fhMaxParallel": 6,
+          "candidateId": null,
+          "outcome": null,
+          "outcomeDetail": null,
+          "evidence": null
         }
       ],
       "partBAdditions": [
