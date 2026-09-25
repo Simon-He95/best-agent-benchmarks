@@ -136,7 +136,22 @@
         "Batch diagnostic-timeout-rerun-20260925 concluded that no further rerun of its three tasks was permitted; that conclusion was about the variance of candidate d631b623/6ce38f17 and is not contradicted here, because this batch measures a different candidate for a different purpose.",
         "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons."
       ],
-      "dispatched": false
+      "dispatched": true,
+      "runId": 36161850040,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36161850040",
+      "candidatePin": "config/frontier-harness.json#cli (sourceCommit c9ae2e2fefb9f20cc0f57e6dfd8d0c9120aa2bd6, cliVersion 0.0.3-beta.36)",
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 8,
+        "fh_batch": "diagnostic-failed-rerun-20260926"
+      },
+      "candidateId": null,
+      "outcome": null,
+      "outcomeDetail": null,
+      "evidence": null
     }
   ]
 }
