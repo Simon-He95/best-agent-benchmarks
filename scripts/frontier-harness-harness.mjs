@@ -725,12 +725,14 @@ async function main() {
   mkdirSync(args.jobsDir, { recursive: true });
 
   const effectiveAgentTimeoutSec = task.agentTimeoutSec * args.agentTimeoutMultiplier;
-  const providerTimeoutMs =
+  // One model invocation ceiling for this attempt, derived from the task's own agent budget. It is
+  // published under its own name and reaches the CLI as the explicit `--model-timeout-ms` flag, so
+  // no attempt wall clock is ever handed to the CLI as a provider timeout. The ceiling bounds one
+  // model call; it is not an attempt deadline and the harness does not claim one.
+  const modelTimeoutMs =
     args.timeoutMs ??
     Math.max(60_000, Math.round((effectiveAgentTimeoutSec - 60) * 1000));
-  // Keep the in-container CLI timeout identical to the harness-derived value so
-  // the agent fails cleanly before Pier kills the trial.
-  process.env.BEST_AGENT_TIMEOUT_MS = String(providerTimeoutMs);
+  process.env.BEST_AGENT_MODEL_TIMEOUT_MS = String(modelTimeoutMs);
 
   const pierBin = process.env.FH_PIER_BIN ?? "pier";
   const pierArgs = [
@@ -815,7 +817,7 @@ async function main() {
     pierVersion: config.pier.version,
     agentTimeoutMultiplier: args.agentTimeoutMultiplier,
     effectiveAgentTimeoutSec,
-    providerTimeoutMs,
+    modelTimeoutMs,
     jobName: args.jobName,
     trialDir: trialDir ? relative(repoRoot, trialDir) : undefined,
     result: {

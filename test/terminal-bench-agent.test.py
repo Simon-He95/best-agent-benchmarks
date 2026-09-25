@@ -57,7 +57,8 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.sources = [self.provider, self.dimcode / "config.json", self.dimcode / "dimcode/auth.json"]
         self.env_patch = patch.dict(os.environ, {
             "BEST_AGENT_PROVIDER_CONFIG": str(self.provider), "DIMCODE_HOME": str(self.dimcode),
-            "BEST_AGENT_PROVIDER_MODEL": "synthetic-model", "BEST_AGENT_TIMEOUT_MS": "30000",
+            "BEST_AGENT_PROVIDER_MODEL": "synthetic-model",
+            "BEST_AGENT_MODEL_TIMEOUT_MS": "30000",
             "BEST_AGENT_CLI_WORKSPACE": "/work space",
             "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": '["--no-base-instructions","--tool-exclude","network"]',
         })
@@ -107,6 +108,12 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(cli.count('best-agent" run'), 1)
                     self.assertIn(shlex.quote("public task 'quoted'"), cli)
                     self.assertIn("--no-base-instructions --tool-exclude network", cli)
+                    # The attempt-derived ceiling reaches the CLI as its own flag. No attempt wall
+                    # clock is exported under a provider-timeout name: the env wins over the flag,
+                    # so a leftover export would silently ignore this one.
+                    self.assertIn("--model-timeout-ms 30000", cli)
+                    self.assertNotIn("BEST_AGENT_PROVIDER_TIMEOUT_MS", cli)
+                    self.assertNotIn("BEST_AGENT_TIMEOUT_MS", cli)
                     self.assert_no_transfer_secrets(env.records, str(logs.records))
 
     async def test_original_setup_failure_stops_before_cli(self):

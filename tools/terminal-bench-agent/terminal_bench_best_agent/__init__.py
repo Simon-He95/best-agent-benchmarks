@@ -80,7 +80,7 @@ class BestAgentCli(BaseInstalledAgent):
         context: AgentContext,
     ) -> None:
         model = _required_env("BEST_AGENT_PROVIDER_MODEL")
-        timeout_ms = _required_env("BEST_AGENT_TIMEOUT_MS")
+        model_timeout_ms = _required_env("BEST_AGENT_MODEL_TIMEOUT_MS")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
         await self._prepare_provider(environment)
         workspace = (await self.exec_as_agent(environment, command="pwd")).stdout.strip()
@@ -94,11 +94,12 @@ class BestAgentCli(BaseInstalledAgent):
                 'export DIMCODE_HOME="$HOME/.dimcode"',
                 "export BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime",
                 "export BEST_AGENT_PROVIDER_MODEL=" + shlex.quote(model),
-                "export BEST_AGENT_PROVIDER_TIMEOUT_MS=" + shlex.quote(timeout_ms),
                 "set +e",
                 '"$HOME/.best-agent-cli/bin/best-agent" run '
                 + "--model "
                 + shlex.quote(model)
+                + " --model-timeout-ms "
+                + shlex.quote(model_timeout_ms)
                 + " --workspace "
                 + shlex.quote(workspace)
                 + " "
