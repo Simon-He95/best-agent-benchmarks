@@ -73,7 +73,23 @@
         "The original verdicts and their evidence are preserved and are never overwritten.",
         "Only these three timeout failures are rerun; the seven genuine model failures and the pre-declared specification-gap task are deliberately excluded, as recorded in source.notRerun."
       ],
-      "dispatched": false
+      "dispatched": true,
+      "runId": 36103695160,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36103695160",
+      "batchId": "diagnostic-timeout-rerun-20260925",
+      "candidateId": null,
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_tasks": "terminal-bench/chess-best-move,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval",
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 3,
+        "fh_batch": "diagnostic-timeout-rerun-20260925"
+      },
+      "outcome": null,
+      "outcomeDetail": null,
+      "evidence": null
     }
   ]
 }
