@@ -136,9 +136,6 @@
         "Batch diagnostic-timeout-rerun-20260925 concluded that no further rerun of its three tasks was permitted; that conclusion was about the variance of candidate d631b623/6ce38f17 and is not contradicted here, because this batch measures a different candidate for a different purpose.",
         "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons."
       ],
-      "dispatched": true,
-      "runId": 36161850040,
-      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36161850040",
       "candidatePin": "config/frontier-harness.json#cli (sourceCommit c9ae2e2fefb9f20cc0f57e6dfd8d0c9120aa2bd6, cliVersion 0.0.3-beta.36)",
       "dispatchInputs": {
         "fh_run": true,
@@ -151,7 +148,42 @@
       "candidateId": null,
       "outcome": null,
       "outcomeDetail": null,
-      "evidence": null
+      "evidence": null,
+      "splitReason": "The workflow refuses more than 10 predeclared tasks per run (\"Each workflow run must preselect between 1 and 10 tasks.\"), so the 11 declared cells are dispatched as two parts. The parts run sequentially on purpose: two concurrent runs would put up to 16 model calls in flight against the same provider, and the whole point of this batch is a clean measurement, so the frozen conditions of the source run (fh_max_parallel=8, one run at a time) are preserved. Part A holds the six longest-budget cells and part B the five shorter ones.",
+      "dispatchFailure": {
+        "runId": 36161850040,
+        "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36161850040",
+        "stage": "plan",
+        "reason": "Each workflow run must preselect between 1 and 10 tasks (11 were declared). The plan job exited 1, the Generate matrix was empty, and no task attempt was made; the run produced no per-task record and no verdict.",
+        "note": "Not a measurement and not a task outcome. The candidate freeze job in that run did succeed, so candidate 0.0.3-beta.36 / c9ae2e2f is confirmed buildable and delivery-verified."
+      },
+      "dispatches": [
+        {
+          "part": "a",
+          "tasks": [
+            "datacurve/expr-try-catch-errors",
+            "datacurve/katex-multicolumn-array-spans",
+            "datacurve/meriyah-explicit-resource-declarations",
+            "datacurve/scc-bounded-memory-spilling",
+            "terminal-bench/dna-insert",
+            "terminal-bench/sanitize-git-repo"
+          ],
+          "dispatched": false,
+          "runId": null
+        },
+        {
+          "part": "b",
+          "tasks": [
+            "terminal-bench/chess-best-move",
+            "terminal-bench/db-wal-recovery",
+            "terminal-bench/gcode-to-text",
+            "terminal-bench/largest-eigenval",
+            "terminal-bench/openssl-selfsigned-cert"
+          ],
+          "dispatched": false,
+          "runId": null
+        }
+      ]
     }
   ]
 }
