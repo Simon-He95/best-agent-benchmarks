@@ -168,8 +168,15 @@
             "terminal-bench/dna-insert",
             "terminal-bench/sanitize-git-repo"
           ],
-          "dispatched": false,
-          "runId": null
+          "dispatched": true,
+          "runId": 36162170626,
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36162170626",
+          "batchLabel": "diagnostic-failed-rerun-20260926a",
+          "fhMaxParallel": 6,
+          "candidateId": null,
+          "outcome": null,
+          "outcomeDetail": null,
+          "evidence": null
         },
         {
           "part": "b",
