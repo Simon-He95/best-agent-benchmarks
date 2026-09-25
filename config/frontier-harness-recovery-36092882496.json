@@ -77,7 +77,9 @@
       "runId": 36103695160,
       "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36103695160",
       "batchId": "diagnostic-timeout-rerun-20260925",
-      "candidateId": null,
+      "candidateId": "cli-0.0.3-beta.34-6ce38f1-6ccec301a8d4",
+      "candidateBinarySha256": "6ccec301a8d4d7613e100ee1c19998ec18c8414429419cec535e9b5548a9ea80",
+      "candidateNote": "Same source commit and unchanged pin as the source run, but a different binary sha256 than the source run's 102986a152ee5f8b4fc0efda7639802dafcfc123939c369d925b5e8914edc123: the SEA build is not byte-reproducible, as the source run's own record states.",
       "dispatchInputs": {
         "fh_run": true,
         "fh_run_full": false,
@@ -87,9 +89,26 @@
         "fh_max_parallel": 3,
         "fh_batch": "diagnostic-timeout-rerun-20260925"
       },
-      "outcome": null,
-      "outcomeDetail": null,
-      "evidence": null
+      "outcome": {
+        "terminal-bench/chess-best-move": "failed",
+        "terminal-bench/gcode-to-text": "failed",
+        "terminal-bench/largest-eigenval": "failed"
+      },
+      "outcomeDetail": {
+        "terminal-bench/chess-best-move": "Reproduced the timeout: AgentTimeoutError at 941s of the official 900s budget, 39 model outcomes, zero model-failure entries (39 requests, 39 answered).",
+        "terminal-bench/gcode-to-text": "Reproduced the timeout: AgentTimeoutError at 930s of 900s, 39 model outcomes, zero model-failure entries (40 requests, 39 answered; the single unanswered request is the one cut at the budget boundary).",
+        "terminal-bench/largest-eigenval": "Reproduced the timeout: AgentTimeoutError at 930s of 900s, 34 model outcomes, zero model-failure entries (35 requests, 34 answered; the single unanswered request is the one cut at the budget boundary)."
+      },
+      "aggregate": {
+        "present": 3,
+        "missing": 0,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0,
+        "acceptance": "verdicts.complete, candidate.single, provider.single, instructions.frozen passed; coverage.full failed by design (3 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+      },
+      "evidence": "Artifact frontier-harness-report-36103695160 (report.json + report.json.md + failures.json) and the per-task artifacts frontier-harness-task-36103695160-<task>; frozen record docs/benchmarks/history/frontier-harness/20260925T063724Z--36103695160.json (sha256 b4a9cd0ee56c012a9b970e6515f877c10e7ad02b0a3c8ec129ec88e634b97f70) with its Chinese record. The batch ran 7/7 jobs green in 19m05s.",
+      "conclusion": "3 of 3 timeout verdicts reproduced and every attempt again recorded zero model-failure entries with pierExitCode 0, so the timeout remains a budget outcome of the agent, not an upstream/provider outage and not an environment death. Across candidates the timeout is chronic for gcode-to-text and largest-eigenval; chess-best-move has real run-to-run variance (it passed inside budget in run 36005393416 under candidate d631b623) but was killed at the 900s boundary in both attempts of this candidate. No further rerun of these tasks is permitted."
     }
   ]
 }
