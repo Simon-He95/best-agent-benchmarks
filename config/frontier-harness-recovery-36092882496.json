@@ -173,10 +173,81 @@
           "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36162170626",
           "batchLabel": "diagnostic-failed-rerun-20260926a",
           "fhMaxParallel": 6,
-          "candidateId": null,
-          "outcome": null,
-          "outcomeDetail": null,
-          "evidence": null
+          "candidateId": "cli-0.0.3-beta.36-c9ae2e2-256240336629",
+          "outcome": {
+            "datacurve/expr-try-catch-errors": "error",
+            "datacurve/katex-multicolumn-array-spans": "passed",
+            "datacurve/meriyah-explicit-resource-declarations": "failed",
+            "datacurve/scc-bounded-memory-spilling": "passed",
+            "terminal-bench/dna-insert": "passed",
+            "terminal-bench/sanitize-git-repo": "failed"
+          },
+          "outcomeDetail": {
+            "datacurve/katex-multicolumn-array-spans": "Flipped from failed (f2p 0/94) to passed (reward=1, f2p 94/94, p2p 599/599). The candidate carries no task-affecting change over the source run, so this is run-to-run variance, not improvement.",
+            "datacurve/scc-bounded-memory-spilling": "Flipped from failed (f2p 28/31) to passed (reward=1, f2p 31/31, p2p 286/286). Same reading: variance.",
+            "terminal-bench/dna-insert": "Flipped from failed (651s/1800s) to passed (reward=1, 509s). Same reading: variance.",
+            "datacurve/meriyah-explicit-resource-declarations": "Reproduced: failed, f2p 45/49, p2p 51469/51469 \u2014 the pre-declared specification gap, excluded from capability comparisons.",
+            "terminal-bench/sanitize-git-repo": "Reproduced: failed, reward=0, 167s (source run 441s).",
+            "datacurve/expr-try-catch-errors": "NOT a task outcome: the attempt died on an explicit upstream provider transport failure (one model-failure entry, reason=connection; NonZeroAgentExitCodeError; pierExitCode=0; 295 requests / 294 outcomes, 0 unanswered; verifier f2p partial 0.9988, i.e. the attempt was nearly complete). disposition=error means the cell carries no verdict. Re-measured in part B under the user's standing authorization for upstream-caused failures."
+          },
+          "evidence": "Artifact frontier-harness-report-36162170626; frozen record docs/benchmarks/history/frontier-harness/20260925T163943Z--36162170626.json (sha256 06b245ef8618f04a303ae1976ae610316fa9971fd25548d3471e030f50c6e6cd) with its Chinese record. 9/9 jobs green in 1h19m34s; 3 passed / 2 failed / 1 error; 0 budget-exhausted.",
+          "candidateBinarySha256": "2562403366298b52959c03989c0b17db7d4f4153e9f2e67929dbed1479ff0e6f",
+          "measuredCallDurations": {
+            "note": "First artifact set whose attempt evidence carries measured call times (spec 241). Model share = sum of per-call durations / agent wall clock; the error cell exceeds 100% because it ran subagents in parallel.",
+            "perTask": {
+              "datacurve/expr-try-catch-errors": {
+                "calls": 295,
+                "sumSec": 5309,
+                "medianSec": 9.6,
+                "maxSec": 584.0,
+                "wallSec": 4296,
+                "modelSharePct": 124
+              },
+              "datacurve/katex-multicolumn-array-spans": {
+                "calls": 162,
+                "sumSec": 3538,
+                "medianSec": 12.9,
+                "maxSec": 321.9,
+                "wallSec": 3726,
+                "modelSharePct": 95
+              },
+              "datacurve/meriyah-explicit-resource-declarations": {
+                "calls": 253,
+                "sumSec": 4252,
+                "medianSec": 10.9,
+                "maxSec": 132.3,
+                "wallSec": 4590,
+                "modelSharePct": 93
+              },
+              "datacurve/scc-bounded-memory-spilling": {
+                "calls": 123,
+                "sumSec": 2805,
+                "medianSec": 15.9,
+                "maxSec": 312.5,
+                "wallSec": 3011,
+                "modelSharePct": 93
+              },
+              "terminal-bench/dna-insert": {
+                "calls": 21,
+                "sumSec": 450,
+                "medianSec": 5.3,
+                "maxSec": 214.8,
+                "wallSec": 502,
+                "modelSharePct": 90
+              },
+              "terminal-bench/sanitize-git-repo": {
+                "calls": 12,
+                "sumSec": 127,
+                "medianSec": 10.3,
+                "maxSec": 18.3,
+                "wallSec": 162,
+                "modelSharePct": 78
+              }
+            },
+            "unansweredRequests": 0,
+            "finding": "Model-call time is 78-95% of the agent wall clock on every cell of this part; tool and process waits are the minority. The hypothesis that recovering wasted tool waits would flip a timeout verdict is not supported here."
+          },
+          "conclusion": "Three of five valid cells flipped to passed on a candidate with no task-affecting change over the source run, which is direct evidence of run-to-run variance in per-task verdicts. One cell (expr-try-catch-errors) carries no verdict because of an explicit upstream provider transport failure. No cell exhausted its budget."
         },
         {
           "part": "b",
@@ -185,10 +256,21 @@
             "terminal-bench/db-wal-recovery",
             "terminal-bench/gcode-to-text",
             "terminal-bench/largest-eigenval",
-            "terminal-bench/openssl-selfsigned-cert"
+            "terminal-bench/openssl-selfsigned-cert",
+            "datacurve/expr-try-catch-errors"
           ],
           "dispatched": false,
-          "runId": null
+          "runId": null,
+          "dispatchNote": "Part B is dispatched only after part A reached a terminal state, so the provider load stays comparable to the source run. It now carries 6 cells: the 5 originally declared plus the upstream-failed error cell of part A."
+        }
+      ],
+      "partBAdditions": [
+        {
+          "task": "datacurve/expr-try-catch-errors",
+          "from": "part A (run 36162170626)",
+          "stage": "provider",
+          "reason": "Explicit upstream provider transport failure, mechanically proven: exactly one model-failure entry with reason=connection, NonZeroAgentExitCodeError, pierExitCode=0, 295 requests against 294 outcomes with 0 unanswered, and a verifier that had run with f2p partial 0.9988. disposition=error, so the cell carries no verdict and nothing is being reinterpreted. The user's standing authorization is to re-run failures caused by upstream problems, timeouts or external factors.",
+          "boundary": "This is a diagnostic re-measurement inside a diagnostic batch, not a benchmark-level recovery that fills a formal cell: the attempt produced a model.patch, so the 'no prediction' condition of the recovery rule is not met, and this cell is therefore never treated as a missing formal cell. The error disposition of part A stands as that batch's record and is never overwritten."
         }
       ]
     }
