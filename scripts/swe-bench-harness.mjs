@@ -1050,17 +1050,15 @@ export function inspectAttemptEvidence(path) {
   for (const record of body) {
     if (record.type === "model-request") {
       if (
-        !exactKeys(record, [
-          "invocationId",
-          "request",
-          "resourceId",
-          "runId",
-          "sequence",
-          "type",
-        ]) ||
+        !admittedKeys(
+          record,
+          ["invocationId", "request", "resourceId", "runId", "sequence", "type"],
+          ["startedAtMs"],
+        ) ||
         typeof record.invocationId !== "string" ||
         requests.has(record.invocationId) ||
         record.resourceId !== record.runId ||
+        !optionalMillis(record, "startedAtMs") ||
         !validModelRequest(record.request, record.resourceId)
       ) {
         return { prefixValid: false, complete: false, reason: "invalid-model-request" };
@@ -1072,10 +1070,15 @@ export function inspectAttemptEvidence(path) {
     } else if (record.type === "model-outcome" || record.type === "model-failure") {
       const valueKey = record.type === "model-outcome" ? "outcome" : "failure";
       if (
-        !exactKeys(record, ["invocationId", valueKey, "resourceId", "runId", "sequence", "type"]) ||
+        !admittedKeys(
+          record,
+          ["invocationId", valueKey, "resourceId", "runId", "sequence", "type"],
+          ["durationMs"],
+        ) ||
         closures.has(record.invocationId) ||
         record.resourceId !== record.runId ||
         requests.get(record.invocationId) !== record.resourceId ||
+        !optionalMillis(record, "durationMs") ||
         !validModelClosure(record[valueKey], record.type)
       ) {
         return { prefixValid: false, complete: false, reason: "invalid-model-closure" };
@@ -1276,6 +1279,27 @@ function exactKeys(value, keys) {
     typeof value === "object" &&
     JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort())
   );
+}
+
+/**
+ * Exact-key admission with a declared optional set.
+ *
+ * The call-time fields spec 240 added to an existing record variant are optional here on
+ * purpose: frozen artifacts written by a candidate that predates them carry neither key and
+ * stay admissible, while a candidate that carries them is admitted too. Every other key
+ * remains a refusal, so this is a widening of the admitted shape and never a loosening of
+ * the closed record contract.
+ */
+function admittedKeys(value, required, optional) {
+  if (value === null || typeof value !== "object") return false;
+  const keys = Object.keys(value);
+  const allowed = new Set([...required, ...optional]);
+  return keys.every((key) => allowed.has(key)) && required.every((key) => keys.includes(key));
+}
+
+/** An optional call-time field must be a bounded non-negative integer when it is present. */
+function optionalMillis(value, key) {
+  return !(key in value) || (Number.isSafeInteger(value[key]) && value[key] >= 0);
 }
 
 export function taskResult(task, startMs, extra = {}) {
