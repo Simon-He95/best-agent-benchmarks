@@ -65,7 +65,7 @@
         "terminal-bench/gcode-to-text",
         "terminal-bench/largest-eigenval"
       ],
-      "reason": "User-authorized rerun of the failures whose cause is a timeout. Each task carries an existing canonical verdict (failed) in run 36092882496, so this batch is a variance probe only and can never replace or reinterpret those verdicts. Mechanical classification of the timeout: all three attempts ended on AgentTimeoutError at their own official 900s agent budget (947s, 930s, 933s) while the agent was still iterating, and every one of the three frozen attempt evidences contains zero model-failure entries (chess-best-move 35 requests / 35 outcomes, gcode-to-text 49/48, largest-eigenval 21/20 — the single unanswered request in the last two is the one cut at the budget boundary). The agent was killed at the budget boundary, not by a provider transport or connection failure. The timeout is chronic across candidates: the same tasks also hit their official budget in run 35992545942 (candidate d631b623/beta.33), where chess-best-move passed inside budget in the diagnostic rerun 36005393416 and the other two reproduced their timeout. In run 36092882496 the fourth chronic task, terminal-bench/code-from-image, completed inside its own budget and passed, so it is not in this batch. The official agent budget is preserved (fh_agent_timeout_multiplier=1); it is never extended to convert a budget outcome into a pass.",
+      "reason": "User-authorized rerun of the failures whose cause is a timeout. Each task carries an existing canonical verdict (failed) in run 36092882496, so this batch is a variance probe only and can never replace or reinterpret those verdicts. Mechanical classification of the timeout: all three attempts ended on AgentTimeoutError at their own official 900s agent budget (947s, 930s, 933s) while the agent was still iterating, and every one of the three frozen attempt evidences contains zero model-failure entries (chess-best-move 35 requests / 35 outcomes, gcode-to-text 49/48, largest-eigenval 21/20 \u2014 the single unanswered request in the last two is the one cut at the budget boundary). The agent was killed at the budget boundary, not by a provider transport or connection failure. The timeout is chronic across candidates: the same tasks also hit their official budget in run 35992545942 (candidate d631b623/beta.33), where chess-best-move passed inside budget in the diagnostic rerun 36005393416 and the other two reproduced their timeout. In run 36092882496 the fourth chronic task, terminal-bench/code-from-image, completed inside its own budget and passed, so it is not in this batch. The official agent budget is preserved (fh_agent_timeout_multiplier=1); it is never extended to convert a budget outcome into a pass.",
       "constraints": [
         "This batch is diagnostic only: its outcomes cannot replace the canonical verdicts of run 36092882496 and cannot enter a pass@1.",
         "The candidate pin is unchanged from the source run (config/frontier-harness.json is unchanged); the recorded candidateId must match cli-0.0.3-beta.34-6ce38f1-*.",
@@ -109,6 +109,34 @@
       },
       "evidence": "Artifact frontier-harness-report-36103695160 (report.json + report.json.md + failures.json) and the per-task artifacts frontier-harness-task-36103695160-<task>; frozen record docs/benchmarks/history/frontier-harness/20260925T063724Z--36103695160.json (sha256 b4a9cd0ee56c012a9b970e6515f877c10e7ad02b0a3c8ec129ec88e634b97f70) with its Chinese record. The batch ran 7/7 jobs green in 19m05s.",
       "conclusion": "3 of 3 timeout verdicts reproduced and every attempt again recorded zero model-failure entries with pierExitCode 0, so the timeout remains a budget outcome of the agent, not an upstream/provider outage and not an environment death. Across candidates the timeout is chronic for gcode-to-text and largest-eigenval; chess-best-move has real run-to-run variance (it passed inside budget in run 36005393416 under candidate d631b623) but was killed at the 900s boundary in both attempts of this candidate. No further rerun of these tasks is permitted."
+    },
+    {
+      "id": "diagnostic-failed-rerun-20260926",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/scc-bounded-memory-spilling",
+        "terminal-bench/chess-best-move",
+        "terminal-bench/db-wal-recovery",
+        "terminal-bench/dna-insert",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval",
+        "terminal-bench/openssl-selfsigned-cert",
+        "terminal-bench/sanitize-git-repo"
+      ],
+      "reason": "Every one of the 11 cells that failed in run 36092882496 is re-measured on a NEW candidate (0.0.3-beta.36 / c9ae2e2f), which is the first candidate that carries spec 241: bounded per-call call times in the attempt evidence. This is a measurement of the new candidate, not a rescue of the old verdicts. Two questions only: (a) does each failure reproduce on a different candidate, and (b) where did each attempt's wall clock actually go. Question (b) could not be answered from any earlier artifact at all: every elapsed-time figure in the previous records is a derivation (a waitMs sum, or durationMs divided by the model-call count), and a request the harness cut at the budget boundary carried no time bound whatsoever. The new candidate changes measurement and naming only: spec 241 records two bounded integers on an existing record variant, and the runner-side B1 conformance renames an attempt-derived ceiling without changing its value. No task-visible behaviour, tool surface, instruction text or budget changes, so this batch is expected to measure variance rather than improvement, and it cannot support any capability claim.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace or reinterpret any canonical verdict of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is the new one (config/frontier-harness.json#cli = 0.0.3-beta.36 / c9ae2e2f), declared here before dispatch; it is deliberately not the source run's candidate.",
+        "Because the candidate differs, nothing in this batch is comparable with run 36092882496 or with batch diagnostic-timeout-rerun-20260925; it is a separate measurement.",
+        "The official agent/verifier time budgets are preserved (fh_agent_timeout_multiplier=1), never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "Batch diagnostic-timeout-rerun-20260925 concluded that no further rerun of its three tasks was permitted; that conclusion was about the variance of candidate d631b623/6ce38f17 and is not contradicted here, because this batch measures a different candidate for a different purpose.",
+        "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons."
+      ],
+      "dispatched": false
     }
   ]
 }
