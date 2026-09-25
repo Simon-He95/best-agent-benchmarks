@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "source": {
+    "runId": 36092882496,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36092882496",
+    "headSha": "f366a572797c42b867af8153c897a689caecc8e4",
+    "batchId": "latest-beta34-6ce38f17-high-20260925",
+    "formalRunId": "formal-36092882496",
+    "reportArtifact": "frontier-harness-report-36092882496",
+    "reportSha256": "3fd51d66316d52dd712334bbfefdfbe11dbc1b38a8a1f94675e19926180d4a6f",
+    "candidateId": "cli-0.0.3-beta.34-6ce38f1-102986a152ee",
+    "candidatePin": "config/frontier-harness.json#cli (sourceCommit 6ce38f173e74259726a8532ebad58f6e0797be2c, cliVersion 0.0.3-beta.34)",
+    "verdicts": {
+      "passed": 19,
+      "failed": 11,
+      "error": 0,
+      "notEvaluated": 0,
+      "coverage": "30 of 30 Docker-eligible corpus tasks predeclared",
+      "passAt1": 0.6333333333333333,
+      "reasonPassAt1Present": "all five acceptance criteria passed and the corpus has no missing verdict"
+    },
+    "failureClassification": {
+      "byStage": {
+        "model": 7,
+        "agent-timeout": 3,
+        "specification-gap": 1
+      },
+      "upstreamFailures": 0,
+      "environmentFailures": 0,
+      "method": "Every one of the 11 failed attempts was classified mechanically from its own frozen evidence: the per-task result record (exception, effectiveAgentTimeoutSec, durationMs, pierExitCode, modelOutcomes) plus its best-agent-evidence.jsonl (model-request and model-outcome counts, model-failure entries). No classification was inferred from the verifier, from logs, or from prose.",
+      "finding": "The count of model-failure entries is 0 in all 11 failed attempts; model requests and outcomes are equal or differ by exactly one (the request the harness cut at the budget boundary); pierExitCode is 0 for all 11; the aggregate report records 0 error and 0 not-evaluated cells. No task in run 36092882496 failed for an upstream/provider or an environment reason. The only rerun-eligible failures are the 3 agent-budget timeouts below."
+    },
+    "notRerun": [
+      {
+        "stage": "model",
+        "tasks": [
+          "datacurve/expr-try-catch-errors",
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/scc-bounded-memory-spilling",
+          "terminal-bench/db-wal-recovery",
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "reason": "Each ended with terminalCause completed well inside its own budget (3025s/5400s, 2459s/5400s, 1606s/5400s, 646s/900s, 651s/1800s, 215s/900s, 441s/900s), with zero model-failure entries and a real graded verifier result (f2p 78/79, 0/94, 28/31, and reward=0 respectively). These are genuine capability outcomes of the agent, not upstream, timeout or environment effects, so they are not rerun: re-running a genuine model failure to obtain a different verdict is best-of-N / rescue and is prohibited by the repository's benchmark rules."
+      },
+      {
+        "stage": "specification-gap",
+        "tasks": [
+          "datacurve/meriyah-explicit-resource-declarations"
+        ],
+        "reason": "Pre-declared in config/frontier-harness.json#specificationGaps: the task's pinned instruction omits a rule its hidden tests require. The attempt itself was a real model outcome (252 model outcomes, 252/252 answered, 4077s/5400s, terminalCause completed) and the aggregate report already excludes this task from capability comparisons. A rerun cannot repair a frozen task defect, and the source run's own classification leaves its verdict standing unchanged."
+      }
+    ]
+  },
+  "batches": [
+    {
+      "id": "diagnostic-timeout-rerun-20260925",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "terminal-bench/chess-best-move",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval"
+      ],
+      "reason": "User-authorized rerun of the failures whose cause is a timeout. Each task carries an existing canonical verdict (failed) in run 36092882496, so this batch is a variance probe only and can never replace or reinterpret those verdicts. Mechanical classification of the timeout: all three attempts ended on AgentTimeoutError at their own official 900s agent budget (947s, 930s, 933s) while the agent was still iterating, and every one of the three frozen attempt evidences contains zero model-failure entries (chess-best-move 35 requests / 35 outcomes, gcode-to-text 49/48, largest-eigenval 21/20 — the single unanswered request in the last two is the one cut at the budget boundary). The agent was killed at the budget boundary, not by a provider transport or connection failure. The timeout is chronic across candidates: the same tasks also hit their official budget in run 35992545942 (candidate d631b623/beta.33), where chess-best-move passed inside budget in the diagnostic rerun 36005393416 and the other two reproduced their timeout. In run 36092882496 the fourth chronic task, terminal-bench/code-from-image, completed inside its own budget and passed, so it is not in this batch. The official agent budget is preserved (fh_agent_timeout_multiplier=1); it is never extended to convert a budget outcome into a pass.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace the canonical verdicts of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is unchanged from the source run (config/frontier-harness.json is unchanged); the recorded candidateId must match cli-0.0.3-beta.34-6ce38f1-*.",
+        "The official agent/verifier time budgets are preserved, never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "Only these three timeout failures are rerun; the seven genuine model failures and the pre-declared specification-gap task are deliberately excluded, as recorded in source.notRerun."
+      ],
+      "dispatched": false
+    }
+  ]
+}
