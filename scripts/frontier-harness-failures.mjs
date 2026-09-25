@@ -101,6 +101,21 @@ function findTrialDir(jobsRoot, taskShort, jobName) {
   return candidates.sort().pop();
 }
 
+/**
+ * One owner for the "the agent used its whole declared budget" judgement.
+ *
+ * The failure analysis classifies it as a stage and the report discloses it for every
+ * disposition — including a task that exhausted its budget and still passed, because the
+ * verifier grades the delivered artifacts rather than the attempt. Two readings of one
+ * fact would let the two artifacts disagree, so both import this predicate.
+ */
+export function isAgentBudgetExhaustion(exception, trialExceptionText) {
+  const message = `${exception?.type ?? ""} ${exception?.message ?? ""}`;
+  return /Agent execution timed out|AgentTimeoutError|Agent setup timed out|AgentSetupTimeoutError/iu.test(
+    `${message}\n${trialExceptionText ?? ""}`,
+  );
+}
+
 function classifyFailure(record, evidence, trialExceptionText) {
   const disposition = record.result?.disposition;
   const exception = record.result?.exception;
@@ -109,13 +124,7 @@ function classifyFailure(record, evidence, trialExceptionText) {
   if (disposition === "passed") return "passed";
   // The agent used its whole declared budget and Pier killed the run: the
   // model was still working, so this is a budget outcome, not a model failure.
-  if (
-    /Agent execution timed out|AgentTimeoutError|Agent setup timed out|AgentSetupTimeoutError/iu.test(
-      `${message}\n${trialExceptionText ?? ""}`,
-    )
-  ) {
-    return "agent-timeout";
-  }
+  if (isAgentBudgetExhaustion(exception, trialExceptionText)) return "agent-timeout";
   if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
   if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
     return "provider";

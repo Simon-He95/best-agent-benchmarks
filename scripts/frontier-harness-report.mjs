@@ -25,6 +25,8 @@ import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isAgentBudgetExhaustion } from "./frontier-harness-failures.mjs";
+
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const config = JSON.parse(
   readFileSync(join(repoRoot, "config", "frontier-harness.json"), "utf8"),
@@ -105,6 +107,10 @@ function main() {
   const notEvaluated = counted.filter((r) =>
     ["not-evaluated", "inconclusive"].includes(r.result.disposition),
   ).length;
+  const budgetExhausted = counted.filter((r) => isAgentBudgetExhaustion(r.result.exception));
+  const budgetExhaustedPassed = budgetExhausted.filter(
+    (r) => r.result.disposition === "passed",
+  );
 
   // The report states the effort the attempts actually ran at. Each frozen
   // record carries the materialized effort, the records of one run must agree on
@@ -269,6 +275,17 @@ function main() {
       error: errors,
       notEvaluated,
     },
+    // Disclosure, not a verdict: a task whose agent used its whole declared budget is
+    // named here whatever its disposition, because the task verifier grades the
+    // delivered artifacts rather than the attempt — so "exhausted the budget" and
+    // "failed" are different facts and a reader must be able to see both. The
+    // predicate is imported from the failure analysis, which owns this judgement.
+    budgetExhausted: {
+      attempts: budgetExhausted.length,
+      passed: budgetExhaustedPassed.length,
+      tasks: budgetExhausted.map((record) => record.task.name).sort(),
+      passedTasks: budgetExhaustedPassed.map((record) => record.task.name).sort(),
+    },
     passRate,
     validCells,
     passRateValidCells,
@@ -288,6 +305,7 @@ function main() {
       return {
         task: name,
         disposition: record.result.disposition,
+        budgetExhausted: isAgentBudgetExhaustion(record.result.exception),
         rewards: record.result.rewards ?? undefined,
         exception: record.result.exception ?? undefined,
         durationMs: record.durationMs,
@@ -317,7 +335,11 @@ function main() {
       const tokens = entry.usage
         ? `in ${entry.usage.promptTokens ?? "-"} / cache ${entry.usage.cacheReadTokens ?? "-"} / out ${entry.usage.completionTokens ?? "-"}`
         : "-";
-      return `| ${icon} ${entry.task} | ${entry.disposition} | ${rewards} | ${tokens} |`;
+      // A budget-exhausted attempt is marked whatever its disposition: a passed row
+      // whose agent was killed at its budget edge is a different fact from a passed
+      // row that finished inside it.
+      const budget = entry.budgetExhausted ? " ⏱ budget-exhausted" : "";
+      return `| ${icon} ${entry.task}${budget} | ${entry.disposition} | ${rewards} | ${tokens} |`;
     })
     .join("\n");
   const markdown = [
@@ -336,6 +358,7 @@ function main() {
     `| failed | ${failed} |`,
     `| error | ${errors} |`,
     `| not-evaluated | ${notEvaluated} |`,
+    `| budget-exhausted attempts | ${report.budgetExhausted.attempts} (${report.budgetExhausted.passed} still passed) |`,
     `| **pass rate** | **${(passRate * 100).toFixed(1)}%** |`,
     `| valid cells | ${validCells} of ${expectedEligible.length} (${expectedEligible.length - validCells} without a verdict) |`,
     `| pass rate (valid cells, secondary) | ${passRateValidCells === null ? "null (no valid cell)" : `${(passRateValidCells * 100).toFixed(1)}% (${passed}/${validCells})`} |`,
@@ -369,6 +392,15 @@ function main() {
           `> (${report.specificationGapTasks.join(", ")}). Their verdicts above stand unchanged.`,
           "",
         ]),
+    ...(report.budgetExhausted.attempts === 0
+      ? []
+      : [
+          `> ${report.budgetExhausted.attempts} task(s) used their whole declared agent budget and were killed at that`,
+          "> edge. That is a budget outcome, not a task verdict: the verifier grades the delivered artifacts, so a",
+          `> task can exhaust its budget and still pass (${report.budgetExhausted.passed} of them did: ${report.budgetExhausted.passedTasks.join(", ") || "none"}).`,
+          "> Marked ⏱ in the table below; the verdicts are unchanged.",
+          "",
+        ]),
     "## Per-task verdicts",
     "",
     "| task | disposition | rewards | tokens (in / cache / out) |",
@@ -382,6 +414,7 @@ function main() {
       {
         coverage: report.coverage,
         results: report.results,
+        budgetExhausted: report.budgetExhausted,
         reasoningEffort,
         passRate,
         validCells,

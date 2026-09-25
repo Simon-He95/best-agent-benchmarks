@@ -1176,3 +1176,95 @@ test("frontier report refuses records whose reasoning effort is not declared", (
     "max",
   );
 });
+
+test("the report discloses a task that exhausted its budget, including one that passed", () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-report-budget-"));
+  const results = join(root, "results");
+  mkdirSync(results);
+  const tasks = ["terminal-bench/passed-at-budget-edge", "terminal-bench/real-failure"];
+  writeFileSync(
+    join(root, "corpus.json"),
+    JSON.stringify({
+      profileId: config.profileId,
+      dataset: {
+        name: "frontier-harness-eval-v1",
+        sourceCommit: config.source.sourceCommit,
+        taskCount: 30,
+      },
+      gpuTasks: [],
+      tasks: tasks.map((name) => ({ name, instructionSha256: `frozen-${name}` })),
+    }),
+  );
+  const expectedPath = join(root, "expected.txt");
+  writeFileSync(expectedPath, `${tasks.join("\n")}\n`);
+  const writeRecord = (task, result) =>
+    writeFileSync(
+      join(results, `frontier-harness-results.${task.split("/").pop()}.json`),
+      JSON.stringify({
+        schemaVersion: 1,
+        task: { name: task, suite: task.split("/")[0], instructionSha256: `frozen-${task}` },
+        candidateId: "cli-synthetic",
+        cliVersion: config.cli.cliVersion,
+        cliBinarySha256: "a".repeat(64),
+        candidateManifestSha256: "b".repeat(64),
+        model: config.provider.model,
+        batchId: "synthetic",
+        durationMs: 941_000,
+        reasoningEffort: config.provider.reasoningEffort,
+        result,
+        artifacts: {},
+      }),
+    );
+  // The agent used its whole budget and the task still passed: the verifier grades the
+  // delivered artifacts, so this is a passed verdict carrying a budget outcome.
+  writeRecord(tasks[0], {
+    disposition: "passed",
+    rewards: { reward: 1 },
+    exception: { type: "AgentTimeoutError", message: "Agent execution timed out after 900.0 seconds" },
+  });
+  // A genuine task failure that never came near its budget.
+  writeRecord(tasks[1], { disposition: "failed", rewards: { reward: 0 } });
+
+  const output = join(root, "report.json");
+  const spawned = spawnSync(
+    process.execPath,
+    [
+      resolve(repoRoot, "scripts/frontier-harness-report.mjs"),
+      "--results",
+      results,
+      "--corpus",
+      join(root, "corpus.json"),
+      "--expected-tasks",
+      expectedPath,
+      "--output",
+      output,
+      "--formal",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(spawned.status, 0, spawned.stderr);
+
+  const report = JSON.parse(readFileSync(output, "utf8"));
+  // The verdict is untouched: the passed cell stays passed.
+  assert.deepEqual(report.results, { passed: 1, failed: 1, error: 0, notEvaluated: 0 });
+  // The budget outcome is named for every disposition, not only for failures.
+  assert.deepEqual(report.budgetExhausted, {
+    attempts: 1,
+    passed: 1,
+    tasks: [tasks[0]],
+    passedTasks: [tasks[0]],
+  });
+  assert.equal(
+    report.perTask.find((entry) => entry.task === tasks[0]).budgetExhausted,
+    true,
+  );
+  assert.equal(
+    report.perTask.find((entry) => entry.task === tasks[1]).budgetExhausted,
+    false,
+  );
+  // A reader of the markdown sees both the per-task mark and the aggregate note.
+  const markdown = readFileSync(`${output}.md`, "utf8");
+  assert.match(markdown, /budget-exhausted attempts \| 1 \(1 still passed\)/u);
+  assert.match(markdown, /\u23f1 budget-exhausted/u);
+  assert.match(markdown, /can exhaust its budget and still pass/u);
+});
