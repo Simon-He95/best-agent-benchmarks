@@ -209,9 +209,11 @@
       "fh_max_parallel": 5,
       "fh_batch": "recovery-no-prediction-20260927"
     },
-    "dispatched": false,
-    "runId": null,
-    "runUrl": null,
+    "dispatched": true,
+    "runId": 36321280593,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36321280593",
+    "headSha": "300e363ea61c2b2c26aacec0ce43e76be8115f3a",
+    "dispatchedAt": "2026-09-27T13:07:02Z",
     "outcome": null,
     "outcomeDetail": null,
     "evidence": null
