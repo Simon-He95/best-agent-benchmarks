@@ -426,10 +426,112 @@
           "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36285013315",
           "batchLabel": "diagnostic-latest-rerun-20260927a",
           "fhMaxParallel": 6,
-          "candidateId": null,
-          "outcome": null,
-          "outcomeDetail": null,
-          "evidence": null
+          "headSha": "a96039b8d66f8073e59dc26dc3eebf0e57a84bed",
+          "candidateId": "cli-0.0.3-beta.37-a578453-aa3d4b0fd3b9",
+          "candidateBinarySha256": "aa3d4b0fd3b96bb0281402582e5908db4af693f74a6e2a207f2804db22bf1fa4",
+          "candidateManifestSha256": "d39fc24ac9aece074a6c93dccfd157b116fcc7bcb01a2bbb8aa55256d0bf2e8d",
+          "outcome": {
+            "datacurve/expr-try-catch-errors": "passed",
+            "datacurve/katex-multicolumn-array-spans": "passed",
+            "datacurve/meriyah-explicit-resource-declarations": "failed",
+            "datacurve/scc-bounded-memory-spilling": "failed",
+            "terminal-bench/dna-insert": "failed",
+            "terminal-bench/sanitize-git-repo": "failed"
+          },
+          "outcomeDetail": {
+            "datacurve/expr-try-catch-errors": "Flipped from failed (model, f2p 78/79) to passed: reward=1, f2p 79/79, p2p 66265/66265, terminalCause=completed in 3225s of a 5400s budget, 195 model outcomes, 0 unanswered requests. It also passed in the beta.36 part B re-measurement; the candidate carries no task-affecting change, so this is run-to-run variance, not improvement.",
+            "datacurve/katex-multicolumn-array-spans": "Reproduced the beta.36 part A pass: reward=1, f2p 94/94, p2p 599/599, terminalCause=completed in 2623s of 5400s, 149 model outcomes. Still a variance reading against the source run's failed (f2p 0/94).",
+            "datacurve/meriyah-explicit-resource-declarations": "Reproduced: failed, f2p 48/49 (source run and beta.36 both 45/49), p2p 51469/51469, terminalCause=completed in 2963s of 5400s, 209 model outcomes. The pre-declared specification gap, excluded from capability comparisons.",
+            "datacurve/scc-bounded-memory-spilling": "Reverted to the source run's outcome: failed, f2p 28/31 (identical to the source run's 28/31), p2p 286/286, terminalCause=completed in 1897s of 5400s, 105 model outcomes. It had passed in beta.36 part A (31/31), so the same task's verdict has now moved failed -> passed -> failed across three candidates with no task-affecting change.",
+            "terminal-bench/dna-insert": "Reverted and exhausted the budget: failed, reward=0, AgentTimeoutError at the 1800s edge (1835s elapsed), 30 model outcomes, 1 request cut at the budget boundary (startedAtMs 992893). It passed inside budget (509s) in beta.36 part A and ended completed at 651s in the source run, so this is the first measured instance of this task hitting its own budget.",
+            "terminal-bench/sanitize-git-repo": "Reproduced: failed, reward=0, terminalCause=completed in 121s of 900s, 10 model outcomes. Third consecutive failure across the source run (441s), beta.36 part A (167s) and this batch."
+          },
+          "aggregate": {
+            "present": 6,
+            "missing": 0,
+            "passed": 2,
+            "failed": 4,
+            "error": 0,
+            "notEvaluated": 0,
+            "budgetExhausted": 1,
+            "budgetExhaustedStillPassed": 0,
+            "passRate": 0.3333333333333333,
+            "usage": "tasks 6, promptTokens 79812335, completionTokens 417666, cacheReadTokens 78823616, totalTokens 80230001, modelCallCount 628, costUsd null",
+            "acceptance": "verdicts.complete, candidate.single, provider.single and instructions.frozen passed; coverage.full failed by design (6 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+          },
+          "evidence": "Artifact frontier-harness-report-36285013315 (report.json sha256 fcc83b8f8842ef70751b7fce63879f64551b129a039875efa0baa1ae32f03f77, report.json.md, failures.json, failures.md, expected-tasks.txt) with the per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T011603Z--36285013315.json (same sha256) with its Chinese record. 10/10 jobs green in 56m31s (2026-09-27T01:16:03Z -> 02:12:34Z); 2 passed / 4 failed / 0 error; 1 budget-exhausted, none of them passed. failures.json byStage = {specification-gap: 1, model: 2, agent-timeout: 1}.",
+          "mechanicalAttribution": {
+            "method": "Every one of the 6 attempts was classified from its own frozen evidence: the per-task result record (exception, effectiveAgentTimeoutSec, durationMs, pierExitCode, pierSignal, modelOutcomes) plus its best-agent-evidence.jsonl (model-request and model-outcome counts, model-failure entries).",
+            "modelFailures": 0,
+            "pierExitCodes": "0 for all six; pierSignal null for all six",
+            "finding": "No task failed for an upstream/provider or an environment reason. The single budget outcome is terminal-bench/dna-insert (AgentTimeoutError at its own official 1800s budget). The other three failures ended completed inside their own budgets with real graded verifier results (meriyah f2p 48/49, scc 28/31, sanitize reward=0). No error cell exists in this part, so part B needs no upstream-failure addition."
+          },
+          "measuredCallDurations": {
+            "note": "Same measurement as the previous batches (spec 241): startedAtMs on each model-request record, durationMs on its matching model-outcome or model-failure. calls = model-request records, including a request cut at the budget boundary; closures = requests with a matching outcome. Model share = sum of per-call durations / agent wall clock.",
+            "perTask": {
+              "datacurve/expr-try-catch-errors": {
+                "calls": 195,
+                "closures": 195,
+                "sumSec": 2820,
+                "medianSec": 6.8,
+                "maxSec": 275.9,
+                "wallSec": 3220,
+                "modelSharePct": 88
+              },
+              "datacurve/katex-multicolumn-array-spans": {
+                "calls": 149,
+                "closures": 149,
+                "sumSec": 2379,
+                "medianSec": 5.7,
+                "maxSec": 273.6,
+                "wallSec": 2615,
+                "modelSharePct": 91
+              },
+              "datacurve/meriyah-explicit-resource-declarations": {
+                "calls": 209,
+                "closures": 209,
+                "sumSec": 2970,
+                "medianSec": 5.5,
+                "maxSec": 261.7,
+                "wallSec": 2959,
+                "modelSharePct": 100
+              },
+              "datacurve/scc-bounded-memory-spilling": {
+                "calls": 105,
+                "closures": 105,
+                "sumSec": 1715,
+                "medianSec": 7.5,
+                "maxSec": 199.7,
+                "wallSec": 1892,
+                "modelSharePct": 91
+              },
+              "terminal-bench/dna-insert": {
+                "calls": 31,
+                "closures": 30,
+                "sumSec": 984,
+                "medianSec": 4.9,
+                "maxSec": 338.0,
+                "wallSec": 1831,
+                "modelSharePct": 54
+              },
+              "terminal-bench/sanitize-git-repo": {
+                "calls": 10,
+                "closures": 10,
+                "sumSec": 81,
+                "medianSec": 8.3,
+                "maxSec": 15.7,
+                "wallSec": 117,
+                "modelSharePct": 69
+              }
+            },
+            "unansweredRequests": 1,
+            "unansweredRequestsDetail": {
+              "terminal-bench/dna-insert": "1 — startedAtMs 992893"
+            },
+            "modelFailures": 0,
+            "finding": "Model-call time still dominates on the four datacurve cells (88-100% of the agent wall clock), so the earlier reading that the wall clock is mostly model latency holds there. The new measurement is terminal-bench/dna-insert: only 54% (984s of 1831s), i.e. 847s of non-model time, and it is the one cell that exhausted its budget in this part. sanitize-git-repo measured 69% but ran only 117s in total, so its share is not comparable. No datacurve cell came near its budget (model-time sums 32-55% of 5400s)."
+          },
+          "conclusion": "2 of 6 cells passed on a candidate with no task-affecting change over the source run (and none over beta.36 either), while 2 reproduced and 2 reverted to the source run's failure — including dna-insert, which is the first measured instance of that task hitting its own budget. Across the three candidates the same six cells have now produced three different verdict patterns, which is direct evidence that per-task verdicts are dominated by run-to-run variance. No upstream or environment failure occurred: zero model-failure entries, pierExitCode 0 and pierSignal null for all six."
         },
         {
           "part": "b",
