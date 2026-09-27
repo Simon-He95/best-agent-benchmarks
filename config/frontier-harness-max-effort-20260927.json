@@ -214,8 +214,37 @@
     "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36321280593",
     "headSha": "300e363ea61c2b2c26aacec0ce43e76be8115f3a",
     "dispatchedAt": "2026-09-27T13:07:02Z",
-    "outcome": null,
-    "outcomeDetail": null,
-    "evidence": null
+    "outcome": {
+      "present": 5,
+      "passed": 1,
+      "failed": 2,
+      "error": 2,
+      "notEvaluated": 0,
+      "budgetExhausted": 2,
+      "validCells": 3,
+      "passAt1": null,
+      "runWindow": "2026-09-27T13:07:02Z -> 14:43:33Z (1h36m31s), 9/9 jobs green, headSha 300e363ea61c2b2c26aacec0ce43e76be8115f3a",
+      "candidateId": "cli-0.0.3-beta.37-a578453-5c054ffcc3b2",
+      "candidateBinarySha256": "5c054ffcc3b2cbc6e9c1000d8c785eae3dab6091dffac70d0ea1028e4100e3a4",
+      "candidateManifestSha256": "eaac093b4978adbd8a05699026c5275dc6461ce56611bfe5df815a3febd2c563",
+      "acceptance": "coverage.full failed by design (5 of 30 predeclared), candidate.single passed, provider.single passed, instructions.frozen passed, verdicts.complete FAILED (2 error cells remain) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+      "usage": "tasks 3, promptTokens 164708408, completionTokens 513311, cacheReadTokens 163591424, totalTokens 165221719, modelCallCount 740, costUsd null"
+    },
+    "outcomeDetail": {
+      "filledCells": {
+        "datacurve/katex-multicolumn-array-spans": "FILLED and passed: reward=1, f2p 94/94, p2p 599/599, terminalCause=completed in 4096s of a 5400s budget, 165 model requests / 165 outcomes, 0 model-failure entries. The ECR 429 that killed it in the max run did not recur because this batch builds 3 images instead of 30 concurrently.",
+        "datacurve/meriyah-explicit-resource-declarations": "FILLED (a real verdict now, replacing the missing one): failed, reward=0, AgentTimeoutError at the 5400s edge (5583s elapsed), 299 requests / 298 outcomes with 1 request cut at the boundary, f2p 0/49. First measured instance of this task failing by budget exhaustion rather than by its known specification gap.",
+        "datacurve/python-statemachine-state-data-scoping": "FILLED (a real verdict now): failed, reward=0, AgentTimeoutError at the 5400s edge (5528s elapsed), 278 requests / 278 outcomes, f2p 0/72. It passed in the source run at effort high."
+      },
+      "stillMissing": {
+        "terminal-bench/polyglot-c-py": "STILL NO VERDICT, reproduced: exactly one model request, `model-failure reason=timeout durationMs=840022` (= the CLI's own --model-timeout-ms 840000 ceiling), modelOutcomes=0, NonZeroAgentExitCodeError, pierExitCode 0, no patch and no prediction. In the max run the same cell measured durationMs=840021, so the mechanism is reproducible across two independent dispatches.",
+        "terminal-bench/regex-log": "STILL NO VERDICT, reproduced: one request, `reason=timeout durationMs=840026` at the same ceiling (max run: 840021), modelOutcomes=0, NonZeroAgentExitCodeError, pierExitCode 0. Same reproducible mechanism."
+      },
+      "environmentClassResolved": "All three pre-model environment failures of the max run are resolved: the ECR pull throttle did not recur and every one of the three cells now carries a real graded attempt with zero model-failure entries.",
+      "providerClassReproduced": "The two provider cells did not resolve: at reasoning effort max their first call exceeds the client's own 840s per-call ceiling on both independent measurements (840.021s then 840.022s; 840.021s then 840.026s). This is not an ECR/environment failure and not a reason=connection transport failure; it is a single-call client-side timeout, now measured twice.",
+      "reading": "The user's request — re-run the failures caused by environment problems — is satisfied for the environment class: those three cells are filled and none of them is an infrastructure death any more. The two provider cells were included under the standing authorization for upstream/timeout failures; they did not produce a verdict either time, and per the frozen constraint no further dispatch is made, because a third attempt would only re-measure the same reproducible 840s mechanism. This batch does not repair run 36296596889: that run keeps its own 5 error cells and passAt1=null."
+    },
+    "evidence": "Artifact frontier-harness-report-36321280593 (report.json sha256 8120d2de44f2a3a4f0e6ef0ed95360fe2e6026bfd7006bd4874b27474a45cc3e, report.json.md, failures.json, failures.md, expected-tasks.txt) with the 5 per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T130702Z--36321280593.json (same sha256) with its Chinese record. 9/9 jobs green in 1h36m31s. failures.json byStage = {agent-timeout: 2, provider: 2} with an empty failedTools list. The first artifact download failed with 'unexpected EOF' and succeeded on the single retry the manifest allowed.",
+    "conclusion": "Three of the five no-prediction cells of the max-effort run are filled: katex-multicolumn-array-spans passed (94/94) once the ECR throttle stopped recurring, and meriyah-explicit-resource-declarations and python-statemachine-state-data-scoping both failed at their own 5400s budget edge, so none of the three is an environment death any more. The two terminal-bench provider cells stayed without a verdict and reproduced their mechanism exactly: a single first call that hits the CLI's own 840s per-call ceiling (measured 840.021s/840.022s and 840.021s/840.026s across the two dispatches), which makes them a reproducible client-side timeout at max effort rather than an infrastructure fault. Per the frozen constraint there is no third dispatch. The max-effort run's own report is unchanged: it keeps 5 error cells and passAt1=null, and this recovery is never merged into it."
   }
 }
