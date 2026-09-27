@@ -542,10 +542,16 @@
             "terminal-bench/largest-eigenval",
             "terminal-bench/openssl-selfsigned-cert"
           ],
-          "dispatched": false,
-          "runId": null,
+          "dispatched": true,
+          "runId": 36288388627,
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36288388627",
           "batchLabel": "diagnostic-latest-rerun-20260927b",
-          "fhMaxParallel": 5
+          "fhMaxParallel": 5,
+          "headSha": "0fec53b1b9a764e15a64ac2cb590620dd614c5be",
+          "candidateId": null,
+          "outcome": null,
+          "outcomeDetail": null,
+          "evidence": null
         }
       ]
     }
