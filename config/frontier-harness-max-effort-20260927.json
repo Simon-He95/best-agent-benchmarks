@@ -159,5 +159,61 @@
     "netPassedDelta": -5
   },
   "evidence": "Artifact frontier-harness-report-36296596889 (report.json sha256 a9a3624684271bbfecf8f76e4b06bc2e0be7996b176e0b07aa0291c4f6581545, report.json.md, failures.json, failures.md, expected-tasks.txt) with the 30 per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T051352Z--36296596889.json (same sha256) with its Chinese record. 34/34 jobs green in 1h33m56s. failures.json byStage = {agent-timeout: 8, infra: 3, model: 3, provider: 2}. The first artifact download failed with 'unexpected EOF' and succeeded on the single retry the manifest allowed.",
-  "conclusion": "The full-corpus max-effort run is not scoreable: 5 of 30 cells carry no verdict (3 pre-model image-pull 429 failures on the datacurve side, 2 single calls that hit the CLI's own 840s per-call ceiling), so verdicts.complete failed and passAt1 is null. On the 25 valid cells the pass rate is 56.0% (14 of 25) against the source run's 63.3% at effort high, and the direct task comparison is 14 of 30 against 19 of 30. The mechanically repeatable effect of the effort condition is on latency, not on capability: budget-exhausted attempts tripled from 3 to 10, single model calls reached 953s, and two first calls exceeded the client-side per-call ceiling. Three cells that passed at high effort were lost to that budget exhaustion, one was rescued, and three more were lost to infrastructure and per-call-timeout failures. Because the candidate carries no task-affecting change, none of this is a code effect: it is the effort condition plus run-to-run variance, and it does not by itself settle whether the remaining failures are capability or speed."
+  "conclusion": "The full-corpus max-effort run is not scoreable: 5 of 30 cells carry no verdict (3 pre-model image-pull 429 failures on the datacurve side, 2 single calls that hit the CLI's own 840s per-call ceiling), so verdicts.complete failed and passAt1 is null. On the 25 valid cells the pass rate is 56.0% (14 of 25) against the source run's 63.3% at effort high, and the direct task comparison is 14 of 30 against 19 of 30. The mechanically repeatable effect of the effort condition is on latency, not on capability: budget-exhausted attempts tripled from 3 to 10, single model calls reached 953s, and two first calls exceeded the client-side per-call ceiling. Three cells that passed at high effort were lost to that budget exhaustion, one was rescued, and three more were lost to infrastructure and per-call-timeout failures. Because the candidate carries no task-affecting change, none of this is a code effect: it is the effort condition plus run-to-run variance, and it does not by itself settle whether the remaining failures are capability or speed.",
+  "recovery": {
+    "kind": "recovery",
+    "batchLabel": "recovery-no-prediction-20260927",
+    "purpose": "Fill the five cells of run 36296596889 that carry no prediction and no verdict, so the max-effort condition stops having missing cells. Three of them died before any model call because public.ecr.aws throttled their base-image pull; two issued exactly one model request that ended at the CLI's own per-call ceiling. Only these five cells are attempted; no other task and no other run is touched.",
+    "requestedBy": "User, 2026-09-27: \"环境问题失败的重跑\" (re-run the failures caused by environment problems).",
+    "fills": [
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log"
+    ],
+    "admission": {
+      "preModelEnvironmentFailure": {
+        "tasks": [
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/meriyah-explicit-resource-declarations",
+          "datacurve/python-statemachine-state-data-scoping"
+        ],
+        "evidence": "Mechanically proven from the frozen per-task records of run 36296596889, independently re-read from the artifact: each cell's exception_info is RuntimeError 'Docker compose command failed for environment <task>' with the build failing at image metadata load, `unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/<digest>: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded`; pier's own trial traceback stops in `await self._setup_environment()` / `start_environment`; agent_execution is null; there is no jobs/<task>/.../agent directory and therefore no best-agent-evidence.jsonl and no model outcome at all; report durations 6404ms / 5498ms / 6428ms. This is a pre-model environment failure of the GitHub-hosted runner (30 concurrent Docker builds tripping the ECR pull limit), not a model attempt and not a task outcome. It is the class AGENTS.md admits for benchmark-level recovery.",
+        "class": "pre-model environment failure"
+      },
+      "providerFailure": {
+        "tasks": [
+          "terminal-bench/polyglot-c-py",
+          "terminal-bench/regex-log"
+        ],
+        "evidence": "Mechanically proven from the same frozen records: each cell issued exactly ONE model request (`model-request` sequence 1, startedAtMs 465) which ended as `model-failure` with `reason=timeout`, `durationMs=840021`, i.e. at the CLI's own per-call ceiling `--model-timeout-ms 840000`; the footer of the evidence file confirms expectedCounts modelRequest 1 / modelOutcome 0 / modelFailure 1; the agent then exited NonZeroAgentExitCodeError with pierExitCode 0, and no model outcome, no patch and no prediction exist. The verifier did run against an untouched workspace and produced reward=0, which the harness correctly does not read as a graded attempt: the frozen aggregate report classifies both cells as disposition=error.",
+        "class": "provider failure (per-call timeout at the client ceiling)",
+        "boundary": "Recorded precisely because it is not the 'transport' word AGENTS.md uses: the failure is a single call that outran the CLI's own 840s ceiling at reasoning effort max, not a connection error (no reason=connection occurred anywhere in this run). It carries no prediction, so re-measuring it is within the user's standing authorization for upstream- and timeout-caused failures; this manifest states the class explicitly rather than folding it silently into the environment class."
+      }
+    },
+    "scopeNote": "The user's phrase names environment failures. Three of the five cells above are exactly that. The other two (provider per-call timeouts) are included because they equally carry no prediction and no verdict, because they fall under the same standing authorization the user recorded earlier (upstream problems and timeouts are re-measured separately), and because leaving them out would leave the max-effort condition still incomplete. This reading is frozen here before dispatch so it can be checked against the user's intent.",
+    "constraints": [
+      "Only the five no-prediction cells are attempted; every other verdict of run 36296596889 and of any other run is preserved and never replaced or reinterpreted.",
+      "The candidate pin is unchanged (config/frontier-harness.json#cli = 0.0.3-beta.37 / a5784538), and the condition is unchanged: fh_reasoning_effort=max and fh_agent_timeout_multiplier=1, so the cells are filled under the same effort and the same official budgets as the run they belong to.",
+      "This recovery does NOT repair run 36296596889's pass@1: that run's frozen report keeps its own 5 error cells and passAt1=null, and per AGENTS.md a recovery is never merged into a formal run to produce a pass@1.",
+      "No harness retry or throttling workaround is added: the batch simply builds 3 images instead of 30 concurrently, which is the natural condition of a five-task run.",
+      "Nothing is published to main, and no other run is cancelled, restarted or re-dispatched."
+    ],
+    "dispatchInputs": {
+      "fh_run": true,
+      "fh_run_full": false,
+      "fh_tasks": "datacurve/katex-multicolumn-array-spans,datacurve/meriyah-explicit-resource-declarations,datacurve/python-statemachine-state-data-scoping,terminal-bench/polyglot-c-py,terminal-bench/regex-log",
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 5,
+      "fh_batch": "recovery-no-prediction-20260927"
+    },
+    "dispatched": false,
+    "runId": null,
+    "runUrl": null,
+    "outcome": null,
+    "outcomeDetail": null,
+    "evidence": null
+  }
 }
