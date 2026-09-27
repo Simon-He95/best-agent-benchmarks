@@ -87,7 +87,77 @@
   "headSha": "61ea50b5c1e4206c21f23d07cd8847d03f8e2654",
   "dispatchedAt": "2026-09-27T05:13:52Z",
   "runNote": "fh_run_full=true, so the workflow predeclares all 30 corpus tasks from the tracked batch plan and the aggregate report is built with --formal; the run's own report is the only source of its pass@1.",
-  "outcome": null,
-  "outcomeDetail": null,
-  "evidence": null
+  "outcome": {
+    "present": 30,
+    "passed": 14,
+    "failed": 11,
+    "error": 5,
+    "notEvaluated": 0,
+    "budgetExhausted": 10,
+    "budgetExhaustedStillPassed": 2,
+    "budgetExhaustedPassedTasks": [
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/modernize-scientific-stack"
+    ],
+    "passRate": 0.4666666666666667,
+    "validCells": 25,
+    "passRateValidCells": 0.56,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full passed (30 of 30 predeclared), candidate.single passed, provider.single passed, instructions.frozen passed, verdicts.complete FAILED (5 error cells) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "usage": "tasks 25, promptTokens 230641349, completionTokens 1258071, cacheReadTokens 227276736, totalTokens 231899420, modelCallCount 1558, costUsd null",
+    "runWindow": "2026-09-27T05:13:52Z -> 06:47:47Z (1h33m56s), 34/34 jobs green, headSha 61ea50b5c1e4206c21f23d07cd8847d03f8e2654",
+    "candidateId": "cli-0.0.3-beta.37-a578453-b4370fecb411",
+    "candidateBinarySha256": "b4370fecb411690401ac4a4f0e4c576e8eb2c622e30eb0e30d9d10fdb8a215ce",
+    "candidateManifestSha256": "aa945d8233073cabbeabf3111031292299427e3bdee5aba8d5c4cec8c8c26ae4"
+  },
+  "outcomeDetail": {
+    "comparisonToSourceRun": "Source formal run 36092882496 (best-agent beta.34 / 6ce38f17, effort high, 30 of 30 valid) scored 19 passed / 11 failed / 0 error with passAt1 0.6333. This run (beta.37, effort max) scored 14 passed / 11 failed / 5 error with passAt1 null. Because 5 cells carry no verdict, the two pass@1 values are NOT comparable and this run's pass@1 cannot be subtracted from 0.6333; on the 25 valid cells the pass rate is 56.0% against the source run's 63.3%, and the direct task count is 14 of 30 against 19 of 30.",
+    "flips": {
+      "passedToNoLongerPassed": "terminal-bench/build-cython-ext (passed -> failed, AgentTimeoutError at 940s of 900s), terminal-bench/code-from-image (passed -> failed, AgentTimeoutError at 1231s of 1200s), terminal-bench/extract-elf (passed -> failed, AgentTimeoutError at 952s of 900s), datacurve/python-statemachine-state-data-scoping (passed -> error, pre-model ECR image-pull 429), terminal-bench/polyglot-c-py (passed -> error, one call hit the CLI's own 840s per-call ceiling), terminal-bench/regex-log (passed -> error, same)",
+      "failedToPassed": "terminal-bench/openssl-selfsigned-cert (failed -> passed, completed in 788s of 900s)",
+      "failedToError": "datacurve/katex-multicolumn-array-spans and datacurve/meriyah-explicit-resource-declarations (both already failed at the source run; both became error on the same pre-model image-pull 429)"
+    },
+    "errorCells": "5 cells carry no verdict, mechanically classified from their own evidence: three datacurve tasks (katex-multicolumn-array-spans 6404ms, meriyah-explicit-resource-declarations 5498ms, python-statemachine-state-data-scoping 6428ms) died BEFORE any model call because `docker compose ... build` could not fetch their base image from public.ecr.aws (`429 Too Many Requests - toomanyrequests: Data limit exceeded`); they have no evidence file and no model outcome. Two terminal-bench tasks (polyglot-c-py, regex-log) each issued exactly ONE model request that ended as a model-failure with reason=timeout at durationMs=840021, i.e. at the CLI's own per-call ceiling modelTimeoutMs=840000, after which the agent exited NonZeroAgentExitCodeError; both have modelOutcomes=0 and pierExitCode=0.",
+    "budgetExhaustion": "Budget-exhausted attempts rose from 3 in the source run to 10 in this one (build-cython-ext, chess-best-move, code-from-image, db-wal-recovery, dna-insert, extract-elf, gcode-to-text, git-leak-recovery (still passed), largest-eigenval, modernize-scientific-stack (still passed)). This is the most repeatable mechanical effect of the effort condition: longer model calls leave fewer iterations inside the same official budget, so more cells are killed at the budget edge.",
+    "reading": "The candidate carries no task-affecting change over the source run (mechanically checked: the benchmark argv has no --compact-dir, so the compact/context/prompt slices never execute; the native bridge is only instantiated on TUI/subagent paths), so every verdict difference here is the effort condition plus run-to-run variance, and never a code improvement or regression. The honest summary of this run is: at max effort the agent spends more per call, produces the same number of hard failures (11), loses three cells that passed at high effort to budget exhaustion, loses three more to one infrastructure failure and one per-call timeout, rescues one (openssl-selfsigned-cert), and leaves five cells without a verdict, so the run is not scoreable."
+  },
+  "aggregate": {
+    "measuredCallDurations": {
+      "note": "Union-of-intervals attribution (spec 241 evidence: model-request.startedAtMs and the matching closure's durationMs), computed by .tmp/fh-local-20260924/non-model-attribution.mjs over the 25 valid cells; the 3 infra error cells have no evidence file and the 2 provider error cells are single 840s calls.",
+      "modelBusyPctRange": "31-98% (db-wal-recovery 31% because the attempt was killed with a call still in flight at 610s, so the union stops at the kill)",
+      "perCallMedianRangeSec": "4.9-25.6",
+      "perCallMaxSec": {
+        "datacurve/dna-insert": 953.1,
+        "datacurve/scc-bounded-memory-spilling": 683.3,
+        "terminal-bench/sqlite-db-truncate": 473.1,
+        "datacurve/httpx-multipart-response-parsing": 428.2,
+        "terminal-bench/modernize-scientific-stack": 423.9,
+        "datacurve/arktype-json-schema-refs-dependencies": 397.4,
+        "terminal-bench/polyglot-c-py": 840.0,
+        "terminal-bench/regex-log": 840.0
+      },
+      "nonModelSecRange": "30-440s per cell (head + inter-call gaps + tail; inter-call gap medians are 0.0s)",
+      "unansweredRequests": 9,
+      "unansweredRequestsDetail": {
+        "terminal-bench/build-cython-ext": "1 — startedAtMs 910843",
+        "terminal-bench/chess-best-move": "1 — startedAtMs 808041",
+        "terminal-bench/code-from-image": "1 — startedAtMs 1168254",
+        "terminal-bench/db-wal-recovery": "1 — startedAtMs 289999",
+        "terminal-bench/dna-insert": "1 — startedAtMs 1615403",
+        "terminal-bench/extract-elf": "1 — startedAtMs 915327",
+        "terminal-bench/gcode-to-text": "1 — startedAtMs 852703",
+        "terminal-bench/git-leak-recovery": "1 — startedAtMs 904166",
+        "terminal-bench/largest-eigenval": "1 — startedAtMs 676375"
+      },
+      "modelFailures": 2,
+      "modelFailuresDetail": "polyglot-c-py and regex-log: one request each, reason=timeout, durationMs=840021 (the CLI's own per-call ceiling of 840000). No reason=connection failure occurred anywhere in this run.",
+      "finding": "Model-call time still dominates the wall clock (67-98% on cells that are not budget-killed mid-call), so the earlier conclusion holds: harness-side time is not the lever. What max effort changed is the latency of the calls themselves: single calls now reach 953s, two of them exceed the CLI's own 840s ceiling, and the count of cells killed at their budget edge triples from 3 to 10."
+    },
+    "flipsCount": 9,
+    "netPassedDelta": -5
+  },
+  "evidence": "Artifact frontier-harness-report-36296596889 (report.json sha256 a9a3624684271bbfecf8f76e4b06bc2e0be7996b176e0b07aa0291c4f6581545, report.json.md, failures.json, failures.md, expected-tasks.txt) with the 30 per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T051352Z--36296596889.json (same sha256) with its Chinese record. 34/34 jobs green in 1h33m56s. failures.json byStage = {agent-timeout: 8, infra: 3, model: 3, provider: 2}. The first artifact download failed with 'unexpected EOF' and succeeded on the single retry the manifest allowed.",
+  "conclusion": "The full-corpus max-effort run is not scoreable: 5 of 30 cells carry no verdict (3 pre-model image-pull 429 failures on the datacurve side, 2 single calls that hit the CLI's own 840s per-call ceiling), so verdicts.complete failed and passAt1 is null. On the 25 valid cells the pass rate is 56.0% (14 of 25) against the source run's 63.3% at effort high, and the direct task comparison is 14 of 30 against 19 of 30. The mechanically repeatable effect of the effort condition is on latency, not on capability: budget-exhausted attempts tripled from 3 to 10, single model calls reached 953s, and two first calls exceeded the client-side per-call ceiling. Three cells that passed at high effort were lost to that budget exhaustion, one was rescued, and three more were lost to infrastructure and per-call-timeout failures. Because the candidate carries no task-affecting change, none of this is a code effect: it is the effort condition plus run-to-run variance, and it does not by itself settle whether the remaining failures are capability or speed."
 }
