@@ -81,9 +81,12 @@
     "terminal-bench/sqlite-db-truncate",
     "terminal-bench/vulnerable-secret"
   ],
-  "dispatched": false,
-  "runId": null,
-  "runUrl": null,
+  "dispatched": true,
+  "runId": 36296596889,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36296596889",
+  "headSha": "61ea50b5c1e4206c21f23d07cd8847d03f8e2654",
+  "dispatchedAt": "2026-09-27T05:13:52Z",
+  "runNote": "fh_run_full=true, so the workflow predeclares all 30 corpus tasks from the tracked batch plan and the aggregate report is built with --formal; the run's own report is the only source of its pass@1.",
   "outcome": null,
   "outcomeDetail": null,
   "evidence": null
