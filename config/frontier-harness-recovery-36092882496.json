@@ -369,6 +369,78 @@
           "boundary": "This is a diagnostic re-measurement inside a diagnostic batch, not a benchmark-level recovery that fills a formal cell: the attempt produced a model.patch, so the 'no prediction' condition of the recovery rule is not met, and this cell is therefore never treated as a missing formal cell. The error disposition of part A stands as that batch's record and is never overwritten."
         }
       ]
+    },
+    {
+      "id": "diagnostic-latest-rerun-20260927",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/scc-bounded-memory-spilling",
+        "terminal-bench/chess-best-move",
+        "terminal-bench/db-wal-recovery",
+        "terminal-bench/dna-insert",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval",
+        "terminal-bench/openssl-selfsigned-cert",
+        "terminal-bench/sanitize-git-repo"
+      ],
+      "reason": "User-authorized re-measurement of the same 11 cells that failed in run 36092882496, on a candidate built from the latest main of the source repository: 0.0.3-beta.37 / a5784538. This is a measurement of the new candidate, not a rescue of the old verdicts: the canonical verdicts of run 36092882496 and the diagnostic outcomes of batch diagnostic-failed-rerun-20260926 are preserved, never replaced, never reinterpreted and never merged. Two questions only: (a) does each failure reproduce on the freshly built latest main, and (b) how do the outcomes and the spec-241 measured per-call times compare with the source run and with the beta.36 measurement. Candidate delta, mechanically checked in the source repository: beta.36 -> beta.37 is 33 commits over 95 files, and none of them changes the benchmark path's executed behaviour. Eight changed files are inside the value-import closure of the headless entry (apps/cli/src/index.ts -> v3-run.ts:326 -> product-slices/thread-orchestration-root.ts:274), but none executes under the argv the benchmark actually uses (scripts/frontier-harness-harness.mjs:195 builds `best-agent run ...` with no --compact-dir): product-slices/compact.ts is enabled only by --compact-dir (v3-run.ts:1402, v3-run-options.ts:457/956), so compactedContextSelected stays false and v3-prompt-composition.ts:305 appends nothing; native-runtime-bridge.ts is reached only through applicationRootFamily.nativeBridge (TUI / subagent loop) while run goes through runV3SinglePromptWithThreadOrchestration; dimsdk/shared/git-branch.ts has no call site in v3-run.ts; the remaining changed files are TUI-only slices and pages, generated product manifests, tests and docs. So, exactly as with beta.34 -> beta.36, no changed file lands on the benchmark path's executed behaviour, and any outcome difference in this batch is run-to-run variance rather than an effect of the new code; the batch cannot support a capability claim.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace or reinterpret any canonical verdict of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is the new one (config/frontier-harness.json#cli = 0.0.3-beta.37 / a5784538), declared here before dispatch; it is deliberately neither the source run's candidate (0.0.3-beta.34 / 6ce38f17) nor the previous batch's (0.0.3-beta.36 / c9ae2e2f).",
+        "Because the candidate differs, nothing in this batch is comparable with run 36092882496 or with batch diagnostic-failed-rerun-20260926, and it is never merged with either. Batch diagnostic-failed-rerun-20260926 concluded that no further rerun was proposed for these cells; that conclusion was about the variance of its own candidate and its own measurement, and it is not contradicted here, because this batch measures a different candidate for a different purpose.",
+        "The official agent/verifier time budgets are preserved (fh_agent_timeout_multiplier=1), never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons.",
+        "The dispatch is user-authorized: on 2026-09-27 the user asked to build the latest code and re-run the failed tasks."
+      ],
+      "candidatePin": "config/frontier-harness.json#cli (sourceCommit a5784538ba627a80ffaf37d95e6893277154b0af, cliVersion 0.0.3-beta.37)",
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 6,
+        "fh_batch": "diagnostic-latest-rerun-20260927"
+      },
+      "candidateId": null,
+      "outcome": null,
+      "outcomeDetail": null,
+      "evidence": null,
+      "splitReason": "The workflow refuses more than 10 predeclared tasks per run (\"Each workflow run must preselect between 1 and 10 tasks.\"), so the same 11 cells are dispatched as the same two parts as batch diagnostic-failed-rerun-20260926 — part A: the six longest-budget cells, part B: the five shorter ones — so the two batches stay cell-for-cell comparable. The parts run sequentially on purpose: two concurrent runs would put up to 11 model calls in flight against the same provider, and this batch is a clean measurement, so the frozen condition of the source run (one run at a time) is preserved.",
+      "dispatches": [
+        {
+          "part": "a",
+          "tasks": [
+            "datacurve/expr-try-catch-errors",
+            "datacurve/katex-multicolumn-array-spans",
+            "datacurve/meriyah-explicit-resource-declarations",
+            "datacurve/scc-bounded-memory-spilling",
+            "terminal-bench/dna-insert",
+            "terminal-bench/sanitize-git-repo"
+          ],
+          "dispatched": false,
+          "runId": null,
+          "batchLabel": "diagnostic-latest-rerun-20260927a",
+          "fhMaxParallel": 6
+        },
+        {
+          "part": "b",
+          "tasks": [
+            "terminal-bench/chess-best-move",
+            "terminal-bench/db-wal-recovery",
+            "terminal-bench/gcode-to-text",
+            "terminal-bench/largest-eigenval",
+            "terminal-bench/openssl-selfsigned-cert"
+          ],
+          "dispatched": false,
+          "runId": null,
+          "batchLabel": "diagnostic-latest-rerun-20260927b",
+          "fhMaxParallel": 5
+        }
+      ]
     }
   ]
 }
