@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-09-29: \"用最新的版本然后max重跑\" (use the latest version and rerun at max).",
+  "reason": "A fresh full-corpus formal run at reasoning effort max on the candidate built from the latest main of the source repository (0.0.3-beta.38 / 3ecccb40), repeating the max condition that was last measured on beta.37 (run 36296596889). That earlier max run was not scoreable: 5 of its 30 cells carried no verdict (3 datacurve cells died pre-model on a public.ecr.aws 429 image-pull throttle, 2 terminal-bench cells errored when a single model call hit the CLI's own 840s per-call ceiling). This run measures the same condition on newer code so the max-effort picture is not left standing on a candidate that no longer exists, and so the two known failure modes can be re-observed mechanically.",
+  "sourceComparison": {
+    "highBaseline": {
+      "runId": 36092882496,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36092882496",
+      "formal": true,
+      "reasoningEffort": "high",
+      "candidatePin": "0.0.3-beta.34 / 6ce38f173e74259726a8532ebad58f6e0797be2c",
+      "verdicts": { "passed": 19, "failed": 11, "error": 0, "notEvaluated": 0 },
+      "passAt1": 0.6333333333333333,
+      "note": "The only scoreable full-corpus result on record, at effort high. It is never merged with this run; it is shown only so both effort conditions have a reference."
+    },
+    "previousMaxRun": {
+      "runId": 36296596889,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36296596889",
+      "formal": true,
+      "reasoningEffort": "max",
+      "candidatePin": "0.0.3-beta.37 / a5784538ba627a80ffaf37d95e6893277154b0af",
+      "verdicts": { "passed": 14, "failed": 11, "error": 5, "notEvaluated": 0 },
+      "passAt1": null,
+      "note": "Not scoreable (5 error cells). This run repeats its condition on newer code; the two runs are compared per cell but never merged, and this run's pass@1 comes only from its own report."
+    }
+  },
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit 3ecccb409b83eff11fd8c8d8c9ee713718517a00, cliVersion 0.0.3-beta.38)",
+  "candidateEvidence": "The pin was already built and delivery-verified three times in its beta.37 predecessor (runs 36285013315, 36288388627, 36321280593) and twice at beta.36, so the pin mechanism is proven; the SEA build is not byte-reproducible, so this run freezes its own receipt and reports its own binary sha256.",
+  "candidateDeltaAudit": {
+    "from": "a5784538ba627a80ffaf37d95e6893277154b0af (beta.37)",
+    "to": "3ecccb409b83eff11fd8c8d8c9ee713718517a00 (beta.38)",
+    "size": "59 commits, 221 changed files",
+    "method": "Read-only closure audit of the headless entry (apps/cli/src/index.ts:114 -> v3-run.ts -> product-slices/thread-orchestration-root.ts) against the argv the benchmark actually uses (scripts/frontier-harness-harness.mjs:195-218: `best-agent run --model ... --model-timeout-ms 840000 ... --attempt-evidence ...`, no --compact-dir and no --memory-dir).",
+    "modelTimeoutPipeline": "UNCHANGED, verified byte-identical between the two commits at v3-run.ts:1605-1606, v3-run-options.ts:573, v3/plan.ts:105 and v3/kernel/transition.ts:425. The 840s ceiling -> model-failure -> exit 1 path, and the absence of headless retries, are exactly as measured on beta.37.",
+    "promptAndContextComposition": "v3-prompt-composition.ts and v3-context-composition.ts are NOT in the changed-file list, so the task prompt and context assembly are byte-identical.",
+    "compactFold": "v3-run.ts gained a context-limit -> fresh-session compact fold retry loop, but its compactOwner is created only when --compact-dir is present (v3-run.ts:504-505, the field's only assignment at v3-run-options.ts:462); under the benchmark argv it returns the terminal state immediately (:1126-1135) and is inert.",
+    "modelVisibleChanges": "Exactly one: the thread tools' invocation schema moved to v2 (thread-orchestration-root.ts:113/:197, with thread-orchestration.ts, thread-orchestration-service.ts and v3-thread-tool.ts:891-905). thread-status and thread-wait now take `commandRef` instead of `attemptId`, and the wait description and authorization ref changed. The exposed TOOL NAMES are unchanged (v3-run-provider.e2e.test.ts:665-667 lists the same tools at both commits). This is the only delta a task model could observe, and it matters only for tasks that use the thread tools.",
+    "nonBehaviouralChanges": "model-binding-ai-sdk adds wireInputTokens/wireMeasureKey evidence fields with equivalent estimates; model-failure-diagnostic.ts reads the binding-reported refusal measure (pattern unchanged); workspace-tools-backend measures exec duration from tool entry (evidence timing, not behaviour); capability-process-tools/external-process-service pass `signal` to process-start and classify abort as unknown/uncertain; packages/v3-thread-store raises SCHEMA_VERSION 41 -> 52 with a migration at run start.",
+    "tuiOnly": "The whole dimsdk tree (26 files, including spec 251's shell mode) is outside the closure: its only entry, index.ts:186, sits in the `command === \"chat\"` branch and imports a TUI bundle that does not resolve in this build. auto-compact-turn.ts is referenced only by the TUI store; native-runtime-bridge(.ts/-threaded.ts) is reached only through applicationRootFamily.nativeBridge; cpuControl/spec 249 is assembled only in the TUI. The remaining files are *.test.ts, docs/**, specs/**, scripts/**, native/*.c and generated manifests.",
+    "reading": "Unlike beta.34 -> beta.36 and beta.36 -> beta.37, this transition is NOT entirely inert: there is one model-visible change (thread tool v2 schema). The timeout, prompt and context paths that produced every measured failure and latency figure are unchanged, so the max-effort latency behaviour (including the two cells that hit the client's 840s per-call ceiling) is expected to persist. Any verdict difference must therefore be read as that small tool-schema delta plus run-to-run variance, and never as a broad capability claim."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "batchPlan": "config/frontier-harness-batches.json exact-covers the frozen corpus in corpus order (3 tracked batches, 30 unique tasks)"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "transportProfile": "dim-oauth",
+    "note": "max is the frozen profile's own declared default and is materialized into every per-task record; the report refuses an undeclared effort."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 8,
+    "fh_batch": "latest-beta38-3ecccb40-max-20260929"
+  },
+  "knownRisks": {
+    "ecrThrottle": "The beta.37 max run lost 3 datacurve cells pre-model to a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`) while building 8 images concurrently. The condition is kept at fh_max_parallel=8 for fidelity with the source formal run, so the throttle may recur. If it does, those cells are pre-model environment failures and are recoverable through the repository's recovery channel (exactly as batch recovery-no-prediction-20260927 recovered the beta.37 ones).",
+    "perCallCeiling": "polyglot-c-py and regex-log errored twice at reasoning effort max because their first model call outran the CLI's own --model-timeout-ms 840000 ceiling (measured 840.021s/840.022s and 840.021s/840.026s in two independent dispatches). The timeout pipeline is byte-identical in beta.38, so the same outcome is expected. If it recurs, the cells stay verdict-less, the run stays not scoreable, and per the repository's rules nothing is retried: only an explicitly authorized change to the per-call ceiling or to the effort condition could give those cells a verdict, and neither is made here."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, all 30 Docker-eligible corpus tasks, one frozen candidate, the official agent and verifier budgets preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "This run's pass@1 comes only from its own frozen aggregate report. It is never merged with run 36092882496, with the beta.37 max run, or with any diagnostic batch, and it replaces or reinterprets none of their verdicts.",
+    "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the effort stay exactly as the frozen composition declares them.",
+    "Nothing is published to main and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "dispatched": false,
+  "runId": null,
+  "runUrl": null,
+  "headSha": null,
+  "outcome": null,
+  "outcomeDetail": null,
+  "evidence": null
+}
