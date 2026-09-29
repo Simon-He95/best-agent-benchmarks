@@ -108,6 +108,15 @@
     "terminal-bench/sqlite-db-truncate",
     "terminal-bench/vulnerable-secret"
   ],
+  "dispatchFailure": {
+    "runId": 36526276851,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36526276851",
+    "stage": "provider materialization (pre-attempt)",
+    "reason": "Every one of the 30 Generate jobs failed at the step 'Materialize the frozen provider identity', each within about one minute, before any task attempt was made. The step ran `node scripts/materialize-frontier-provider.mjs \"$RUNNER_TEMP/best-agent-provider\" \"$GITHUB_ENV\" config/frontier-harness.json \"max\"` and exited 1 with `Error: Benchmark OAuth access token is expired.` at scripts/materialize-frontier-provider.mjs:55 — the JWT in the BENCHMARK_PROVIDER_API_KEY secret fails the script's own `exp * 1000 <= Date.now()` check. The secret was last written on 2026-09-21 (gh secret list), and scripts/sync-secrets.mjs documents that this OAuth access token rotates roughly every 5-7 days, so the credential had aged out before this dispatch.",
+    "mechanicalEvidence": "Frozen job log of the run: step 'Materialize the frozen provider identity' = failure, step 'Generate and freeze the task attempt' = skipped, for every Generate job; the Aggregate job failed as a consequence. The candidate freeze, corpus freeze and plan jobs all succeeded, so the candidate pin built and delivery-verified normally; nothing was wrong with the pin, the corpus or the runner.",
+    "classification": "Pre-attempt provider-credential failure: not a task outcome, not a model failure, and not an environment failure of the load subjects. No task attempt exists, so the run carries no verdict, no per-task record and no pass@1 — there is nothing to recover and nothing to merge.",
+    "remedy": "Refresh the BENCHMARK_PROVIDER_API_KEY secret from this machine's dimcode OAuth login with the repository's own `node scripts/sync-secrets.mjs` (the local login is currently valid, expiring 2026-10-05), then dispatch the same manifest again. Refreshing a secret writes to shared repository state, so it is held for the user's explicit approval."
+  },
   "dispatched": true,
   "runId": 36526276851,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36526276851",
