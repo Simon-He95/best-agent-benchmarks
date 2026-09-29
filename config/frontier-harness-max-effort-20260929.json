@@ -118,11 +118,19 @@
     "remedy": "Refresh the BENCHMARK_PROVIDER_API_KEY secret from this machine's dimcode OAuth login with the repository's own `node scripts/sync-secrets.mjs` (the local login is currently valid, expiring 2026-10-05), then dispatch the same manifest again. Refreshing a secret writes to shared repository state, so it is held for the user's explicit approval."
   },
   "dispatched": true,
-  "runId": 36526276851,
-  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36526276851",
-  "headSha": "85fff309b866515035943021541f4fdb8e16e190",
-  "dispatchedAt": "2026-09-29T05:27:48Z",
-  "runNote": "fh_run_full=true, so the workflow predeclares all 30 corpus tasks from the tracked batch plan and the aggregate report is built with --formal; the run's own report is the only source of its pass@1.",
+  "runId": 36527461937,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36527461937",
+  "headSha": "b2c210c7085b10b54210b1538ad97c1a48a496b1",
+  "dispatchedAt": "2026-09-29T05:42:48Z",
+  "runNote": "Redispatch of the same manifest after the provider credential was refreshed. The first attempt (run 36526276851) never reached a task attempt because BENCHMARK_PROVIDER_API_KEY held an expired OAuth token; the user authorized refreshing it with the repository's own script, and `node scripts/sync-secrets.mjs` wrote all five benchmark secrets at 2026-09-29T05:42Z (the local dimcode login is valid until 2026-10-05). The batch label is unchanged, so this run is the batch's real dispatch and run 36526276851 stays recorded above as a pre-attempt credential failure with no verdict and no pass@1. fh_run_full=true, so the workflow predeclares all 30 corpus tasks from the tracked batch plan and the aggregate report is built with --formal; the run's own report is the only source of its pass@1.",
+  "providerCredential": {
+    "secret": "BENCHMARK_PROVIDER_API_KEY",
+    "refreshedAt": "2026-09-29T05:42:32Z",
+    "previousWrite": "2026-09-21T13:23:03Z",
+    "tokenExpiresAt": "2026-10-05T12:41:07Z",
+    "source": "the local dimcode OAuth login at ~/.dimcode/dimcode/auth.json, pushed by scripts/sync-secrets.mjs with default arguments",
+    "modelSecretNote": "The sync script's default also sets BENCHMARK_PROVIDER_MODEL=deepseek-v4-flash, which the user authorized. The frontier-harness workflow does not read that secret: it passes its own frozen model (glm-5.3) from config/frontier-harness.json#provider, and each per-task record freezes model and effort, so this batch is unaffected."
+  },
   "outcome": null,
   "outcomeDetail": null,
   "evidence": null
