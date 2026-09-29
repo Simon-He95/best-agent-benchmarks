@@ -131,7 +131,102 @@
     "source": "the local dimcode OAuth login at ~/.dimcode/dimcode/auth.json, pushed by scripts/sync-secrets.mjs with default arguments",
     "modelSecretNote": "The sync script's default also sets BENCHMARK_PROVIDER_MODEL=deepseek-v4-flash, which the user authorized. The frontier-harness workflow does not read that secret: it passes its own frozen model (glm-5.3) from config/frontier-harness.json#provider, and each per-task record freezes model and effort, so this batch is unaffected."
   },
-  "outcome": null,
-  "outcomeDetail": null,
-  "evidence": null
+  "outcome": {
+    "present": 30,
+    "passed": 14,
+    "failed": 11,
+    "error": 5,
+    "notEvaluated": 0,
+    "budgetExhausted": 9,
+    "budgetExhaustedStillPassed": 0,
+    "budgetExhaustedTasks": [
+      "datacurve/meriyah-explicit-resource-declarations",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/sanitize-git-repo"
+    ],
+    "passRate": 0.4666666666666667,
+    "validCells": 25,
+    "passRateValidCells": 0.56,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full passed (30 of 30 predeclared), candidate.single passed, provider.single passed (glm-5.3 at reasoning effort max), instructions.frozen passed, verdicts.complete FAILED (30 present, 0 missing, 5 error, 0 not-evaluated) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "usage": "tasks 25, promptTokens 203004668, completionTokens 1205046, cacheReadTokens 199364672, totalTokens 204209714, modelCallCount 1574, costUsd null",
+    "runWindow": "2026-09-29T05:42:48Z -> 07:19:01Z (1h36m13s), 34/34 jobs green, headSha b2c210c7085b10b54210b1538ad97c1a48a496b1",
+    "candidateId": "cli-0.0.3-beta.38-3ecccb4-891bc3ee6342",
+    "candidateBinarySha256": "891bc3ee6342b6a05db149260951b3f8cae2141102ff90e568629a3867e43a0e",
+    "candidateManifestSha256": "7e5bcef178037cd1f718797034c2f9864475130bf5ea8319592f5029ff21097a",
+    "specificationGapTasks": 3,
+    "specificationGapTasksNote": "The report excludes datacurve/httpx-multipart-response-parsing, datacurve/fastapi-deprecation-response-headers and datacurve/meriyah-explicit-resource-declarations from capability comparisons (their pinned instruction omits a rule their hidden tests require). Their verdicts above stand unchanged and this run is not scoreable for an independent reason (verdicts.complete)."
+  },
+  "outcomeDetail": {
+    "dispatchNote": "This run is the batch's real dispatch, issued after the user authorized refreshing the provider credential. The first dispatch of the same manifest (run 36526276851, headSha 85fff309) never reached a task attempt: every Generate job died at 'Materialize the frozen provider identity' with an expired OAuth token, so it carries no verdict and no pass@1 and is not a measurement. It stays recorded above as a pre-attempt credential failure and was not recovered, because there is nothing to recover.",
+    "comparisonToSourceRun": "Source formal run 36092882496 (best-agent beta.34 / 6ce38f17, effort high, 30 of 30 valid) scored 19 passed / 11 failed / 0 error with passAt1 0.6333. This run (beta.38, effort max) scored 14 passed / 11 failed / 5 error with passAt1 null. Because 5 cells carry no verdict the two pass@1 values are NOT comparable and this run's pass@1 cannot be subtracted from 0.6333; on the 25 valid cells the pass rate is 56.0% against the source run's 63.3%, and the direct task count is 14 of 30 against 19 of 30. The source run's frozen report predates the budget-exhausted metric; re-derived from its own 30 per-task records under the later criterion (durationMs >= effectiveAgentTimeoutSec) it had 4 such attempts (build-cython-ext 941/900, chess-best-move 947/900, gcode-to-text 930/900, largest-eigenval 933/900), where the beta.37 record quoted 3.",
+    "comparisonToPreviousMaxRun": "Beta.37 max run 36296596889 (a5784538) produced the SAME ledger: 14 passed / 11 failed / 5 error, 25 valid cells, pass rate 46.7% (valid cells 56.0%), passAt1 null. Its composition differs: 4 of the 5 error cells are the same tasks (katex-multicolumn-array-spans, python-statemachine-state-data-scoping, polyglot-c-py, regex-log) and the fifth changed from meriyah-explicit-resource-declarations to arktype-json-schema-refs-dependencies. Budget-exhausted attempts 10 -> 9 and, unlike beta.37, none of this run's budget-exhausted cells still passed.",
+    "flipsVsSourceRun": {
+      "passedToNoLongerPassed": "datacurve/arktype-json-schema-refs-dependencies (passed -> error, pre-model ECR image-pull 429), datacurve/python-statemachine-state-data-scoping (passed -> error, same), terminal-bench/build-cython-ext (passed -> failed, AgentTimeoutError at 939s of 900s), terminal-bench/code-from-image (passed -> failed, AgentTimeoutError at 1230s of 1200s), terminal-bench/extract-elf (passed -> failed, AgentTimeoutError at 949s of 900s), terminal-bench/polyglot-c-py (passed -> error, one call hit the CLI's own 840s per-call ceiling), terminal-bench/regex-log (passed -> error, same)",
+      "failedToPassed": "datacurve/expr-try-catch-errors (failed -> passed, completed in 5323s of 5400s with f2p 79/79 and p2p 66265/66265), terminal-bench/db-wal-recovery (failed -> passed, completed in 512s of 900s)",
+      "failedToError": "datacurve/katex-multicolumn-array-spans (already failed at the source run; became error on the same pre-model image-pull 429)",
+      "count": 10
+    },
+    "flipsVsPreviousMaxRun": {
+      "flips": "datacurve/arktype-json-schema-refs-dependencies (passed -> error, this run drew the ECR throttle instead), datacurve/expr-try-catch-errors (failed -> passed), datacurve/meriyah-explicit-resource-declarations (error -> failed: it did not draw the throttle this time, actually ran, exhausted its 5400s budget and produced a REAL verdict reward=0 with f2p 0/49 and p2p 51469/51469), terminal-bench/db-wal-recovery (failed -> passed), terminal-bench/openssl-selfsigned-cert (passed -> failed, completed inside budget in 485s of 900s)",
+      "count": 5,
+      "reading": "The two known risks in this manifest's own knownRisks both reproduced exactly as predicted (3 datacurve cells lost pre-model to the ECR throttle, 2 cells lost to the 840s per-call ceiling), and 4 of the 5 error cells are the same tasks as in beta.37; only the datacurve throttle victim changed (meriyah -> arktype). Because beta.37 -> beta.38 carries exactly one model-visible change (the thread tools' v2 invocation schema: thread-status/thread-wait take commandRef instead of attemptId, tool names unchanged), every verdict difference here reads as that small tool-schema delta plus run-to-run variance, and never as a capability gain or regression."
+    },
+    "errorCells": "5 cells carry no verdict, mechanically classified from their own evidence. Three datacurve tasks (arktype-json-schema-refs-dependencies 5997ms, katex-multicolumn-array-spans 4135ms, python-statemachine-state-data-scoping 5219ms) died BEFORE any model call because `docker compose ... build` could not fetch their base image from public.ecr.aws (`429 Too Many Requests - toomanyrequests: Data limit exceeded`); they have no evidence file, no model outcome and pierExitCode 0. Two terminal-bench tasks (polyglot-c-py, regex-log) each issued exactly ONE model request that ended as a model-failure with reason=timeout at durationMs=840024, i.e. at the CLI's own per-call ceiling modelTimeoutMs=840000, after which the agent exited NonZeroAgentExitCodeError; both have modelOutcomes=0 and pierExitCode=0. failures.json byStage = {agent-timeout: 9, infra: 3, model: 2, provider: 2} over the 16 non-passed cells, with failedTools empty everywhere. No reason=connection failure occurred anywhere in this run.",
+    "budgetExhaustion": "9 attempts used their whole declared agent budget and were killed at that edge (meriyah 5571s/5400s, build-cython-ext 939/900, chess-best-move 938/900, code-from-image 1230/1200, dna-insert 1835/1800, extract-elf 949/900, gcode-to-text 934/900, largest-eigenval 935/900, sanitize-git-repo 935/900); all 9 carry failed verdicts and none still passed (beta.37: 10, of which 2 still passed). Budget exhaustion is a budget outcome, not a task verdict: the verifier grades the delivered artifacts, so a cell can exhaust its budget and still pass; this run simply had none.",
+    "reading": "Same conclusion shape as beta.37, now on the newest candidate: at reasoning effort max the cells spend their budget on longer model calls rather than on more progress, one first call outruns the client's own 840s ceiling on two tasks, the 8-way-parallel Docker build trips the ECR pull limit on three datacurve cells, and the run ends with 5 verdict-less cells, so passAt1 is null again. Nothing was changed to make the run scoreable (per-call ceiling, budgets and effort are exactly as frozen), and no recovery was dispatched. A recovery for the three pre-model environment cells is admissible under AGENTS.md and has precedent (recovery-no-prediction-20260927 filled beta.37's three ECR cells 3/3), but it needs the user's explicit authorization first."
+  },
+  "aggregate": {
+    "measuredCallDurations": {
+      "note": "Union-of-intervals attribution (spec 241 evidence: model-request.startedAtMs and the matching closure's durationMs), computed by .tmp/fh-local-20260924/non-model-attribution.mjs and .tmp/fh-local-20260924/call-durations.mjs over the artifact root. 27 of the 30 cells have an evidence file: the 3 infra error cells never started a model loop, and the 2 provider error cells are single 840s calls.",
+      "modelBusyPctRange": "49-97% of the agent wall clock, with the bulk at 83-97% (e.g. dna-insert 97%, code-from-image 96%, chess-best-move 96%, meriyah 96%, expr 96%, httpx 93%, fastapi 93%, anko 93%). The single low value is sanitize-git-repo at 50%, killed at the 900s edge with just 463s of union model time.",
+      "nonModelSecRange": "3-19% of the wall clock for most cells (head 0.4-1.4s, tail 30-171s); the outlier is sanitize-git-repo at 472s (50%).",
+      "perCallMedianRangeSec": "4.1-16.2",
+      "perCallMaxSec": {
+        "datacurve/dna-insert": 1206.7,
+        "terminal-bench/largest-eigenval": 569.6,
+        "datacurve/expr-try-catch-errors": 543.8,
+        "datacurve/httpx-multipart-response-parsing": 490.2,
+        "datacurve/fastapi-deprecation-response-headers": 449.0,
+        "datacurve/scc-bounded-memory-spilling": 371.7,
+        "datacurve/anko-typed-variable-bindings": 288.9,
+        "terminal-bench/multi-source-data-merger": 271.9,
+        "datacurve/meriyah-explicit-resource-declarations": 260.5,
+        "terminal-bench/sqlite-db-truncate": 253.4,
+        "terminal-bench/polyglot-c-py": 840.0,
+        "terminal-bench/regex-log": 840.0
+      },
+      "overlappingCalls": "Only expr-try-catch-errors and scc-bounded-memory-spilling run more than one agent run concurrently (2 each), which is why a sum-of-durations share exceeds 100% there (135% and 113%) while the union share is 96% and 95%.",
+      "unansweredRequests": 9,
+      "unansweredRequestsDetail": {
+        "datacurve/meriyah-explicit-resource-declarations": "1 - startedAtMs 5377140",
+        "terminal-bench/build-cython-ext": "1 - startedAtMs 883270",
+        "terminal-bench/chess-best-move": "1 - startedAtMs 907984",
+        "terminal-bench/code-from-image": "1 - startedAtMs 1045487",
+        "terminal-bench/dna-insert": "1 - startedAtMs 1762951",
+        "terminal-bench/extract-elf": "1 - startedAtMs 527011",
+        "terminal-bench/gcode-to-text": "1 - startedAtMs 781010",
+        "terminal-bench/largest-eigenval": "1 - startedAtMs 719623",
+        "terminal-bench/sanitize-git-repo": "1 - startedAtMs 889953"
+      },
+      "modelFailures": 2,
+      "modelFailuresDetail": "polyglot-c-py and regex-log: one request each, reason=timeout, durationMs=840024 (the CLI's own per-call ceiling of 840000). beta.37 measured the same mechanism at 840.021s and 840.026s, so it is reproducible rather than incidental.",
+      "finding": "Model-call latency still dominates the wall clock (83-97% on almost every cell), so harness-side time is not the lever. At max effort a single call can reach 1206.7s, two first calls exceed the CLI's own 840s ceiling, and 9 cells die at their budget edge; the max condition buys longer calls, not more verdicts, and in this run it produced the same 14/11/5 ledger as beta.37."
+    },
+    "flipsCountVsSourceRun": 10,
+    "flipsCountVsPreviousMaxRun": 5,
+    "netPassedDeltaVsSourceRun": -5,
+    "netPassedDeltaVsPreviousMaxRun": 0
+  },
+  "evidence": "Artifact frontier-harness-report-36527461937 (report.json sha256 e831a6f9d91efc5ced909c5eb18430ff67bb9e8571909a42f6d59d83bd2d32fe, report.json.md sha256 101510d1ecfa19a52502a0e3c2511f0959572b548d4ff337c95a37b19f67c75f, failures.json sha256 0b4e76e081ae2f5097df84d3f318d4ca812205fd7f6cd99ea29fd745e3dca754, failures.md, expected-tasks.txt) with the 30 per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260929T054248Z--36527461937.json (same sha256 as report.json) with its Chinese record docs/benchmarks/history/frontier-harness/20260929T054248Z--36527461937.md. 34/34 jobs green in 1h36m13s (3 freeze jobs, 30 Generate, 1 Aggregate). failures.json byStage = {agent-timeout: 9, infra: 3, model: 2, provider: 2}. The artifact downloaded on the first attempt. Per-call and non-model attribution tables were produced from this same artifact root by the two reusable scripts under .tmp/fh-local-20260924/. Candidate frozen in all 30 records as cli-0.0.3-beta.38-3ecccb4-891bc3ee6342, binary sha256 891bc3ee6342b6a05db149260951b3f8cae2141102ff90e568629a3867e43a0e, candidateManifestSha256 7e5bcef178037cd1f718797034c2f9864475130bf5ea8319592f5029ff21097a. These five error cells are recorded only; no recovery batch was dispatched for them.",
+  "conclusion": "The full-corpus max-effort run on the newest candidate is again not scoreable: 5 of 30 cells carry no verdict (3 pre-model public.ecr.aws pull throttles, 2 single calls that hit the CLI's own 840s per-call ceiling), so verdicts.complete failed and passAt1 is null. Both failure modes this manifest pre-declared in knownRisks reproduced, and 4 of the 5 verdict-less tasks are the same as in the beta.37 max run. On the 25 valid cells the pass rate is 56.0% (14 of 25) against the source run's 63.3% at effort high, and the direct task comparison is 14 of 30 against 19 of 30; the ledger (14/11/5, 46.7%) is identical to beta.37's, with 5 cells flipped in each direction individually. The mechanically repeatable effect of the effort condition remains latency, not capability: 9 cells died at their own budget edge, one call reached 1206.7s, and two first calls exceeded the client-side per-call ceiling. Because beta.37 -> beta.38 carries exactly one model-visible change (the thread tools' v2 invocation schema), none of this is a code effect; it is that small delta plus run-to-run variance. Nothing was altered to make the run scoreable, and no recovery was dispatched: the three pre-model environment cells would be admissible for the repository's recovery channel, but only under the user's explicit authorization, and the two per-call-timeout cells have now failed to produce a verdict in two independent measurements.",
+  "budgetExhausted": 9
 }
