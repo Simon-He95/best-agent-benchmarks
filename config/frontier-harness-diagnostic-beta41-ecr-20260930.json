@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "kind": "diagnostic-rerun",
+  "passAt1": null,
+  "passAt1Note": "A diagnostic subset can never produce a pass@1. This batch predeclares 3 of the 30 corpus tasks, so coverage.full fails by construction and this batch's numbers are read side by side with the full run, never merged into it.",
+  "requestedBy": "User, 2026-09-30: \"429限流的需要重跑，环境问题需要修复重跑\" (the rate-limited ones must be rerun; fix the environment and rerun). On 2026-09-30 the user then chose: this rerun is a NEW DIAGNOSTIC on the current pin (beta.41) and is explicitly NOT a compensation for run 36658268335, and the rerun is serialized.",
+  "notARecovery": {
+    "statement": "This batch is explicitly NOT the benchmark-level recovery of run 36658268335. The user chose the current pin over a same-candidate recovery, so this batch compensates nothing and replaces nothing.",
+    "consequences": [
+      "Run 36658268335 keeps its own frozen report unchanged: 3 error cells (datacurve/anko-typed-variable-bindings, datacurve/fastapi-deprecation-response-headers, datacurve/scc-bounded-memory-spilling), verdicts.complete failed, passAt1 null. Its record is never repaired or merged.",
+      "Why the strict recovery form was not taken: AGENTS.md admits benchmark-level recovery only for a task with no prediction under the SAME candidate and the same formal-run semantics. The working branch is now pinned to 0.0.3-beta.41 / 5547563b, and the current harness passes the beta.41-only `--attempt-remaining-ms` flag, which the beta.40 CLI (used by run 36658268335) does not accept. A same-candidate recovery would therefore have to be dispatched from the pre-PR baseline a508e83 on a separate branch; the user chose this new diagnostic instead.",
+      "Because the candidate differs, any result here says nothing about what beta.40 would have produced on these three tasks."
+    ]
+  },
+  "purpose": {
+    "primary": "Re-measure the three datacurve cells that died pre-model in run 36658268335 on a public.ecr.aws image-metadata throttle (429 toomanyrequests) under a composition that removes the trigger: one task at a time instead of eight concurrent Docker image builds.",
+    "secondary": "Exercise the newly pinned beta.41 attempt-delivery path end to end on real tasks, including its wrapper-computed --attempt-remaining-ms value and the primary/delivery Run attribution in the attempt evidence."
+  },
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit 5547563b2b59333a22f24e093fc6102e50a2f95f, cliVersion 0.0.3-beta.41) — the main of Simon-He95/best-agent at 2026-09-30T03:39:57Z",
+  "candidateEvidence": "The pin mechanism is proven by six earlier dispatches. This is best-agent main HEAD at dispatch time and already contains the companion CLI change for the harness: `--attempt-remaining-ms` parsing with a hard >210000ms floor (apps/cli/src/v3-run-options.ts) and spec 258's bounded post-stop delivery Run. The SEA is built in CI from this commit and freezes its own receipt; the build is not byte-reproducible, so no candidateId is pre-filled.",
+  "candidateDeltaAudit": {
+    "from": "de63decbc71705e2ee142068bb7da0fd77e432b2 (beta.40, used by run 36658268335)",
+    "to": "5547563b2b59333a22f24e093fc6102e50a2f95f (beta.41)",
+    "size": "3 commits, 8 changed files",
+    "commits": [
+      "cli: deliver bounded benchmark attempt summary after primary stop",
+      "fix(cli): update version to 0.0.3-beta.41",
+      "Merge pull request #159 from Simon-He95/codex/attempt-budget-delivery"
+    ],
+    "changedFiles": "apps/cli/package.json, apps/cli/src/v3-run-options.ts, apps/cli/src/v3-run.ts, apps/cli/test/v3-run.test.ts, docs/product-v3/composition-cli.md, docs/proposals/benchmark-attempt-delivery.md, specs/258-v3-benchmark-attempt-delivery.md, specs/README.md",
+    "modelVisibleChange": "spec 258: after the attempt budget stops the primary Run, the headless CLI may take one tool-free delivery Run that copies only complete accepted transcript entries and asks for a bounded final status. It is absent by default and only activates when --attempt-remaining-ms is supplied (which this harness now always supplies). The primary Run's terminal snapshot, usage and evidence stay separate and are attributed by rootRunId."
+  },
+  "compositionDeltasVsFullRun": {
+    "candidate": "beta.40/de63decb -> beta.41/5547563b (see candidateDeltaAudit).",
+    "perCallCeiling": "generation.modelInvocationTimeoutMs is now a frozen 1800000 ms (30 min). The full run instead derived 840000 ms from each task's 5400 s budget. This is a deliberate companion change of the attempt-delivery work: the CLI's per-call ceiling no longer doubles as the attempt budget, because the attempt budget now reaches the CLI as --attempt-remaining-ms.",
+    "harnessEvidence": "The attempt-evidence summary now attributes model outcomes, model failures and the terminal cause to the primary Run by rootRunId and reports a delivery Run's terminal cause separately; the frozen record carries attemptBudgetMs and the wrapper's attemptTiming block.",
+    "concurrency": "fh_max_parallel 8 -> 1. This is the environment fix: in run 36658268335 (and in the beta.37/beta.38 max runs) eight concurrent Docker image builds pulled image metadata from public.ecr.aws simultaneously and tripped its quota (429 toomanyrequests), killing datacurve cells before any model call. Serializing the rerun removes that contention. The 2026-09-27 precedent filled 3/3 beta.37 ECR cells at fh_max_parallel=5, so this run goes further than the precedent required."
+  },
+  "environmentFix": {
+    "rootCause": "public.ecr.aws returns 429 `toomanyrequests: Data limit exceeded` on manifest metadata loads when many Docker image builds pull concurrently from the same GitHub-hosted runner pool. Observed in three independent max runs (beta.37, beta.38, beta.40), always on datacurve cells, always at 5-9 s, always before any model call.",
+    "remedyForThisRerun": "Serial generation: fh_max_parallel=1, so exactly one task builds and runs at a time. Every other composition element is unchanged.",
+    "notRemediedHere": "No change is made to the full-run default (8) or to the harness retry policy in this batch; those are separate decisions the user has not asked for."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "predeclaredSubset": 3
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "Unchanged from the full run: model, effort, base URL, compatibility and transport profile are identical; only the candidate and the composition deltas above differ."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/anko-typed-variable-bindings,datacurve/fastapi-deprecation-response-headers,datacurve/scc-bounded-memory-spilling",
+    "fh_limit": 3,
+    "fh_offset": 0,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 1,
+    "fh_batch": "beta41-diag-ecr-serial-20260930"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/scc-bounded-memory-spilling"
+  ],
+  "knownRisks": {
+    "ecrThrottle": "The serialized composition removes the concurrent-pull trigger, but a throttle caused by other tenants on the shared public.ecr.aws quota cannot be excluded; if it recurs the cell again has no model attempt and nothing is retried inside this run.",
+    "attemptDelivery": "beta.41's delivery Run is new code: a task can now end with a primary stop plus a bounded delivery status. Its delivery Run is tool-free and cannot write files, so it can never improve a task workspace; the frozen record reports the primary and delivery terminal causes separately.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT (expires 2026-10-05T12:41:07Z, five days out). Every Generate job verifies the credential at materialization before any attempt.",
+    "budget": "Each of these three tasks has a 5400 s datacurve budget and the rerun is serial, so the batch is expected to take up to about three hours in the worst case."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, and only the three named tasks; no other task is touched.",
+    "This batch is diagnostic: passAt1 stays null, and it is never merged with run 36658268335, with the beta.37/beta.38 max runs, or with run 36092882496.",
+    "The three cells in run 36658268335 keep their canonical error verdicts; this batch replaces, repairs and reinterprets nothing.",
+    "Nothing is published to main and no other run is cancelled, restarted or re-dispatched.",
+    "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended."
+  ],
+  "plannedChecks": "After the report artifact is downloaded: each cell's disposition against its three earlier measurements (beta.38 max passed/failed/error, beta.40 error), mechanical attribution of any verdict-less cell, whether the attempt evidence carries the wrapper attemptTiming block and a distinct delivery terminal cause, the acceptance block as it applies to a 3-task subset, usage and per-call durations, and whether any public.ecr.aws 429 recurs."
+}
