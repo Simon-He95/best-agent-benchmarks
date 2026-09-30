@@ -167,6 +167,40 @@ def render(dataset: dict, view: str, out_path: Path) -> None:
         zorder=7,
     )
 
+    repriced = point.get("officialPriceRepricing", {}).get("costPerPass")
+    if view == "cost" and isinstance(repriced, (int, float)):
+        axes.plot(
+            [point[metric], repriced],
+            [point["passRate"] * 100] * 2,
+            color=point["color"],
+            linewidth=1.0,
+            linestyle=(0, (2, 2)),
+            alpha=0.7,
+            zorder=5,
+        )
+        axes.scatter(
+            [repriced],
+            [point["passRate"] * 100],
+            marker=MARKERS[point["shape"]],
+            s=330,
+            facecolors="none",
+            edgecolors=point["color"],
+            linewidths=1.4,
+            zorder=6,
+        )
+        axes.annotate(
+            f"same tokens on the official price table\n{format_cost(repriced)}",
+            (repriced, point["passRate"] * 100),
+            textcoords="offset points",
+            xytext=(22, 12),
+            ha="left",
+            va="bottom",
+            fontsize=7.4,
+            color=point["color"],
+            linespacing=1.4,
+            zorder=7,
+        )
+
     axes.set_ylabel("Pass rate", color=TEXT, fontsize=11, labelpad=10)
     rates = [harness["passRate"] * 100 for harness in field] + [point["passRate"] * 100]
     low, high = min(rates) - 6, max(rates) + 8
@@ -204,6 +238,11 @@ def render(dataset: dict, view: str, out_path: Path) -> None:
         Line2D([], [], marker=MARKERS[point["shape"]], color=point["color"], linestyle="",
                markersize=11, markeredgecolor="#ffffff", markeredgewidth=0.8, label=point["label"])
     )
+    if view == "cost" and isinstance(point.get("officialPriceRepricing", {}).get("costPerPass"), (int, float)):
+        handles.append(
+            Line2D([], [], marker=MARKERS[point["shape"]], color=point["color"], linestyle="",
+                   markerfacecolor="none", markersize=9, label=f"{point['label']} repriced")
+        )
     legend = axes.legend(
         handles=handles,
         loc="lower right",

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.41",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 1,
+    "expectedEligible": 1,
+    "present": 1,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0,
+  "validCells": 1,
+  "passRateValidCells": 0,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "1 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "1 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "1 records agree on one frozen candidate (cli-0.0.3-beta.41-cf29eea-cbd035263e69|0.0.3-beta.41|cbd035263e693b0127f8d0bb59c7673a336bdeae85942a30f4d42923a1dd6867|6b66bab2e1f3ea2b0f87aa08030bd5ef08201d65fa05d4bb9e006d8e6e96d514)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) deepseek-v4.1-flash at reasoning effort max; the frozen profile is deepseek-v4.1-flash"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "1 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 1,
+    "promptTokens": 51626052,
+    "completionTokens": 180424,
+    "cacheReadTokens": 51292672,
+    "totalTokens": 51806476,
+    "modelCallCount": 241,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 72,
+        "f2p_passed": 70,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 0.9722222222222222,
+        "p2p": 1,
+        "partial": 0.9985272459499264
+      },
+      "durationMs": 1938545,
+      "usage": {
+        "promptTokens": 51626052,
+        "completionTokens": 180424,
+        "cacheReadTokens": 51292672,
+        "costUsd": null,
+        "totalTokens": 51806476,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 333380,
+        "modelCallCount": 241,
+        "reportedCallCount": 241,
+        "reportedInputTokens": 51626052
+      },
+      "evidenceSha256": "130109f265bea91b373eb92b2c1005de4fe4ce19472254f96d6da8e092e2233d",
+      "batchId": "recovery-ecr-36711152110-python-20261001"
+    }
+  ]
+}

@@ -83,5 +83,26 @@
   "headSha": "15103c87f6e58e5186c29c56b25e180db5c82647",
   "dispatchedAt": "2026-09-30T19:42:34Z",
   "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 1 Generate job + 1 Aggregate = 5.",
-  "outcome": null
+  "outcome": {
+    "present": 1,
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 1,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "runWindow": "2026-09-30T19:42:34Z -> 2026-09-30T20:19:12Z (36m38s), 5/5 jobs green, headSha 15103c87f6e58e5186c29c56b25e180db5c82647",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-cbd035263e69",
+    "candidateBinarySha256": "cbd035263e693b0127f8d0bb59c7673a336bdeae85942a30f4d42923a1dd6867",
+    "candidateManifestSha256": "6b66bab2e1f3ea2b0f87aa08030bd5ef08201d65fa05d4bb9e006d8e6e96d514",
+    "acceptance": "coverage.full failed by design (1 of 30 predeclared), verdicts.complete passed (1 present, 0 missing, 0 error), candidate.single passed, provider.single passed, instructions.frozen passed",
+    "usage": "tasks 1, promptTokens 51626052, completionTokens 180424, cacheReadTokens 51292672, totalTokens 51806476, modelCallCount 241, costUsd null",
+    "filledCell": {
+      "datacurve/python-statemachine-state-data-scoping": "FILLED: failed, reward=0, f2p 70/72, p2p 1286/1286, partial 0.99853, terminalCause completed in 1938545ms (32m18s) of its 5400s budget, 241 model calls, no model-failure entry. The ECR 429 that killed the same cell in the source run and in the preceding batch did not recur on this attempt."
+    },
+    "reading": "The last no-verdict cell of run 36711152110 now carries a real graded attempt, and all three refilled cells failed on their own merits. Under the user's 2026-10-01 policy the comparison reading therefore covers 30 of 30 cells with 23 passes, unchanged from the raw pass count of the source run; the cell's own mechanism was a shared-quota image-registry throttle that struck twice before it let the task through.",
+    "evidence": "Artifact frontier-harness-report-36767542570 (report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the per-task result record and its raw evidence); frozen record docs/benchmarks/history/frontier-harness/20260930T194234Z--36767542570.json (sha256 de992615b692f9744790978047f540d7b0b7a801423a7396b7aacd9d706fcccf, byte-identical to the artifact's report.json) with its Chinese record."
+  }
 }
