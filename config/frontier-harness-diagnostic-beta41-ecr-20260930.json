@@ -89,5 +89,51 @@
     "Nothing is published to main and no other run is cancelled, restarted or re-dispatched.",
     "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended."
   ],
-  "plannedChecks": "After the report artifact is downloaded: each cell's disposition against its three earlier measurements (beta.38 max passed/failed/error, beta.40 error), mechanical attribution of any verdict-less cell, whether the attempt evidence carries the wrapper attemptTiming block and a distinct delivery terminal cause, the acceptance block as it applies to a 3-task subset, usage and per-call durations, and whether any public.ecr.aws 429 recurs."
+  "plannedChecks": "After the report artifact is downloaded: each cell's disposition against its three earlier measurements (beta.38 max passed/failed/error, beta.40 error), mechanical attribution of any verdict-less cell, whether the attempt evidence carries the wrapper attemptTiming block and a distinct delivery terminal cause, the acceptance block as it applies to a 3-task subset, usage and per-call durations, and whether any public.ecr.aws 429 recurs.",
+  "dispatched": true,
+  "runId": 36669802530,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36669802530",
+  "headSha": "4ddc28aa92c658cc99d84158d5ab4d294a3ce33e",
+  "dispatchedAt": "2026-09-30T04:39:11Z",
+  "completedAt": "2026-09-30T05:48:16Z",
+  "runDurationMinutes": 69,
+  "runNote": "Dispatched from the commit that froze this manifest, on the working branch only. All 7 jobs succeeded (candidate freeze 2m, corpus 13s, plan 13s, three serial Generate jobs, aggregate); no job failure and no cancellation. Serialization was in effect: at any moment exactly one Generate job ran and the rest stayed queued. The candidate was built in CI from 5547563b and froze its own receipt cli-0.0.3-beta.41-5547563-4fbd84721448.",
+  "outcome": {
+    "present": 3,
+    "passed": 1,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": "3 of 3 (every predeclared cell carries a real verdict)",
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full FAILED (3 of 30 Docker-eligible corpus tasks were predeclared - expected and correct for a predeclared subset), verdicts.complete passed (3 present, 0 missing, 0 error, 0 not-evaluated), candidate.single passed (3 records agree on cli-0.0.3-beta.41-5547563-4fbd84721448), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), instructions.frozen passed (3 records match the frozen instruction hash of their task)",
+    "perTask": [
+      "datacurve/anko-typed-variable-bindings: failed, reward=0, f2p 8/9, p2p 94/94, partial 0.9903, 1247s, 149 calls, terminalCause completed, budgetExhausted false",
+      "datacurve/fastapi-deprecation-response-headers: PASSED, reward=1, f2p 137/137, p2p 3134/3134, partial 1, 1218s, 93 calls, terminalCause completed, budgetExhausted false",
+      "datacurve/scc-bounded-memory-spilling: failed, reward=0, f2p 28/31, p2p 286/286, partial 0.9905, 1356s, 120 calls, terminalCause completed, budgetExhausted false"
+    ],
+    "failureStages": { "model": 2 },
+    "failureStagesReading": "Both failures are model-class: the harness completed and the official verifier returned reward 0. There is no infra, provider or agent-timeout entry in this batch, which is exactly what the serialized composition was meant to achieve.",
+    "measuredCallDurations": "anko 149 calls, median 4.9s, max 58.1s, model 88% of wall clock; fastapi 93 calls, median 5.1s, max 131.3s, model 82%; scc 120 calls, median 4.8s, max 94.2s, model 76%. No unanswered request and no model-failure entry in any of the three cells."
+  },
+  "environmentFixResult": {
+    "ecr429Recurred": false,
+    "evidence": "Zero occurrences of `toomanyrequests` across all 143 files of the downloaded artifact, and every one of the three cells built its Docker environment and reached the model phase. Serialized generation (fh_max_parallel=1) removed the concurrent image-metadata pull that tripped the public.ecr.aws quota in run 36658268335 (and in the beta.37/beta.38 max runs).",
+    "scope": "This proves the remedy for this batch only. The full-run concurrency default (8) and any harness retry policy are deliberately untouched."
+  },
+  "attemptDeliveryResult": {
+    "plumbingVerified": true,
+    "deliveryRunTriggered": false,
+    "evidence": "All three frozen records carry attemptBudgetMs=5400000 and the wrapper's own measured attemptTiming block (wrapperElapsedMs 332/485/509, attemptRemainingMs about 5399500, modelTimeoutMs 1800000), with the timing file's sha256 frozen in artifacts. That proves beta.41 accepted the new harness -> plugin -> CLI `--attempt-remaining-ms` path end to end on real tasks. Each evidence file's header.rootRunId is [\"best-agent-cli-run\",1,1] and every terminal-snapshot belongs to that primary Run with terminalCause `completed`; no cell was stopped by its budget, so no delivery Run was created.",
+    "boundary": "Because no primary stop occurred, spec 258's bounded tool-free delivery summary was never exercised. Only its plumbing (budget projection, flag acceptance, rootRunId attribution, attemptTiming evidence) is verified here."
+  },
+  "comparison": {
+    "vsRun36658268335": "The same three cells carried no verdict there (error, pre-model ECR 429 at 5.3-8.7s) and now all three carry real verdicts: failed / passed / failed. This is a new measurement on a new candidate, not a repair of that run.",
+    "vsBeta38GlmMax": "beta.38/glm-5.3 max measured anko passed, fastapi passed, scc failed (budget-exhausted). This batch measures anko failed, fastapi passed, scc failed. The candidate, the model, the concurrency and the per-call ceiling all differ, so the difference between these two rows is a composite and is attributed to no single variable.",
+    "notARecovery": "Run 36658268335's frozen report is unchanged: 3 error cells, verdicts.complete failed, passAt1 null. This batch repairs, replaces and reinterprets nothing."
+  },
+  "evidence": "Frozen report copy docs/benchmarks/history/frontier-harness/20260930T043911Z--36669802530.json (sha256 7af219363997102dab36357a432b74de4e2c5664014cb5f060948d4d29237859, byte-identical to report.json inside artifact frontier-harness-report-36669802530), with the run record beside it (20260930T043911Z--36669802530.md). Per-task frozen records, complete attempt evidence, attemptTiming files with their hashes, process receipts, terminal patches/hashes and official verifier logs live in the 90-day task artifacts frontier-harness-task-36669802530-<task> and the candidate artifact frontier-harness-candidate-36669802530.",
+  "conclusion": "The environment fix worked for this batch and the three formerly verdict-less cells now each carry a real verdict: 1 passed / 2 failed / 0 error, all three settling inside their 5400s budgets with no infra, provider or timeout failure and no recurrence of the public.ecr.aws 429 throttle. The beta.41 attempt-delivery plumbing is verified end to end (constrained budget projected by the wrapper, accepted by the CLI, frozen as attemptTiming, evidence attributed to the primary rootRunId), though its delivery Run was correctly never created because no primary Run was stopped by its budget. This batch is diagnostic: passAt1 is null, it compensates nothing, and run 36658268335 keeps its own frozen 3-error record untouched."
 }
