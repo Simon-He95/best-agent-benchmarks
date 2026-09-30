@@ -103,7 +103,7 @@
     "completedAt": "2026-09-30T11:42:44Z",
     "durationMinutes": 4.5,
     "jobResults": "All four jobs succeeded: candidate 1m51s (the linux-x64-gnu SEA built from cf29eea8 and passed the delivery gate), corpus 14s, plan 9s, Generate 2m15s (Verify provider credential and Materialize the frozen provider identity both passed), report 17s. No job failure, no cancellation.",
-    "result": "The single predeclared task terminal-bench/log-summary-date-ranges PASSED (reward 1, disposition passed, 92.8s, 9 model calls, 154505 tokens, evidence sha256 56ddc8ddeb72a76abca94d53c09ac0c63912bad1fab4dd1b54672dfeb0c9f8b2). The frozen candidate is cli-0.0.3-beta.41-cf29eea-63a2bda079b6 (binary sha256 63a2bda079b6a493ebf57bf21a7050e665df2fefbbfcd321f1128edc1eca45a0, tarball sha256 c0c3d9bb809c56640bfb9df6dbddcb0718911ebdc73e35104fc9e09281c4b401) built in CI from cf29eea8; the aggregate acceptance block reads candidate.single passed, provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must (1 of 30 Docker-eligible corpus tasks were predeclared). passAt1 null, scoreable false.",
+    "result": "The single predeclared task terminal-bench/log-summary-date-ranges PASSED (reward 1, disposition passed, 92.8s, 9 model calls, 154505 tokens, evidence sha256 56ddc8ddeb72a76abca94d53c09ac0c63912bad1fab4dd1b54672dfeb0c9f8b2). The frozen candidate is cli-0.0.3-beta.41-cf29eea-63a2bda079b6 (binary sha256 63a2bda079b6a493ebf57bf21a7050e665df2fefbbfcd321f1128edc1eca45a0, candidate manifest sha256 c0c3d9bb809c56640bfb9df6dbddcb0718911ebdc73e35104fc9e09281c4b401) built in CI from cf29eea8; the aggregate acceptance block reads candidate.single passed, provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must (1 of 30 Docker-eligible corpus tasks were predeclared). passAt1 null, scoreable false.",
     "gateReading": "The two things this smoke existed to prove are mechanically proven: the re-pinned cf29eea8 candidate builds, delivery-verifies, and completes a real task through the frozen provider identity with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere."
   },
   "fullRun": {
@@ -139,7 +139,8 @@
       "binarySha256": "90c87483be977d52cb106ff9e6d885bbb5f1e2ae3c01b25ab87595ed3e61160e",
       "tarballSha256": "75f7a2bc398e22698672b66afd669cef88cc5083108648d5776b4a033dbd7ae7",
       "buildReportSha256": "4f30f496f1bfff5caf6830b6210c27896083c431f4d14a173f9869d6ba2f1fcb",
-      "lockfileSha256": "fc26fab3fffcd1cd540486b67d052a588a6d72775fce4a1f3398ac4289a119843",
+      "lockfileSha256": "fc26fab3fffcd1d540486b67d052a588a6d72775fce4a1f3398ac4289a119843",
+      "candidateManifestSha256": "c9b80a82448270a234a0bb320e15a1dbc6f4b85ced51988587c9477c7834cbd0",
       "runtimeLockSha256": "0f2ef2eaefc2c50842b56e7ed9f706b80321a24206d070b6640c40b6516e3f2f",
       "nodeVersion": "v24.15.0",
       "deliveryVerification": "verified=true, all seven checks passed (packaging.files/receipt/bytes/tarball/runtimeClosure, typecheck.source, runtime.binary)",
