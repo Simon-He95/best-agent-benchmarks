@@ -87,5 +87,31 @@
   "headSha": "145ad5903ecc9f5b8bbb380837ee693a78521508",
   "dispatchedAt": "2026-09-30T18:32:06Z",
   "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 3 Generate jobs + 1 Aggregate = 7; generation at most 1 concurrently.",
-  "outcome": null
+  "outcome": {
+    "present": 3,
+    "passed": 0,
+    "failed": 2,
+    "error": 1,
+    "notEvaluated": 0,
+    "validCells": 2,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "runWindow": "2026-09-30T18:32:06Z -> 2026-09-30T19:40Z (about 1h08m), 7/7 jobs green, headSha 145ad5903ecc9f5b8bbb380837ee693a78521508",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-518d8fe01482",
+    "candidateBinarySha256": "518d8fe01482df9bf3e3654f22988318b12f3abec84308a258e897938d393bbc",
+    "candidateManifestSha256": "00850412b438c4458b4c88dd68c5c67a8a8fd0969119cc5424573ef36c5c3bf6",
+    "acceptance": "coverage.full failed by design (3 of 30 predeclared), candidate.single passed, provider.single passed, instructions.frozen passed, verdicts.complete FAILED (1 error remains) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "usage": "tasks 2, promptTokens 95832728, completionTokens 373100, cacheReadTokens 95070336, totalTokens 96205828, modelCallCount 422, costUsd null",
+    "filledCells": {
+      "datacurve/expr-try-catch-errors": "FILLED: failed, reward=0, f2p 78/79, p2p 66265/66265, partial 0.99998, 28m00s of its 5400s budget, 217 model calls, no model-failure entry.",
+      "datacurve/katex-multicolumn-array-spans": "FILLED: failed, reward=0, f2p 0/94, p2p 599/599, partial 0.86436, 33m28s, 205 model calls, no model-failure entry."
+    },
+    "stillMissing": {
+      "datacurve/python-statemachine-state-data-scoping": "STILL NO VERDICT, same class as the source run: RuntimeError 'Docker compose command failed for environment ...' whose captured build output ends at '429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded' for manifest sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a, 4849ms, no agent directory, no attempt evidence and no usage. Serial generation (fh_max_parallel=1) did not prevent it, so this throttle is a shared-quota service whose trigger is not only this repository's own concurrency."
+    },
+    "reading": "Two of the three no-verdict cells now carry real graded attempts, and both failed on their own merits; the third died pre-model again on the same shared-quota throttle. Each of the three filled-or-refilled datacurve cells reached the model phase in the serial composition except the one the throttle struck, which is the same pattern every earlier measurement showed.",
+    "evidence": "Artifact frontier-harness-report-36759265603 (report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, three per-task result records and their raw evidence); local copy of the report to be frozen under docs/benchmarks/history/frontier-harness/ as the record of this batch. 7/7 jobs green in 1h08m. failures.json byStage = {model: 2, infra: 1}."
+  },
+  "followUp": "config/frontier-harness-recovery-36711152110-second.json freezes a second dispatch for the one cell that is still without a verdict, under the user's 2026-10-01 policy and with the boundary stated there."
 }

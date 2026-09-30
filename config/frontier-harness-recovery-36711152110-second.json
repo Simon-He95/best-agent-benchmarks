@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-ecr-36711152110-python-20261001",
+  "passAt1": null,
+  "passAt1Note": "A single-task batch cannot produce a pass@1 and is never merged into one. Run 36711152110 keeps its own frozen report; batch recovery-ecr-36711152110-20261001 keeps its 2 filled cells and 1 error.",
+  "requestedBy": "User, 2026-10-01: \"环境和上游繁忙失败的任务，重跑仍然是公平的，可以作为正确的结果\" (tasks that failed because the environment or the upstream was busy may be re-run; the re-run is still fair and may be taken as the correct result).",
+  "sourceRun": {
+    "runId": 36711152110,
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json",
+    "frozenRecordSha256": "6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9"
+  },
+  "precedingRecovery": {
+    "runId": 36759265603,
+    "batchLabel": "recovery-ecr-36711152110-20261001",
+    "manifest": "config/frontier-harness-recovery-36711152110.json",
+    "outcome": "Filled 2 of the 3 predeclared cells (both failed on their own merits). The third cell, datacurve/python-statemachine-state-data-scoping, died pre-model again with the same RuntimeError whose build output ends at '429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded', 4849ms, no attempt and no usage."
+  },
+  "admission": {
+    "preModelEnvironmentFailure": {
+      "tasks": [
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "class": "pre-model environment failure",
+      "evidence": "Mechanically proven from the frozen record of the preceding recovery batch (artifact frontier-harness-report-36759265603, per-task record of datacurve/python-statemachine-state-data-scoping): disposition error, durationMs 4849, exception RuntimeError 'Docker compose command failed for environment datacurve/python-statemachine-state-data-scoping' whose captured output ends at the public.ecr.aws manifest 429 'toomanyrequests: Data limit exceeded' for sha256:06309d9e..., no agent directory, no best-agent-evidence.jsonl and no usage block. As in the source run, the cell carries no model request, no attempt and no prediction, which is the class AGENTS.md admits for benchmark-level recovery.",
+      "whyOneMoreAttemptIsNotRepetition": "The earlier precedent stopped after a second measurement because that mechanism was reproducible by construction (a single call that outran the client's own per-call ceiling). Here the mechanism is a shared-quota throttle on a public registry: it struck two of the three cells in the source run and one of the three in the preceding batch, and the 2026-09-30 serial diagnostic measured zero occurrences across 143 artifact files. A third measurement of a quota event therefore still measures the environment rather than a property of the cell."
+    },
+    "notAdmitted": [
+      {
+        "tasks": [
+          "datacurve/expr-try-catch-errors",
+          "datacurve/katex-multicolumn-array-spans",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval"
+        ],
+        "why": "The first two now carry verdicts from the preceding recovery batch (failed, reward 0) and the last two carry the source run's own graded predictions (failed, reward 0). No prediction is ever replaced."
+      }
+    ]
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c",
+    "cliVersion": "0.0.3-beta.41",
+    "note": "Identical source commit to run 36711152110 and to the preceding recovery batch; the CI-built SEA is not byte-reproducible and this batch freezes its own receipt."
+  },
+  "compositionDeltasVsSourceRun": {
+    "concurrency": "fh_max_parallel=1, the same serial composition as the preceding recovery batch (a single task makes concurrency moot).",
+    "everythingElse": "Unchanged: corpus, task sources, batch plan, pier pin, provider (deepseek-v4.1-flash @ https://dimagent.cn/v1, compatible, dim-oauth), fh_reasoning_effort=max, fh_agent_timeout_multiplier=1 and every declared budget."
+  },
+  "constraints": [
+    "Only this one no-verdict cell is attempted; every other verdict of run 36711152110, of the preceding recovery batch and of any other run is preserved and never replaced.",
+    "This is the last attempt for this cell in this task: if it dies pre-model again the comparison reading keeps it without a verdict and no further dispatch is made.",
+    "Same candidate and same formal-run semantics as the source run; nothing is extended and no budget is raised.",
+    "Run 36711152110 keeps its own frozen report and passAt1=null; this batch repairs no pass@1 and is never merged into one.",
+    "Nothing is published to main; the manifest and its outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/python-statemachine-state-data-scoping",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-ecr-36711152110-python-20261001"
+  },
+  "expectedTasks": [
+    "datacurve/python-statemachine-state-data-scoping"
+  ],
+  "knownRisks": {
+    "ecrThrottle": "The same shared-quota throttle may strike again; the cell then keeps no verdict and the comparison reading stays at 29 verdicts of 30.",
+    "providerTransport": "A transport death would leave the cell without a verdict in the same way.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT, expiring 2026-10-05T12:41:07Z.",
+    "budget": "One datacurve task with a 5400s budget: the expected window is up to about 1.5 hours."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements (beta.40 error, source-run error, preceding-recovery error), mechanical attribution of any verdict-less outcome, whether the 429 recurs, the acceptance block for a 1-task subset, and usage.",
+  "dispatched": false
+}
