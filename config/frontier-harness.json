@@ -65,9 +65,9 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.40",
+    "cliVersion": "0.0.3-beta.41",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "de63decbc71705e2ee142068bb7da0fd77e432b2",
+    "sourceCommit": "5547563b2b59333a22f24e093fc6102e50a2f95f",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -82,6 +82,7 @@
   "workspace": "/app",
   "generation": {
     "maxBatchTasks": 10,
+    "modelInvocationTimeoutMs": 1800000,
     "defaultAgentTimeoutMultiplier": 1,
     "agentSetupTimeoutMultiplier": 3,
     "environmentBuildTimeoutMultiplier": 3,

@@ -6,6 +6,7 @@ import shlex
 import shutil
 import sqlite3
 import tempfile
+import time
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -198,16 +199,32 @@ class BestAgentCli(BaseInstalledAgent):
         environment: BaseEnvironment,
         context: AgentContext,
     ) -> None:
+        started_ns = time.monotonic_ns()
         model = _required_env("BEST_AGENT_PROVIDER_MODEL")
         model_timeout_ms = _required_env("BEST_AGENT_MODEL_TIMEOUT_MS")
+        attempt_budget_ms = int(_required_env("BEST_AGENT_ATTEMPT_BUDGET_MS"))
         workspace = _required_env("BEST_AGENT_CLI_WORKSPACE")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
         await self._prepare_provider(environment)
+        wrapper_elapsed_ms = (time.monotonic_ns() - started_ns) // 1_000_000
+        attempt_remaining_ms = attempt_budget_ms - wrapper_elapsed_ms
+        if attempt_remaining_ms <= 210_000:
+            raise RuntimeError("No admitted attempt delivery window remains after provider setup")
+        timing = json.dumps(
+            {
+                "attemptBudgetMs": attempt_budget_ms,
+                "wrapperElapsedMs": wrapper_elapsed_ms,
+                "attemptRemainingMs": attempt_remaining_ms,
+                "modelTimeoutMs": int(model_timeout_ms),
+            },
+            separators=(",", ":"),
+        )
         command = "\n".join(
             [
                 "set -e",
                 'export PATH="$HOME/.best-agent-cli/runtime/bin:$PATH"',
                 "mkdir -p /logs/agent/best-agent-runtime",
+                "printf '%s\\n' " + shlex.quote(timing) + " > /logs/agent/best-agent-attempt-timing.json",
                 "cd " + shlex.quote(workspace) + " || exit 1",
                 'export BEST_AGENT_PROVIDER_CONFIG="$HOME/.best-agent/provider.json"',
                 'export DIMCODE_HOME="$HOME/.dimcode"',
@@ -219,6 +236,8 @@ class BestAgentCli(BaseInstalledAgent):
                 + shlex.quote(model)
                 + " --model-timeout-ms "
                 + shlex.quote(model_timeout_ms)
+                + " --attempt-remaining-ms "
+                + shlex.quote(str(attempt_remaining_ms))
                 + " "
                 + " ".join(shlex.quote(value) for value in execution_args)
                 + " --attempt-evidence /logs/agent/best-agent-evidence.jsonl"

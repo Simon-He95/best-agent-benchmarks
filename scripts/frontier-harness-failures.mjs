@@ -204,15 +204,27 @@ function analyzeEvidence(evidencePath) {
   const entries = [];
   let modelFailureCount = 0;
   let terminalCause;
+  let deliveryTerminalCause;
+  let rootRunId;
   const failedTools = [];
   for (const line of lines) {
     try {
       const parsed = JSON.parse(line);
       entries.push(parsed);
-      if (parsed.type === "model-failure") modelFailureCount += 1;
+      if (parsed.type === "header") rootRunId = parsed.rootRunId;
+      if (
+        parsed.type === "model-failure" &&
+        (rootRunId === undefined || parsed.resourceId === rootRunId)
+      ) modelFailureCount += 1;
       if (parsed.type === "terminal-snapshot") {
-        terminalCause = parsed.snapshot?.terminalCause;
-        for (const item of parsed.snapshot?.transcript ?? []) {
+        if (rootRunId === undefined || parsed.resourceId === rootRunId) {
+          terminalCause = parsed.snapshot?.terminalCause;
+        } else {
+          deliveryTerminalCause = parsed.snapshot?.terminalCause;
+        }
+        for (const item of rootRunId !== undefined && parsed.resourceId !== rootRunId
+          ? []
+          : parsed.snapshot?.transcript ?? []) {
           const closure = item?.kind === "tool" ? item.result?.closure : undefined;
           if (
             closure &&
@@ -237,6 +249,7 @@ function analyzeEvidence(evidencePath) {
     entries: entries.length,
     modelFailureCount,
     terminalCause,
+    deliveryTerminalCause,
     failedTools,
     lastEntry: last === undefined ? undefined : JSON.stringify(last).slice(0, 600),
   };
@@ -323,6 +336,7 @@ function main() {
       durationMs: record.durationMs,
       exceptionType: record.result.exception?.type,
       terminalCause: evidence.terminalCause,
+      deliveryTerminalCause: evidence.deliveryTerminalCause,
       evidenceSha256: record.artifacts?.evidenceSha256,
       failedTools: evidence.failedTools ?? [],
     });
@@ -385,6 +399,9 @@ function main() {
             [
               `entries: ${evidence.entries ?? "?"}`,
               `terminal cause: ${evidence.terminalCause ?? "?"}`,
+              ...(evidence.deliveryTerminalCause === undefined
+                ? []
+                : [`delivery terminal cause: ${evidence.deliveryTerminalCause}`]),
               `model failures: ${evidence.modelFailureCount ?? "?"}`,
               `failed tool closures: ${evidence.failedTools?.length ?? "?"}`,
               `evidence sha256: ${record.artifacts?.evidenceSha256 ?? "?"}`,

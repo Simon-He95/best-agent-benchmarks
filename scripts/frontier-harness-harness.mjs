@@ -24,10 +24,9 @@
  * diagnostic composition); the CLI's network tool stays excluded and no
  * closed-book claim is made.
  *
- * Composition fairness: one headless `best-agent run` per task (no TUI, no
- * interaction tools), full workspace permissions, one frozen candidate, one
- * predeclared attempt, and no evaluator output ever re-enters the model
- * attempt.
+ * Composition fairness: one headless CLI entry per task (no TUI or interaction
+ * tools), full workspace permissions, one frozen candidate, one predeclared
+ * Pier attempt, and no evaluator output ever re-enters the model attempt.
  *
  * Usage:
  *   node scripts/frontier-harness-harness.mjs [options]
@@ -46,7 +45,6 @@
  *   --candidate-id <id>               candidate identity (cli-<ver>-<commit>)
  *   --batch-id <id>                   batch label
  *   --formal-run-id <id>              formal/diagnostic run id
- *   --timeout-ms <ms>                 provider/CLI per-task timeout
  *
  * Environment:
  *   BEST_AGENT_PROVIDER_CONFIG / DIMCODE_HOME / BEST_AGENT_PROVIDER_BASE_URL
@@ -111,7 +109,6 @@ function parseArgs(argv) {
     candidateId: "unknown",
     batchId: "local",
     formalRunId: "diagnostic-local",
-    timeoutMs: undefined,
   };
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
@@ -154,11 +151,6 @@ function parseArgs(argv) {
       case "--formal-run-id":
         parsed.formalRunId = argv[++i];
         break;
-      case "--timeout-ms": {
-        const raw = argv[++i];
-        parsed.timeoutMs = raw === undefined || raw === "" ? undefined : Number(raw);
-        break;
-      }
       default:
         throw new Error(`Unknown argument: ${argv[i]}`);
     }
@@ -288,6 +280,8 @@ export function verifyFrozenIdentity() {
   const reasoningEffort = materialized?.reasoningEffort;
   if (
     materialized?.model !== provider.model ||
+    materialized?.timeoutMs !== undefined ||
+    process.env.BEST_AGENT_PROVIDER_TIMEOUT_MS !== undefined ||
     !Array.isArray(effortOptions) ||
     !effortOptions.includes(reasoningEffort)
   ) {
@@ -488,9 +482,8 @@ const PROVIDER_FAILURE_REASONS = new Set(["connection", "transport"]);
 
 /**
  * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
- * were written, the run's terminal cause, and why each model failure failed.
- * The footer's writtenCounts are authoritative when present; otherwise
- * model-outcome entries are counted.
+ * were written for the primary Run, its terminal cause, and why its model calls failed.
+ * For a single-Run legacy record, the footer count remains authoritative.
  *
  * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
  */
@@ -505,7 +498,10 @@ export function summarizeAttemptEvidence(evidenceText) {
   }
   let footerOutcomes = null;
   let countedOutcomes = 0;
+  let primaryOutcomes = 0;
   let terminalCause = null;
+  let deliveryTerminalCause = null;
+  let rootRunId = null;
   const modelFailureReasons = [];
   for (const line of evidenceText.split("\n")) {
     const trimmed = line.trim();
@@ -518,8 +514,10 @@ export function summarizeAttemptEvidence(evidenceText) {
     }
     if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
       countedOutcomes += 1;
+      if (entry.resourceId === rootRunId) primaryOutcomes += 1;
     }
-    if (entry?.type === "model-failure") {
+    if (entry?.type === "header") rootRunId = entry.rootRunId;
+    if (entry?.type === "model-failure" && (rootRunId === null || entry.resourceId === rootRunId)) {
       // The frozen CLI nests the fact as `failure.reason`; older artifacts
       // carry the same value as a flat `reason`.
       const reason = entry.failure?.reason ?? entry.reason;
@@ -533,13 +531,18 @@ export function summarizeAttemptEvidence(evidenceText) {
       }
     }
     if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
-      terminalCause = String(entry.snapshot.terminalCause);
+      if (rootRunId === null || entry.resourceId === rootRunId) {
+        terminalCause = String(entry.snapshot.terminalCause);
+      } else {
+        deliveryTerminalCause = String(entry.snapshot.terminalCause);
+      }
     }
   }
   return {
     present: true,
-    modelOutcomes: footerOutcomes ?? countedOutcomes,
+    modelOutcomes: rootRunId === null ? footerOutcomes ?? countedOutcomes : primaryOutcomes,
     terminalCause,
+    ...(deliveryTerminalCause === null ? {} : { deliveryTerminalCause }),
     modelFailureReasons,
   };
 }
@@ -578,6 +581,9 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
   const evidenceFields = {
     ...(evidence.present ? { modelOutcomes: evidence.modelOutcomes } : {}),
     ...(evidence.terminalCause ? { terminalCause: evidence.terminalCause } : {}),
+    ...(evidence.deliveryTerminalCause
+      ? { deliveryTerminalCause: evidence.deliveryTerminalCause }
+      : {}),
   };
   // The agent process errored out without ever receiving a model response.
   const preModelFailure = Boolean(exception) && evidence.modelOutcomes === 0;
@@ -725,14 +731,13 @@ async function main() {
   mkdirSync(args.jobsDir, { recursive: true });
 
   const effectiveAgentTimeoutSec = task.agentTimeoutSec * args.agentTimeoutMultiplier;
-  // One model invocation ceiling for this attempt, derived from the task's own agent budget. It is
-  // published under its own name and reaches the CLI as the explicit `--model-timeout-ms` flag, so
-  // no attempt wall clock is ever handed to the CLI as a provider timeout. The ceiling bounds one
-  // model call; it is not an attempt deadline and the harness does not claim one.
-  const modelTimeoutMs =
-    args.timeoutMs ??
-    Math.max(60_000, Math.round((effectiveAgentTimeoutSec - 60) * 1000));
+  const attemptBudgetMs = Math.round(effectiveAgentTimeoutSec * 1000);
+  const modelTimeoutMs = config.generation.modelInvocationTimeoutMs;
+  if (!Number.isSafeInteger(modelTimeoutMs) || modelTimeoutMs < 1) {
+    throw new Error("The frozen model invocation timeout is invalid.");
+  }
   process.env.BEST_AGENT_MODEL_TIMEOUT_MS = String(modelTimeoutMs);
+  process.env.BEST_AGENT_ATTEMPT_BUDGET_MS = String(attemptBudgetMs);
 
   const pierBin = process.env.FH_PIER_BIN ?? "pier";
   const pierArgs = [
@@ -791,6 +796,18 @@ async function main() {
   const processReceiptPath = trialDir
     ? join(trialDir, "agent", "best-agent-process-receipt.json")
     : undefined;
+  const attemptTimingPath = trialDir
+    ? join(trialDir, "agent", "best-agent-attempt-timing.json")
+    : undefined;
+  let attemptTiming;
+  let attemptTimingUnreadable = false;
+  if (attemptTimingPath && existsSync(attemptTimingPath)) {
+    try {
+      attemptTiming = JSON.parse(readFileSync(attemptTimingPath, "utf8"));
+    } catch {
+      attemptTimingUnreadable = true;
+    }
+  }
   const pierResultPath = trialDir ? join(trialDir, "result.json") : undefined;
   const pierStdoutPath = `${args.output}.stdout.txt`;
   const pierStderrPath = `${args.output}.stderr.txt`;
@@ -817,6 +834,9 @@ async function main() {
     pierVersion: config.pier.version,
     agentTimeoutMultiplier: args.agentTimeoutMultiplier,
     effectiveAgentTimeoutSec,
+    attemptBudgetMs,
+    ...(attemptTiming === undefined ? {} : { attemptTiming }),
+    ...(attemptTimingUnreadable ? { attemptTimingUnreadable: true } : {}),
     modelTimeoutMs,
     jobName: args.jobName,
     trialDir: trialDir ? relative(repoRoot, trialDir) : undefined,
@@ -827,6 +847,9 @@ async function main() {
       ...(outcome.preModelFailure ? { preModelFailure: true } : {}),
       ...(outcome.modelOutcomes === undefined ? {} : { modelOutcomes: outcome.modelOutcomes }),
       ...(outcome.terminalCause ? { terminalCause: outcome.terminalCause } : {}),
+      ...(outcome.deliveryTerminalCause
+        ? { deliveryTerminalCause: outcome.deliveryTerminalCause }
+        : {}),
     },
     ...(usage === undefined ? {} : { usage }),
     artifacts: {
@@ -843,6 +866,12 @@ async function main() {
         ? {
             processReceipt: relative(repoRoot, processReceiptPath),
             processReceiptSha256: sha256File(processReceiptPath),
+          }
+        : {}),
+      ...(attemptTimingPath && existsSync(attemptTimingPath)
+        ? {
+            attemptTiming: relative(repoRoot, attemptTimingPath),
+            attemptTimingSha256: sha256File(attemptTimingPath),
           }
         : {}),
       ...(pierResultPath && existsSync(pierResultPath)
