@@ -107,12 +107,25 @@
     "gateReading": "The two things this smoke existed to prove are mechanically proven: the re-pinned cf29eea8 candidate builds, delivery-verifies, and completes a real task through the frozen provider identity with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere."
   },
   "fullRun": {
-    "status": "pending-explicit-user-authorization",
-    "dispatchInputs": null,
-    "note": "The full run is a formal 30-task run of this frozen composition from this same candidate; its exact dispatch inputs (including fh_max_parallel) are written here and committed before the dispatch, because concurrency is the one composition knob the previous full runs left open: fh_max_parallel=8 is the tracked default used by 36658268335 and 36527461937 and it is also the condition under which the public.ecr.aws image-metadata throttle killed three datacurve cells pre-model in each of them, while the 2026-09-30 serial diagnostic (fh_max_parallel=1) did not reproduce it."
+    "status": "authorized-and-frozen-before-dispatch",
+    "authorization": "User, 2026-09-30, answering the dispatch question directly: dispatch the formal 30-task run now, with fh_max_parallel=5.",
+    "concurrencyDecision": "5, not the tracked default 8 and not the fully serial 1. Rationale the user chose: the 2026-09-27 recovery precedent filled 3/3 verdict-less beta.37 public.ecr.aws cells at fh_max_parallel=5, while both runs that kept 8 (36658268335, 36527461937) each lost three datacurve cells pre-model to the same metadata throttle. 5 therefore sits between the demonstrated-collision setting and full serialization while staying inside the workflow's admitted 1-8 range.",
+    "dispatchInputs": {
+      "fh_run": true,
+      "fh_smoke": false,
+      "fh_run_full": true,
+      "fh_tasks": "",
+      "fh_limit": "1",
+      "fh_offset": "0",
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": "1",
+      "fh_max_parallel": "5",
+      "fh_batch": "beta41-cf29eea8-deepseek-v4.1-flash-max-20260930"
+    },
+    "note": "fh_run_full=true makes the plan take all 30 corpus tasks from the tracked batch plan (config/frontier-harness-batches.json) in corpus order and builds the aggregate with --formal; fh_limit/fh_offset are ignored on that path. This run's pass@1 comes only from its own frozen report, and only if that report declares the run scoreable. The dispatch is made from the commit that froze these inputs."
   },
   "knownRisks": {
-    "ecrThrottle": "8 concurrent Docker image builds tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`) on 3 datacurve cells in both recent full runs. If the full run keeps fh_max_parallel=8 the condition is unchanged and may recur; such a cell is a pre-model environment failure with no attempt and no verdict, which leaves the aggregate pass@1 null.",
+    "ecrThrottle": "Concurrent Docker image builds once tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`): 3 datacurve cells died pre-model in each of the two runs that used fh_max_parallel=8. This run reduces the concurrency to 5, the setting at which the 2026-09-27 recovery filled 3/3 beta.37 cells, so the condition is weakened but not removed (the throttle is a shared-quota service). A cell that still dies pre-model carries no attempt and no verdict, which leaves the aggregate pass@1 null.",
     "providerTransport": "deepseek-v4.1-flash's Terminal-Bench full run carried 9 provider transport failures out of 58 attempts, so transport-level shake is real for this model and is not zero.",
     "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT (last written 2026-09-29T05:42:32Z, expiring 2026-10-05T12:41:07Z). An expired token fails every Generate job at provider materialization before any attempt (as in run 36526276851).",
     "compactChange": "This candidate changes what a fold puts in front of the model and adds one extra provider call per fold. That is a real composition difference against every earlier run of this corpus and must be read as such, not as pure candidate noise."
@@ -123,7 +136,7 @@
     "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the effort stay exactly as the frozen composition declares them.",
     "The corpus, the task sources, the batch plan and the pier pin are untouched: only the candidate pin changes.",
     "Nothing is published to main; the change and this manifest live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched.",
-    "The full run is dispatched only after the user's explicit authorization, and only after the smoke gate above has passed."
+    "The full run was dispatched only after the user's explicit authorization and after the smoke gate above passed, from the commit that froze the fullRun dispatch inputs."
   ],
   "expectedTasks": [
     "datacurve/anko-typed-variable-bindings",
