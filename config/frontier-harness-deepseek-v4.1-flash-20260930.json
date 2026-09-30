@@ -153,5 +153,85 @@
   "runId": 36658268335,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36658268335",
   "headSha": "9308ce44bedb96c319067bc30d16c92af7227b3e",
-  "dispatchedAt": "2026-09-30T02:06:16Z"
+  "dispatchedAt": "2026-09-30T02:06:16Z",
+  "completedAt": "2026-09-30T03:10:39Z",
+  "runDurationMinutes": 64,
+  "runNote": "All 30 Generate jobs and all four freeze/aggregate jobs succeeded; no job failure anywhere in the run. The candidate was built in CI from de63decb and froze its own receipt cli-0.0.3-beta.40-de63dec-67027fb53ab6 (binary 67027fb5…, manifest 3bd9c65d…). fh_run_full=true, so the workflow predeclared all 30 corpus tasks from the tracked batch plan and the aggregate report was built with --formal; the run's own report is the only source of its pass@1.",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 9,
+    "error": 3,
+    "notEvaluated": 0,
+    "passRate": 0.6,
+    "validCells": 27,
+    "passRateValidCells": 0.6666666666666666,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full passed (30 of 30 predeclared), candidate.single passed (30 records agree on one frozen candidate), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), instructions.frozen passed, verdicts.complete FAILED (30 present, 0 missing, 3 error, 0 not-evaluated) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "errorCells": [
+      "datacurve/anko-typed-variable-bindings (5.3s, RuntimeError: docker compose build failed, public.ecr.aws 429 toomanyrequests: Data limit exceeded)",
+      "datacurve/fastapi-deprecation-response-headers (5.9s, same)",
+      "datacurve/scc-bounded-memory-spilling (8.7s, same)"
+    ],
+    "errorCellClass": "All three are pre-model environment failures of the same shape the beta.37 and beta.38 max runs produced: the Docker image metadata load for public.ecr.aws/d3j8x8q7/swe-bench-202605 was throttled (429) while 8 images built concurrently. There is no jobs/<task>/.../agent directory, no best-agent-evidence.jsonl and no model call, so they are neither task verdicts nor model failures. AGENTS.md admits exactly this class for benchmark-level recovery, and a recovery precedent exists (recovery-no-prediction-20260927 filled beta.37's three ECR cells 3/3). No recovery was dispatched in this run.",
+    "budgetExhausted": {
+      "attempts": 6,
+      "passed": 2,
+      "tasks": ["terminal-bench/chess-best-move", "terminal-bench/code-from-image", "terminal-bench/extract-elf", "terminal-bench/gcode-to-text", "terminal-bench/largest-eigenval", "terminal-bench/regex-log"],
+      "passedTasks": ["terminal-bench/largest-eigenval", "terminal-bench/regex-log"],
+      "note": "Six cells consumed their whole declared agent budget and were cut at that edge, each with exactly one unanswered request at the boundary. That is a budget outcome, not a task verdict: the verifier grades the delivered artifacts, and two of the six still passed."
+    },
+    "failureStages": { "infra": 3, "model": 3, "provider": 1, "specification-gap": 1, "agent-timeout": 4 }
+  },
+  "knownRisksObserved": {
+    "ecrThrottle": "RECURRED, exactly as predicted: 3 datacurve cells lost pre-model to a public.ecr.aws pull throttle at fh_max_parallel=8.",
+    "perCallCeiling": "DID NOT RECUR. The whole run contains exactly one model-failure entry (one provider transport failure inside the httpx attempt, which the run survived and which did not decide its verdict). The largest single model call was 254.2s (dna-insert) against the unchanged 840s per-call ceiling; regex-log 230.9s and extract-elf 215.3s. Both cells that the glm-5.3 max runs had killed at 840.021/840.026s (polyglot-c-py, regex-log) PASSED here.",
+    "providerTransport": "Only one transport-level model failure in 1889 calls, so this model's transport shake was far lower than its Terminal-Bench full run suggested for this corpus."
+  },
+  "aggregate": {
+    "usage": { "tasks": 27, "promptTokens": 322736918, "completionTokens": 2175610, "cacheReadTokens": 318520704, "totalTokens": 324912528, "modelCallCount": 1889, "costUsd": null },
+    "measuredCallDurations": "Per-task medians 3.1-11.4s; per-task maxima 13.0-254.2s; model-in-flight share of agent wall clock 55-119% (five cells above 100% because a model call straddled a budget cut or overlap). One unanswered request per budget-killed cell, stopped at the budget boundary.",
+    "perTaskVerdicts": [
+      "datacurve/anko-typed-variable-bindings error",
+      "datacurve/arktype-json-schema-refs-dependencies failed",
+      "datacurve/expr-try-catch-errors failed",
+      "datacurve/fastapi-deprecation-response-headers error",
+      "datacurve/httpx-multipart-response-parsing failed",
+      "datacurve/katex-multicolumn-array-spans passed",
+      "datacurve/meriyah-explicit-resource-declarations failed",
+      "datacurve/python-statemachine-state-data-scoping failed",
+      "datacurve/scc-bounded-memory-spilling error",
+      "terminal-bench/build-cython-ext passed",
+      "terminal-bench/chess-best-move failed",
+      "terminal-bench/code-from-image failed",
+      "terminal-bench/constraints-scheduling passed",
+      "terminal-bench/db-wal-recovery passed",
+      "terminal-bench/dna-insert passed",
+      "terminal-bench/extract-elf failed",
+      "terminal-bench/gcode-to-text failed",
+      "terminal-bench/git-leak-recovery passed",
+      "terminal-bench/kv-store-grpc passed",
+      "terminal-bench/largest-eigenval passed",
+      "terminal-bench/log-summary-date-ranges passed",
+      "terminal-bench/merge-diff-arc-agi-task passed",
+      "terminal-bench/modernize-scientific-stack passed",
+      "terminal-bench/multi-source-data-merger passed",
+      "terminal-bench/openssl-selfsigned-cert passed",
+      "terminal-bench/polyglot-c-py passed",
+      "terminal-bench/regex-log passed",
+      "terminal-bench/sanitize-git-repo passed",
+      "terminal-bench/sqlite-db-truncate passed",
+      "terminal-bench/vulnerable-secret passed"
+    ],
+    "perCellComparison": {
+      "vsBeta38GlmMax": "14 passed / 11 failed / 5 error -> 18 passed / 9 failed / 3 error, 15 cells flipped: 8 gained (katex error->passed, build-cython-ext, dna-insert, largest-eigenval, openssl-selfsigned-cert, sanitize-git-repo failed->passed, polyglot-c-py and regex-log error->passed) and 5 lost (anko and fastapi passed->error, expr-try-catch-errors and httpx passed->failed, scc failed->error); arktype and python-statemachine moved from error to a real failed verdict.",
+      "vsHighBaseline": "passed->passed 12, passed->error 2, passed->failed 5, failed->passed 6, failed->error 1, failed->failed 4 (14 flips vs run 36092882496).",
+      "reading": "This run changed the model and the candidate at once (21 commits / 90 files), so every per-cell difference is the composite of the model change, the candidate delta and run-to-run variance, and can be attributed to no single variable."
+    }
+  },
+  "evidence": "Frozen report copy docs/benchmarks/history/frontier-harness/20260930T020616Z--36658268335.json (sha256 51fe44a2b269ecda85b3f390d0b52e1fc467f0a683db42ed292c7b2041dc73d8, byte-identical to report.json inside artifact frontier-harness-report-36658268335), with the failure analysis beside it (.failures.json / .failures.md and the run record .md). Per-task frozen records, complete attempt evidence, terminal patches/hashes and unmodified stdout/stderr live in the 90-day task artifacts frontier-harness-task-36658268335-<task> and the candidate artifact frontier-harness-candidate-36658268335.",
+  "budgetExhausted": "6 attempts (0.6 of 30), 2 of them still passed: terminal-bench/largest-eigenval, terminal-bench/regex-log. Compare beta.38/glm-5.3 max: 9 attempts, 0 still passed.",
+  "conclusion": "The latest candidate and deepseek-v4.1-flash both ran the full 30-task corpus in one predeclared attempt per task, 64 minutes wall clock, with zero job failures: 18 passed / 9 failed / 3 error. pass@1 is null again because three datacurve cells never reached a model (public.ecr.aws 429 image-pull throttle, the same pre-model environment class the two previous max runs hit), so verdicts.complete failed and the run is not scoreable. What the run does establish mechanically: the beta.40 candidate builds, delivery-verifies and runs; deepseek-v4.1-flash serves this corpus at reasoning effort max through the frozen dim-oauth profile; the 840s per-call ceiling that killed two cells under glm-5.3 at max did NOT recur (largest call 254.2s, and both former victims passed); and the ECR throttle remains the single recurring environment risk of the 8-way-parallel composition. Nothing was changed to make the run scoreable, no recovery was dispatched, no earlier verdict was reinterpreted, and this run's number can never be merged with any other."
 }
