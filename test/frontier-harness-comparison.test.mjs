@@ -19,7 +19,7 @@ const PRICING = {
 
 const OFFICIAL = {
   source: { resultsFile: "https://example.invalid/eval-data.json", resultsGeneratedAt: "2026-08-22T00:00:00Z", modelLabel: "Test Model", runtime: "test runtime" },
-  priceTable: { name: "test-official-table" },
+  priceTable: { name: "test-official-table", freshInputUsdPerMillion: 2, cacheWriteUsdPerMillion: 2, cacheReadUsdPerMillion: 0.2, outputUsdPerMillion: 20 },
   comparability: { repoRule: "diagnostic only" },
   harnesses: [
     { key: "a", label: "A", color: "#ffffff", shape: "circle", successful: 2, passRate: 2 / 3, costPerPass: 4, medianSuccessfulSeconds: 300, medianCostPerSuccessfulTask: 0.5, cacheHitRateTypical: 0.9 },
@@ -85,6 +85,12 @@ test("the comparison builder prices cells from raw token facts and reports the t
   assert.equal(dataset.point.costPerPass, (expectedCellCost * 3) / 2);
   assert.equal(dataset.point.medianSuccessfulSeconds, 450);
   assert.equal(dataset.point.costCoverage, 3 / 4);
+  // The same tokens priced on the official frozen table (2 / 0.2 / 2 / 20 per million).
+  const officialCellCost = (1000 * 2 + 10000 * 0.2 + 1000 * 20) / 1_000_000; // 0.024
+  assert.equal(dataset.point.officialPriceRepricing.costPerPass, (officialCellCost * 3) / 2);
+  assert.equal(dataset.point.officialPriceRepricing.priceTableName, "test-official-table");
+  assert.equal(dataset.tokens.inputTokens, 11000 * 3);
+  assert.equal(dataset.tokens.outputTokens, 1000 * 3);
   assert.deepEqual(dataset.reading.stillWithoutVerdict, ["t/four"]);
   assert.deepEqual(dataset.reading.refilledFromRecovery, []);
   assert.equal(dataset.reading.rawPrimaryRun.passRateOverValidCells, 2 / 3);
@@ -119,6 +125,24 @@ test("the comparison builder refills only no-verdict cells and never replaces a 
   assert.equal(byTask.get("t/two").disposition, "failed");
   assert.equal(dataset.point.passes, 2);
   assert.equal(dataset.reading.rawPrimaryRun.passes, 1);
+});
+
+test("a recovery record that died again fills nothing and a later one can still fill the cell", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "fh-comparison-"));
+  const priced = { noCacheInputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, completionTokens: 1_000_000 };
+  const record = { perTask: [cell("t/one", "passed", 100000, priced), cell("t/three", "error", 6000, null)] };
+  const first = { perTask: [cell("t/three", "error", 5000, null)] };
+  const second = { perTask: [cell("t/three", "failed", 300000, priced)] };
+  const paths = writeFixture(directory, { record, recovery: first });
+  const secondPath = path.join(directory, "recovery-second.json");
+  fs.writeFileSync(secondPath, JSON.stringify(second));
+  run(directory, paths, ["--recovery", `${paths.recovery},${secondPath}`]);
+  const dataset = JSON.parse(fs.readFileSync(paths.out, "utf8"));
+
+  assert.deepEqual(dataset.reading.refilledFromRecovery, ["t/three"]);
+  assert.deepEqual(dataset.reading.stillWithoutVerdict, []);
+  assert.equal(dataset.reading.cells.find((entry) => entry.task === "t/three").disposition, "failed");
+  assert.equal(dataset.point.passes, 1);
 });
 
 test("the comparison builder refuses an unpriced or empty record instead of guessing", () => {

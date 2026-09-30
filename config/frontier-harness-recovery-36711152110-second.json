@@ -77,5 +77,11 @@
     "budget": "One datacurve task with a 5400s budget: the expected window is up to about 1.5 hours."
   },
   "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements (beta.40 error, source-run error, preceding-recovery error), mechanical attribution of any verdict-less outcome, whether the 429 recurs, the acceptance block for a 1-task subset, and usage.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 36767542570,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36767542570",
+  "headSha": "15103c87f6e58e5186c29c56b25e180db5c82647",
+  "dispatchedAt": "2026-09-30T19:42:34Z",
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 1 Generate job + 1 Aggregate = 5.",
+  "outcome": null
 }

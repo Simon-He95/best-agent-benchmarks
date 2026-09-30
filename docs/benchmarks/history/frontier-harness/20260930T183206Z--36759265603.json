@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.41",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 3,
+    "expectedEligible": 3,
+    "present": 3,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 0,
+    "failed": 2,
+    "error": 1,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0,
+  "validCells": 2,
+  "passRateValidCells": 0,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "3 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "failed",
+      "detail": "3 present, 0 missing, 1 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "3 records agree on one frozen candidate (cli-0.0.3-beta.41-cf29eea-518d8fe01482|0.0.3-beta.41|518d8fe01482df9bf3e3654f22988318b12f3abec84308a258e897938d393bbc|00850412b438c4458b4c88dd68c5c67a8a8fd0969119cc5424573ef36c5c3bf6)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) deepseek-v4.1-flash at reasoning effort max; the frozen profile is deepseek-v4.1-flash"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "3 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 2,
+    "promptTokens": 95832728,
+    "completionTokens": 373100,
+    "cacheReadTokens": 95070336,
+    "totalTokens": 96205828,
+    "modelCallCount": 422,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 78,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0.9873417721518988,
+        "p2p": 1,
+        "partial": 0.999984927046907
+      },
+      "durationMs": 1679762,
+      "usage": {
+        "promptTokens": 41500747,
+        "completionTokens": 160041,
+        "cacheReadTokens": 41162240,
+        "costUsd": null,
+        "totalTokens": 41660788,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 338507,
+        "modelCallCount": 217,
+        "reportedCallCount": 217,
+        "reportedInputTokens": 41500747
+      },
+      "evidenceSha256": "bb36a6d00dc7983f0688cddc12828919473e4aeaeeebc009ced14d56bf17bcf9",
+      "batchId": "recovery-ecr-36711152110-20261001"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 94,
+        "f2p_passed": 0,
+        "p2p_total": 599,
+        "p2p_passed": 599,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.8643578643578643
+      },
+      "durationMs": 2007751,
+      "usage": {
+        "promptTokens": 54331981,
+        "completionTokens": 213059,
+        "cacheReadTokens": 53908096,
+        "costUsd": null,
+        "totalTokens": 54545040,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 423885,
+        "modelCallCount": 205,
+        "reportedCallCount": 205,
+        "reportedInputTokens": 54331981
+      },
+      "evidenceSha256": "c1749f2d983731fd35585e09747ebe88f5c6af2cb26b59928476dc49f2760c84",
+      "batchId": "recovery-ecr-36711152110-20261001"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/python-statemachine-state-data-scoping. Command: docker compose --project-name pier-task__3mrzvfz --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/python-statemachine-state-data-scoping/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmpdoq1ae0e/pier-task__3MrzVfz-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/python-statemachine-state-data-scoping/fh-36759265603-python-statemachine-state-data-scoping/pier-task__3MrzVfz/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 754B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile:\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-124a0e23cdae3db6\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfail"
+      },
+      "durationMs": 4849,
+      "batchId": "recovery-ecr-36711152110-20261001"
+    }
+  ]
+}

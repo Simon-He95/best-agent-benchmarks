@@ -54,7 +54,10 @@ function median(values) {
 
 /** Price one cell from the CLI's token facts: fresh input, cache read, cache write, output. */
 function cellCostUsd(usage, pricing) {
-  if (usage === undefined || usage === null) return null;
+  if (usage === undefined || usage === null || pricing === undefined || pricing === null) return null;
+  const rates = [pricing.freshInputUsdPerMillion, pricing.cacheWriteUsdPerMillion,
+    pricing.cacheReadUsdPerMillion, pricing.outputUsdPerMillion];
+  if (rates.some((rate) => typeof rate !== "number")) return null;
   const fresh = usage.noCacheInputTokens;
   const cacheRead = usage.cacheReadTokens;
   const cacheWrite = usage.cacheWriteTokens ?? 0;
@@ -103,16 +106,25 @@ function build(dataset) {
   }
 
   const primary = summarizeRecord(readJson(dataset.record), pricing);
-  const recovery = dataset.recovery === undefined ? null : summarizeRecord(readJson(dataset.recovery), pricing);
+  const recoveryPaths = dataset.recovery === undefined
+    ? []
+    : dataset.recovery.split(",").map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+  const recoveries = recoveryPaths.map((recoveryPath) => summarizeRecord(readJson(recoveryPath), pricing));
 
   // The reading this comparison is drawn under: the primary run's cells, with the
   // no-verdict cells refilled by the same-candidate recovery batch. Every other
   // verdict is the primary run's own and is never replaced.
   const refilled = new Map();
-  for (const cell of [...primary.cells].reverse()) {
-    if (cell.disposition === "error" && recovery) {
-      const replacement = recovery.cells.find((candidate) => candidate.task === cell.task);
-      if (replacement) refilled.set(cell.task, replacement);
+  for (const cell of primary.cells) {
+    if (cell.disposition !== "error") continue;
+    for (const recovery of recoveries) {
+      const replacement = recovery.cells.find((candidate) =>
+        candidate.task === cell.task &&
+        (candidate.disposition === "passed" || candidate.disposition === "failed"));
+      if (replacement) {
+        refilled.set(cell.task, replacement);
+        break;
+      }
     }
   }
   const reading = primary.cells.map((cell) => refilled.get(cell.task) ?? cell);
@@ -125,6 +137,15 @@ function build(dataset) {
 
   const rawPasses = primary.cells.filter((cell) => cell.disposition === "passed").length;
   const rawValid = primary.cells.filter((cell) => cell.disposition === "passed" || cell.disposition === "failed").length;
+
+  // The two sides of the chart are priced by different vendors, so the same token volume
+  // costs very different money. Repricing this run's own tokens on the official frozen
+  // table separates "how much was spent" from "what the vendor charges for it".
+  const officialPricing = official.priceTable;
+  const repricedTotal = reading.reduce((sum, cell) => {
+    const cost = cellCostUsd(cell.usage, officialPricing);
+    return sum + (typeof cost === "number" ? cost : 0);
+  }, 0);
 
   return {
     schemaVersion: 1,
@@ -143,6 +164,11 @@ function build(dataset) {
       medianSuccessfulSeconds: median(successfulSeconds),
       costCoverage: knownCosts.length / reading.length,
       successfulCells: passes.length,
+      officialPriceRepricing: {
+        priceTableName: officialPricing.name,
+        costPerPass: passes.length === 0 ? null : repricedTotal / passes.length,
+        note: "The same cells and the same tokens as costPerPass above, priced on the official leaderboard's frozen price table instead of this run's provider list. It separates token volume from unit price: it is a repricing, not a bill.",
+      },
     },
     reading: {
       basis: dataset.readingBasis,
@@ -161,6 +187,13 @@ function build(dataset) {
         passRateOverValidCells: rawValid === 0 ? null : rawPasses / rawValid,
       },
     },
+    tokens: {
+      inputTokens: reading.reduce((sum, cell) => sum + (cell.usage?.noCacheInputTokens ?? 0) + (cell.usage?.cacheReadTokens ?? 0), 0),
+      freshInputTokens: reading.reduce((sum, cell) => sum + (cell.usage?.noCacheInputTokens ?? 0), 0),
+      cacheReadTokens: reading.reduce((sum, cell) => sum + (cell.usage?.cacheReadTokens ?? 0), 0),
+      outputTokens: reading.reduce((sum, cell) => sum + (cell.usage?.completionTokens ?? 0), 0),
+      modelCalls: reading.reduce((sum, cell) => sum + (cell.usage?.modelCallCount ?? 0), 0),
+    },
     usage: {
       totalCostUsd: totalCost,
       knownCostCells: knownCosts.length,
@@ -168,7 +201,7 @@ function build(dataset) {
     },
     provenance: {
       primaryRecord: dataset.record,
-      recoveryRecord: dataset.recovery ?? null,
+      recoveryRecords: dataset.recovery ?? null,
       officialSnapshot: dataset.official,
       officialSource: official.source,
       officialPriceTable: official.priceTable,
