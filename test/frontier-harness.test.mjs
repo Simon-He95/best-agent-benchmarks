@@ -104,8 +104,13 @@ test("frontier-harness composition is headless, full-permission, and excludes un
     workspaceGrants: ["read", "write", "exec"],
   });
   assert.deepEqual(config.generation.toolExclude, ["network"]);
+  assert.equal(config.generation.modelInvocationTimeoutMs, 1_800_000);
   assert.equal(config.generation.defaultAgentTimeoutMultiplier, 1);
   assert.equal(config.workspace, "/app");
+  assert.doesNotMatch(
+    readFileSync(join(repoRoot, ".github/workflows/frontier-harness.yml"), "utf8"),
+    /fh_timeout_ms|--timeout-ms/u,
+  );
 });
 
 test("frontier-harness batch plan exact-covers the frozen corpus in order", () => {
@@ -265,7 +270,7 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
   );
   writeDeliveryVerification(candidateDir);
   const providerPath = join(root, "provider.json");
-  const writeProvider = (reasoningEffort) =>
+  const writeProvider = (reasoningEffort, timeoutMs) =>
     writeFileSync(
       providerPath,
       JSON.stringify({
@@ -275,6 +280,7 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
         baseURL: config.provider.baseURL,
         compatibilityMode: config.provider.compatibilityMode,
         reasoningEffort,
+        ...(timeoutMs === undefined ? {} : { timeoutMs }),
         credentialRef: "benchmark-ci-dim-oauth",
         transportProfile: config.provider.transportProfile,
       }),
@@ -285,6 +291,7 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
     "BEST_AGENT_PROVIDER_CONFIG",
     "BEST_AGENT_PROVIDER_MODEL",
     "BEST_AGENT_PROVIDER_BASE_URL",
+    "BEST_AGENT_PROVIDER_TIMEOUT_MS",
     "DIMCODE_HOME",
   ];
   const saved = new Map(envKeys.map((key) => [key, process.env[key]]));
@@ -305,6 +312,12 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
       verifyFrozenIdentity().reasoningEffort,
       config.provider.reasoningEffort,
     );
+    writeProvider(config.provider.reasoningEffort, 900_000);
+    assert.throws(() => verifyFrozenIdentity(), /does not match the frozen/u);
+    writeProvider(config.provider.reasoningEffort);
+    process.env.BEST_AGENT_PROVIDER_TIMEOUT_MS = "900000";
+    assert.throws(() => verifyFrozenIdentity(), /does not match the frozen/u);
+    delete process.env.BEST_AGENT_PROVIDER_TIMEOUT_MS;
 
     // An effort the frozen profile never declared fails closed instead of being
     // recorded as an attempt that ran at it — including the effort the previous
@@ -610,6 +623,37 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   assert.deepEqual(classifyTrialOutcome({ trialResult: {} }), {
     disposition: "inconclusive",
   });
+});
+
+test("delivery Run evidence cannot replace the primary failure or its model count", async () => {
+  const { summarizeAttemptEvidence, classifyTrialOutcome } = await import(
+    `../scripts/frontier-harness-harness.mjs?delivery=${Date.now()}`
+  );
+  const evidence = [
+    { type: "header", rootRunId: "primary" },
+    { type: "terminal-snapshot", resourceId: "primary", snapshot: { terminalCause: "stopped" } },
+    { type: "model-outcome", resourceId: "delivery" },
+    { type: "terminal-snapshot", resourceId: "delivery", snapshot: { terminalCause: "completed" } },
+    { type: "footer", writtenCounts: { modelOutcome: 1 } },
+  ].map((entry) => JSON.stringify(entry)).join("\n");
+  assert.deepEqual(summarizeAttemptEvidence(evidence), {
+    present: true,
+    modelOutcomes: 0,
+    terminalCause: "stopped",
+    deliveryTerminalCause: "completed",
+    modelFailureReasons: [],
+  });
+  assert.deepEqual(
+    classifyTrialOutcome({ trialResult: { exception_info: { exception_type: "killed" } }, evidenceText: evidence }),
+    {
+      disposition: "error",
+      exception: { type: "killed", message: "" },
+      preModelFailure: true,
+      modelOutcomes: 0,
+      terminalCause: "stopped",
+      deliveryTerminalCause: "completed",
+    },
+  );
 });
 
 test("classifyTrialOutcome marks post-response provider deaths as errors", async () => {

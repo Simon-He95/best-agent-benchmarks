@@ -94,7 +94,7 @@ test("a task with no verifier evidence at all reports no distance", () => {
 });
 
 /** A frozen record plus the trial directory the analysis reads evidence from. */
-function writeTask({ resultsDir, jobsDir, task, reward, log, terminalCause = "completed" }) {
+function writeTask({ resultsDir, jobsDir, task, reward, log, terminalCause = "completed", deliveryTerminalCause }) {
   const short = task.split("/").pop();
   const jobName = `fh-test-${short}`;
   const trial = join(jobsDir, short, jobName, "pier-task__TEST");
@@ -106,12 +106,18 @@ function writeTask({ resultsDir, jobsDir, task, reward, log, terminalCause = "co
   writeFileSync(
     join(trial, "agent", "best-agent-evidence.jsonl"),
     [
+      ...(deliveryTerminalCause === undefined ? [] : [JSON.stringify({ type: "header", rootRunId: "primary" })]),
       JSON.stringify({ type: "model-outcome", sequence: 1 }),
       JSON.stringify({
         type: "terminal-snapshot",
         sequence: 2,
+        ...(deliveryTerminalCause === undefined ? {} : { resourceId: "primary" }),
         snapshot: { terminalCause, transcript: [] },
       }),
+      ...(deliveryTerminalCause === undefined ? [] : [
+        JSON.stringify({ type: "model-failure", resourceId: "delivery" }),
+        JSON.stringify({ type: "terminal-snapshot", resourceId: "delivery", snapshot: { terminalCause: deliveryTerminalCause, transcript: [] } }),
+      ]),
       JSON.stringify({ type: "footer", sequence: 3, complete: true }),
     ].join("\n") + "\n",
   );
@@ -241,7 +247,8 @@ test("an agent timeout keeps its budget classification regardless of the verifie
     task: "terminal-bench/chess-best-move",
     reward: { reward: 0 },
     log: "no test results",
-    terminalCause: "?",
+    terminalCause: "stopped",
+    deliveryTerminalCause: "model-failure",
   });
   const record = join(resultsDir, "frontier-harness-results.chess-best-move.json");
   const frozen = JSON.parse(readFileSync(record, "utf8"));
@@ -257,6 +264,8 @@ test("an agent timeout keeps its budget classification regardless of the verifie
   assert.equal(result.status, 0, result.stderr);
   const summary = JSON.parse(readFileSync(json, "utf8"));
   assert.equal(summary.tasks[0].stage, "agent-timeout");
+  assert.equal(summary.tasks[0].terminalCause, "stopped");
+  assert.equal(summary.tasks[0].deliveryTerminalCause, "model-failure");
   assert.equal(summary.tasks[0].verifier.delivery, "unknown");
 });
 

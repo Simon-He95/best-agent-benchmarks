@@ -72,10 +72,6 @@ on:
         description: Multiplier over each task's declared agent timeout
         required: false
         default: "1"
-      fh_timeout_ms:
-        description: Per-task provider timeout in ms (empty = derived from task timeout)
-        required: false
-        default: ""
       fh_reasoning_effort:
         description: Declared reasoning effort for this run (empty = the frozen config default)
         required: false
@@ -504,7 +500,6 @@ jobs:
             --job-name "fh-${{ github.run_id }}-${TASK_SHORT}" \
             --model "${{ steps.candidate.outputs.model }}" \
             --agent-timeout-multiplier "${{ inputs.fh_agent_timeout_multiplier }}" \
-            --timeout-ms "${{ inputs.fh_timeout_ms }}" \
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
             --batch-id "${{ matrix.entry.batchId }}" \
             --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"

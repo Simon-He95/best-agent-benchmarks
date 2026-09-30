@@ -66,6 +66,7 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
             "BEST_AGENT_PROVIDER_BASE_URL": "https://dimagent.cn/v1",
             "BEST_AGENT_PROVIDER_MODEL": "synthetic-model",
             "BEST_AGENT_MODEL_TIMEOUT_MS": "30000",
+            "BEST_AGENT_ATTEMPT_BUDGET_MS": "900000",
             "BEST_AGENT_CLI_WORKSPACE": "/work space",
             "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": '["--no-base-instructions","--tool-exclude","network"]',
             "BEST_AGENT_CLI_TARBALL": str(self.tarball),
@@ -198,6 +199,8 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     # clock is exported under a provider-timeout name: the env wins over the flag,
                     # so a leftover export would silently ignore this one.
                     self.assertIn("--model-timeout-ms 30000", cli)
+                    self.assertRegex(cli, r"--attempt-remaining-ms [0-9]+")
+                    self.assertIn("best-agent-attempt-timing.json", cli)
                     self.assertNotIn("BEST_AGENT_PROVIDER_TIMEOUT_MS", cli)
                     self.assertNotIn("BEST_AGENT_TIMEOUT_MS", cli)
                     self.assertIn("best-agent-process-receipt.json", cli)
