@@ -81,5 +81,11 @@
     "budget": "Each of these three tasks has a 5400s datacurve budget and the batch is serial, so the expected window is up to about three hours in the worst case."
   },
   "plannedChecks": "After the report artifact is downloaded: each cell's disposition against its three earlier measurements (beta.40 error, this run's error, and the beta.37 recovery that filled the same class), mechanical attribution of any verdict-less cell, whether the attempt evidence carries the wrapper attemptTiming block, whether any public.ecr.aws 429 recurs, the acceptance block as it applies to a 3-task subset, usage and per-call durations.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 36759265603,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36759265603",
+  "headSha": "145ad5903ecc9f5b8bbb380837ee693a78521508",
+  "dispatchedAt": "2026-09-30T18:32:06Z",
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 3 Generate jobs + 1 Aggregate = 7; generation at most 1 concurrently.",
+  "outcome": null
 }
