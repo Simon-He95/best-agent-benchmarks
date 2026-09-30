@@ -79,14 +79,15 @@ test("frontier-harness pins the runner and a current Linux x64 source candidate"
   assert.equal(config.cli.target, "linux-x64-gnu");
 });
 
-test("frontier-harness freezes the glm-5.3 max-effort provider profile", () => {
+test("frontier-harness freezes the deepseek-v4.1-flash max-effort provider profile", () => {
   assert.equal(config.provider.kind, "openai");
-  assert.equal(config.provider.model, "glm-5.3");
+  assert.equal(config.provider.model, "deepseek-v4.1-flash");
   assert.equal(config.provider.compatibilityMode, "compatible");
   assert.equal(config.provider.reasoningEffort, "max");
   // The profile declares the efforts a run may select, and its default is one of
   // them: an attempt can never run at an effort the frozen record never named.
-  assert.deepEqual(config.provider.reasoningEffortOptions, ["max", "high"]);
+  // This model's sanctioned pair is max, so max is the only declared effort.
+  assert.deepEqual(config.provider.reasoningEffortOptions, ["max"]);
   assert.ok(config.provider.reasoningEffortOptions.includes(config.provider.reasoningEffort));
   assert.equal(config.provider.transportProfile, "dim-oauth");
   assert.equal(config.provider.baseURL, "https://dimagent.cn/v1");
@@ -297,10 +298,8 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
       `../scripts/frontier-harness-harness.mjs?effort=${Date.now()}`
     );
 
-    // The declared variant and the profile default are both carried into the
-    // frozen identity the record transcribes.
-    writeProvider("high");
-    assert.equal(verifyFrozenIdentity().reasoningEffort, "high");
+    // The declared effort is carried into the frozen identity the record
+    // transcribes.
     writeProvider(config.provider.reasoningEffort);
     assert.equal(
       verifyFrozenIdentity().reasoningEffort,
@@ -308,12 +307,15 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
     );
 
     // An effort the frozen profile never declared fails closed instead of being
-    // recorded as an attempt that ran at it.
-    writeProvider("low");
-    assert.throws(
-      () => verifyFrozenIdentity(),
-      /provider identity does not match/u,
-    );
+    // recorded as an attempt that ran at it — including the effort the previous
+    // profile declared and this one does not.
+    for (const undeclared of ["high", "low"]) {
+      writeProvider(undeclared);
+      assert.throws(
+        () => verifyFrozenIdentity(),
+        /provider identity does not match/u,
+      );
+    }
   } finally {
     for (const key of envKeys) {
       const value = saved.get(key);
@@ -779,7 +781,8 @@ test("provider materialization rejects a non-frozen provider profile", () => {
         model: "deepseek-v4-flash",
         baseURL: config.provider.baseURL,
         compatibilityMode: "compatible",
-        reasoningEffort: "max",
+        reasoningEffort: "high",
+        reasoningEffortOptions: ["high"],
         transportProfile: "dim-oauth",
       },
     }),
@@ -829,14 +832,17 @@ test("provider materialization selects a declared effort and refuses an undeclar
     return { result, providerPath: join(target, "provider.json") };
   };
 
-  // A declared variant is materialized verbatim, and the printed summary names it.
-  const declared = materialize("high");
+  // A declared effort is materialized verbatim, and the printed summary names it.
+  const declared = materialize(config.provider.reasoningEffort);
   assert.equal(declared.result.status, 0, declared.result.stderr);
   assert.equal(
     JSON.parse(readFileSync(declared.providerPath, "utf8")).reasoningEffort,
-    "high",
+    config.provider.reasoningEffort,
   );
-  assert.equal(JSON.parse(declared.result.stdout).reasoningEffort, "high");
+  assert.equal(
+    JSON.parse(declared.result.stdout).reasoningEffort,
+    config.provider.reasoningEffort,
+  );
 
   // An empty selection keeps the frozen profile's own default.
   const fallback = materialize("");
@@ -846,11 +852,18 @@ test("provider materialization selects a declared effort and refuses an undeclar
     config.provider.reasoningEffort,
   );
 
-  // An effort outside the declared options never reaches the credential files.
+  // An effort outside the declared options never reaches the credential files —
+  // including the previous profile's own alternative, which this model never
+  // declared and the harness's admitted list does not name for it.
   const refused = materialize("low");
   assert.notEqual(refused.result.status, 0);
   assert.match(refused.result.stderr, /is not a declared option/u);
   assert.ok(!existsSync(refused.providerPath));
+
+  const refusedEffort = materialize("high");
+  assert.notEqual(refusedEffort.result.status, 0);
+  assert.match(refusedEffort.result.stderr, /is not a declared option/u);
+  assert.ok(!existsSync(refusedEffort.providerPath));
 });
 
 test("classifyTrialOutcome grades a run whose fatal failure was its own budget", async () => {
@@ -1154,18 +1167,16 @@ test("frontier report refuses records whose reasoning effort is not declared", (
       { encoding: "utf8" },
     );
 
-  // Two efforts in one run is not one frozen provider identity.
+  // An effort the frozen profile never declared is refused, not reported: on a
+  // single-effort profile every other effort is rejected here before any two
+  // records could disagree among themselves.
   writeRecord(tasks[0], "max");
-  writeRecord(tasks[1], "high");
-  const mixed = report();
-  assert.notEqual(mixed.status, 0);
-  assert.match(mixed.stderr, /disagree on the reasoning effort/u);
-
-  // An effort the frozen profile never declared is refused, not reported.
-  writeRecord(tasks[1], "low");
-  const undeclared = report();
-  assert.notEqual(undeclared.status, 0);
-  assert.match(undeclared.stderr, /carries no declared reasoning effort/u);
+  for (const undeclared of ["high", "low"]) {
+    writeRecord(tasks[1], undeclared);
+    const refused = report();
+    assert.notEqual(refused.status, 0);
+    assert.match(refused.stderr, /carries no declared reasoning effort/u);
+  }
 
   // The same records under one declared effort report normally.
   writeRecord(tasks[1], "max");

@@ -9,6 +9,9 @@
  * The reasoning effort is the frozen profile's default unless the run declares
  * one of the profile's own `reasoningEffortOptions`; an undeclared effort is
  * refused here, so every attempt runs at an effort the frozen config names.
+ * The (model, effort) pair must additionally be one this harness sanctions: the
+ * list below is the only place a new model or effort is admitted, mirroring the
+ * operator runbook's allowlist in scripts/materialize-ci-provider.mjs.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -27,9 +30,19 @@ const candidate = JSON.parse(
 );
 const provider = candidate.provider;
 const options = provider?.reasoningEffortOptions;
+// The (model, effort) pairs this harness sanctions. A config edit alone cannot
+// switch the model or an effort: an unlisted pair fails closed here.
+const admittedProviderProfiles = [
+  { model: "glm-5.3", efforts: ["max", "high"] },
+  { model: "deepseek-v4.1-flash", efforts: ["max"] },
+];
+const admitted = admittedProviderProfiles.find(
+  (profile) => profile.model === provider?.model,
+);
 if (
   provider?.kind !== "openai" ||
-  provider.model !== "glm-5.3" ||
+  !admitted ||
+  !admitted.efforts.includes(provider.reasoningEffort) ||
   provider.compatibilityMode !== "compatible" ||
   provider.transportProfile !== "dim-oauth" ||
   typeof provider.baseURL !== "string" ||
@@ -42,7 +55,7 @@ if (
 }
 const requested = (reasoningEffortInput ?? "").trim();
 const reasoningEffort = requested === "" ? provider.reasoningEffort : requested;
-if (!options.includes(reasoningEffort)) {
+if (!admitted.efforts.includes(reasoningEffort) || !options.includes(reasoningEffort)) {
   throw new Error(
     `Reasoning effort ${reasoningEffort} is not a declared option of the frozen frontier-harness provider profile.`,
   );
