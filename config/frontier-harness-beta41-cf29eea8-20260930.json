@@ -122,7 +122,15 @@
       "fh_max_parallel": "5",
       "fh_batch": "beta41-cf29eea8-deepseek-v4.1-flash-max-20260930"
     },
-    "note": "fh_run_full=true makes the plan take all 30 corpus tasks from the tracked batch plan (config/frontier-harness-batches.json) in corpus order and builds the aggregate with --formal; fh_limit/fh_offset are ignored on that path. This run's pass@1 comes only from its own frozen report, and only if that report declares the run scoreable. The dispatch is made from the commit that froze these inputs."
+    "note": "fh_run_full=true makes the plan take all 30 corpus tasks from the tracked batch plan (config/frontier-harness-batches.json) in corpus order and builds the aggregate with --formal; fh_limit/fh_offset are ignored on that path. This run's pass@1 comes only from its own frozen report, and only if that report declares the run scoreable. The dispatch is made from the commit that froze these inputs.",
+    "dispatched": true,
+    "runId": 36711152110,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36711152110",
+    "headSha": "706d1821f8ff290e9331f9c7af1aeaa8b818594a",
+    "dispatchedAt": "2026-09-30T11:51:55Z",
+    "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 30 Generate jobs + 1 Aggregate = 34; generation at most 5 concurrently.",
+    "completedAt": null,
+    "outcome": null
   },
   "knownRisks": {
     "ecrThrottle": "Concurrent Docker image builds once tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`): 3 datacurve cells died pre-model in each of the two runs that used fh_max_parallel=8. This run reduces the concurrency to 5, the setting at which the 2026-09-27 recovery filled 3/3 beta.37 cells, so the condition is weakened but not removed (the throttle is a shared-quota service). A cell that still dies pre-model carries no attempt and no verdict, which leaves the aggregate pass@1 null.",
