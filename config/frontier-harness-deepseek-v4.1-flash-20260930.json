@@ -129,5 +129,29 @@
     "terminal-bench/sqlite-db-truncate",
     "terminal-bench/vulnerable-secret"
   ],
-  "plannedChecks": "After the report artifact is downloaded: per-task disposition against the beta.38 max run, mechanical attribution of every verdict-less cell (pierExitCode/pierSignal, exception, model-failure reason, pre-model failure), the acceptance block (coverage.full / verdicts.complete / candidate.single / provider.single / instructions.frozen), usage and per-call durations, and the budget-exhausted population. pass@1 is read from the frozen report alone and is null unless the report itself declares the run scoreable."
+  "plannedChecks": "After the report artifact is downloaded: per-task disposition against the beta.38 max run, mechanical attribution of every verdict-less cell (pierExitCode/pierSignal, exception, model-failure reason, pre-model failure), the acceptance block (coverage.full / verdicts.complete / candidate.single / provider.single / instructions.frozen), usage and per-call durations, and the budget-exhausted population. pass@1 is read from the frozen report alone and is null unless the report itself declares the run scoreable.",
+  "smoke": {
+    "runId": 36657843752,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36657843752",
+    "headSha": "9308ce44bedb96c319067bc30d16c92af7227b3e",
+    "task": "terminal-bench/log-summary-date-ranges",
+    "dispatchInputs": {
+      "fh_run": true,
+      "fh_run_full": false,
+      "fh_tasks": "terminal-bench/log-summary-date-ranges",
+      "fh_limit": 1,
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "beta40-deepseek-smoke-20260930"
+    },
+    "whyThisTask": "A terminal-bench task that passed the beta.38 max run in 206.9s, so it exercises the full path (candidate download, provider materialization, real model calls, task verifier, evidence upload) quickly and its plumbing signal is unambiguous. The frozen smokeTask (terminal-bench/regex-log) is one of the two cells the 840s per-call ceiling has repeatedly killed, which would have made a plumbing smoke ambiguous.",
+    "result": "Every job succeeded: corpus 13s, the beta.40 candidate built and delivery-verified in 2m0s, plan 13s, the single Generate job 1m59s (Verify provider credential and Materialize the frozen provider identity both passed), report 18s. The task itself PASSED (disposition passed, 87.6s, 11 model calls, 189,577 tokens) and the acceptance block reads candidate.single passed (cli-0.0.3-beta.40-de63dec-e5841e2ffd07), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), verdicts.complete passed (1 present, 0 error), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "The two things this smoke existed to prove are mechanically proven: the re-pinned beta.40 candidate builds, delivery-verifies and runs, and deepseek-v4.1-flash serves real task attempts through the dim-oauth credential with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere."
+  },
+  "dispatched": true,
+  "runId": 36658268335,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36658268335",
+  "headSha": "9308ce44bedb96c319067bc30d16c92af7227b3e",
+  "dispatchedAt": "2026-09-30T02:06:16Z"
 }
