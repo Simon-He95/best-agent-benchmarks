@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-09-30: \"基于best-agent最新本地构建去跑ci，ci怎么跑看线上的ci和本地文档\" (run CI on the latest best-agent local build; the CI procedure is the one recorded by the online workflows and the local docs).",
+  "reason": "The candidate is re-pinned from 5547563b2b59333a22f24e093fc6102e50a2f95f (0.0.3-beta.41, the pin used by the serial ECR diagnostic 36669802530) to the newest pushed main, cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c (#166, 7 commits, 97 files). Nothing else changes: provider (deepseek-v4.1-flash at reasoning effort max, compatible, dim-oauth, https://dimagent.cn/v1), corpus, task sources, batch plan, pier pin, execution profile, budgets, agent timeout multiplier and the per-call ceiling are exactly the composition of run 36658268335. This is a new frozen run on a newer candidate — never a continuation, recovery or repair of any earlier run, and no earlier verdict is reinterpreted or merged.",
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c, cliVersion 0.0.3-beta.41) — the main of Simon-He95/best-agent at 2026-09-30T10:01:42Z, verified pushed with `git ls-remote origin main`. The version string is unchanged because apps/cli/package.json still declares 0.0.3-beta.41 at this commit; candidate identity is the commit plus the receipt the CI build freezes itself (candidateId = cli-0.0.3-beta.41-cf29eea-<binarySha256[:12]>).",
+  "candidateEvidence": "The pin mechanism is proven by seven earlier dispatches. The workflow checks out this commit with BEST_AGENT_SOURCE_TOKEN, builds the linux-x64-gnu SEA with `pnpm pack:tui` + stage-cli-sea-packages.mjs on ubuntu-24.04, and freezes its own receipt (binary/tarball/staged lock/runtime lock/build report hashes) as artifact frontier-harness-candidate-<runId>. The SEA build is not byte-reproducible, so no candidateId or hash is pre-filled here; fh-candidate asserts the built version equals the frozen cliVersion before any task runs. The version field's source of truth is apps/cli/package.json (0.0.3-beta.41 at this commit), not the monorepo root manifest. The same commit is also being built locally on this machine (darwin-arm64, `pnpm pack:tui`) as an independent build check; that local artifact is never the Linux candidate (a Darwin SEA can never be one), and its recorded result is added to this manifest once the build finishes.",
+  "candidateDeltaAudit": {
+    "from": "5547563b2b59333a22f24e093fc6102e50a2f95f (0.0.3-beta.41, run 36669802530)",
+    "to": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c (0.0.3-beta.41, newest main)",
+    "size": "7 commits, 97 changed files (+4463 / -745)",
+    "commits": [
+      "5bc34b86 Fix TUI compact and Goal route ownership (#160)",
+      "6a776098 fix: use monotonic clock for compact provider deadlines (#161)",
+      "5c614404 feat(cli): accept explicit subagent display names (#162)",
+      "47682a03 Align tool input and command admission with selected execution profiles (#163)",
+      "714abce2 Align web fetch URL capacity and MIME admission (#164)",
+      "4622cbe7 Use current file content for edit and apply_patch (#165)",
+      "cf29eea8 Improve compact continuation and bounded history retrieval (#166)"
+    ],
+    "method": "Read-only compare of the two commits in a local best-agent checkout (git log / git diff --name-only / git diff --shortstat / git show) against the argv this benchmark actually uses: headless `best-agent run --model <model> --model-timeout-ms <ms> --attempt-remaining-ms <ms>`, no --compact-dir, no --memory-dir, toolExclude [network], includeInteraction false, execution profile plain/unrestricted/host/path with read+write+exec grants.",
+    "unchangedPipelinePaths": "Absent from the changed-file list: apps/cli/src/v3-run-options.ts (--model-timeout-ms / --attempt-remaining-ms parsing and its >210000 ms floor), apps/cli/src/v3-context-composition.ts, apps/cli/src/index.ts, apps/cli/src/product-slices/thread-orchestration-root.ts, apps/cli/src/v3-thread-tool.ts, apps/cli/src/application-root-neutral.ts, apps/cli/src/product-slices/contracts.ts, v3/src/plan.ts, v3/src/kernel/transition.ts and packages/harness-v3/**. The per-call ceiling, the attempt budget, the tool-call caps, the retry policy and the kernel plan/transition are therefore byte-identical to the candidate that produced run 36669802530's three measured cells.",
+    "modelVisibleChanges": [
+      "subagent-start is now ref best-agent/cli/subagent-start-v3 (package version 6) and accepts an optional `name` of 1 to 4 code points and at most 48 UTF-8 bytes after trimming; its description tells the model to pick a short name from the user's naming theme and to keep identity or role declarations out of `task`.",
+      "The exec tool no longer caps each args entry at 4096 UTF-8 bytes in either its JSON schema or its canonicalizer; only `command` keeps the 1..4096-byte bound, the whole-argv aggregate bound of 32768 bytes is unchanged, and the description now states the aggregate bound instead of the per-entry one.",
+      "Under the path command policy the exec tool admits any command name without a path separator that is not \".\" or \"..\", has no control character and is at most 255 UTF-8 bytes, replacing the previous alias-shaped-name admission, and its command-shape rejection text now says \"resolved from the captured PATH, spaces and Unicode allowed\".",
+      "process-start now accepts either a command name resolved from the captured startup PATH or an absolute executable path under the path command policy, advertises a 32768-byte whole-argv bound, and reports a new `executable-unavailable` failure code when no PATH entry resolves, with no fallback after a failed spawn.",
+      "The composition layer's process-start instruction text is now policy-dependent: under the path policy it no longer claims process-start admits only its own alias list and instead states that an installed command name from the captured PATH or an absolute executable is accepted.",
+      "The edit tool now requires both a read and a write grant for the target path, and its description says the current file supplies the match so a prior read Tool call is not required; its read-receipt digest and revision preconditions were removed, so stale-observation conflicts no longer arise from edit. Under this benchmark's unrestricted workspace with read+write+exec grants the tool resolves exactly one scope per path, so the admission itself is unchanged here.",
+      "The write tool's description now states that replacing an existing file requires a prior read Tool call in this Session.",
+      "apply_patch no longer enforces a 16384-byte per-hunk-line bound (constant, description and rejection removed) and now reads each current file when called, passing its complete current content as the write precondition, with its description stating that a prior read Tool call is not required.",
+      "A workspace write that hits ENOENT now fails as `not-found` instead of a generic write failure.",
+      "A compact fold may now contribute an extra leading block with provenance `compact:<artifactRef>:summary` whose content is a bounded \"Task goal:\" line plus at most eight verbatim quotes, guarded by a 2048-byte summary bound, a 4096-byte encoded-block reserve and the provider's block budget.",
+      "The headless run path now performs one additional provider call per fold (prompt: select up to eight important short exact quotes; maxOutputTokens 768, maxRetries 0, 30-second AbortSignal timeout) whose output is filtered to exact substrings of the source or previous summary before it enters the compact block.",
+      "The compact instruction text was rewritten: it now names `compact:<ref>:summary` as a source-checked task report, tells the model the locator file is a small index naming one file per group and to read only the needed group file, and drops the previous per-group line-range reading instruction.",
+      "The folded-history export now writes one file per group (folded/<ref>-group-<ordinal>.txt) plus a small index naming those files, replacing the single file whose index listed each group's section line range.",
+      "A later fold no longer copies a prior read result of a folded export path into the artifact; such a result is replaced by the literal line \"tool: read → known/succeeded: [prior folded export excerpt omitted]\".",
+      "The compact artifact policy now reserves an additional 4096 bytes for the locator and summary block, so maxGroupBytes and maxArtifactBytes are 4096 bytes smaller than before.",
+      "The compact provider now compares its pending-poll and transient-retry delays against a monotonic clock instead of wall-clock time, so a pending basis is actually polled and a transient artifact read is actually retried within the admitted deadline instead of failing immediately."
+    ],
+    "nonModelVisibleChanges": [
+      "TUI and dimsdk route ownership work (turn-dispatch joining on route switch, session-scoped compact toasts, goal-edit currency, ask-user comment) is confined to apps/cli/src/dimsdk and its tests.",
+      "The auto-compact turn owner's preflight now resolves the host's captured session id and exposes an onDispatch hook, but that owner is only consumed by the TUI store, so the headless path is unaffected.",
+      "Sandbox-only surfaces changed without affecting the plain/unrestricted/host profile: the seatbelt host now uses a private temporary HOME and TMPDIR, the sandboxed workspace backend resolves exec commands from the captured PATH, and the external-process-service isolated environment sets HOME and XDG_CONFIG_HOME only when process isolation is workspace-sandbox.",
+      "The web_fetch URL capacity increase to 8000 bytes, its MIME admission tightening to application/json, and the matching thread-store codec bound apply only to the network tool package, which this benchmark excludes.",
+      "The interaction tool bounds relaxation, the thread-store interaction payload bounds, and the interaction answer bound change from 8192 bytes to the generic user-message bound apply only to the interactive TUI surface, which headless runs do not select.",
+      "The execution-profile validation relaxation that admits path command policy with the sandbox/scoped/workspace-sandbox tuple and switches the interactive ask/auto modes to path command policy does not change the explicitly pinned benchmark profile.",
+      "docs/ (six product-v3 documents, one capability document, five new proposals), specs/ (seven amended, eight new, plus README) and 35 test files record or verify the above without changing the model-visible contract."
+    ],
+    "reading": "Unlike the beta.38 -> beta.40 transition, this one carries several genuinely model-visible deltas on the benchmark's own path: tool admission and tool text (exec/process-start under commandPolicy=path, the removal of two per-item byte bounds, edit/apply_patch switching from read receipts to current file content) and compact/fold behaviour (a new bounded summary block produced by one extra provider call per fold, a rewritten compact instruction, one export file per group, no re-copy of a previous export, a 4096-byte smaller artifact budget, and a fixed monotonic deadline). The timeout, attempt-budget and kernel mechanics that produced every measured outcome and latency figure are unchanged, so the previous composition's known failure modes (public.ecr.aws metadata throttle, provider transport shake) must be re-observed rather than assumed away."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "batchPlan": "config/frontier-harness-batches.json exact-covers the frozen corpus in corpus order (3 tracked batches, 30 unique tasks); the corpus, the task sources and the batch plan are untouched by this change."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "Unchanged from runs 36658268335 and 36669802530. The materializer's admitted (model, effort) list refuses anything outside {glm-5.3: [max, high], deepseek-v4.1-flash: [max]}, so a config edit alone cannot switch the model or an effort."
+  },
+  "smoke": {
+    "task": "terminal-bench/log-summary-date-ranges",
+    "dispatchInputs": {
+      "fh_run": true,
+      "fh_run_full": false,
+      "fh_tasks": "terminal-bench/log-summary-date-ranges",
+      "fh_limit": 1,
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "beta41-cf29eea8-smoke-20260930"
+    },
+    "whyThisTask": "The same plumbing-smoke task run 36657843752 used: a terminal-bench task that reaches the full path (candidate download, provider materialization, real model calls, task verifier, evidence upload) quickly, so the plumbing signal is unambiguous. The frozen smokeTask (terminal-bench/regex-log) is one of the cells the old 840s per-call ceiling repeatedly killed, which would make a plumbing smoke harder to read; the frozen per-call ceiling is now generation.modelInvocationTimeoutMs (1800000 ms), so that specific ambiguity is gone but the precedent task is kept for comparability.",
+    "gate": "No full run is dispatched until this smoke has proven the candidate builds, the provider materializes, and a task actually reaches the model phase with frozen evidence.",
+    "result": null
+  },
+  "fullRun": {
+    "status": "pending-explicit-user-authorization",
+    "dispatchInputs": null,
+    "note": "The full run is a formal 30-task run of this frozen composition from this same candidate; its exact dispatch inputs (including fh_max_parallel) are written here and committed before the dispatch, because concurrency is the one composition knob the previous full runs left open: fh_max_parallel=8 is the tracked default used by 36658268335 and 36527461937 and it is also the condition under which the public.ecr.aws image-metadata throttle killed three datacurve cells pre-model in each of them, while the 2026-09-30 serial diagnostic (fh_max_parallel=1) did not reproduce it."
+  },
+  "knownRisks": {
+    "ecrThrottle": "8 concurrent Docker image builds tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`) on 3 datacurve cells in both recent full runs. If the full run keeps fh_max_parallel=8 the condition is unchanged and may recur; such a cell is a pre-model environment failure with no attempt and no verdict, which leaves the aggregate pass@1 null.",
+    "providerTransport": "deepseek-v4.1-flash's Terminal-Bench full run carried 9 provider transport failures out of 58 attempts, so transport-level shake is real for this model and is not zero.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT (last written 2026-09-29T05:42:32Z, expiring 2026-10-05T12:41:07Z). An expired token fails every Generate job at provider materialization before any attempt (as in run 36526276851).",
+    "compactChange": "This candidate changes what a fold puts in front of the model and adds one extra provider call per fold. That is a real composition difference against every earlier run of this corpus and must be read as such, not as pure candidate noise."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, all 30 Docker-eligible corpus tasks, one frozen candidate, the official agent and verifier budgets preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "This run's pass@1 comes only from its own frozen aggregate report. It is never merged with run 36658268335, with the beta.37/beta.38 max runs, with run 36092882496, or with the beta.41 serial diagnostic 36669802530, and it replaces or reinterprets none of their verdicts.",
+    "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the effort stay exactly as the frozen composition declares them.",
+    "The corpus, the task sources, the batch plan and the pier pin are untouched: only the candidate pin changes.",
+    "Nothing is published to main; the change and this manifest live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched.",
+    "The full run is dispatched only after the user's explicit authorization, and only after the smoke gate above has passed."
+  ],
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "plannedChecks": "After each artifact is downloaded: the smoke's acceptance block and its single task disposition; then, for the full run, per-task disposition against run 36658268335, mechanical attribution of every verdict-less cell (pierExitCode/pierSignal, exception, model-failure reason, pre-model failure), the acceptance block (coverage.full / verdicts.complete / candidate.single / provider.single / instructions.frozen), usage and per-call durations, the budget-exhausted population, and whether any public.ecr.aws 429 recurs. pass@1 is read from the frozen report alone and is null unless the report itself declares the run scoreable. The record and the byte-identical report copy are then frozen under docs/benchmarks/history/frontier-harness/."
+}
