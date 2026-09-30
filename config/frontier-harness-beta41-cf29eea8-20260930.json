@@ -129,8 +129,52 @@
     "headSha": "706d1821f8ff290e9331f9c7af1aeaa8b818594a",
     "dispatchedAt": "2026-09-30T11:51:55Z",
     "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 30 Generate jobs + 1 Aggregate = 34; generation at most 5 concurrently.",
-    "completedAt": null,
-    "outcome": null
+    "candidateReceipt": {
+      "candidateId": "cli-0.0.3-beta.41-cf29eea-90c87483be97",
+      "artifact": "frontier-harness-candidate-36711152110",
+      "packageName": "@best-agent/cli-linux-x64-gnu",
+      "cliVersion": "0.0.3-beta.41",
+      "sourceCommit": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c",
+      "target": "linux-x64-gnu",
+      "binarySha256": "90c87483be977d52cb106ff9e6d885bbb5f1e2ae3c01b25ab87595ed3e61160e",
+      "tarballSha256": "75f7a2bc398e22698672b66afd669cef88cc5083108648d5776b4a033dbd7ae7",
+      "buildReportSha256": "4f30f496f1bfff5caf6830b6210c27896083c431f4d14a173f9869d6ba2f1fcb",
+      "lockfileSha256": "fc26fab3fffcd1cd540486b67d052a588a6d72775fce4a1f3398ac4289a119843",
+      "runtimeLockSha256": "0f2ef2eaefc2c50842b56e7ed9f706b80321a24206d070b6640c40b6516e3f2f",
+      "nodeVersion": "v24.15.0",
+      "deliveryVerification": "verified=true, all seven checks passed (packaging.files/receipt/bytes/tarball/runtimeClosure, typecheck.source, runtime.binary)",
+      "note": "Built in CI from the pinned commit. The binary hash differs from the smoke run's (63a2bda0…) because the SEA build is not byte-reproducible; candidate identity is this receipt, not the commit alone."
+    },
+    "startupAcceptance": "3 freeze jobs succeeded (candidate 2m, corpus 14s, plan 9s), then 5 Generate jobs started concurrently and multiple tasks entered `Generate and freeze the task attempt` with no batch-level setup/provider/harness failure: the run is a normal start.",
+    "completedAt": "2026-09-30T13:22:06Z",
+    "runDurationMinutes": 90,
+    "runNote": "All 34 jobs succeeded (3 freeze + 30 Generate + 1 Aggregate); no job failure and no cancellation. Generation ran at most 5 concurrently as frozen. The candidate was built in CI from cf29eea8 and froze its own receipt cli-0.0.3-beta.41-cf29eea-90c87483be97; every one of the 30 records agrees on it. fh_run_full=true, so the workflow predeclared all 30 corpus tasks from the tracked batch plan and the aggregate report was built with --formal.",
+    "outcome": {
+      "coverage": "30 of 30 Docker-eligible corpus tasks present, 0 missing, 0 not-evaluated (coverage.full passed)",
+      "passed": 23,
+      "failed": 4,
+      "error": 3,
+      "validCells": "27 of 30",
+      "passRate": 0.7666666666666667,
+      "passRateValidCells": 0.8518518518518519,
+      "passAt1": null,
+      "scoreable": false,
+      "capabilityMeasurement": false,
+      "acceptedCriteria": "candidate.single passed (cli-0.0.3-beta.41-cf29eea-90c87483be97), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), instructions.frozen passed, coverage.full passed; verdicts.complete FAILED (30 present, 0 missing, 3 error, 0 not-evaluated), which is what keeps pass@1 null.",
+      "budgetExhaustedAttempts": 0,
+      "usage": { "tasks": 27, "promptTokens": 238434734, "completionTokens": 1727969, "cacheReadTokens": 233850112, "totalTokens": 240162703, "modelCallCount": 1586 },
+      "failureAttribution": {
+        "infra": "3 tasks died pre-model on the public.ecr.aws image-metadata throttle (`429 toomanyrequests: Data limit exceeded`) at the Docker build step, 6s each, with no model attempt and no verdict: datacurve/expr-try-catch-errors, datacurve/katex-multicolumn-array-spans, datacurve/python-statemachine-state-data-scoping.",
+        "specificationGap": "2 tasks (datacurve/httpx-multipart-response-parsing, datacurve/meriyah-explicit-resource-declarations) are real model results at reward 0 whose pinned instruction omits a rule their hidden tests require; they are the frozen specification gaps and stay excluded from capability comparisons.",
+        "provider": "2 tasks (terminal-bench/gcode-to-text, terminal-bench/largest-eigenval) were stopped by their 900s agent budget and then each produced one tool-free delivery Run that ended with model-output-too-large; both carry reward 0."
+      }
+    },
+    "observations": [
+      "The public.ecr.aws throttle recurred at fh_max_parallel=5: three datacurve cells died pre-model with the same signature seen under 8. Reducing 8 -> 5 did not remove it, so this predeclared risk materialized and the run is not scoreable.",
+      "beta.41's spec-258 delivery Run was triggered for the first time in a real benchmark attempt: the two budget-stopped terminal-bench cells each ran one tool-free delivery Run (terminal cause model-output-too-large) attributed separately by rootRunId in the attempt evidence."
+    ],
+    "evidence": "Frozen report copy docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json (sha256 6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9, byte-identical to the artifact's report.json, 37779 bytes) with the run record beside it (20260930T115155Z--36711152110.md). Per-task frozen records, full attempt evidence, process receipts, terminal patches/hashes and official verifier logs live in the 90-day artifacts frontier-harness-task-36711152110-<task> (30) plus frontier-harness-candidate-36711152110 and frontier-harness-report-36711152110.",
+    "conclusion": "The newest best-agent build (cf29eea8 / 0.0.3-beta.41, built into a linux-x64-gnu SEA by this run's own CI candidate job) ran the frozen 30-task corpus end to end: 23 passed / 4 failed / 3 error, 0 missing. Because the three verdict-less cells are pre-model public.ecr.aws throttles, verdicts.complete failed and pass@1 stays null; this run is never merged with any other and repairs nothing. A scoreable pass@1 would need the throttle condition removed as a new frozen profile and a new full run."
   },
   "knownRisks": {
     "ecrThrottle": "Concurrent Docker image builds once tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`): 3 datacurve cells died pre-model in each of the two runs that used fh_max_parallel=8. This run reduces the concurrency to 5, the setting at which the 2026-09-27 recovery filled 3/3 beta.37 cells, so the condition is weakened but not removed (the throttle is a shared-quota service). A cell that still dies pre-model carries no attempt and no verdict, which leaves the aggregate pass@1 null.",
