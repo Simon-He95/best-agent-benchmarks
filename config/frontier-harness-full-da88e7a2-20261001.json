@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "batchLabel": "full-da88e7a2-20261001",
+  "passAt1": null,
+  "passAt1Note": "Computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run.",
+  "requestedBy": "User, 2026-10-01: \"用最新best-agent 全量重新跑一次看看\" (rebuild the full corpus run on the newest best-agent and look at it). This is a new frozen full run on a newer candidate — never a continuation, recovery or repair of any earlier run, and no earlier verdict is reinterpreted or merged.",
+  "reason": "The candidate is re-pinned from cf29eea8 (run 36711152110's candidate) and c9e46ec8 (the 7-cell recheck batch of run 36810567609) to the newest pushed main, da88e7a2 (#196, 22 commits, 94 files, +5524/-454). The composition is otherwise the one both of those used: same provider, corpus, task sources, pier pin, execution profile, budgets, agent timeout multiplier and per-call ceiling. The batch exists because the previous full run (36711152110) could not produce a pass@1: three datacurve cells died pre-model on a public.ecr.aws manifest throttle and the aggregate reported verdicts.complete failed, so scoreable and capabilityMeasurement were false.",
+  "notARecovery": {
+    "statement": "This batch is explicitly NOT a benchmark-level recovery of run 36711152110, of its two recovery batches, or of the 7-cell recheck batch 36810567609. It is a new full run on a different candidate, so it compensates, replaces and reinterprets nothing.",
+    "consequences": [
+      "Run 36711152110 keeps its own frozen record unchanged: 30 of 30 present, 23 passed / 4 failed / 3 error, verdicts.complete failed, passAt1 null.",
+      "Recovery batches recovery-ecr-36711152110-20261001 (run 36759265603, 2 of 3 filled) and recovery-ecr-36711152110-python-20261001 (run 36767542570, 1 filled) keep their own frozen outcomes.",
+      "Diagnostic batch beta41-fixes-recheck-7cells-20261001 (run 36810567609, 1 passed / 6 failed / 0 error) keeps its own outcome and is not merged into this run's pass@1.",
+      "Every earlier verdict stands as measured on its own candidate."
+    ]
+  },
+  "relationshipToEarlierWork": {
+    "lastFullRun": "36711152110 (candidate cli-0.0.3-beta.41-cf29eea-90c87483be97): 23 passed / 4 failed / 3 error, validCells 27, verdicts.complete failed on the 3 error cells, so scoreable=false, capabilityMeasurement=false, passAt1=null.",
+    "whyThisCandidate": "It carries all seven fixes filed from that run's own evidence — #168 (spec 270, an observed exec signal is a known result), #169 (spec 269, one faithful refusal per process-ref loss), #170 (spec 267, one command name and the literal it could not resolve), #171 (spec 260 amendment, a display name is shortened, never dropped with the call), #172 (spec 268, an over-ceiling waitMs is clamped and executed), #173 (missing parents created, in-workspace symlinks admitted) and #174 (spec 271, one model-output bound for the attempt-delivery plan) — plus the regression this session filed as #186 (spec 272 + 273: a tool error keeps its own message instead of being dropped at a Kernel or schema bound), which the 7-cell recheck batch caught in situ (two exec calls closed as a bare invalid-input with no issue).",
+    "environmentFixInThisBatch": "The dispatch's harness also carries this session's environment fix: both plugins now write a git identity into the task environment before the attempt, resolved on the harness host (da88e7a2 evidence from run 36810567609 shows a model commit refused with 'fatal: unable to auto-detect email address' and the attempt paying a turn to work around it). It changes the task environment, not the model side, and it is recorded here so a future reader can attribute any change in commit behaviour to it."
+  },
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93, cliVersion 0.0.3-beta.41) — the main of Simon-He95/best-agent at 2026-10-01T12:48Z, verified pushed with `git fetch origin main` (FETCH_HEAD = da88e7a2 = the tip of origin/main; the #196 merge is its newest commit).",
+  "candidateEvidence": "The version string is unchanged because apps/cli/package.json still declares 0.0.3-beta.41 at this commit, so candidate identity is the commit plus the receipt the CI build freezes itself (candidateId = cli-0.0.3-beta.41-da88e7a-<binarySha256[:12]>); no candidateId or hash is pre-filled because the SEA build is not byte-reproducible. The workflow checks out this commit with BEST_AGENT_SOURCE_TOKEN, builds the linux-x64-gnu artifact on ubuntu-24.04 with `pnpm pack:tui` + stage-cli-sea-packages.mjs, asserts the built version equals the frozen cliVersion, verifies the delivery (typecheck, packaging, runtime) and freezes every hash in its own receipt. Nothing is published.",
+  "localBuildEvidence": {
+    "why": "The identical commit was built on this machine before the dispatch, as an independent check that it builds and packs; the Linux candidate is still the one CI builds, because a Darwin artifact can never be the frozen target. The build ran in a throwaway worktree (`git worktree add .tmp/wt-da88e7a2 da88e7a2`) so the checkout that dispatches this batch was never moved off its own HEAD.",
+    "command": "fnm exec --using=24.15.0 -- pnpm pack:tui  (cwd /Users/Simon/Github/best-agent/.tmp/wt-da88e7a2, exit 0; preceded by `pnpm install --frozen-lockfile`, 319 packages reused)",
+    "commit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "whatPassed": "check:cli-product, check:provider-catalogs, typecheck (tsc -b + TUI project), CPU supervisor, CLI TUI bundle (13.45 MiB), SEA injection, `npm install` of the staged package, and the packer's installed-artifact smokes: launcher-help, cpu-supervisor, capability-ocr smoke, sandbox-host smoke — all four exit 0.",
+    "toolchainNote": "The repository .nvmrc pins 24.15.0 and the SEA build report must name it, so the host default v26.10.0 is not used for the build.",
+    "artifacts": {
+      "seaExecutable": { "path": ".tmp/sea/darwin-arm64/best-agent", "bytes": 139322560, "sha256": "76280c85c6b97ef9b35be406cb36e7de02ed713b2b4c2c13add1cbe9dede4117" },
+      "darwinArm64Tarball": { "path": ".tmp/npm/best-agent-cli-darwin-arm64-0.0.3-beta.41.tgz", "bytes": 43501395, "sha256": "8aa011b3a533775fc49563aac71a9c161570dfc2fa0beb698adb17d625577032" },
+      "launcherTarball": { "path": ".tmp/npm/best-agent-cli-0.0.3-beta.41.tgz", "bytes": 4896, "sha256": "1fcdfb24c982369889a5fc4dba1ceb99b7abba1356ba10e669da31800ad67df1" },
+      "buildReport": { "path": ".tmp/sea/darwin-arm64/build-report.json", "sha256": "cf3f685bbc6b6e1acf5859526d2358edc8aab72f2efe734a22cdc7c9a7bfcd2d", "artifact": "@best-agent/cli 0.0.3-beta.41, node v24.15.0, target darwin-arm64" },
+      "acceptanceEvidence": { "path": ".tmp/sea/darwin-arm64/acceptance-evidence.json", "sha256": "69500f5c1d88edf94250293dae892a561f9db7cf61b016971b04ec3171d3f5a5", "allStepsExitCodeZero": true }
+    },
+    "sampleProbe": "Both this build and the previous candidate's build were then driven headless with the benchmark argv: the model-visible tool surface is identical (34 tools, same names, same schema keys, same 3 instruction parts and 8,227 instruction characters), so this candidate's image-model work (spec 274/275/277) composes no ToolBinding into this headless composition.",
+    "cleanup": "The throwaway worktree is removed after the build (`git worktree remove .tmp/wt-da88e7a2`); it is not part of the dispatch."
+  },
+  "candidateDeltaAudit": {
+    "from": "c9e46ec8a0f35f3413085fd978eec78c5a02ff60 (the candidate of the 7-cell recheck batch 36810567609; run 36711152110 used cf29eea8)",
+    "to": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93 (0.0.3-beta.41)",
+    "size": "22 commits, 94 changed files (+5524 / -454)",
+    "headlineCommits": [
+      "74f4458e Keep a tool error's own message instead of dropping it at a Kernel or schema bound (spec 272 + spec 273, #186) (#191) — the regression the recheck batch filed, fixed",
+      "941e74ea Sweep the stale 1,024/2,048 bound statements the removal left behind (spec 273, #186) (#192)",
+      "2e0c527b feat(cli): resolve the image tools from the model each entry itself selected (spec 274, 275)",
+      "d45532d1 fix(cli): read the run's own candidate record set for the image defaults (spec 277)",
+      "4c42c98a fix(cli): state the delegation discipline without a Tool name (spec 276)",
+      "c31a3d82 fix(cli): a landed fold's rows stop being a ruler for the growth prediction (spec 254) (#185)",
+      "106e1e70 fix(cli): take the compact source type from its contract, not the unit's package (#188)",
+      "536e78ad test(cli): find the transcript row by its own marker, not by the OS user (#190)",
+      "6959894f test(cli): drive the subagent-repl parent from the child's terminal state (#196)",
+      "dbb2b561 fix(tui): keep projecting a queue row's follower after an interrupt"
+    ],
+    "modelVisibleChanges": [
+      "exec: a rejection's own message now reaches the model. Before this delta the Kernel's issue admission capped `message` at 256 code points / 512 bytes, so exec's 260-character path clause failed admission, `copyToolInputIssue` returned undefined and the closure was replaced with a bare `invalid-input` — observed twice in run 36810567609 (httpx-multipart-response-parsing, commands `ls -la /app` and `cd /app && git log --oneline -3 && git status`). The message is now the producer's exact text; the same sweep removed the 1,024/2,048-character ceilings that cut an `unknown` observation and a workspace failure message.",
+      "the delegation discipline is stated without naming a Tool (spec 276) — CLI coding instruction text; this headless composition's own instruction text is byte-identical between the two candidates (verified by the probe above: 3 parts, 8,227 characters).",
+      "image generation and understanding are resolved from the model each entry itself selected, and the automatic defaults read this run's own candidate record set (spec 274/275/277). No ToolBinding is added to this composition: the probe above found the same 34 tools, the same schema keys and the same instruction text as the previous candidate."
+    ],
+    "unchangedPipelinePaths": "apps/cli/src/v3-run-options.ts changed only in its image-source resolution (verified by reading the diff, not by its presence in the changed-file list); the headless argv the harness uses (`run --model … --model-timeout-ms … --attempt-remaining-ms …`, the --tool-exclude network set, the execution profile and the plan limits) parses exactly as before, and the attempt-delivery path (reserve, adoption rule, output bound) is untouched by this delta."
+  },
+  "compositionDeltasVsSourceRun": {
+    "candidate": "cf29eea8 -> da88e7a2 (see candidateDeltaAudit). This is the only intentional candidate change.",
+    "concurrency": "fh_max_parallel 8 -> 3. The previous full run lost three datacurve cells to a public.ecr.aws manifest throttle (429 toomanyrequests) with eight concurrent Docker image builds, and the same throttle cost one of three cells in the recovery batch that ran at five; it has never been reproduced at one. Three is chosen as the smallest width that still bounds the run's wall clock, so that this batch has a real chance of producing the failed run's missing verdicts rather than repeating its infrastructure loss. It is a composition delta on purpose and is recorded here so the run is never read as byte-identical to 36711152110.",
+    "hostContention": "A GitHub-hosted runner has four CPUs and this harness never cpus-limits a task container, so fewer concurrent containers also means less CPU contention inside them; this matters for the corpus's timing-sensitive cells (terminal-bench/largest-eigenval measures a speedup, and terminal-bench/polyglot-c-py is another performance cell).",
+    "budgets": "fh_agent_timeout_multiplier=1 and the frozen per-task budgets are unchanged (5400 s for the nine datacurve cells, each task's own timeout for the twenty-one terminal-bench cells). The per-call ceiling stays generation.modelInvocationTimeoutMs = 1800000 ms and the attempt-delivery reserve stays 180,000 ms by design (spec 271 corrected only the delivery output bound).",
+    "provider": "Unchanged: deepseek-v4.1-flash at reasoning effort max, compatible, dim-oauth, https://dimagent.cn/v1.",
+    "harnessEnvironmentFix": "Both task-environment plugins now write a git identity before the attempt (see relationshipToEarlierWork.environmentFixInThisBatch). This batch is the first full run whose attempts start with a usable git identity; any commit in this run's evidence should carry the harness host's identity rather than being refused.",
+    "executionProfile": "Unchanged: plain workspace backend, unrestricted authorization, host process isolation, release close policy, path command policy, read/write/exec grants, tools excluded: network."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "predeclaredSubset": 30,
+    "trackedPlan": "config/frontier-harness-batches.json (3 batches of 10; the plan job asserts exact corpus coverage in corpus order before any task runs)"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "Unchanged from run 36711152110; only the candidate and the generation width differ."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_max_parallel": 3,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_batch": "full-da88e7a2-20261001"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "sourceRun": {
+    "runId": 36711152110,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36711152110",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-90c87483be97",
+    "outcome": "23 passed / 4 failed / 3 error; the 3 error cells are datacurve/expr-try-catch-errors, datacurve/katex-multicolumn-array-spans and datacurve/python-statemachine-state-data-scoping, all pre-model public.ecr.aws 429 throttles; verdicts.complete failed, passAt1 null.",
+    "verdictsThisBatchCouldChange": "Every cell is measured afresh on the new candidate; the four failed cells of the source run (httpx 121/122, meriyah 45/49, gcode-to-text, largest-eigenval) and the three recovered cells are the ones where a candidate-side fix could plausibly move the verdict, and two of them (httpx, meriyah) sit on declared specification gaps that no agent behaviour can pass."
+  },
+  "knownRisks": {
+    "ecrThrottle": "Three concurrent image builds is below every width at which the throttle was observed, but a throttle caused by other tenants on the shared public.ecr.aws quota cannot be excluded; if it recurs the affected cell again has no model attempt and nothing is retried inside this run.",
+    "specificationGaps": "Three corpus tasks carry a declared specification gap (httpx-multipart-response-parsing, fastapi-deprecation-response-headers, meriyah-explicit-resource-declarations). Their verdicts are real but cannot be read as capability, and the aggregate excludes them from capability comparisons.",
+    "timingCells": "terminal-bench/largest-eigenval and terminal-bench/polyglot-c-py measure performance and are sensitive to host load; they are read as measured, at this batch's own concurrency, and never compared across batches with a different width.",
+    "budget": "Thirty attempts over three concurrent slots: the nine datacurve cells carry a 5400 s budget each, so the batch is expected to take roughly three hours and the two terminal-bench delivery cells still stop their primary Run at budget minus the 180 s reserve by design.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; the earlier batches recorded an expiry five days out from 2026-09-30. Every Generate job verifies the credential at materialization before any attempt.",
+    "unpushedLocalCommit": "The dispatching checkout's main carries one unpushed commit on top of the pin (3b786c9d 'chore: update deps'). It is deliberately not part of the candidate: CI can only check out a pushed commit, and a dependency bump is not a benchmark-visible change this batch is meant to measure. If that commit is later pushed, a run on it would be a new candidate and a new batch."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per corpus task, all thirty tasks, nothing else.",
+    "The pass@1 of this batch is computed by its own frozen aggregate report and is never merged with run 36711152110, its recovery batches, or the 7-cell recheck batch.",
+    "Every earlier verdict stands as measured on its own candidate; this batch replaces, repairs and reinterprets nothing.",
+    "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "Nothing is published to main and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "plannedChecks": "After the report artifact is downloaded: the acceptance block (coverage.full, verdicts.complete, candidate.single, provider.single, instructions.frozen) and whether this run is the first scoreable full run of the profile; the disposition table against run 36711152110's 23/4/3, cell by cell, with the declared specification gaps marked; the tool-closure histogram of every cell, checking that no closure is a bare invalid-input and that no waitMs / subagent-name / process-unavailable / unknown-uncertain closure recurs; both terminal-bench delivery cells' terminal and delivery causes plus the CLI exit status; whether any commit in the evidence carries the harness host's git identity (the environment fix in this batch) and whether 'unable to auto-detect email address' recurs anywhere; usage and per-call durations; and whether public.ecr.aws 429 recurs at this width."
+}
