@@ -66,6 +66,31 @@ const fieldCostAverage = published.reduce((sum, entry) => sum + entry.costPerPas
 const fieldRateAverage = published.reduce((sum, entry) => sum + entry.passRate, 0) / published.length;
 const cheaperThanBest = bestPublished.costPerPass / ours.costPerPass;
 
+// --- the view -----------------------------------------------------------------
+// Both views are the published chart's own: pass rate against cost per pass, and
+// pass rate against the median time of a successful task. The speed view is drawn
+// on a linear axis, because that is how the published page draws it.
+const VIEW = args.view ?? "cost";
+if (VIEW !== "cost" && VIEW !== "speed") throw new Error(`unknown --view: ${VIEW}`);
+const isCost = VIEW === "cost";
+const seconds = (value) => `${Math.floor(Math.round(value) / 60)}m ${String(Math.round(value) % 60).padStart(2, "0")}s`;
+const metricOf = (entry) => (isCost ? entry.costPerPass : entry.medianSuccessfulSeconds);
+const formatMetric = (value) => (isCost ? money(value) : seconds(value));
+const fastestPublished = published.reduce(
+  (best, entry) => (entry.medianSuccessfulSeconds < best.medianSuccessfulSeconds ? entry : best),
+  published[0],
+);
+const speedRatio = ours.medianSuccessfulSeconds / fastestPublished.medianSuccessfulSeconds;
+const speedSlowestRatio = ours.medianSuccessfulSeconds / Math.max(...published.map((entry) => entry.medianSuccessfulSeconds));
+const metricTitle = isCost ? "cost per pass (USD, log scale)" : "median time per successful task";
+// The speed column is noisy across this repository's own runs, and the dataset holds
+// only one of them. Rather than imply a stability the figure cannot show, the caller
+// declares the spread it measured (`--speed-range low,high`), and the figure prints it.
+const speedRange = typeof args["speed-range"] === "string" ? args["speed-range"].split(",").map(Number) : null;
+if (speedRange !== null && (speedRange.length !== 2 || speedRange.some((value) => !Number.isFinite(value)))) {
+  throw new Error("--speed-range takes two comma-separated seconds: low,high");
+}
+
 // --- design tokens (the same page as this history's other figures) -------------
 const INK = {
   canvas: "#0a0a0c",
@@ -91,7 +116,20 @@ const HEIGHT = SHARE ? 1350 : 1320;
 const PANEL = SHARE ? { left: 210, right: 2250, top: 400, bottom: 1090 } : { left: 190, right: 2016, top: 300, bottom: 1060 };
 const LOG_MIN = Math.log10(0.1);
 const LOG_MAX = Math.log10(30);
-const xAt = (cost) => PANEL.left + ((Math.log10(cost) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * (PANEL.right - PANEL.left);
+const SPEED_VALUES = isCost ? [] : [...published.map((entry) => entry.medianSuccessfulSeconds), ours.medianSuccessfulSeconds];
+// The speed axis is linear, so its rungs must be evenly spaced *and* read as round
+// numbers: a 100-second grid would label itself 3m/5m/7m/8m and imply a curved axis.
+// Two-minute rungs keep the spacing equal and the labels integral.
+const SPEED_STEP = 120;
+const X_MIN = isCost ? 0 : Math.max(0, Math.floor((Math.min(...SPEED_VALUES) - 60) / SPEED_STEP) * SPEED_STEP);
+const X_MAX = isCost ? 0 : Math.ceil((Math.max(...SPEED_VALUES) + 60) / SPEED_STEP) * SPEED_STEP;
+const xAt = isCost
+  ? (cost) => PANEL.left + ((Math.log10(cost) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * (PANEL.right - PANEL.left)
+  : (value) => PANEL.left + ((value - X_MIN) / (X_MAX - X_MIN)) * (PANEL.right - PANEL.left);
+const X_TICKS = isCost
+  ? [0.1, 0.2, 0.5, 1, 2, 5, 10, 20]
+  : Array.from({ length: (X_MAX - X_MIN) / SPEED_STEP + 1 }, (_, index) => X_MIN + index * SPEED_STEP);
+const xTickLabel = (tick) => (isCost ? `$${tick}` : `${Math.round(tick / 60)}m`);
 const Y_MIN = 0.45;
 const Y_MAX = 0.84;
 const yAt = (rate) => PANEL.bottom - ((rate - Y_MIN) / (Y_MAX - Y_MIN)) * (PANEL.bottom - PANEL.top);
@@ -189,16 +227,16 @@ for (let tick = 0.45; tick <= Y_MAX + 1e-9; tick += 0.05) {
   parts.push(line(PANEL.left + 1, y, PANEL.right - 1, y, { stroke: INK.grid, width: 1.2, dash: "1 6" }));
   parts.push(text(PANEL.left - 18, y, `${Math.round(tick * 100)}%`, { size: SIZE.tick, fill: INK.muted, anchor: "end", kind: "tick", dy: 9 }));
 }
-// the cost ruler: the same rungs the published chart uses, one decade wider
-for (const tick of [0.1, 0.2, 0.5, 1, 2, 5, 10, 20]) {
+// the x ruler: the published chart's own rungs (log dollars for cost, whole minutes for speed)
+for (const tick of X_TICKS) {
   const x = xAt(tick);
   parts.push(line(x, PANEL.top + 1, x, PANEL.bottom - 1, { stroke: INK.grid, width: 1.1, dash: "1 6" }));
-  parts.push(text(x, PANEL.bottom + 38, `$${tick}`, { size: SIZE.tick, fill: INK.muted, anchor: "middle", kind: "tick" }));
+  parts.push(text(x, PANEL.bottom + 38, xTickLabel(tick), { size: SIZE.tick, fill: INK.muted, anchor: "middle", kind: "tick" }));
 }
 parts.push(
-  `<text x="${(PANEL.left + PANEL.right) / 2}" y="${PANEL.bottom + 84}" font-family="${FONT}" font-size="${SIZE.axis}" fill="${INK.muted}" text-anchor="middle">cost per pass (USD, log scale)</text>`,
+  `<text x="${(PANEL.left + PANEL.right) / 2}" y="${PANEL.bottom + 84}" font-family="${FONT}" font-size="${SIZE.axis}" fill="${INK.muted}" text-anchor="middle">${metricTitle}</text>`,
 );
-const xAxisTitle = "cost per pass (USD, log scale)";
+const xAxisTitle = metricTitle;
 const xAxisHalf = (xAxisTitle.length * SIZE.axis * ADVANCE) / 2;
 boxes.push({
   value: xAxisTitle,
@@ -230,9 +268,9 @@ parts.push(line(PANEL.left + 1, bestY, PANEL.right - 1, bestY, { stroke: INK.mut
 parts.push(text(PANEL.left + 20, bestY, `best published ${pct(bestPublished.passRate)} (${bestPublished.label})`, { size: SIZE.note, fill: INK.muted, kind: "guide", dy: -12 }));
 
 // --- the published field ------------------------------------------------------
-const ordered = [...published].sort((left, right) => left.costPerPass - right.costPerPass);
-// The published chart's orange staircase: cheapest-to-best, keeping every rung that
-// improves the pass rate.
+const ordered = [...published].sort((left, right) => metricOf(left) - metricOf(right));
+// The published chart's orange staircase: from the cheapest (or fastest) toward the
+// best pass rate, keeping every rung that improves it.
 let bestSoFar = -Infinity;
 const frontier = [];
 for (const entry of ordered) {
@@ -242,21 +280,22 @@ for (const entry of ordered) {
   }
 }
 parts.push(
-  `<path d="${frontier.map((entry, index) => `${index === 0 ? "M" : "L"}${xAt(entry.costPerPass).toFixed(1)},${yAt(entry.passRate).toFixed(1)}`).join(" ")}" fill="none" stroke="${INK.accent}" stroke-width="1.8" opacity="0.5" stroke-linejoin="round"/>`,
+  `<path d="${frontier.map((entry, index) => `${index === 0 ? "M" : "L"}${xAt(metricOf(entry)).toFixed(1)},${yAt(entry.passRate).toFixed(1)}`).join(" ")}" fill="none" stroke="${INK.accent}" stroke-width="1.8" opacity="0.5" stroke-linejoin="round"/>`,
 );
 
 const MARKER_R = 13;
 for (const entry of published) {
-  const cx = xAt(entry.costPerPass);
+  const cx = xAt(metricOf(entry));
   const cy = yAt(entry.passRate);
   parts.push(shapeAt(entry.shape, cx, cy, MARKER_R, { fill: entry.color }));
   markers.push({ x: cx, y: cy, r: MARKER_R + 5, label: entry.label });
 }
 
-// this repository's one point, and the same tokens on the field's own price table
-const ourX = xAt(ours.costPerPass);
+// this repository's one point, and (on the cost view) the same tokens on the
+// field's own price table
+const ourX = xAt(metricOf(ours));
 const ourY = yAt(ours.passRate);
-if (repriced !== null && Math.abs(Math.log10(repriced) - Math.log10(ours.costPerPass)) > 0.05) {
+if (isCost && repriced !== null && Math.abs(Math.log10(repriced) - Math.log10(ours.costPerPass)) > 0.05) {
   const repricedX = xAt(repriced);
   parts.push(line(ourX, ourY, repricedX, ourY, { stroke: INK.accent, width: 1.6, dash: "4 5", opacity: 0.65 }));
   parts.push(shapeAt(ours.shape, repricedX, ourY, MARKER_R * 1.55, { fill: "none", stroke: INK.accent, width: 2.4 }));
@@ -365,7 +404,12 @@ const place = (cx, cy, lines) => {
 parts.push(
   place(ourX, ourY, [
     { value: `${ours.label} — ${pct(ours.passRate)}`, size: SIZE.ours, fill: INK.accent, weight: 700 },
-    { value: `${ours.passes}/${ours.cells} passed · ${money(ours.costPerPass)} per pass`, size: SIZE.oursValue, fill: INK.text, dy: 34 },
+    {
+      value: `${ours.passes}/${ours.cells} passed · ${formatMetric(metricOf(ours))} per task`,
+      size: SIZE.oursValue,
+      fill: INK.text,
+      dy: 34,
+    },
   ]),
 );
 // The share card names the field's corners only — best, cheapest, priciest, weakest —
@@ -381,13 +425,13 @@ const labelled = SHARE
   : ordered;
 for (const entry of labelled) {
   parts.push(
-    place(xAt(entry.costPerPass), yAt(entry.passRate), [
+    place(xAt(metricOf(entry)), yAt(entry.passRate), [
       { value: entry.label, size: SIZE.name, fill: INK.text },
-      { value: `${pct(entry.passRate)} · ${money(entry.costPerPass)}`, size: SIZE.value, fill: entry.color, dy: 27 },
+      { value: `${pct(entry.passRate)} · ${formatMetric(metricOf(entry))}`, size: SIZE.value, fill: entry.color, dy: 27 },
     ]),
   );
 }
-if (repriced !== null) {
+if (isCost && repriced !== null) {
   parts.push(
     place(xAt(repriced), ourY, [
       { value: "same tokens on the field's price table", size: SIZE.value, fill: INK.accent },
@@ -409,11 +453,16 @@ parts.push(
   text(pill.x + pill.width / 2, HEAD.titleY - 10, "v1.0", { size: SIZE.pill, fill: INK.text, anchor: "middle", kind: "header" }),
 );
 parts.push(
-  text(HEAD.markX, HEAD.subtitleY, `${ours.cells} tasks · one predeclared attempt per cell`, {
+  text(
+    HEAD.markX,
+    HEAD.subtitleY,
+    `pass rate against ${isCost ? "cost per pass" : "time per successful task"} · ${ours.cells} tasks · one predeclared attempt per cell`,
+    {
     size: SIZE.subtitle,
     fill: INK.muted,
     kind: "header",
-  }),
+    },
+  ),
 );
 parts.push(shapeAt("star", HEAD.markX + 20, HEAD.legendY, 14, { fill: INK.accent, stroke: INK.canvas, width: 2 }));
 parts.push(text(HEAD.legendX, HEAD.legendY + 10, "best-agent — this repository's self-run", { size: SIZE.legend, fill: INK.text, kind: "header" }));
@@ -422,7 +471,11 @@ parts.push(
     HEAD.noteX,
     HEAD.legendY + 10,
     SHARE
-      ? `vs ${published.length} published harnesses (${money(cheapestPublished.costPerPass)}–${money(priciestPublished.costPerPass)} per pass)`
+      ? isCost
+        ? `vs ${published.length} published harnesses (${money(cheapestPublished.costPerPass)}–${money(priciestPublished.costPerPass)} per pass)`
+        : `vs ${published.length} published harnesses (${seconds(Math.min(...published.map((entry) => entry.medianSuccessfulSeconds)))}–${seconds(
+            Math.max(...published.map((entry) => entry.medianSuccessfulSeconds)),
+          )} per task)`
       : "published field staircase",
     { size: SIZE.legend, fill: INK.muted, kind: "header" },
   ),
@@ -439,43 +492,83 @@ parts.push(
   text(
     PANEL.right,
     HEAD.deltaY,
-    `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below ${bestPublished.label} (${money(bestPublished.costPerPass)})`,
+    isCost
+      ? `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below ${bestPublished.label} (${money(bestPublished.costPerPass)})`
+      : `${seconds(ours.medianSuccessfulSeconds)} per task — slowest of ${published.length + 1}: ${fastestPublished.label} is ${speedRatio.toFixed(
+          2,
+        )}× quicker`,
     { size: SIZE.delta, fill: INK.muted, anchor: "end", kind: "headline" },
   ),
 );
+parts.push(
+  text(PANEL.right, HEAD.deltaY + (SHARE ? 34 : 30), ours.sublabel ?? "", { size: SIZE.delta - 4, fill: INK.faint, anchor: "end", kind: "headline" }),
+);
 
-const footerLines = SHARE
-  ? [
-      {
-        text: `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below the best published entry, ${(fieldCostAverage / ours.costPerPass).toFixed(0)}× below the field average`,
-        fill: INK.accent,
-        size: 30,
-      },
-      {
-        text: `Self-run, not leaderboard-comparable: different model (${ours.sublabel ?? "this repository's provider"} vs ${officialSource.modelLabel ?? "the published model"}), different runtime; costs are frozen price tables, not bills.`,
-        fill: INK.faint,
-        size: 22,
-      },
-    ]
-  : [
-      {
-        text: `A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is ${officialSource.modelLabel ?? "one model"} on Runta checkpoints.`,
-        fill: INK.faint,
-        size: SIZE.footnote,
-      },
-      {
-        text: `Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on ${officialName}; the hollow star re-prices this run's tokens.`,
-        fill: INK.faint,
-        size: SIZE.footnote,
-      },
-      {
-        text: `run ${runId}: ${ours.passes} passed / ${failedCells} failed / ${withoutVerdict} without verdict · cost coverage ${Math.round(
-          (ours.costCoverage ?? 0) * 100,
-        )}% of ${ours.cells} cells · field average ${pct(fieldRateAverage)} at ${money(fieldCostAverage)} per pass.`,
-        fill: INK.faint,
-        size: SIZE.footnote,
-      },
-    ];
+const fieldSpread = `${seconds(Math.min(...published.map((entry) => entry.medianSuccessfulSeconds)))}–${seconds(
+  Math.max(...published.map((entry) => entry.medianSuccessfulSeconds)),
+)}`;
+const footerLines = (
+  SHARE
+    ? isCost
+      ? [
+          {
+            text: `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below the best published entry, ${(fieldCostAverage / ours.costPerPass).toFixed(0)}× below the field average`,
+            fill: INK.accent,
+            size: 30,
+          },
+          {
+            text: `Self-run, not leaderboard-comparable: different model (${ours.sublabel ?? "this repository's provider"} vs ${officialSource.modelLabel ?? "the published model"}), different runtime; costs are frozen price tables, not bills.`,
+            fill: INK.faint,
+            size: 22,
+          },
+        ]
+      : [
+          {
+            text: `${seconds(ours.medianSuccessfulSeconds)} per successful task — slower than all ${published.length} published entries (field ${fieldSpread})`,
+            fill: INK.accent,
+            size: 30,
+          },
+          speedRange === null
+            ? null
+            : {
+                text: `Speed is this page's noisiest column: this repository's own full runs span ${seconds(speedRange[0])}–${seconds(
+                  speedRange[1],
+                )}, a wider spread than the whole published field's.`,
+                fill: INK.muted,
+                size: 22,
+              },
+          {
+            text: `Self-run, not leaderboard-comparable: different model (${ours.sublabel ?? "this repository's provider"} vs ${officialSource.modelLabel ?? "the published model"}) and runtime (GitHub-hosted runner vs Runta golden checkpoints).`,
+            fill: INK.faint,
+            size: 22,
+          },
+        ]
+    : [
+        {
+          text: `A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is ${officialSource.modelLabel ?? "one model"} on Runta checkpoints.`,
+          fill: INK.faint,
+          size: SIZE.footnote,
+        },
+        {
+          text: isCost
+            ? `Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on ${officialName}; the hollow star re-prices this run's tokens.`
+            : `Time is the trial's own wall clock (environment build, agent and verifier), the field's own definition; the field spans ${fieldSpread} per successful task.`,
+          fill: INK.faint,
+          size: SIZE.footnote,
+        },
+        {
+          text: isCost
+            ? `run ${runId}: ${ours.passes} passed / ${failedCells} failed / ${withoutVerdict} without verdict · cost coverage ${Math.round(
+                (ours.costCoverage ?? 0) * 100,
+              )}% of ${ours.cells} cells · field average ${pct(fieldRateAverage)} at ${money(fieldCostAverage)} per pass.`
+            : `run ${runId}: ${ours.passes} passed / ${failedCells} failed / ${withoutVerdict} without verdict${
+                speedRange === null ? "" : ` · this repository's own full runs span ${seconds(speedRange[0])}–${seconds(speedRange[1])}`
+              }.`,
+          fill: INK.faint,
+          size: SIZE.footnote,
+        },
+      ]
+).filter((item) => item !== null);
 const footerStart = HEIGHT - 44 - (footerLines.length - 1) * 28 - (SHARE ? 12 : 0);
 footerLines.forEach((item, index) => {
   parts.push(text(HEAD.markX, footerStart + index * 28, item.text, { size: item.size, fill: item.fill, kind: "footer" }));
@@ -514,24 +607,25 @@ if (args.dryRun) {
   process.exit(0);
 }
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="FrontierHarness Eval v1.0: best-agent ${pct(
-  ours.passRate,
-)} pass rate at ${money(ours.costPerPass)} per pass, against the published field"><title>best-agent ${pct(ours.passRate)} at ${money(ours.costPerPass)} per pass, against the published FrontierHarness Eval v1.0 field</title>\n${parts.join(
+const svgTitle = isCost
+  ? `best-agent ${pct(ours.passRate)} at ${money(ours.costPerPass)} per pass, against the published FrontierHarness Eval v1.0 field`
+  : `best-agent ${pct(ours.passRate)} at ${seconds(ours.medianSuccessfulSeconds)} per successful task, against the published FrontierHarness Eval v1.0 field`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="FrontierHarness Eval v1.0: ${svgTitle}"><title>${svgTitle}</title>\n${parts.join(
   "\n",
 )}\n</svg>\n`;
 writeFileSync(resolve(args.out), svg);
 
 const table = [
-  `# FrontierHarness Eval v1.0 — best-agent's final result on the field's own axes`,
+  `# FrontierHarness Eval v1.0 — best-agent's final result, pass rate against ${isCost ? "cost per pass" : "time per successful task"}`,
   ``,
   `Rendered by \`scripts/frontier-harness-field-chart.mjs\` into \`${basename(args.out)}\` (+ \`.png\`), ${WIDTH}×${HEIGHT}, on ${today}. Data: \`${basename(args.dataset)}\`, built by \`scripts/frontier-harness-comparison.mjs\` from the frozen record of run ${runId} and the published snapshot.`,
   ``,
   `| harness | pass rate | cost per pass | median time per successful task | source |`,
   `| --- | --- | --- | --- | --- |`,
-  `| **${ours.label}** (this repository's self-run) | **${pct(ours.passRate)}** (${ours.passes}/${ours.cells}) | **${money(ours.costPerPass)}** | ${Math.round(ours.medianSuccessfulSeconds)}s | run ${runId}, ${ours.sublabel ?? ""} |`,
+  `| **${ours.label}** (this repository's self-run) | **${pct(ours.passRate)}** (${ours.passes}/${ours.cells}) | **${money(ours.costPerPass)}** | **${seconds(ours.medianSuccessfulSeconds)}** | run ${runId}, ${ours.sublabel ?? ""} |`,
   ...published
     .slice()
-    .sort((left, right) => right.passRate - left.passRate)
+    .sort((left, right) => metricOf(left) - metricOf(right))
     .map(
       (entry) =>
         `| ${entry.label} | ${pct(entry.passRate)} (${entry.successful}/30) | ${money(entry.costPerPass)} | ${Math.round(
@@ -546,6 +640,24 @@ const table = [
   )}× below the best published entry's cost per pass.`,
   ``,
   `Same tokens, the field's own price table (${officialName}): ${repriced === null ? "not available" : `${money(repriced)} per pass`} — a re-pricing, not a bill; it separates token volume from unit price.`,
+  ``,
+  `## Speed, read the same way the published page reads it`,
+  ``,
+  `The speed column is \`median_duration_seconds\`: median wall-clock seconds per **successful** cell — the value behind the published "speed" view. This run reads **${seconds(
+    ours.medianSuccessfulSeconds,
+  )}**; the published field spans ${fieldSpread} (fastest ${fastestPublished.label} ${seconds(
+    fastestPublished.medianSuccessfulSeconds,
+  )}, slowest ${seconds(Math.max(...published.map((entry) => entry.medianSuccessfulSeconds)))}${
+    published.filter((entry) => entry.medianSuccessfulSeconds === Math.max(...published.map((other) => other.medianSuccessfulSeconds)))[0]?.label ?? ""
+  }). This run is therefore ${speedRatio.toFixed(2)}× the fastest entry and ${speedSlowestRatio.toFixed(
+    2,
+  )}× the slowest: **slower than every published entry on this metric**.`,
+  ``,
+  speedRange === null
+    ? `The speed spread across this repository's own full runs was not declared to this invocation (\`--speed-range\`), so it is not quoted here.`
+    : `Before that is read as a result, the same metric across this repository's own nine full runs spans ${seconds(speedRange[0])}–${seconds(
+        speedRange[1],
+      )} — a **wider spread than the published field's**, on the same corpus and mostly the same candidate. The honest reading is that one run's speed here cannot separate this composition from the field; the per-cell breakdown in the record (not this table) is where a cause would have to be established.`,
   ``,
   `## The boundary this comparison travels with`,
   ``,

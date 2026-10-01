@@ -1,21 +1,21 @@
-# FrontierHarness Eval v1.0 — best-agent's final result, pass rate against cost per pass
+# FrontierHarness Eval v1.0 — best-agent's final result, pass rate against time per successful task
 
-Rendered by `scripts/frontier-harness-field-chart.mjs` into `leader-chart-final-vs-field.svg` (+ `.png`), 2300×1320, on 2026-10-01. Data: `leaderboard-comparison-deepseek-v4.1-flash-36915041446.json`, built by `scripts/frontier-harness-comparison.mjs` from the frozen record of run 36915041446 and the published snapshot.
+Rendered by `scripts/frontier-harness-field-chart.mjs` into `leader-chart-final-vs-field-speed-16x9.svg` (+ `.png`), 2400×1350, on 2026-10-01. Data: `leaderboard-comparison-deepseek-v4.1-flash-36915041446.json`, built by `scripts/frontier-harness-comparison.mjs` from the frozen record of run 36915041446 and the published snapshot.
 
 | harness | pass rate | cost per pass | median time per successful task | source |
 | --- | --- | --- | --- | --- |
 | **best-agent** (this repository's self-run) | **76.7%** (23/30) | **$0.1383** | **10m 19s** | run 36915041446, deepseek-v4.1-flash max effort |
-| Exo Harness | 53.3% (16/30) | $1.05 | 377s | published leaderboard, 0.1.0 |
-| Pi | 60.0% (18/30) | $2.43 | 453s | published leaderboard, 0.84.2 |
-| Hermes | 50.0% (15/30) | $2.90 | 418s | published leaderboard, 0.20.4 |
-| OpenCode | 50.0% (15/30) | $3.24 | 387s | published leaderboard, 1.18.19 |
-| DSH Creator | 63.3% (19/30) | $3.28 | 404s | published leaderboard, 0.1.0-rc.8 |
-| DSH Standard | 60.0% (18/30) | $3.46 | 377s | published leaderboard, 0.1.0-rc.8 |
-| Codex | 66.7% (20/30) | $3.47 | 403s | published leaderboard, 0.148.0 |
-| Kimi Code | 56.7% (17/30) | $3.65 | 476s | published leaderboard, 0.37.2 |
-| DSH PTC | 60.0% (18/30) | $4.58 | 464s | published leaderboard, 0.1.0-rc.8 |
 | DSH Minimal | 56.7% (17/30) | $4.72 | 341s | published leaderboard, 0.1.0-rc.8 |
+| DSH Standard | 60.0% (18/30) | $3.46 | 377s | published leaderboard, 0.1.0-rc.8 |
+| Exo Harness | 53.3% (16/30) | $1.05 | 377s | published leaderboard, 0.1.0 |
+| OpenCode | 50.0% (15/30) | $3.24 | 387s | published leaderboard, 1.18.19 |
+| Codex | 66.7% (20/30) | $3.47 | 403s | published leaderboard, 0.148.0 |
+| DSH Creator | 63.3% (19/30) | $3.28 | 404s | published leaderboard, 0.1.0-rc.8 |
 | Oh My Pi | 56.7% (17/30) | $4.75 | 406s | published leaderboard, 17.4.0 |
+| Hermes | 50.0% (15/30) | $2.90 | 418s | published leaderboard, 0.20.4 |
+| Pi | 60.0% (18/30) | $2.43 | 453s | published leaderboard, 0.84.2 |
+| DSH PTC | 60.0% (18/30) | $4.58 | 464s | published leaderboard, 0.1.0-rc.8 |
+| Kimi Code | 56.7% (17/30) | $3.65 | 476s | published leaderboard, 0.37.2 |
 | Claude Code | 63.3% (19/30) | $18.34 | 578s | published leaderboard, 2.1.237 |
 
 Field average: 58.1% at $4.66 per pass. Best published entry: Codex 66.7% at $3.47. Cheapest published entry: Exo Harness at $1.05. This run is 25.1× below the best published entry's cost per pass.

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2300" height="1320" viewBox="0 0 2300 1320" role="img" aria-label="FrontierHarness Eval v1.0: best-agent 76.7% pass rate at $0.1383 per pass, against the published field"><title>best-agent 76.7% at $0.1383 per pass, against the published FrontierHarness Eval v1.0 field</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="2300" height="1320" viewBox="0 0 2300 1320" role="img" aria-label="FrontierHarness Eval v1.0: best-agent 76.7% at $0.1383 per pass, against the published FrontierHarness Eval v1.0 field"><title>best-agent 76.7% at $0.1383 per pass, against the published FrontierHarness Eval v1.0 field</title>
 <rect width="2300" height="1320" fill="#0a0a0c"/>
 <rect x="190.0" y="300.0" width="1826.0" height="760.0" rx="10" fill="#101014" stroke="#26262c" stroke-width="1"/>
 <line x1="191.0" y1="1060.0" x2="2015.0" y2="1060.0" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
@@ -34,7 +34,7 @@
 <line x1="1886.2" y1="301.0" x2="1886.2" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
 <text x="1886.2" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$20</text>
 <text x="1103" y="1144" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">cost per pass (USD, log scale)</text>
-<text x="86" y="690" transform="rotate(-90 86 690)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">pass rate</text>
+<text x="86" y="680" transform="rotate(-90 86 680)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">pass rate</text>
 <line x1="191.0" y1="637.8" x2="2015.0" y2="637.8" stroke="#9a9aa2" stroke-width="1.5" stroke-dasharray="7 7" opacity="0.5"/>
 <text x="210.0" y="637.8" dy="-12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#9a9aa2" font-weight="400" text-anchor="start">best published 66.7% (Codex)</text>
 <path d="M941.3,897.6 L1211.8,767.7 L1307.9,702.7 L1325.3,637.8" fill="none" stroke="#ff6418" stroke-width="1.8" opacity="0.5" stroke-linejoin="round"/>
@@ -57,7 +57,7 @@
 <polygon points="293.9,417.6 300.5,433.9 318.0,435.1 304.5,446.4 308.8,463.4 293.9,454.1 279.0,463.4 283.3,446.4 269.8,435.1 287.3,433.9" fill="#ff6418" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
 <line x1="293.9" y1="401.4" x2="293.9" y2="401.4" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
 <text x="463.9" y="360.9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="32" fill="#ff6418" font-weight="700" text-anchor="middle">best-agent — 76.7%</text>
-<text x="463.9" y="394.9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" fill="#e8e8ea" font-weight="400" text-anchor="middle">23/30 passed · $0.1383 per pass</text>
+<text x="463.9" y="394.9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" fill="#e8e8ea" font-weight="400" text-anchor="middle">23/30 passed · $0.1383 per task</text>
 <line x1="941.3" y1="927.1" x2="941.3" y2="927.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
 <text x="941.3" y="945.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Exo Harness</text>
 <text x="941.3" y="972.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#d3d3d3" font-weight="400" text-anchor="middle">53.3% · $1.05</text>
@@ -102,15 +102,16 @@
 <rect x="688.4" y="54.0" width="102.4" height="40.0" rx="8" fill="none" stroke="#26262c" stroke-width="1"/>
 <text x="739.6" y="82.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="middle">v1.0</text>
 <text x="88.0" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#9a9aa2" font-weight="400" text-anchor="start">pass rate against cost per pass · 30 tasks · one predeclared attempt per cell</text>
-<polygon points="108.0,187.0 111.4,195.4 120.4,196.0 113.4,201.8 115.6,210.5 108.0,205.7 100.4,210.5 102.6,201.8 95.6,196.0 104.6,195.4" fill="#ff6418" stroke="#0a0a0c" stroke-width="2" stroke-linejoin="round"/>
-<text x="140.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="start">best-agent (this repository's self-run)</text>
-<line x1="760.0" y1="200.0" x2="800.0" y2="200.0" stroke="#ff6418" stroke-width="1.8" opacity="0.6"/>
+<polygon points="108.0,186.0 111.6,195.0 121.3,195.7 113.9,201.9 116.2,211.3 108.0,206.2 99.8,211.3 102.1,201.9 94.7,195.7 104.4,195.0" fill="#ff6418" stroke="#0a0a0c" stroke-width="2" stroke-linejoin="round"/>
+<text x="140.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="start">best-agent — this repository's self-run</text>
 <text x="814.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" font-weight="400" text-anchor="start">published field staircase</text>
+<line x1="760.0" y1="200.0" x2="800.0" y2="200.0" stroke="#ff6418" stroke-width="1.8" opacity="0.6"/>
 <circle cx="1220.0" cy="200.0" r="11.0" fill="#9a9aa2" stroke="#0a0a0c" stroke-width="2"/>
 <text x="1244.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" font-weight="400" text-anchor="start">12 published harnesses</text>
 <text x="2016.0" y="166.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="100" fill="#ff6418" font-weight="700" text-anchor="end">76.7%</text>
 <text x="2016.0" y="216.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="end">23 of 30 tasks passed</text>
-<text x="2016.0" y="252.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">$0.1383 per pass — 25× below Codex ($3.47) · deepseek-v4.1-flash max effort</text>
+<text x="2016.0" y="252.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">$0.1383 per pass — 25× below Codex ($3.47)</text>
+<text x="2016.0" y="282.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="end">deepseek-v4.1-flash max effort</text>
 <text x="88.0" y="1220.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is Kimi K3 on Runta checkpoints.</text>
 <text x="88.0" y="1248.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on kimi-k3-2026-08-20; the hollow star re-prices this run's tokens.</text>
 <text x="88.0" y="1276.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">run 36915041446: 23 passed / 6 failed / 1 without verdict · cost coverage 100% of 30 cells · field average 58.1% at $4.66 per pass.</text>

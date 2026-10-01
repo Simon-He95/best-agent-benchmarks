@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350" role="img" aria-label="FrontierHarness Eval v1.0: best-agent 76.7% at 10m 19s per successful task, against the published FrontierHarness Eval v1.0 field"><title>best-agent 76.7% at 10m 19s per successful task, against the published FrontierHarness Eval v1.0 field</title>
+<rect width="2400" height="1350" fill="#0a0a0c"/>
+<rect x="210.0" y="400.0" width="2040.0" height="690.0" rx="10" fill="#101014" stroke="#26262c" stroke-width="1"/>
+<line x1="211.0" y1="1090.0" x2="2249.0" y2="1090.0" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="1090.0" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">45%</text>
+<line x1="211.0" y1="1001.5" x2="2249.0" y2="1001.5" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="1001.5" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">50%</text>
+<line x1="211.0" y1="913.1" x2="2249.0" y2="913.1" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="913.1" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">55%</text>
+<line x1="211.0" y1="824.6" x2="2249.0" y2="824.6" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="824.6" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">60%</text>
+<line x1="211.0" y1="736.2" x2="2249.0" y2="736.2" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="736.2" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">65%</text>
+<line x1="211.0" y1="647.7" x2="2249.0" y2="647.7" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="647.7" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">70%</text>
+<line x1="211.0" y1="559.2" x2="2249.0" y2="559.2" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="559.2" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">75%</text>
+<line x1="211.0" y1="470.8" x2="2249.0" y2="470.8" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="192.0" y="470.8" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">80%</text>
+<line x1="210.0" y1="401.0" x2="210.0" y2="1089.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="210.0" y="1128.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">4m</text>
+<line x1="720.0" y1="401.0" x2="720.0" y2="1089.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="720.0" y="1128.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">6m</text>
+<line x1="1230.0" y1="401.0" x2="1230.0" y2="1089.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1230.0" y="1128.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">8m</text>
+<line x1="1740.0" y1="401.0" x2="1740.0" y2="1089.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1740.0" y="1128.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">10m</text>
+<line x1="2250.0" y1="401.0" x2="2250.0" y2="1089.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="2250.0" y="1128.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">12m</text>
+<text x="1230" y="1174" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">median time per successful task</text>
+<text x="106" y="745" transform="rotate(-90 106 745)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">pass rate</text>
+<line x1="211.0" y1="706.7" x2="2249.0" y2="706.7" stroke="#9a9aa2" stroke-width="1.5" stroke-dasharray="7 7" opacity="0.5"/>
+<text x="230.0" y="706.7" dy="-12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#9a9aa2" font-weight="400" text-anchor="start">best published 66.7% (Codex)</text>
+<path d="M640.0,883.6 L790.2,824.6 L904.1,706.7" fill="none" stroke="#ff6418" stroke-width="1.8" opacity="0.5" stroke-linejoin="round"/>
+<circle cx="904.1" cy="706.7" r="13.0" fill="#9385ff" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="906.8,752.6 918.7,775.8 894.8,775.8" fill="#70b6ee" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1646.4,751.3 1660.7,765.6 1646.4,779.9 1632.1,765.6" fill="#f0a57f" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1105.4,813.6 1127.5,813.6 1127.5,835.7 1105.4,835.7" fill="#f0f0f0" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1161.1,810.3 1175.4,824.6 1161.1,838.9 1146.8,824.6" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="779.2,813.6 801.3,813.6 801.3,835.7 779.2,835.7" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="917.2,869.3 931.5,883.6 917.2,897.9 902.9,883.6" fill="#f2a777" stroke="#0a0a0c" stroke-width="2"/>
+<circle cx="1212.5" cy="883.6" r="13.0" fill="#83d7c5" stroke="#0a0a0c" stroke-width="2"/>
+<circle cx="640.0" cy="883.6" r="13.0" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="793.1,955.6 781.9,949.1 781.9,936.1 793.1,929.6 804.4,936.1 804.4,949.1" fill="#d3d3d3" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="824.8,990.5 846.9,990.5 846.9,1012.6 824.8,1012.6" fill="#a978e7" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="965.5,988.5 977.5,1011.7 953.6,1011.7" fill="#a3a3a3" stroke="#0a0a0c" stroke-width="2"/>
+<circle cx="1818.7" cy="529.7" r="35.1" fill="none" stroke="#ff6418" stroke-width="2" opacity="0.15"/>
+<circle cx="1818.7" cy="529.7" r="22.8" fill="none" stroke="#ff6418" stroke-width="2" opacity="0.38"/>
+<polygon points="1818.7,504.4 1825.3,520.7 1842.8,521.9 1829.3,533.2 1833.6,550.3 1818.7,540.9 1803.8,550.3 1808.1,533.2 1794.6,521.9 1812.2,520.7" fill="#ff6418" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+<line x1="1818.7" y1="488.5" x2="1818.7" y2="488.5" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1818.7" y="447.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" fill="#ff6418" font-weight="700" text-anchor="middle">best-agent — 76.7%</text>
+<text x="1818.7" y="481.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28" fill="#e8e8ea" font-weight="400" text-anchor="middle">23/30 passed · 10m 19s per task</text>
+<line x1="904.1" y1="661.0" x2="904.1" y2="657.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="904.1" y="624.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Codex</text>
+<text x="904.1" y="651.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#9385ff" font-weight="400" text-anchor="middle">66.7% · 6m 43s</text>
+<line x1="1646.4" y1="795.1" x2="1646.4" y2="795.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1646.4" y="813.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Claude Code</text>
+<text x="1646.4" y="840.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#f0a57f" font-weight="400" text-anchor="middle">63.3% · 9m 38s</text>
+<line x1="793.1" y1="896.9" x2="793.1" y2="893.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="793.1" y="860.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Exo Harness</text>
+<text x="793.1" y="887.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#d3d3d3" font-weight="400" text-anchor="middle">53.3% · 6m 17s</text>
+<line x1="835.8" y1="955.8" x2="835.8" y2="952.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="915.8" y="919.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">OpenCode</text>
+<text x="915.8" y="946.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#a978e7" font-weight="400" text-anchor="middle">50.0% · 6m 27s</text>
+<line x1="965.5" y1="955.8" x2="965.5" y2="902.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1045.5" y="869.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Hermes</text>
+<text x="1045.5" y="896.5" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#a3a3a3" font-weight="400" text-anchor="middle">50.0% · 6m 58s</text>
+<rect x="110.0" y="96.0" width="36.0" height="36.0" fill="#ff6418"/>
+<text x="166.0" y="126.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="48" fill="#ff6418" font-weight="700" text-anchor="start">FrontierHarness Eval</text>
+<rect x="741.2" y="88.0" width="102.4" height="40.0" rx="8" fill="none" stroke="#26262c" stroke-width="1"/>
+<text x="792.4" y="116.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="middle">v1.0</text>
+<text x="110.0" y="186.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" fill="#9a9aa2" font-weight="400" text-anchor="start">pass rate against time per successful task · 30 tasks · one predeclared attempt per cell</text>
+<polygon points="130.0,236.0 133.6,245.0 143.3,245.7 135.9,251.9 138.2,261.3 130.0,256.2 121.8,261.3 124.1,251.9 116.7,245.7 126.4,245.0" fill="#ff6418" stroke="#0a0a0c" stroke-width="2" stroke-linejoin="round"/>
+<text x="162.0" y="260.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="start">best-agent — this repository's self-run</text>
+<text x="800.0" y="260.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#9a9aa2" font-weight="400" text-anchor="start">vs 12 published harnesses (5m 41s–9m 38s per task)</text>
+<text x="2250.0" y="180.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="170" fill="#ff6418" font-weight="700" text-anchor="end">76.7%</text>
+<text x="2250.0" y="250.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" fill="#e8e8ea" font-weight="400" text-anchor="end">23 of 30 tasks passed</text>
+<text x="2250.0" y="296.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28" fill="#9a9aa2" font-weight="400" text-anchor="end">10m 19s per task — slowest of 13: DSH Minimal is 1.81× quicker</text>
+<text x="2250.0" y="330.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#6a6a72" font-weight="400" text-anchor="end">deepseek-v4.1-flash max effort</text>
+<text x="110.0" y="1238.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" fill="#ff6418" font-weight="400" text-anchor="start">10m 19s per successful task — slower than all 12 published entries (field 5m 41s–9m 38s)</text>
+<text x="110.0" y="1266.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#9a9aa2" font-weight="400" text-anchor="start">Speed is this page's noisiest column: this repository's own full runs span 4m 08s–12m 36s, a wider spread than the whole published field's.</text>
+<text x="110.0" y="1294.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#6a6a72" font-weight="400" text-anchor="start">Self-run, not leaderboard-comparable: different model (deepseek-v4.1-flash max effort vs Kimi K3) and runtime (GitHub-hosted runner vs Runta golden checkpoints).</text>
+</svg>
