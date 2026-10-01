@@ -58,5 +58,10 @@
     "budget": "Two cells carry a 900 s terminal-bench budget and one a 5400 s datacurve budget, generated serially: the expected window is up to about 2.5 hours."
   },
   "plannedChecks": "After the report artifact is downloaded: each cell's disposition against both earlier measurements, with the class it was admitted under; the tool histograms and the install path of both terminal-bench cells; whether the identity-refusal class recurs (the environment fix this batch carries); and the aggregate acceptance block as it applies to a three-cell subset.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 36905842019,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36905842019",
+  "headSha": "ad5daac",
+  "dispatchedAt": "2026-10-02T03:15:00Z",
+  "outcomePending": "The three cells are generated serially; this manifest records the dispatch and the outcome block is added when the frozen report of that run is read."
 }
