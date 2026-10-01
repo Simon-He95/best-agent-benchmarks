@@ -1324,6 +1324,186 @@ test("the report discloses a task that exhausted its budget, including one that 
   assert.match(markdown, /can exhaust its budget and still pass/u);
 });
 
+test("a repaired reading replaces nothing in the record and counts every extra attempt", () => {
+  const root = mkdtempSync(join(tmpdir(), "fh-repaired-"));
+  const tasks = ["datacurve/one", "terminal-bench/two", "terminal-bench/three"];
+  const recordPath = join(root, "record.json");
+  writeFileSync(
+    recordPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        profileId: config.profileId,
+        formalRunId: "formal-synthetic",
+        coverage: { expected: 3, expectedEligible: 3, present: 3, missing: [] },
+        results: { passed: 1, failed: 2, error: 0, notEvaluated: 0 },
+        validCells: 3,
+        passAt1: null,
+        perTask: tasks.map((task, index) => ({
+          task,
+          disposition: index === 0 ? "passed" : "failed",
+          rewards: index === 0 ? { reward: 1 } : { reward: 0 },
+        })),
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  const recordBytes = readFileSync(recordPath);
+  const sha256 = createHash("sha256").update(recordBytes).digest("hex");
+  const writeManifest = (name, body) => {
+    const path = join(root, name);
+    writeFileSync(
+      path,
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          kind: "recheck",
+          batchLabel: name.replace(".json", ""),
+          sourceRun: { runId: "formal-synthetic", frozenRecordSha256: sha256 },
+          ...body,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    return path;
+  };
+  const environmentRepair = writeManifest("recheck-environment.json", {
+    kind: "recovery",
+    outcome: {
+      cells: [
+        {
+          task: tasks[1],
+          disposition: "passed",
+          rewards: { reward: 1 },
+          durationMs: 1000,
+          class: "pre-model-environment-failure",
+        },
+      ],
+    },
+  });
+  const varianceRepair = writeManifest("recheck-variance.json", {
+    outcome: {
+      cells: [
+        { task: tasks[2], disposition: "failed", class: "variance-check" },
+      ],
+    },
+  });
+
+  const output = join(root, "repaired.json");
+  const run = (repairs, target = output) => {
+    const spawned = spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "scripts/frontier-harness-repaired-reading.mjs"),
+        "--record",
+        recordPath,
+        ...repairs.flatMap((path) => ["--repairs", path]),
+        "--output",
+        target,
+      ],
+      { encoding: "utf8" },
+    );
+    return spawned;
+  };
+
+  const spawned = run([environmentRepair, varianceRepair]);
+  assert.equal(spawned.status, 0, spawned.stderr);
+  const reading = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(reading.recordKind, "repaired-reading");
+  assert.equal(reading.official, undefined);
+  // The record's own verdicts are restated, and only the admitted cells move.
+  assert.deepEqual(reading.sourceRun.results, {
+    passed: 1,
+    failed: 2,
+    error: 0,
+    notEvaluated: 0,
+  });
+  assert.deepEqual(
+    {
+      passed: reading.repairedReading.passed,
+      failed: reading.repairedReading.failed,
+    },
+    { passed: 2, failed: 1 },
+  );
+  assert.equal(reading.repairedReading.extraAttempts, 2);
+  assert.equal(reading.repairedReading.passAt1, null, "a repaired reading is never a pass@1");
+  // Both verdicts of a repaired cell are visible, so a reader can recompute the
+  // reading from the record plus the named manifests.
+  assert.deepEqual(
+    reading.repairedReading.cells.map((cell) => [
+      cell.task,
+      cell.originalDisposition,
+      cell.remediatedDisposition,
+      cell.class,
+    ]),
+    [
+      [tasks[1], "failed", "passed", "pre-model-environment-failure"],
+      [tasks[2], "failed", "failed", "variance-check"],
+    ],
+  );
+  // The record itself is untouched, byte for byte.
+  assert.ok(readFileSync(recordPath).equals(recordBytes));
+
+  // A manifest frozen for other numbers is refused instead of applied.
+  const stale = writeManifest("recheck-stale.json", {
+    sourceRun: { runId: "formal-synthetic", frozenRecordSha256: "0".repeat(64) },
+    outcome: { cells: [{ task: tasks[1], disposition: "passed", class: "recovery" }] },
+  });
+  const refused = run([stale], join(root, "refused.json"));
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /does not match the record/u);
+  assert.equal(existsSync(join(root, "refused.json")), false);
+
+  // A manifest without a re-measured verdict, a cell outside the record, and two
+  // manifests claiming one cell are all refused.
+  const empty = writeManifest("recheck-empty.json", { outcome: { cells: [] } });
+  assert.notEqual(run([empty], join(root, "empty.json")).status, 0);
+  const unknown = writeManifest("recheck-unknown.json", {
+    outcome: { cells: [{ task: "datacurve/absent", disposition: "passed", class: "recovery" }] },
+  });
+  assert.notEqual(run([unknown], join(root, "unknown.json")).status, 0);
+  const duplicate = writeManifest("recheck-duplicate.json", {
+    outcome: { cells: [{ task: tasks[1], disposition: "passed", class: "recovery" }] },
+  });
+  const doubled = run([environmentRepair, duplicate], join(root, "doubled.json"));
+  assert.notEqual(doubled.status, 0);
+  assert.match(doubled.stderr, /at most one extra attempt/u);
+
+  // The official mode publishes the run's official result beside the raw counts:
+  // the repaired pass rate is the headline, the strict one-attempt pass@1 stays
+  // null, and the same run can be read either way.
+  const officialOutput = join(root, "official.json");
+  const official = spawnSync(
+    process.execPath,
+    [
+      resolve(repoRoot, "scripts/frontier-harness-repaired-reading.mjs"),
+      "--record",
+      recordPath,
+      "--repairs",
+      environmentRepair,
+      "--repairs",
+      varianceRepair,
+      "--official",
+      "--output",
+      officialOutput,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(official.status, 0, official.stderr);
+  const officialReading = JSON.parse(readFileSync(officialOutput, "utf8"));
+  assert.equal(officialReading.recordKind, "official-repaired-reading");
+  assert.equal(officialReading.official.metric, "repairedPassRate");
+  assert.equal(officialReading.official.value, 2 / 3);
+  assert.equal(officialReading.official.repairedCells, 2);
+  assert.equal(officialReading.repairedReading.passAt1, null);
+  assert.match(officialReading.official.label, /re-measured once each/u);
+  const officialMarkdown = readFileSync(`${officialOutput}.md`, "utf8");
+  assert.match(officialMarkdown, /official repaired reading/u);
+  assert.match(officialMarkdown, /Official result: 66\.7% repaired pass rate/u);
+});
+
 test("a task environment's git identity comes from this host and is never empty", async () => {
   const { resolveGitIdentity } = await import(
     `../scripts/frontier-harness-harness.mjs?git-identity=${Date.now()}`

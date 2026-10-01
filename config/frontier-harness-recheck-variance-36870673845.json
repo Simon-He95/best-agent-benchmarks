@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "recheck-variance-36870673845-20261002",
+  "requestedBy": "User, 2026-10-02: \"再花一轮 CI 把 scc / code-from-image / extract-elf 这 3 格在同一候选上单独复测一次，然后也要入正式记录\" (spend one more CI round re-measuring these three cells alone on the same candidate, and record them in the official record too).",
+  "whyTheseCells": "They are the three cells whose pass->fail flip between run 36711152110 (cf29eea8) and run 36870673845 (da88e7a2) this session's regression audit could not attribute to the candidate delta: their transcripts show the same tooling available as in the passing run and the failures are model-route outcomes (extract-elf's address convention, code-from-image's brute-force detour after a successful OCR install, scc's 3 of 31 fail-to-pass tests after a 176-call attempt). A single re-measurement of each cell on the same candidate is the only evidence that separates run-to-run variation from a systematic regression, and it is admitted here under the variance class because no cause was identified.",
+  "sourceRun": {
+    "runId": 36870673845,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36870673845",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261001T134227Z--36870673845.json",
+    "frozenRecordSha256": "ab489066e62e16df4b8bbb51d966d731de91e4cb2f29c04cac1627b1527b12e5",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-cb4414e20ac4",
+    "cellsAsMeasured": {
+      "datacurve/scc-bounded-memory-spilling": "failed; reward 0; fail-to-pass 28 of 31, pass-to-pass 286 of 286, partial 0.9905; 1436 s of its 5400 s budget; 150 model outcomes / 176 tool calls; git available, one commit refused for a missing identity then configured by the model itself. The previous run passed the same cell 31/31 in 1583 s with 103 model outcomes / 134 tool calls.",
+      "terminal-bench/code-from-image": "failed; reward 0; no /app/output.txt; 1062 s of its 1200 s budget; 87 model outcomes / 99 tool calls; the attempt installed tesseract-ocr, libgl1, fonts and rapidocr-onnxruntime successfully and then brute-forced an OCR ambiguity instead of writing the answer. The previous run passed in 372 s with 32 model outcomes / 56 tool calls, having installed the same OCR tooling.",
+      "terminal-bench/extract-elf": "failed; reward 0; 'Only found 0.00% of expected values (required: 75%)' with out.json delivered; 665 s of its 900 s budget; 27 model outcomes / 32 tool calls. The previous run's attempt was cut by the delivery boundary at 802 s and had already written a matching out.json."
+    }
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "cliVersion": "0.0.3-beta.41",
+    "note": "Identical to the candidate of run 36870673845 and of the same day's recovery and diagnostic batches, so the cells are re-measured on the candidate under test rather than on a newer product."
+  },
+  "compositionDeltasVsSourceRun": {
+    "harnessEnvironmentFix": "The dispatch carries commit d13a6a1: the task-environment git identity now reaches the repository's own config, which the CLI's benchmark environment can read (the agent user's global config cannot). Recorded so the batch is never read as byte-identical to the run it re-measures.",
+    "concurrency": "fh_max_parallel 3 -> 1: three cells generated alone, so a shared-quota image pull or host contention cannot be the explanation of a second failure.",
+    "everythingElse": "Unchanged: corpus pin, task sources, pier pin (0.3.1), provider (deepseek-v4.1-flash, effort max), fh_agent_timeout_multiplier=1 and each cell's own declared budget."
+  },
+  "constraints": [
+    "Exactly these three cells, one predeclared headless attempt each; nothing is retried inside the batch and no second dispatch is made for a cell that fails again.",
+    "The same candidate, the same budgets, the same grader and the same effort as the run being re-measured.",
+    "Run 36870673845 keeps every verdict it measured; this batch's verdicts are published as a labelled repaired reading (script frontier-harness-repaired-reading.mjs) beside the frozen record, never as a rewrite of it.",
+    "Nothing is published to main and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/scc-bounded-memory-spilling,terminal-bench/code-from-image,terminal-bench/extract-elf",
+    "fh_limit": "3",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recheck-variance-36870673845-20261002"
+  },
+  "expectedTasks": [
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/code-from-image",
+    "terminal-bench/extract-elf"
+  ],
+  "knownRisks": {
+    "varianceIsTheSubject": "A re-measurement can agree with either measurement; a cell that fails again does not prove a candidate-side regression on its own, and a cell that passes does not prove the earlier failure was noise. Both readings are recorded as measured.",
+    "environmentFlakiness": "The corpus carries environment deaths (a runner without a Docker daemon, a slow apt mirror) and no cell is retried inside this batch; a cell lost that way carries no verdict and is recorded as such.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; every Generate job verifies the credential at materialization before any attempt.",
+    "budget": "Two cells carry a 900 s terminal-bench budget and one a 5400 s datacurve budget, generated serially: the expected window is up to about 2.5 hours."
+  },
+  "plannedChecks": "After the report artifact is downloaded: each cell's disposition against both earlier measurements, with the class it was admitted under; the tool histograms and the install path of both terminal-bench cells; whether the identity-refusal class recurs (the environment fix this batch carries); and the aggregate acceptance block as it applies to a three-cell subset.",
+  "dispatched": false
+}

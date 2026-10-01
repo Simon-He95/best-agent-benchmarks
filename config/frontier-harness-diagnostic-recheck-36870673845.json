@@ -78,9 +78,19 @@
     "candidateManifestSha256": "725d26eb895a6bb64aa0a4ba298738eae4d657095b85f015654ff225c43aa0a6",
     "acceptance": "coverage.full failed by design (1 of 30 predeclared), verdicts.complete passed, candidate.single passed, provider.single passed, instructions.frozen passed -> scoreable=false, capabilityMeasurement=false, passAt1=null (diagnostic)",
     "cellAsReMeasured": "terminal-bench/merge-diff-arc-agi-task: PASSED, reward=1, terminalCause completed, 40 model outcomes, 270899 ms (271 s) of its 900 s budget, pierExitCode 0; usage in 1,283,615 / cache 1,240,064 / out 26,362 tokens.",
+    "cells": [
+      {
+        "task": "terminal-bench/merge-diff-arc-agi-task",
+        "disposition": "passed",
+        "rewards": { "reward": 1 },
+        "durationMs": 270899,
+        "class": "environment-class-recheck"
+      }
+    ],
     "mechanism": "The image still ships no git, and the re-measurement proves the earlier failure was the install path, not the task or the candidate: the model again found git absent, ran apt-get and this time finished the install quickly enough to do the task's own work — `git init` of /app/repo, the two bundle fetches and the merge — inside 271 s, with a clean working tree, a merge commit and a verification pass over all three examples in /app/examples.json. Under three concurrent generations the same install was still downloading at ~100 KB/s when the delivery boundary cancelled the primary Run at 777 s, which is the composition delta this diagnostic removed.",
     "environmentFixObservation": "No 'unable to auto-detect email address' appears anywhere in this attempt, and the identity fix reached no repository here: /app/repo did not exist when the attempt started, so the harness's repo-local write had nothing to write, and the model set its own local identity (`git -C /app/repo config user.name Agent` / `user.email agent@example.com`, six calls) after creating it. That is the known boundary of the fix: it covers repositories present at setup (the common pre-cloned task shape), not repositories the model creates during the attempt.",
     "reading": "Under the user's declared policy this cell is the environment class and this re-measurement is its repair, so a repaired reading of run 36870673845 may count it as passed. The canonical record of run 36870673845 keeps its failed verdict for this cell, and this batch is never merged into its pass@1."
   },
-  "evidence": "Artifact frontier-harness-report-36897507974 (report.json, report.json.md, failures.json/.md, the cell's frozen result record and its raw evidence); the local copy of the report is not committed because the cell's verdict is recorded here."
+  "evidence": "Artifact frontier-harness-report-36897507974 (report.json, report.json.md, failures.json/.md, the cell's frozen result record and its raw evidence); the local copy of the report is not committed because the cell's verdict is recorded here.",
+  "outcomeCells": "The machine-readable re-measured verdict the official repaired reading consumes lives in outcome.cells above."
 }
