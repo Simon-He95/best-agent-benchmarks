@@ -28,54 +28,63 @@
 <text x="130.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-18</text>
 <text x="130.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >6a9f15e</text>
 <text x="130.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >20/30</text>
-<line x1="284.3" y1="250" x2="284.3" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="284.3" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-24</text>
-<text x="284.3" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >d631b62</text>
-<text x="284.3" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >20/30</text>
-<line x1="438.6" y1="250" x2="438.6" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="438.6" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-25</text>
-<text x="438.6" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >6ce38f1</text>
-<text x="438.6" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
-<line x1="592.9" y1="250" x2="592.9" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="592.9" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-27</text>
-<text x="592.9" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >a578453</text>
-<text x="592.9" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
-<line x1="747.1" y1="250" x2="747.1" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="747.1" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-29</text>
-<text x="747.1" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3ecccb4</text>
-<text x="747.1" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
-<line x1="901.4" y1="250" x2="901.4" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="901.4" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
-<text x="901.4" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >de63dec</text>
-<text x="901.4" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >18/30</text>
-<line x1="1055.7" y1="250" x2="1055.7" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
-<text x="1055.7" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
-<text x="1055.7" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >cf29eea</text>
-<text x="1055.7" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >23/30</text>
+<line x1="265.0" y1="250" x2="265.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="265.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-24</text>
+<text x="265.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >d631b62</text>
+<text x="265.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >20/30</text>
+<line x1="400.0" y1="250" x2="400.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="400.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-25</text>
+<text x="400.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >6ce38f1</text>
+<text x="400.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
+<line x1="535.0" y1="250" x2="535.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="535.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-27</text>
+<text x="535.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >a578453</text>
+<text x="535.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
+<line x1="670.0" y1="250" x2="670.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="670.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-29</text>
+<text x="670.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3ecccb4</text>
+<text x="670.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
+<line x1="805.0" y1="250" x2="805.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="805.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
+<text x="805.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >de63dec</text>
+<text x="805.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >18/30</text>
+<line x1="940.0" y1="250" x2="940.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="940.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
+<text x="940.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >cf29eea</text>
+<text x="940.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >23/30</text>
+<line x1="1075.0" y1="250" x2="1075.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="1075.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >10-01</text>
+<text x="1075.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >da88e7a</text>
+<text x="1075.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
 <line x1="1210.0" y1="250" x2="1210.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
 <text x="1210.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >10-01</text>
 <text x="1210.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >da88e7a</text>
-<text x="1210.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
-<path d="M130.0,754.2 L284.3,754.2 L438.6,855.0 L592.9,1359.2 L747.1,1359.2 L901.4,955.8 L1055.7,451.7 L1210.0,855.0" fill="none" stroke="#ff6418" stroke-width="3"/>
+<text x="1210.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >23/30</text>
+<path d="M130.0,754.2 L265.0,754.2 L400.0,855.0 L535.0,1359.2 L670.0,1359.2 L805.0,955.8 L940.0,451.7 L1075.0,855.0 L1210.0,451.7" fill="none" stroke="#ff6418" stroke-width="3"/>
 <circle cx="130.0" cy="754.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
 <text x="130.0" y="738.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >66.7%</text>
-<circle cx="284.3" cy="754.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="284.3" y="738.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >66.7%</text>
-<circle cx="438.6" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="438.6" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
-<circle cx="592.9" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="592.9" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
-<circle cx="747.1" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="747.1" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
-<circle cx="901.4" cy="955.8" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="901.4" y="939.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >60.0%</text>
-<circle cx="1055.7" cy="451.7" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="1055.7" y="435.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >76.7%</text>
-<circle cx="1210.0" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
-<text x="1210.0" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
-<path d="M1055.7,442.7 l9,9 l-9,9 l-9,-9 z" fill="#0a0a0a" stroke="#ffffff" stroke-width="2.5"/>
-<text x="1055.7" y="485.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ffffff" font-weight="400" text-anchor="middle" >repaired 76.7%</text>
-<text x="1055.7" y="506.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3 cell(s) re-measured</text>
+<circle cx="265.0" cy="754.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="265.0" y="738.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >66.7%</text>
+<circle cx="400.0" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="400.0" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
+<circle cx="535.0" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="535.0" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
+<circle cx="670.0" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="670.0" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
+<circle cx="805.0" cy="955.8" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="805.0" y="939.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >60.0%</text>
+<circle cx="940.0" cy="451.7" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="940.0" y="435.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >76.7%</text>
+<circle cx="1075.0" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="1075.0" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
+<circle cx="1210.0" cy="451.7" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="1210.0" y="435.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >76.7%</text>
+<path d="M1075.0,442.7 l9,9 l-9,9 l-9,-9 z" fill="#0a0a0a" stroke="#ffffff" stroke-width="2.5"/>
+<text x="1075.0" y="485.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ffffff" font-weight="400" text-anchor="middle" >repaired 76.7%</text>
+<text x="1075.0" y="506.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#9a9a9a" font-weight="400" text-anchor="middle" >5 cell(s) re-measured</text>
+<path d="M940.0,442.7 l9,9 l-9,9 l-9,-9 z" fill="#0a0a0a" stroke="#ffffff" stroke-width="2.5"/>
+<text x="940.0" y="543.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ffffff" font-weight="400" text-anchor="middle" >repaired 76.7%</text>
+<text x="940.0" y="564.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3 cell(s) re-measured</text>
 <rect x="60" y="46" width="26" height="26" fill="#ff6418"/>
 <text x="98.0" y="68.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" fill="#ff6418" font-weight="700" text-anchor="start" >FrontierHarness Eval</text>
 <rect x="540" y="40" width="86" height="36" rx="4" fill="none" stroke="#8a8a8a"/>
@@ -84,7 +93,7 @@
 <text x="60.0" y="138.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#9a9a9a" font-weight="400" text-anchor="start" >— line: the run's own verdicts (strict pass rate)      ◆ declared repaired reading · grey band: published leaderboard (reference)</text>
 <text x="60.0" y="166.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#9a9a9a" font-weight="400" text-anchor="start" >x: full-corpus runs of this repository, oldest to newest (date · candidate · passed/30)    y: pass rate</text>
 <rect x="148" y="268" width="720" height="66" rx="6" fill="#111111" stroke="#2a2a2a"/>
-<text x="166.0" y="296.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#e8e8e8" font-weight="600" text-anchor="start" >final: run 36870673845 (da88e7a)</text>
-<text x="166.0" y="323.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#ff6418" font-weight="400" text-anchor="start" >strict 63.3% (19/30) — no declared repaired reading yet</text>
+<text x="166.0" y="296.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#e8e8e8" font-weight="600" text-anchor="start" >final: run 36915041446 (da88e7a)</text>
+<text x="166.0" y="323.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#ff6418" font-weight="400" text-anchor="start" >strict 76.7% (23/30) — no declared repaired reading yet</text>
 <text x="1620.0" y="1650.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9a9a9a" font-weight="400" text-anchor="end" >a self-run is not comparable to the published leaderboard (different runtime, isolation, network)</text>
 </svg>

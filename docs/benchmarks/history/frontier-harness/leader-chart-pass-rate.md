@@ -9,7 +9,8 @@
 | 5 | 36527461937 | 09-29 | 3ecccb4 | 46.7% (14/30) | — | 5 error / 0 not-evaluated |
 | 6 | 36658268335 | 09-30 | de63dec | 60.0% (18/30) | — | 3 error / 0 not-evaluated |
 | 7 | 36711152110 | 09-30 | cf29eea | 76.7% (23/30) | 76.7% (3 re-measured) | 3 error / 0 not-evaluated |
-| 8 | 36870673845 | 10-01 | da88e7a | 63.3% (19/30) | — | 0 error / 1 not-evaluated |
+| 8 | 36870673845 | 10-01 | da88e7a | 63.3% (19/30) | 76.7% (5 re-measured) | 0 error / 1 not-evaluated |
+| 9 | 36915041446 | 10-01 | da88e7a | 76.7% (23/30) | — | 1 error / 0 not-evaluated |
 
 Published leaderboard band: 50.0% (OpenCode, Hermes) to 66.7% (Codex); 12 entries, kimi-k3 pricing.
 

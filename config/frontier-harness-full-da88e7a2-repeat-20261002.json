@@ -88,5 +88,42 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36915041446",
   "headSha": "41493f1",
   "dispatchedAt": "2026-10-02T05:05:00Z",
-  "outcomePending": "Thirty attempts over three concurrent slots; this manifest records the dispatch and the outcome block is added when the frozen report of that run is read."
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261001T193230Z--36915041446.json",
+  "frozenRecordSha256": "629a06a8ba3b127802ca39972a3687a2d9c8d4927b766dc4f1c844faec013ea0",
+  "outcome": {
+    "present": 30,
+    "passed": 23,
+    "failed": 6,
+    "error": 1,
+    "notEvaluated": 0,
+    "validCells": 29,
+    "passRate": 0.7666666666666667,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "passAt1": null,
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "failed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-01T19:32:30Z -> 2026-10-01T21:58:13Z (about 2h26m), 33 of 33 jobs green at the workflow level; the one error cell is a provider death inside its trial, not a job failure",
+    "candidateId": null,
+    "comparisonToSourceRun": "Run 36870673845 (the same candidate, without the task-environment git-identity fix) read 19 passed / 10 failed / 1 not-evaluated. This run reads 23 passed / 6 failed / 1 error: arktype (the source run's no-verdict cell) passed 25 of 25, and the four pass-to-fail flips of the source run all pass here except code from image's neighbours — scc-bounded-memory-spilling and extract-elf and code-from-image all passed — while katex-multicolumn-array-spans and expr-try-catch-errors and python-statemachine-state-data-scoping improved from error/failed to passed. New failures against the source run: db-wal-recovery, git-leak-recovery (provider 429, see below).",
+    "failedCells": [
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval"
+    ],
+    "errorCells": [
+      "terminal-bench/git-leak-recovery"
+    ],
+    "errorCellMechanism": "terminal-bench/git-leak-recovery: the CLI's first model call was refused by the provider — 'v3 run model-failure: transport: 当前分组上游负载已饱和，请稍后再试; HTTP 429; rate_limit_error' — the process exited 1 at 91 s of its 900 s budget with no model outcome, and the harness recorded disposition=error with no rewards. That is a provider death before any answer, marked rather than graded, and under AGENTS.md it is the class a one-cell benchmark-level recovery may fill; nothing is retried inside this run.",
+    "identityFixObservation": "The task-environment git-identity fix this run carries did its job: 'unable to auto-detect email address' appears zero times in the frozen record and in the failures analysis of all thirty cells, against five datacurve cells in the source run. The provider and Docker failures of the source run are also absent: no 'Docker daemon is not running' and no public.ecr.aws 429 anywhere in this run.",
+    "evidence": "Artifact frontier-harness-report-36915041446 (report.json, report.json.md, failures.json/.md, the thirty per-task records and their raw evidence); the record is frozen beside the runs of this repository."
+  }
 }

@@ -216,14 +216,33 @@ for (const [runId, entry] of repairedByRun) {
   if (index < 0 || entry.value === null) continue;
   readingPoints.push({ index, runId, ...entry });
 }
+// Two repaired readings can sit at the same pass rate one run apart, where their
+// labels would overlap: stack a label below the previous one when it would collide.
+// A label occupies its own line *and* the smaller sub-line 21px beneath it.
+const labelBoxes = [];
+const labelY = (xPos, yPos) => {
+  let candidate = yPos + 34;
+  for (;;) {
+    const collides = labelBoxes.some(
+      (box) => Math.abs(box.x - xPos) < 176 && Math.abs(box.y - candidate) < 56,
+    );
+    if (!collides) break;
+    candidate = labelBoxes
+      .filter((box) => Math.abs(box.x - xPos) < 176 && Math.abs(box.y - candidate) < 56)
+      .reduce((lowest, box) => Math.max(lowest, box.y), candidate) + 58;
+  }
+  labelBoxes.push({ x: xPos, y: candidate });
+  return candidate;
+};
 for (const point of readingPoints) {
   const xPos = x(point.index);
   const yPos = y(point.value);
   parts.push(
     `<path d="M${xPos.toFixed(1)},${(yPos - 9).toFixed(1)} l9,9 l-9,9 l-9,-9 z" fill="#0a0a0a" stroke="#ffffff" stroke-width="2.5"/>`,
   );
-  parts.push(text(xPos, yPos + 34, `repaired ${pct(point.value)}`, { size: 18, fill: "#ffffff", anchor: "middle" }));
-  parts.push(text(xPos, yPos + 55, `${point.cells.length} cell(s) re-measured`, { size: 15, fill: stroke.dim, anchor: "middle" }));
+  const yLabel = labelY(xPos, yPos);
+  parts.push(text(xPos, yLabel, `repaired ${pct(point.value)}`, { size: 18, fill: "#ffffff", anchor: "middle" }));
+  parts.push(text(xPos, yLabel + 21, `${point.cells.length} cell(s) re-measured`, { size: 15, fill: stroke.dim, anchor: "middle" }));
 }
 
 // title block, the page's own furniture
