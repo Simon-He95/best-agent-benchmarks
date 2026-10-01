@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-docker-daemon-36870673845-20261002",
+  "passAt1": null,
+  "passAt1Note": "A one-task recovery cannot produce a pass@1 of its own, and per AGENTS.md a recovery is never merged into a formal run. Run 36870673845 keeps its own frozen record unchanged (19 passed / 10 failed / 0 error / 1 not-evaluated, verdicts.complete failed on the no-verdict cell, passAt1 null). This batch fills the one cell that carries no verdict at all and replaces none of its verdicts.",
+  "requestedBy": "User, 2026-10-02: \"看到分数还不如之前，调查一下原因如果是上游和环境问题，是要单独重跑失败的任务，然后给我一个最终bench结果\" (the score is worse than before; investigate the cause; if it is an upstream or environment problem, the failed tasks should be re-run separately, and then give a final benchmark result). The user's earlier policy of 2026-10-01 (\"环境和上游繁忙失败的任务，重跑仍然是公平的，可以作为正确的结果\") is the same standing policy this batch applies to the class AGENTS.md admits.",
+  "sourceRun": {
+    "runId": 36870673845,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36870673845",
+    "headSha": "a058ef46fadb9b405d180d81260b8639aae69d9b",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261001T134227Z--36870673845.json",
+    "frozenRecordSha256": "ab489066e62e16df4b8bbb51d966d731de91e4cb2f29c04cac1627b1527b12e5",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-cb4414e20ac4",
+    "outcome": "30 of 30 corpus tasks present; 19 passed / 10 failed / 0 error / 1 not-evaluated; validCells 29, passRate 0.6333333333333333, verdicts.complete failed on the 1 not-evaluated cell, so scoreable=false, capabilityMeasurement=false, passAt1=null. Its own failure analysis: byStage {inconclusive 4, model 4, specification-gap 2, provider 1}.",
+    "comparisonToSourceOfSource": "Run 36711152110 (candidate cf29eea8) froze 23 passed / 4 failed / 3 error with passAt1=null; the recovery chain that followed it filled all three no-verdict cells, all three on their merits, so its declared repaired reading is 23 of 30. This run's own reading stands at 19 of 30 plus whatever this batch refills."
+  },
+  "admission": {
+    "preModelEnvironmentFailure": {
+      "tasks": ["datacurve/arktype-json-schema-refs-dependencies"],
+      "class": "pre-model environment failure",
+      "evidence": "Mechanically proven from the frozen per-task record of run 36870673845, independently re-read from docs/benchmarks/history/frontier-harness/20261001T134227Z--36870673845.json (sha256 ab489066e62e16df4b8bbb51d966d731de91e4cb2f29c04cac1627b1527b12e5): the cell carries disposition=not-evaluated with no rewards object, no usage and no model outcome; its record reads durationMs 14074, pierExitCode 1, pierStdout of 0 bytes (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, the empty string) and pierStderr 'Docker daemon is not running. Please start Docker and try again.'. The trial never reached the agent phase: the report's own section records '_no agent stdout captured_' and '_no attempt evidence captured (agent never started a model loop)_', and the failures analysis classifies the cell inconclusive because no evidence exists to read. There is therefore no model request, no attempt and no prediction to overwrite. The failure is the GitHub-hosted runner's Docker daemon, i.e. the host environment the task container is created in — the same class AGENTS.md admits, and the same signature the 2026-09-30 ECR-429 recovery admitted (three no-verdict cells filled).",
+      "whyNotTheModelOrTheCandidate": "Nothing ran. No provider call, no tool call, no container."
+    },
+    "notAdmitted": [
+      {
+        "tasks": [
+          "datacurve/scc-bounded-memory-spilling",
+          "terminal-bench/extract-elf",
+          "terminal-bench/code-from-image",
+          "terminal-bench/merge-diff-arc-agi-task"
+        ],
+        "why": "All four carry a real graded prediction this run (disposition=failed with a verifier verdict and a delivered workspace), so no prediction may be replaced: scc ran its verifier to a verdict of 28 of 31 fail-to-pass with 286 of 286 pass-to-pass (model class), extract-elf delivered out.json and failed only its own address convention (model class, 'Only found 0.00% of expected values (required: 75%)'), code-from-image delivered no /app/output.txt after spending its whole 1062 s on a brute-force route (model class with an image-without-OCR-tooling trigger), and merge-diff-arc-agi-task had no git in the image and spent its 900 s budget installing it over a ~100 KB/s mirror (environment trigger with a delivered, empty status report). These four are exactly the cells whose pass→fail flip makes this run read worse than run 36711152110, and the first three are model-merit failures by their own evidence. merge-diff is the one whose primary trigger is environmental; it is measured separately as a declared diagnostic (config/frontier-harness-diagnostic-recheck-36870673845.json) and is never merged into any reading that claims to be this run's result.",
+        "oneAttemptRule": "Each of these cells already has exactly one graded attempt. A re-run would be a second chance at a cell that was already scored, which is what AGENTS.md forbids."
+      },
+      {
+        "tasks": ["terminal-bench/gcode-to-text", "terminal-bench/largest-eigenval"],
+        "why": "Both cells carry a graded attempt that was cut by the CLI's own attempt-delivery budget boundary (a 900 s budget stops its primary Run at budget minus the 180 s reserve by design), and both fail the same way in run 36711152110, where the earlier recovery manifest excluded them with the same reasoning. Nothing here is a pre-model environment failure: their evidence holds a full model loop (66 and 104 entries), a delivery Run that completed and a status report, and the task artifact is what is missing or wrong. They are excluded, and the delivery-reserve mechanism itself is reported to the user as a design question rather than repaired by a re-run.",
+        "largestEigenvalNote": "Its stage is provider (1 model failure) and its verifier segfaulted in the delivered /app/eigen.py, so its reward 0 also reflects a broken delivery; the class is still the delivery boundary, not an explicit provider transport failure of the kind that could admit a no-verdict cell."
+      },
+      {
+        "tasks": ["datacurve/expr-try-catch-errors", "datacurve/python-statemachine-state-data-scoping"],
+        "why": "Graded model failures with no environment event: each ran its verifier to a verdict (77 of 79 and 70 of 72 fail-to-pass, all pass-to-pass tests passing) and finished with terminalCause=completed and zero model failures."
+      },
+      {
+        "tasks": ["datacurve/httpx-multipart-response-parsing", "datacurve/meriyah-explicit-resource-declarations"],
+        "why": "Graded verdicts on the three declared specification gaps of the frozen profile: the pinned instruction never states the rule the hidden tests require (fold normalization for httpx, a using-declaration head whose binding is named 'of' for meriyah). Their verdicts stand, are not capability measurements, and are never refilled."
+      }
+    ]
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "cliVersion": "0.0.3-beta.41",
+    "note": "Identical to the candidate of run 36870673845, so this is a same-candidate recovery. The SEA cannot be byte-reproducible: the CI-built binary of this batch carries its own receipt (cli-0.0.3-beta.41-da88e7a-<binarySha256[:12]>) and the batch freezes it."
+  },
+  "compositionDeltasVsSourceRun": {
+    "harnessEnvironmentFix": "The dispatch's harness carries commit d13a6a1 of this repository: the task-environment git identity is now written into the local config of every repository under the workspace as well, because the CLI runs every model-issued command with GIT_CONFIG_GLOBAL=/dev/null and GIT_CONFIG_NOSYSTEM=1, so the global write the previous fix relied on was invisible to the commit that needed it (observed directly in run 36870673845: four datacurve cells paid a work-around turn). This is an environment fix: it changes what the task environment provides, never what the candidate does.",
+    "concurrency": "fh_max_parallel 3 -> 1. The single admissible cell is a datacurve cell whose image is pulled from public.ecr.aws, the service that throttled three cells in run 36711152110; serial generation is the only composition in which that throttle has never been reproduced.",
+    "everythingElse": "Unchanged: the corpus pin (frontier-harness-eval/eval e837a70b, 30 Docker-eligible tasks), the task sources, the pier pin (0.3.1), the provider (deepseek-v4.1-flash @ https://dimagent.cn/v1, compatible, dim-oauth), fh_reasoning_effort=max, fh_agent_timeout_multiplier=1 and every declared agent and verifier budget."
+  },
+  "constraints": [
+    "Only the one named no-verdict cell is attempted; every verdict of run 36870673845 and of every other run is preserved and never replaced, repaired or reinterpreted.",
+    "Same candidate and same formal-run semantics: config/frontier-harness.json#cli stays pinned at da88e7a2, fh_reasoning_effort=max and fh_agent_timeout_multiplier=1, so the cell is re-measured under the run's own effort, budgets and grader.",
+    "One predeclared headless attempt for the cell; nothing is retried inside the batch and no second dispatch is made if the cell dies again.",
+    "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "Run 36870673845 keeps its own frozen record and passAt1=null; this batch repairs no pass@1 and is never merged into one.",
+    "Nothing is published to main; the manifest and its outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "readingForComparison": {
+    "statement": "Under the user's declared policy the refilled cell counts as the correct result for the environment class, so the comparison reading of run 36870673845 is its 29 already-valid cells plus the 1 cell this batch refills.",
+    "boundary": "This reading is a user-declared policy for the comparison, not a change to any canonical record. The frozen record of run 36870673845 keeps its 1 not-evaluated cell, verdicts.complete failed and passAt1=null, and the formal pass@1 of the corpus therefore remains null; the repaired reading is reported side by side with the raw run, and any cell this batch fails to refill leaves the reading short of 30."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/arktype-json-schema-refs-dependencies",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-docker-daemon-36870673845-20261002"
+  },
+  "expectedTasks": ["datacurve/arktype-json-schema-refs-dependencies"],
+  "knownRisks": {
+    "dockerDaemon": "The failure was the runner's Docker daemon, not an image or a quota; a hosted runner that again has no daemon would leave the cell without a verdict for the same mechanical reason, and nothing is retried inside this batch.",
+    "ecrThrottle": "Serial generation removes the concurrent-pull trigger for the public.ecr.aws manifest, but a throttle caused by other tenants on the shared quota cannot be excluded.",
+    "providerTransport": "deepseek-v4.1-flash carries real transport shake in this corpus; a cell that dies that way would keep the batch from filling.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; every Generate job verifies the credential at materialization before any attempt.",
+    "budget": "The cell carries a 5400 s datacurve budget and is generated alone; its earlier passes ran 4456 s and 1424 s, so the expected window is up to about 1.5 hours."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements (run 36711152110 passed 25/25, the ECR error of the same run's first attempt, and this run's no-verdict Docker-daemon failure); mechanical attribution if it carries no verdict again; whether the attempt evidence shows a commit and whether 'unable to auto-detect email address' recurs anywhere in it (the environment fix this batch carries); the acceptance block as it applies to a 1-task subset; usage and per-call durations.",
+  "dispatched": false
+}

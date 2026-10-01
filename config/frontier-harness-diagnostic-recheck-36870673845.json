@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-recheck",
+  "batchLabel": "diagnostic-merge-diff-36870673845-20261002",
+  "passAt1": null,
+  "passAt1Note": "A diagnostic re-measurement of one already-graded cell can never produce a pass@1 and is never merged into any reading that claims to be a run's result. Its only purpose is to establish whether an environment-triggered failure reproduces under the batch's own declared composition, after the dispatch carries the environment fix that run 36870673845's harness was missing in effect.",
+  "requestedBy": "User, 2026-10-02: \"看到分数还不如之前，调查一下原因如果是上游和环境问题，是要单独重跑失败的任务，然后给我一个最终bench结果\". The attribution of this session found exactly one cell whose flip from pass to fail has an upstream/environment trigger as its primary cause (merge-diff-arc-agi-task: the task image ships no git, and the attempt spent its whole budget installing it over a ~100 KB/s mirror). This batch re-measures that cell; the recovery of the same date (config/frontier-harness-recovery-36870673845.json) fills the one no-verdict cell.",
+  "sourceRun": {
+    "runId": 36870673845,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36870673845",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261001T134227Z--36870673845.json",
+    "frozenRecordSha256": "ab489066e62e16df4b8bbb51d966d731de91e4cb2f29c04cac1627b1527b12e5",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-cb4414e20ac4",
+    "cellAsMeasured": "terminal-bench/merge-diff-arc-agi-task: disposition=failed, reward=0, durationMs 776782 of its 900 s budget, terminalCause=stopped / deliveryTerminalCause=completed, 58 evidence entries, 6 failed tool closures of which three are 'no executable named \"git\" on the frozen PATH'; the verifier failed all five of its tests, including test_git_repo_init and test_algo_py_exists, because no repository and no /app/repo/algo.py were ever created. The attempt's own stdout records the chain: git and python3 absent, apt-get update succeeding, a background install of ~96 packages still downloading at ~100 KB/s when the delivery boundary cancelled the primary Run.",
+    "cellBeforeThat": "The same cell passed in run 36711152110 (candidate cf29eea8) in 362 s with 879,619 prompt tokens, i.e. within the same budget and the same pinned image, so the failure is not attributable to the cell's solver being impossible in this environment."
+  },
+  "whatThisBatchIsNot": [
+    "It is not a recovery: the cell has a graded prediction, and no prediction may be replaced.",
+    "It is not part of run 36870673845's reading. Whatever it measures, the run keeps 19 passed of 30 and the reading declared for it stays the recovery's refill, never this cell's second attempt.",
+    "It is not a capability measurement of the candidate: it is a mechanically labelled re-measurement of one cell whose first attempt died on a missing tool and a slow mirror."
+  ],
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "cliVersion": "0.0.3-beta.41",
+    "note": "Same candidate as the run under diagnosis, so the only intended difference between this cell's two attempts is the composition delta recorded below."
+  },
+  "compositionDeltasVsSourceRun": {
+    "harnessEnvironmentFix": "Commit d13a6a1 of this repository: the task environment's git identity now reaches the repository's own .git/config, not only the agent user's global config (which the CLI's benchmark environment hides from every model-issued command). For this cell the difference is secondary — its image ships no git at all — but the batch must not be read as byte-identical to the run it diagnoses.",
+    "concurrency": "fh_max_parallel 3 -> 1, the same serial shape the recovery of this date uses, so a shared-quota image pull cannot explain a second failure.",
+    "everythingElse": "Unchanged: corpus pin, task sources, pier pin (0.3.1), provider (deepseek-v4.1-flash, effort max), fh_agent_timeout_multiplier=1 and this cell's own 900 s budget."
+  },
+  "constraints": [
+    "Only the one named cell is attempted; every verdict of run 36870673845 and of every other run is preserved and never replaced.",
+    "One predeclared headless attempt; nothing is retried inside the batch and no second dispatch is made if it fails the same way.",
+    "The official budgets are preserved and never extended.",
+    "Run 36870673845 keeps its own frozen record, and this batch's result is reported beside it as a diagnostic, never inside it."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/merge-diff-arc-agi-task",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "diagnostic-merge-diff-36870673845-20261002"
+  },
+  "expectedTasks": ["terminal-bench/merge-diff-arc-agi-task"],
+  "knownRisks": {
+    "sameEnvironment": "The image is pinned by the corpus; if it still ships no git and the apt mirror is still slow, the same failure reproduces and the class is confirmed rather than repaired.",
+    "providerTransport": "A transport failure would leave this cell unmeasured, which is recorded as such and not retried.",
+    "budget": "The cell carries a 900 s budget and is generated alone; its earlier attempt stopped at the delivery boundary after 777 s, so the batch is expected to take about 15 minutes."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the cell's disposition and reward against its two earlier measurements (passed in run 36711152110, failed here); whether git exists in the image at all (any 'no executable named \"git\"' closure, and what the attempt's reconnaissance finds); whether the attempt ever reached the task's own work (a git repository under /app/repo, bundle fetches, a merged algo.py) instead of spending its budget on tool installation; and the exact timeout/termination shape of the primary Run.",
+  "dispatched": false
+}
