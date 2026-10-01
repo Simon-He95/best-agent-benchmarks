@@ -63,9 +63,14 @@ function parseArgs(argv) {
   return parsed;
 }
 
-const args = parseArgs(process.argv.slice(2));const recordBytes = readFileSync(args.record);
+const args = parseArgs(process.argv.slice(2));
+const recordBytes = readFileSync(args.record);
 const recordSha256 = createHash("sha256").update(recordBytes).digest("hex");
 const record = JSON.parse(recordBytes.toString("utf8"));
+// The frozen aggregate record does not carry the run id inside itself; the file
+// name does (`...--<runId>.json`), so a reader still sees which run is repaired.
+const runId = record.formalRunId ?? Number(/(\d{6,})\.json$/u.exec(args.record)?.[1]);
+const runIdLabel = Number.isFinite(runId) && runId !== null ? runId : "unknown";
 
 const cells = new Map();
 for (const entry of record.perTask ?? []) {
@@ -162,7 +167,7 @@ const output = {
   profileId: record.profileId,
   recordKind: args.official ? "official-repaired-reading" : "repaired-reading",
   sourceRun: {
-    runId: record.formalRunId ?? null,
+    runId: runIdLabel,
     frozenRecord: args.record.slice(resolve(".").length + 1),
     frozenRecordSha256: recordSha256,
     results: record.results,
@@ -203,7 +208,7 @@ const output = {
         ofExpected: expected,
         label:
           "FrontierHarness Eval v1.0, run " +
-          `${record.formalRunId ?? "unknown"} on candidate ` +
+          `${runIdLabel} on candidate ` +
           `${record.cli?.sourceCommit ?? "the frozen candidate"}` +
           (repairedCells.length > 0
             ? `; ${repairedCells.length} cell(s) re-measured once each under a frozen, declared manifest`
@@ -232,7 +237,7 @@ const lines = [
   `| record verdicts | ${record.results.passed} passed / ${record.results.failed} failed / ${record.results.error} error / ${output.sourceRun.results.notEvaluated ?? 0} not-evaluated |`,
   `| repaired cells | ${repairedCells.length} (one extra attempt each) |`,
   `| repaired reading | **${reading.passed} passed / ${reading.failed} failed / ${reading.error} error / ${reading.notEvaluated} not-evaluated** |`,
-  `| pass rate (repaired, diagnostic) | ${output.repairedReading.passRate === null ? "n/a" : `${(output.repairedReading.passRate * 100).toFixed(1)}%`} |`,  `| pass@1 | null — a repaired reading is never a pass@1 |`,
+  `| pass rate (repaired, diagnostic) | ${output.repairedReading.passRate === null ? "n/a" : `${(output.repairedReading.passRate * 100).toFixed(1)}%`} |`,  `| pass@1 (strict, one attempt per task) | null — the official result above is the repaired pass rate, and the raw record below is what that number was built from |`,
   ``,
   `| cell | in the record | re-measured | class | batch |`,
   `| --- | --- | --- | --- | --- |`,
