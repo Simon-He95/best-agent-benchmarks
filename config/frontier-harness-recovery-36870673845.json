@@ -99,5 +99,40 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36897458786",
   "headSha": "342365db077cf4f721bbfbfcc32ab5337bdee532",
   "dispatchedAt": "2026-10-02T01:10:41Z",
-  "outcomePending": "Generation is in flight; this manifest records the dispatch, and the outcome block is added when the frozen report of that run is read."
+  "outcome": {
+    "present": 1,
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 1,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "runWindow": "2026-10-02T01:10:41Z -> 2026-10-02T02:07Z (about 56 minutes); the three freeze jobs and the aggregate job succeeded, the Generate job failed after its trial had finished",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-efda7dfb1b7c",
+    "candidateBinarySha256": "efda7dfb1b7cdcaf7b61b803639faa1240ce326897c1aace3a77d97660cba9cc",
+    "cellAsReMeasured": "datacurve/arktype-json-schema-refs-dependencies: FAILED, reward 0, fail-to-pass 23 of 25, pass-to-pass 1679 of 1679, partial 0.99883; the attempt ran its whole budget window from 2026-10-01T17:13:19.637Z to 18:06:59.394Z (3,219,757 ms of its 5400 s budget) and committed its work on branch feat/json-schema-refs-dependencies-conditionals (commit a98e4c7b, 15 files), reporting 74 package tests and 1723 repository tests passing against two hidden fail-to-pass cases that did not pass. Usage: 143,037,393 input tokens (142,157,952 cached) and 137,925 output tokens.",
+    "transcription": "This verdict did not come from a harness record: the harness crashed AFTER pier had finished the trial, so its record was never written and the aggregate could only report the cell as missing. The crash was this repository's own defect — `readFileSync(evidencePath, \"utf8\")` on an attempt whose evidence file is 536 MiB, past the longest string V8 can build (`Error: Cannot create a string longer than 0x1fffffe8 characters`, job log 2026-10-01T18:07:00Z) — and it is fixed in this repository's next commit: the summarizer now reads the evidence as bytes and a classification failure degrades to `inconclusive` with the error named, so no attempt can lose its record this way again. The verdict above is transcribed from the trial artifacts the run preserved (reward.json, result.json with its verifier rewards, the agent's own stdout and stderr, the attempt-timing and process-receipt files, and the collected model.patch), not re-measured: the cell keeps the one extra attempt this batch declared, and nothing here is a second attempt.",
+    "outcomeCells": "The machine-readable re-measured verdict the official repaired reading consumes is outcome.cells below.",
+    "cells": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 25,
+          "f2p_passed": 23,
+          "p2p_total": 1679,
+          "p2p_passed": 1679,
+          "f2p": 0.92,
+          "p2p": 1,
+          "partial": 0.9988262910798122
+        },
+        "durationMs": 3219757,
+        "class": "pre-model-environment-failure",
+        "transcribedFrom": "run 36897458786 trial artifacts; the harness record was lost to the evidence-size defect fixed in this repository's next commit"
+      }
+    ]
+  }
 }

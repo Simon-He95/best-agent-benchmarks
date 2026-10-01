@@ -1504,6 +1504,47 @@ test("a repaired reading replaces nothing in the record and counts every extra a
   assert.match(officialMarkdown, /Official result: 66\.7% repaired pass rate/u);
 });
 
+test("an attempt's evidence is summarized from bytes, so a huge file cannot cost the record", async () => {
+  const { summarizeAttemptEvidence, classifyTrialOutcomeOrDegrade } = await import(
+    `../scripts/frontier-harness-harness.mjs?evidence-bytes=${Date.now()}`
+  );
+  const lines = [
+    '{"type":"header","rootRunId":"[\\"run\\",1,1]","sequence":0}',
+    '{"type":"model-outcome","resourceId":"[\\"run\\",1,1]","sequence":1}',
+    '{"type":"model-failure","resourceId":"[\\"run\\",1,1]","failure":{"reason":"transport"},"sequence":2}',
+    '{"type":"terminal-snapshot","resourceId":"[\\"run\\",1,1]","snapshot":{"terminalCause":"model-failure"},"sequence":3}',
+  ];
+  // An attempt's evidence file can outgrow the longest string V8 can hold (a 536 MiB
+  // file did exactly that on 2026-10-02), so the record path hands the summarizer
+  // bytes. Bytes and text are the same computation; only one of them can be too big.
+  const byText = summarizeAttemptEvidence(lines.join("\n"));
+  assert.deepEqual(summarizeAttemptEvidence(Buffer.from(lines.join("\n"), "utf8")), byText);
+  assert.deepEqual(byText, {
+    present: true,
+    modelOutcomes: 1,
+    terminalCause: "model-failure",
+    modelFailureReasons: ["transport"],
+  });
+  // A classification that cannot read its evidence still produces a record: the
+  // verdict degrades to inconclusive (kept out of the numerator) and names the error.
+  const degraded = classifyTrialOutcomeOrDegrade({
+    trialResult: {
+      get verifier_result() {
+        throw new Error("Cannot create a string longer than 0x1fffffe8 characters");
+      },
+    },
+    evidenceText: Buffer.from("{}\n", "utf8"),
+  });
+  assert.equal(degraded.disposition, "inconclusive");
+  assert.match(degraded.evidenceSummaryError, /Cannot create a string/u);
+  const harnessSource = readFileSync(
+    resolve(repoRoot, "scripts/frontier-harness-harness.mjs"),
+    "utf8",
+  );
+  assert.match(harnessSource, /readFileSync\(evidencePath\)/u);
+  assert.doesNotMatch(harnessSource, /readFileSync\(evidencePath, "utf8"\)/u);
+});
+
 test("a task environment's git identity comes from this host and is never empty", async () => {
   const { resolveGitIdentity } = await import(
     `../scripts/frontier-harness-harness.mjs?git-identity=${Date.now()}`

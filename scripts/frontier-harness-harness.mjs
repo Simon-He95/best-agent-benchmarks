@@ -529,17 +529,41 @@ const PROVIDER_FAILURE_REASONS = new Set(["connection", "transport"]);
  * were written for the primary Run, its terminal cause, and why its model calls failed.
  * For a single-Run legacy record, the footer count remains authoritative.
  *
+ * The input may be the file's text or its bytes. Bytes are what the record path
+ * passes, because an attempt's evidence can grow past the longest string V8 can
+ * hold (2^29 - 24 characters, about 512 MiB) and `readFileSync(path, "utf8")` then
+ * throws `Cannot create a string longer than 0x1fffffe8 characters`, which cost a
+ * real recovery cell its record on 2026-10-02 (a 536 MiB attempt evidence file).
+ * Splitting the bytes on newlines keeps every string the parser sees line-sized.
+ *
  * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
  */
 export function summarizeAttemptEvidence(evidenceText) {
-  if (typeof evidenceText !== "string" || evidenceText.trim() === "") {
-    return {
-      present: false,
-      modelOutcomes: null,
-      terminalCause: null,
-      modelFailureReasons: [],
-    };
+  const state = createEvidenceSummary();
+  if (typeof evidenceText === "string") {
+    if (evidenceText.trim() === "") return state.result();
+    for (const line of evidenceText.split("\n")) state.feed(line);
+  } else if (Buffer.isBuffer(evidenceText)) {
+    if (evidenceText.length === 0) return state.result();
+    let lineStart = 0;
+    for (;;) {
+      const lineEnd = evidenceText.indexOf(0x0a, lineStart);
+      if (lineEnd === -1) break;
+      state.feed(evidenceText.toString("utf8", lineStart, lineEnd));
+      lineStart = lineEnd + 1;
+    }
+    state.feed(evidenceText.toString("utf8", lineStart));
+  } else {
+    return state.result();
   }
+  return state.result();
+}
+
+/**
+ * The reducer behind `summarizeAttemptEvidence`. Feeding it line by line, from a
+ * string or from a file's bytes, is the same computation either way.
+ */
+function createEvidenceSummary() {
   let footerOutcomes = null;
   let countedOutcomes = 0;
   let primaryOutcomes = 0;
@@ -547,47 +571,61 @@ export function summarizeAttemptEvidence(evidenceText) {
   let deliveryTerminalCause = null;
   let rootRunId = null;
   const modelFailureReasons = [];
-  for (const line of evidenceText.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    let entry;
-    try {
-      entry = JSON.parse(trimmed);
-    } catch {
-      continue;
-    }
-    if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
-      countedOutcomes += 1;
-      if (entry.resourceId === rootRunId) primaryOutcomes += 1;
-    }
-    if (entry?.type === "header") rootRunId = entry.rootRunId;
-    if (entry?.type === "model-failure" && (rootRunId === null || entry.resourceId === rootRunId)) {
-      // The frozen CLI nests the fact as `failure.reason`; older artifacts
-      // carry the same value as a flat `reason`.
-      const reason = entry.failure?.reason ?? entry.reason;
-      if (typeof reason === "string" && reason.trim() !== "") {
-        modelFailureReasons.push(reason.trim());
-      }
-    }
-    if (entry?.type === "footer" && entry.writtenCounts) {
-      if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
-        footerOutcomes = entry.writtenCounts.modelOutcome;
-      }
-    }
-    if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
-      if (rootRunId === null || entry.resourceId === rootRunId) {
-        terminalCause = String(entry.snapshot.terminalCause);
-      } else {
-        deliveryTerminalCause = String(entry.snapshot.terminalCause);
-      }
-    }
-  }
+  let sawContent = false;
   return {
-    present: true,
-    modelOutcomes: rootRunId === null ? footerOutcomes ?? countedOutcomes : primaryOutcomes,
-    terminalCause,
-    ...(deliveryTerminalCause === null ? {} : { deliveryTerminalCause }),
-    modelFailureReasons,
+    feed(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      sawContent = true;
+      let entry;
+      try {
+        entry = JSON.parse(trimmed);
+      } catch {
+        return;
+      }
+      if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
+        countedOutcomes += 1;
+        if (entry.resourceId === rootRunId) primaryOutcomes += 1;
+      }
+      if (entry?.type === "header") rootRunId = entry.rootRunId;
+      if (entry?.type === "model-failure" && (rootRunId === null || entry.resourceId === rootRunId)) {
+        // The frozen CLI nests the fact as `failure.reason`; older artifacts
+        // carry the same value as a flat `reason`.
+        const reason = entry.failure?.reason ?? entry.reason;
+        if (typeof reason === "string" && reason.trim() !== "") {
+          modelFailureReasons.push(reason.trim());
+        }
+      }
+      if (entry?.type === "footer" && entry.writtenCounts) {
+        if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
+          footerOutcomes = entry.writtenCounts.modelOutcome;
+        }
+      }
+      if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
+        if (rootRunId === null || entry.resourceId === rootRunId) {
+          terminalCause = String(entry.snapshot.terminalCause);
+        } else {
+          deliveryTerminalCause = String(entry.snapshot.terminalCause);
+        }
+      }
+    },
+    result() {
+      if (!sawContent) {
+        return {
+          present: false,
+          modelOutcomes: null,
+          terminalCause: null,
+          modelFailureReasons: [],
+        };
+      }
+      return {
+        present: true,
+        modelOutcomes: rootRunId === null ? footerOutcomes ?? countedOutcomes : primaryOutcomes,
+        terminalCause,
+        ...(deliveryTerminalCause === null ? {} : { deliveryTerminalCause }),
+        modelFailureReasons,
+      };
+    },
   };
 }
 
@@ -601,9 +639,13 @@ export function summarizeAttemptEvidence(evidenceText) {
  * unreachable, quota exhausted, gateway error). Both are environment/provider
  * deaths, recorded as `error` — never scored as a task failure — matching the
  * benchmark rule that infrastructure deaths are marked rather than graded.
+ *
+ * `evidenceText` accepts the evidence's text or its bytes; see
+ * `summarizeAttemptEvidence` for why the record path passes bytes.
  */
 export function classifyTrialOutcome({ trialResult, evidenceText }) {
   const evidence = summarizeAttemptEvidence(evidenceText);
+
   const verifier = trialResult?.verifier_result;
   const hasRewards =
     verifier && verifier.rewards && Object.keys(verifier.rewards).length > 0;
@@ -669,6 +711,42 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
     return { disposition: "error", exception, ...evidenceFields };
   }
   return { disposition: "inconclusive", ...evidenceFields };
+}
+
+/**
+ * Transcribe a trial, and never lose the record to a classification failure.
+ *
+ * Every other step of a run is reconstructible from its artifacts; the record is
+ * the one thing that is not, and a cell without a record is a cell the aggregate
+ * can only report as missing (observed once: a 536 MiB evidence file made
+ * `readFileSync(path, "utf8")` throw, the harness exited 1, and the attempt's own
+ * graded verdict was never transcribed). So an unexpected failure here degrades to
+ * `inconclusive` — the vocabulary's word for "the available evidence does not
+ * prove one cause" — keeps the verifier's own rewards, and names the error in the
+ * record, which keeps the cell out of the numerator instead of inventing a verdict
+ * for it or dropping it.
+ */
+export function classifyTrialOutcomeOrDegrade({ trialResult, evidenceText }) {
+  try {
+    return classifyTrialOutcome({ trialResult, evidenceText });
+  } catch (error) {
+    // The fallback must not throw either: whatever the trial result is, the record
+    // is still written.
+    let rewards;
+    try {
+      const verifier = trialResult?.verifier_result;
+      if (verifier?.rewards && Object.keys(verifier.rewards).length > 0) {
+        rewards = verifier.rewards;
+      }
+    } catch {
+      rewards = undefined;
+    }
+    return {
+      disposition: "inconclusive",
+      evidenceSummaryError: error instanceof Error ? error.message : String(error),
+      ...(rewards ? { rewards } : {}),
+    };
+  }
 }
 
 function runPier(pierBin, args, env, stdioBase) {
@@ -829,11 +907,14 @@ async function main() {
   const trialResult = trialDir
     ? JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8"))
     : undefined;
+  // Bytes, not text: this file can outgrow the longest string V8 can hold, and a
+  // failure to read it must not cost the attempt its record (see
+  // classifyTrialOutcomeOrDegrade).
   const outcome = trialResult
-    ? classifyTrialOutcome({
+    ? classifyTrialOutcomeOrDegrade({
         trialResult,
         evidenceText: evidencePath && existsSync(evidencePath)
-          ? readFileSync(evidencePath, "utf8")
+          ? readFileSync(evidencePath)
           : undefined,
       })
     : { disposition: "not-evaluated" };
