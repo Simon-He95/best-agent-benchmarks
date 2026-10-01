@@ -93,5 +93,11 @@
     "budget": "The cell carries a 5400 s datacurve budget and is generated alone; its earlier passes ran 4456 s and 1424 s, so the expected window is up to about 1.5 hours."
   },
   "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements (run 36711152110 passed 25/25, the ECR error of the same run's first attempt, and this run's no-verdict Docker-daemon failure); mechanical attribution if it carries no verdict again; whether the attempt evidence shows a commit and whether 'unable to auto-detect email address' recurs anywhere in it (the environment fix this batch carries); the acceptance block as it applies to a 1-task subset; usage and per-call durations.",
-  "dispatched": false
+  "dispatchInputsResolved": "fh_tasks single cell, fh_limit 1, fh_max_parallel 1, effort max, timeout multiplier 1, batch label recovery-docker-daemon-36870673845-20261002.",
+  "dispatched": true,
+  "runId": 36897458786,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36897458786",
+  "headSha": "342365db077cf4f721bbfbfcc32ab5337bdee532",
+  "dispatchedAt": "2026-10-02T01:10:41Z",
+  "outcomePending": "Generation is in flight; this manifest records the dispatch, and the outcome block is added when the frozen report of that run is read."
 }
