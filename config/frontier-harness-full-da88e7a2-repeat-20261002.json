@@ -83,5 +83,10 @@
     "fh_batch": "full-da88e7a2-repeat-20261002"
   },
   "plannedChecks": "After the report artifact is downloaded: the acceptance block and whether this is the first scoreable full run of the profile; the disposition table against run 36870673845 cell by cell, marking the environment-driven cells and the declared specification gaps; the tool-closure histogram of every cell, checking that no closure is a bare invalid-input and that the identity-refusal class is gone (the environment fix this run carries); usage and per-call durations against the previous run; and whether any environment death (Docker daemon, apt mirror, ECR throttle) recurs at width 3.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 36915041446,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36915041446",
+  "headSha": "41493f1",
+  "dispatchedAt": "2026-10-02T05:05:00Z",
+  "outcomePending": "Thirty attempts over three concurrent slots; this manifest records the dispatch and the outcome block is added when the frozen report of that run is read."
 }
