@@ -18,25 +18,51 @@ def _required_env(key: str) -> str:
 
 
 def _git_identity_command() -> str:
-    """One idempotent write of the attempt's frozen git identity into the agent's
-    global git config.
+    """One idempotent write of the attempt's frozen git identity into the task
+    environment, in the two places a commit can read it.
 
     A task image ships no git identity of its own, so a model commit stops at
-    "unable to auto-detect email address" — observed in a real attempt — and the
-    model then spends a turn working around it on every commit. The identity is
-    read from the harness host and passed in, so the task environment carries the
-    same one the run declared. `git` itself is optional in a task image: an image
-    without it is left as it is instead of failing the attempt.
+    "unable to auto-detect email address" and the attempt then pays a turn to work
+    around it. Writing the agent user's global config alone does not fix that: the
+    CLI runs every command the model issues with ``GIT_CONFIG_GLOBAL=/dev/null``
+    and ``GIT_CONFIG_NOSYSTEM=1`` (its own comment calls the chain deterministic),
+    so such a commit reads no global config at all. Observed in run 36870673845:
+    the global write had already run and the model's ``git config --list
+    --show-origin`` still reported nothing but ``file:.git/config``.
+
+    The identity therefore goes into the agent's global config (for commands that
+    do read it) and into the local config of every repository already present under
+    the workspace, which is the only channel a model-issued commit has. Repositories
+    are found by bounded path expansion rather than `find`, so no extra tool has to
+    exist; `git` is optional in a task image; a repository that already declares an
+    identity keeps it; and a write that fails is a setup failure, never a silently
+    skipped one.
     """
     name = _required_env("BEST_AGENT_GIT_IDENTITY_NAME")
     email = _required_env("BEST_AGENT_GIT_IDENTITY_EMAIL")
     for value in (name, email):
         if any(character in value for character in ("\n", "\r", "\0")):
             raise RuntimeError("BEST_AGENT_GIT_IDENTITY_* must be a single line")
+    workspace = os.environ.get("BEST_AGENT_CLI_WORKSPACE") or "/app"
+    quoted_name = shlex.quote(name)
+    quoted_email = shlex.quote(email)
     return (
-        "set -e; if command -v git >/dev/null 2>&1; then "
-        f"git config --global --replace-all user.name {shlex.quote(name)}; "
-        f"git config --global --replace-all user.email {shlex.quote(email)}; "
+        "set -e; if command -v git >/dev/null 2>&1; then\n"
+        f"git config --global --replace-all user.name {quoted_name}\n"
+        f"git config --global --replace-all user.email {quoted_email}\n"
+        f"for root in {shlex.quote(workspace)} \"$HOME\"; do\n"
+        '  for candidate in "$root"/.git "$root"/*/.git "$root"/*/*/.git'
+        ' "$root"/*/*/*/.git; do\n'
+        '    if [ -d "$candidate" ]; then\n'
+        '      git --git-dir="$candidate" config --local --get user.name'
+        ' >/dev/null 2>&1'
+        f" || git --git-dir=\"$candidate\" config user.name {quoted_name}\n"
+        '      git --git-dir="$candidate" config --local --get user.email'
+        ' >/dev/null 2>&1'
+        f" || git --git-dir=\"$candidate\" config user.email {quoted_email}\n"
+        "    fi\n"
+        "  done\n"
+        "done\n"
         "fi"
     )
 
