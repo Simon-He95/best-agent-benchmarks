@@ -63,5 +63,54 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36905842019",
   "headSha": "ad5daac",
   "dispatchedAt": "2026-10-02T03:15:00Z",
-  "outcomePending": "The three cells are generated serially; this manifest records the dispatch and the outcome block is added when the frozen report of that run is read."
+  "outcome": {
+    "present": 3,
+    "passed": 3,
+    "failed": 0,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 3,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "runWindow": "2026-10-02T03:15Z -> 2026-10-02T04:05Z (about 50 minutes); 5 of 5 jobs green, the three cells generated serially",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-a49d893bae46",
+    "candidateBinarySha256": "a49d893bae46172ed7eca98cc7e79a696215817aa070fcd1b5ee54b6f905c75d",
+    "acceptance": "coverage.full failed by design (3 of 30 predeclared), verdicts.complete passed, candidate.single passed (one candidate across the three records), provider.single passed, instructions.frozen passed -> scoreable=false, capabilityMeasurement=false, passAt1=null (diagnostic)",
+    "result": "All three cells PASSED when re-measured once each, alone, on the same candidate: datacurve/scc-bounded-memory-spilling 31 of 31 fail-to-pass and 286 of 286 pass-to-pass (reward 1) in 1,233,689 ms of its 5400 s budget with 129 model outcomes; terminal-bench/code-from-image reward 1 in 259,419 ms of its 1200 s budget with 26 model outcomes; terminal-bench/extract-elf reward 1 in 746,174 ms of its 900 s budget with 46 model outcomes.",
+    "reading": "The three pass-to-fail flips of run 36870673845 are run-to-run variation under this composition, not a systematic regression of the candidate: the same candidate, same budgets, same grader and same task sources pass all three cells when each gets its own serial attempt. Nothing else is claimed — a re-measurement that agrees with either measurement is one observation, and the source run keeps the verdicts it measured.",
+    "outcomeCells": "The machine-readable re-measured verdicts the official repaired reading consumes are outcome.cells below.",
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "disposition": "passed",
+        "rewards": {
+          "reward": 1,
+          "f2p_total": 31,
+          "f2p_passed": 31,
+          "p2p_total": 286,
+          "p2p_passed": 286,
+          "f2p": 1,
+          "p2p": 1,
+          "partial": 1
+        },
+        "durationMs": 1233689,
+        "class": "variance-check"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "passed",
+        "rewards": { "reward": 1 },
+        "durationMs": 259419,
+        "class": "variance-check"
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "disposition": "passed",
+        "rewards": { "reward": 1 },
+        "durationMs": 746174,
+        "class": "variance-check"
+      }
+    ]
+  }
 }
