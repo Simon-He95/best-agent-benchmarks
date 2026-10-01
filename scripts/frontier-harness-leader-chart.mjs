@@ -106,7 +106,9 @@ for (const name of readdirSync(historyDir).sort()) {
   });
 }
 // A comparison point is a repaired reading of the run it names in its provenance.
-for (const name of readdirSync(historyDir)) {
+// A comparison that refilled no cell is not a repaired reading at all: its pass rate
+// is the run's own strict verdicts, already drawn as a point of the strict series.
+for (const name of readdirSync(historyDir).sort()) {
   if (!name.startsWith("leaderboard-comparison-") || !name.endsWith(".json")) continue;
   const comparison = readJson(join(historyDir, name));
   const primary = comparison.provenance?.primaryRecord;
@@ -118,6 +120,7 @@ for (const name of readdirSync(historyDir)) {
   const refilled = Array.isArray(comparison.reading?.refilledFromRecovery)
     ? comparison.reading.refilledFromRecovery.length
     : 0;
+  if (refilled === 0) continue;
   repairedByRun.set(runId, {
     file: name,
     value: point.passRate,
