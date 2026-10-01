@@ -888,3 +888,30 @@ test("workflow reuses the pinned candidate and keeps the rebuild an explicit cho
     }
   }
 });
+
+test("a task environment's git identity comes from this host and is never empty", async () => {
+  const { resolveGitIdentity } = await import(
+    `../scripts/terminal-bench-harness.mjs?git-identity=${Date.now()}`
+  );
+  const keys = ["BEST_AGENT_GIT_IDENTITY_NAME", "BEST_AGENT_GIT_IDENTITY_EMAIL"];
+  const saved = new Map(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.BEST_AGENT_GIT_IDENTITY_NAME = "Override Agent";
+    process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = "override@example.invalid";
+    assert.deepEqual(resolveGitIdentity(), {
+      name: "Override Agent",
+      email: "override@example.invalid",
+    });
+    delete process.env.BEST_AGENT_GIT_IDENTITY_NAME;
+    delete process.env.BEST_AGENT_GIT_IDENTITY_EMAIL;
+    const resolved = resolveGitIdentity();
+    assert.ok(resolved.name.length > 0, "a name is always resolved");
+    assert.ok(resolved.email.includes("@"), "an address is always resolved");
+  } finally {
+    for (const key of keys) {
+      const value = saved.get(key);
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});

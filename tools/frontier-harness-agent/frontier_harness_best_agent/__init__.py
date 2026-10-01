@@ -24,6 +24,30 @@ def _required_env(key: str) -> str:
     return value
 
 
+def _git_identity_command() -> str:
+    """One idempotent write of the attempt's frozen git identity into the agent's
+    global git config.
+
+    A task image ships no git identity of its own, so a model commit stops at
+    "unable to auto-detect email address" — observed in a real attempt — and the
+    model then spends a turn working around it on every commit. The identity is
+    read from the harness host and passed in, so the task environment carries the
+    same one the run declared. `git` itself is optional in a task image: an image
+    without it is left as it is instead of failing the attempt.
+    """
+    name = _required_env("BEST_AGENT_GIT_IDENTITY_NAME")
+    email = _required_env("BEST_AGENT_GIT_IDENTITY_EMAIL")
+    for value in (name, email):
+        if any(character in value for character in ("\n", "\r", "\0")):
+            raise RuntimeError("BEST_AGENT_GIT_IDENTITY_* must be a single line")
+    return (
+        "set -e; if command -v git >/dev/null 2>&1; then "
+        f"git config --global --replace-all user.name {shlex.quote(name)}; "
+        f"git config --global --replace-all user.email {shlex.quote(email)}; "
+        "fi"
+    )
+
+
 def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
     """Read the run's provider-reported usage from the CLI's durable thread store.
 
@@ -184,6 +208,9 @@ class BestAgentCli(BaseInstalledAgent):
             environment,
             command="set -e; mkdir -p -- " + shlex.quote(f"{home}/.best-agent") + " " + shlex.quote(f"{home}/.dimcode/dimcode"),
         )
+        # The task environment's git identity: a commit the model makes is part of
+        # the workspace the verifier grades, and an image with no identity refuses it.
+        await self.exec_as_agent(environment, command=_git_identity_command())
         for source, target in files:
             await environment.upload_file(str(source), target)
         targets = " ".join(shlex.quote(target) for _, target in files)

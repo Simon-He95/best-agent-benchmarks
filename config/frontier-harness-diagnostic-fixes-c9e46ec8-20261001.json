@@ -267,6 +267,23 @@
     "issue174": "Before: both terminal-bench cells ended with delivery terminal cause model-output-too-large, the CLI exited 1 (NonZeroAgentExitCodeError) and the two cells carried no verdict at all; the source run's aggregate therefore reported verdicts.complete failed. After: both cells end with primary terminal cause stopped and delivery terminal cause completed, the CLI exits 0 with an adopted status report, and this batch's aggregate reports verdicts.complete PASSED (7 present, 0 missing, 0 error, 0 not-evaluated). The 180 s reserve itself is unchanged by design, so both cells still stop their primary Run at ~720 s of 900 s.",
     "katex": "The one cell whose verdict changed: before failed with f2p 0/94, after PASSED with f2p 94/94 and zero failed tool closures. No closure shape in the before-image maps to one of the 7 fixed defects (its before-image failures were 5 edit occurrence-mismatch and 3 not-invoked refusals), so this is recorded as the measured outcome of a single attempt, not as an attribution to a specific fix."
   },
+  "environmentFixForNextDispatch": {
+    "what": "The task environment now carries a git identity. A task image ships none, so a model commit stops at 'fatal: unable to auto-detect email address (got root@<container>.(none))' — visible once in this batch's own evidence (httpx-multipart-response-parsing) and six times across run 36711152110's family — and the attempt then pays a turn to work around it with `-c user.name=... -c user.email=...` on every later commit.",
+    "owner": "The harness resolves the identity on its own host (an explicit BEST_AGENT_GIT_IDENTITY_* override, then this machine's git configuration, then git's own environment detection, then a neutral best-agent/best-agent@localhost fallback) and hands it to the plugin, which writes it into the agent's global git config, as the agent user, before the attempt starts. On the machine that dispatched this batch that resolves to 何健 <hejian@Simon-2.local>; a task image without git is left untouched instead of failing the attempt.",
+    "touched": [
+      "scripts/frontier-harness-harness.mjs",
+      "scripts/terminal-bench-harness.mjs",
+      "tools/frontier-harness-agent/frontier_harness_best_agent/__init__.py",
+      "tools/terminal-bench-agent/terminal_bench_best_agent/__init__.py",
+      "test/frontier-harness-agent.test.py",
+      "test/terminal-bench-agent.test.py",
+      "test/frontier-harness.test.mjs",
+      "test/terminal-bench.test.mjs"
+    ],
+    "notPartOfThisBatch": "Run 36810567609 already ran on the old composition, which is why its evidence still shows the workaround. The fix changes the next dispatch only; it repairs, replaces and reinterprets nothing here, and it belongs to the environment class rather than to capability.",
+    "verified": "Both plugin suites pass (frontier-harness-agent 9/9; terminal-bench-agent 7 tests with 4 docker fixtures skipped because TB_AGENT_TEST_IMAGE is unset) and both node suites pass 43/43, including a new test that pins the resolution order; the plugin's own command was then executed on this host with a scratch HOME, where a real commit carried the frozen identity and an empty PATH (no git) was tolerated.",
+    "sideFix": "test/terminal-bench-agent.test.py's record-count assertion was already wrong at HEAD (it asserted 4 while the plugin issued 5, because run() adds a workspace `pwd`); it now states the true sequence — metadata, mkdir, git identity, chown, pwd, CLI — and the same assertion reproduces as a failure on HEAD's files, so it was a stale test rather than a behaviour change."
+  },
   "newFindings": [
     {
       "issue": "Simon-He95/best-agent#186",

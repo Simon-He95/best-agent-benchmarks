@@ -51,6 +51,10 @@
  *                                     frozen provider identity files and gateway
  *   BEST_AGENT_PROVIDER_MODEL         credential context
  *   BEST_AGENT_CLI_CANDIDATE_DIR      pre-attempt assembled cjs candidate artifact
+ *   BEST_AGENT_GIT_IDENTITY_NAME/EMAIL
+ *                                     optional explicit override of the git identity
+ *                                     frozen into each task environment (default: this
+ *                                     host's own git identity)
  *   FH_PIER_BIN                       pier binary (default: pier)
  */
 
@@ -77,6 +81,46 @@ const config = JSON.parse(
 function sha256File(path) {
   if (!existsSync(path)) return undefined;
   return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+/**
+ * The git identity to freeze into a task environment. A task image ships no git
+ * identity of its own, so a model commit stops at "unable to auto-detect email
+ * address" — observed in a real attempt, where the model then paid a turn to
+ * discover `-c user.name=... -c user.email=...`. The identity is read from this
+ * harness host: an explicit override first, then this machine's git
+ * configuration, then git's own environment detection, and only then a neutral
+ * fallback, so a host with no identity at all still yields a usable attempt.
+ */
+export function resolveGitIdentity() {
+  const override = {
+    name: process.env.BEST_AGENT_GIT_IDENTITY_NAME,
+    email: process.env.BEST_AGENT_GIT_IDENTITY_EMAIL,
+  };
+  if (override.name && override.email) return override;
+  const configured = {
+    name: gitConfigValue("user.name"),
+    email: gitConfigValue("user.email"),
+  };
+  if (configured.name && configured.email) return configured;
+  return gitEnvironmentAuthor() ?? { name: "best-agent", email: "best-agent@localhost" };
+}
+
+function gitConfigValue(key) {
+  const result = spawnSync("git", ["config", "--get", key], { encoding: "utf8" });
+  return result.status === 0 && result.stdout ? result.stdout.trim() : "";
+}
+
+function gitEnvironmentAuthor() {
+  const result = spawnSync("git", ["var", "GIT_AUTHOR_IDENT"], { encoding: "utf8" });
+  if (result.status !== 0 || !result.stdout) return undefined;
+  const match = /^(.*?) <([^>]+)>/u.exec(result.stdout.trim());
+  if (!match) return undefined;
+  const email = match[2];
+  // git reports `user@host.(none)` when the host has no domain name, which is not
+  // an address a container commit should carry; require a plausible one.
+  if (!email.includes("@") || email.endsWith(".(none)")) return undefined;
+  return { name: match[1], email };
 }
 
 function findResultJson(jobsDir, jobName) {
@@ -738,6 +782,11 @@ async function main() {
   }
   process.env.BEST_AGENT_MODEL_TIMEOUT_MS = String(modelTimeoutMs);
   process.env.BEST_AGENT_ATTEMPT_BUDGET_MS = String(attemptBudgetMs);
+  // The attempt's git identity travels with the attempt: the plugin writes it into the
+  // task environment's global git config before the model starts.
+  const gitIdentity = resolveGitIdentity();
+  process.env.BEST_AGENT_GIT_IDENTITY_NAME = gitIdentity.name;
+  process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = gitIdentity.email;
 
   const pierBin = process.env.FH_PIER_BIN ?? "pier";
   const pierArgs = [

@@ -44,6 +44,21 @@ class RecordedEnvironment:
         self.uploads.append((target_path, Path(source_path).read_bytes()))
 
 
+def _expected_git_identity_command() -> str:
+    """The task environment's git identity, stated independently of the plugin.
+
+    A task image ships no identity of its own, so the attempt freezes this one into
+    the agent's global git config; the value is quoted as a single shell word. The
+    `set -o pipefail; ` prefix is harbor's own wrapping of `exec_as_agent`.
+    """
+    return (
+        "set -o pipefail; set -e; if command -v git >/dev/null 2>&1; then "
+        "git config --global --replace-all user.name 'Test Agent'; "
+        "git config --global --replace-all user.email test.agent@example.invalid; "
+        "fi"
+    )
+
+
 class AgentTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="tb-agent-test-")
@@ -61,6 +76,8 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
             "BEST_AGENT_MODEL_TIMEOUT_MS": "30000",
             "BEST_AGENT_CLI_WORKSPACE": "/work space",
             "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": '["--no-base-instructions","--tool-exclude","network"]',
+            "BEST_AGENT_GIT_IDENTITY_NAME": "Test Agent",
+            "BEST_AGENT_GIT_IDENTITY_EMAIL": "test.agent@example.invalid",
         })
         self.env_patch.start()
         self.addCleanup(self.env_patch.stop)
@@ -95,9 +112,19 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     if auth:
                         targets.append(home + "/.dimcode/dimcode/auth.json")
                     self.assertEqual(env.uploads, list(zip(targets, [p.read_bytes() for p in selected])))
-                    self.assertEqual(len(env.records), 4)
-                    self.assertEqual([r["user"] for r in env.records], [None, None, "root", None])
-                    ownership = env.records[2]["command"]
+                    # metadata, mkdir, git identity, chown, the workspace `pwd`, the CLI Run.
+                    # (The `pwd` record long predates the git identity step; this assertion
+                    # said 4 while the plugin already issued 5.)
+                    self.assertEqual(len(env.records), 6)
+                    self.assertEqual([r["user"] for r in env.records], [None, None, None, "root", None, None])
+                    # The task environment's git identity is written as the agent user, after the
+                    # agent home exists and before anything the attempt depends on: the container
+                    # ships no identity, so a model commit would otherwise be refused.
+                    git_identity = env.records[2]["command"]
+                    self.assertEqual(git_identity, _expected_git_identity_command())
+                    self.assertIn(shlex.quote("Test Agent"), git_identity)
+                    self.assertIn(shlex.quote("test.agent@example.invalid"), git_identity)
+                    ownership = env.records[3]["command"]
                     self.assertIn("set -e", ownership)
                     self.assertIn(f"chown {uid}:{gid} --", ownership)
                     self.assertIn("chmod 600 --", ownership)
