@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1680" viewBox="0 0 1680 1680" role="img" aria-label="FrontierHarness Eval v1.0 pass rate line chart">
+<rect width="1680" height="1680" fill="#0a0a0a"/>
+<rect x="130" y="250" width="1080" height="1210" fill="#0d0d0d" stroke="#8a8a8a" stroke-width="1"/>
+<line x1="130" y1="1460.0" x2="1210" y2="1460.0" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="1359.2" x2="1210" y2="1359.2" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="1258.3" x2="1210" y2="1258.3" stroke="#3a3a3a" stroke-width="1.2" stroke-dasharray="6 6"/>
+<text x="112.0" y="1265.3" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#9a9a9a" font-weight="400" text-anchor="end" >50.0%</text>
+<line x1="130" y1="1157.5" x2="1210" y2="1157.5" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="1056.7" x2="1210" y2="1056.7" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="955.8" x2="1210" y2="955.8" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="855.0" x2="1210" y2="855.0" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="754.2" x2="1210" y2="754.2" stroke="#3a3a3a" stroke-width="1.2" stroke-dasharray="6 6"/>
+<text x="112.0" y="761.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#9a9a9a" font-weight="400" text-anchor="end" >66.7%</text>
+<line x1="130" y1="653.3" x2="1210" y2="653.3" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="552.5" x2="1210" y2="552.5" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="451.7" x2="1210" y2="451.7" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="350.8" x2="1210" y2="350.8" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<line x1="130" y1="250.0" x2="1210" y2="250.0" stroke="#3a3a3a" stroke-width="1.2" stroke-dasharray="6 6"/>
+<text x="112.0" y="257.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#9a9a9a" font-weight="400" text-anchor="end" >83.3%</text>
+<rect x="130" y="754.2" width="1080" height="504.2" fill="#2a2a2a" opacity="0.55"/>
+<line x1="130" y1="754.2" x2="1210" y2="754.2" stroke="#9385ff" stroke-width="1.6" stroke-dasharray="4 5" opacity="0.85"/>
+<text x="1224.0" y="760.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#9385ff" font-weight="400" text-anchor="start" >Codex 66.7%</text>
+<line x1="130" y1="1258.3" x2="1210" y2="1258.3" stroke="#a978e7" stroke-width="1.6" stroke-dasharray="4 5" opacity="0.85"/>
+<text x="1224.0" y="1264.3" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#a978e7" font-weight="400" text-anchor="start" >OpenCode · Hermes 50.0%</text>
+<text x="1224.0" y="1006.3" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#9a9a9a" font-weight="400" text-anchor="start" >published harnesses</text>
+<text x="1224.0" y="1028.3" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9a9a9a" font-weight="400" text-anchor="start" >12 entries · kimi-k3 pricing</text>
+<line x1="130.0" y1="250" x2="130.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="130.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-18</text>
+<text x="130.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >6a9f15e</text>
+<text x="130.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >20/30</text>
+<line x1="284.3" y1="250" x2="284.3" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="284.3" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-24</text>
+<text x="284.3" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >d631b62</text>
+<text x="284.3" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >20/30</text>
+<line x1="438.6" y1="250" x2="438.6" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="438.6" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-25</text>
+<text x="438.6" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >6ce38f1</text>
+<text x="438.6" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
+<line x1="592.9" y1="250" x2="592.9" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="592.9" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-27</text>
+<text x="592.9" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >a578453</text>
+<text x="592.9" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
+<line x1="747.1" y1="250" x2="747.1" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="747.1" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-29</text>
+<text x="747.1" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3ecccb4</text>
+<text x="747.1" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >14/30</text>
+<line x1="901.4" y1="250" x2="901.4" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="901.4" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
+<text x="901.4" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >de63dec</text>
+<text x="901.4" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >18/30</text>
+<line x1="1055.7" y1="250" x2="1055.7" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="1055.7" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >09-30</text>
+<text x="1055.7" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >cf29eea</text>
+<text x="1055.7" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >23/30</text>
+<line x1="1210.0" y1="250" x2="1210.0" y2="1460" stroke="#3a3a3a" stroke-width="0.8" stroke-dasharray="2 6"/>
+<text x="1210.0" y="1494.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#e8e8e8" font-weight="400" text-anchor="middle" >10-01</text>
+<text x="1210.0" y="1516.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >da88e7a</text>
+<text x="1210.0" y="1536.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" fill="#9a9a9a" font-weight="400" text-anchor="middle" >19/30</text>
+<path d="M130.0,754.2 L284.3,754.2 L438.6,855.0 L592.9,1359.2 L747.1,1359.2 L901.4,955.8 L1055.7,451.7 L1210.0,855.0" fill="none" stroke="#ff6418" stroke-width="3"/>
+<circle cx="130.0" cy="754.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="130.0" y="738.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >66.7%</text>
+<circle cx="284.3" cy="754.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="284.3" y="738.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >66.7%</text>
+<circle cx="438.6" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="438.6" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
+<circle cx="592.9" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="592.9" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
+<circle cx="747.1" cy="1359.2" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="747.1" y="1343.2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >46.7%</text>
+<circle cx="901.4" cy="955.8" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="901.4" y="939.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >60.0%</text>
+<circle cx="1055.7" cy="451.7" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="1055.7" y="435.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >76.7%</text>
+<circle cx="1210.0" cy="855.0" r="6" fill="#0a0a0a" stroke="#ff6418" stroke-width="3"/>
+<text x="1210.0" y="839.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ff6418" font-weight="600" text-anchor="middle" >63.3%</text>
+<path d="M1055.7,442.7 l9,9 l-9,9 l-9,-9 z" fill="#0a0a0a" stroke="#ffffff" stroke-width="2.5"/>
+<text x="1055.7" y="485.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ffffff" font-weight="400" text-anchor="middle" >repaired 76.7%</text>
+<text x="1055.7" y="506.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" fill="#9a9a9a" font-weight="400" text-anchor="middle" >3 cell(s) re-measured</text>
+<rect x="60" y="46" width="26" height="26" fill="#ff6418"/>
+<text x="98.0" y="68.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="34" fill="#ff6418" font-weight="700" text-anchor="start" >FrontierHarness Eval</text>
+<rect x="540" y="40" width="86" height="36" rx="4" fill="none" stroke="#8a8a8a"/>
+<text x="583.0" y="65.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#e8e8e8" font-weight="400" text-anchor="middle" >v1.0</text>
+<text x="60.0" y="108.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#9a9a9a" font-weight="400" text-anchor="start" >best-agent · self-run on GitHub-hosted runners · 30 Docker-eligible tasks · one predeclared attempt per cell</text>
+<text x="60.0" y="138.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#9a9a9a" font-weight="400" text-anchor="start" >— line: the run's own verdicts (strict pass rate)      ◆ declared repaired reading · grey band: published leaderboard (reference)</text>
+<text x="60.0" y="166.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#9a9a9a" font-weight="400" text-anchor="start" >x: full-corpus runs of this repository, oldest to newest (date · candidate · passed/30)    y: pass rate</text>
+<rect x="148" y="268" width="720" height="66" rx="6" fill="#111111" stroke="#2a2a2a"/>
+<text x="166.0" y="296.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="21" fill="#e8e8e8" font-weight="600" text-anchor="start" >final: run 36870673845 (da88e7a)</text>
+<text x="166.0" y="323.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#ff6418" font-weight="400" text-anchor="start" >strict 63.3% (19/30) — no declared repaired reading yet</text>
+<text x="1620.0" y="1650.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" fill="#9a9a9a" font-weight="400" text-anchor="end" >a self-run is not comparable to the published leaderboard (different runtime, isolation, network)</text>
+</svg>
