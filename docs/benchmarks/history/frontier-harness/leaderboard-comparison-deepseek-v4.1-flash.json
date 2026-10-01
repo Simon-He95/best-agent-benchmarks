@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "label": "best-agent (this repository's frontier-harness composition) on deepseek-v4.1-flash",
-  "generatedAt": "2026-09-30T20:21:10.388Z",
+  "generatedAt": "2026-10-01T00:18:30.308Z",
   "point": {
     "key": "best-agent-deepseek-v4.1-flash",
     "label": "best-agent",
@@ -22,7 +22,7 @@
     }
   },
   "reading": {
-    "basis": "User policy, 2026-10-01: tasks that failed because the environment or the upstream was busy may be re-run, and the re-run may be taken as the correct result. Under that policy this reading counts run 36711152110's 27 already-valid cells plus the 3 no-verdict cells refilled by the same-candidate recovery batches 36759265603 and 36767542570 (all three failed), so all 30 cells carry a verdict and the pass count stays 23. The source run's own frozen report is unchanged: 3 error cells, verdicts.complete failed, passAt1 null.",
+    "basis": "User policy, 2026-10-01: tasks that failed because the environment or the upstream was busy may be re-run, and the re-run may be taken as the correct result. Fairness invariant of this reading: every one of the 30 cells carries exactly ONE graded model attempt - the 27 already-valid cells keep the attempt they had in run 36711152110, and each of the 3 refilled cells received its single graded attempt from the same-candidate recovery chain because its source-run cell had none at all (no model request, no agent directory, no evidence file). No cell was attempted twice with a verdict to choose from, no verdict was replaced or reinterpreted, no evaluator output re-entered a model attempt, and no budget, effort or grader setting was changed. The source run's own frozen report is unchanged: 3 error cells, verdicts.complete failed, passAt1 null, and its 27 valid cells read 23/27 = 85.2%.",
     "cells": [
       {
         "task": "datacurve/anko-typed-variable-bindings",

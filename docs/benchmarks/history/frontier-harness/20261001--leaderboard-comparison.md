@@ -68,6 +68,17 @@ python3 tools/frontier-harness-comparison/chart.py --dataset <上一步输出> -
 4. **本次读数是一个「修复读数」**：源 run 的冻结报告保持原样（3 个 error cell、`verdicts.complete` failed、**passAt1 仍为 null**，它自己的 27 个有效 cell 是 85.2%）。按用户 2026-10-01 的政策——「环境和上游繁忙失败的任务，重跑仍然是公平的，可以作为正确的结果」——把 3 个无判定 cell 用同候选 recovery 补上（清单 `config/frontier-harness-recovery-36711152110.json` 与 `...-second.json`），得到 30/30 判定与上面的 76.7%。这两个数字（85.2% / 76.7%）是同一批数据的两种口径，本文件与图上都按 30 cell 口径呈现。
 5. **两张图渲染后的机械检查**：2300×1320、暗色底、橙色 Pareto 线与标记像素均存在（脚本化检查）；本记录不声称对图做过分辨率级别的人工目视审阅。
 
+## 公平性不变量（为什么这个「修复读数」不影响公平）
+
+用户 2026-10-01 的政策是「环境与上游繁忙导致的失败可以重跑」，同时要求**不能影响 benchmark 的公平**。本次读数满足以下不变量，每一条都可从冻结证据机械核查：
+
+1. **每个 cell 恰好一次评分尝试**。27 个已有效 cell 沿用源 run 的那一次尝试；3 个被填补的 cell 在源 run 里**完全没有 attempt**（没有 `model-request`、没有 `jobs/<task>/.../agent/` 目录、没有 `best-agent-evidence.jsonl`、没有 usage 块）——补的是「预声明尝试的覆盖」，不是「已判定 cell 的第二次机会」。
+2. **没有任何判定被替换或重新解释**。recovery 只写它自己那 3 个 cell；源 run 的 23 个 passed 与 4 个 failed（含 2 个规格缺口）一字未动。对比脚本把这条写成机械约束并有测试覆盖：只有 `disposition=error`（无判定）的 cell 才允许被填补，且只接受带真实判定的 recovery 记录。
+3. **没有 evaluator 输出回流到模型**。三题的 recovery 与源 run 一样，官方 verifier 的结果从不进入任何 model attempt。
+4. **预算、effort、grader 全部未变**。`fh_agent_timeout_multiplier=1`、`fh_reasoning_effort=max`、同一 pier pin、同一语料、官方 verifier 仍是唯一评分者；候选源码 commit 与源 run 相同（`cf29eea8`）。
+5. **`passAt1` 仍为 null**。源 run 的冻结报告与哈希未改，recovery 从不并入任何 formal run 去产生 pass@1；本文件与图上呈现的 76.7% 是**用户政策下的对比读数**，不是可发布的 pass@1。
+6. **每一次派发都先冻结清单再派发**：`config/frontier-harness-recovery-36711152110.json`（run 36759265603）与 `config/frontier-harness-recovery-36711152110-second.json`（run 36767542570），清单写明准入类别、范围、边界（该 cell 的最后一次尝试）与读法。
+
 ## 数据来源与冻结时间
 
 - 官方：`https://raw.githubusercontent.com/frontier-harness-eval/eval/main/results/eval-data.json`（`generated_at 2026-08-22T16:04:57.538734+00:00`，`model: k3`，360 cells，9 harnesses / 12 configurations），运营方博客 `https://runta.com/blog/introducing-frontierharness-eval/`，榜页 `https://frontierharness.org/`。抓取于 2026-10-01。
