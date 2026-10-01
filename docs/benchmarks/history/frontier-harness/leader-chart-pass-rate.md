@@ -1,5 +1,7 @@
 # FrontierHarness Eval v1.0 — pass rate across full runs
 
+Rendered by `scripts/frontier-harness-leader-chart.mjs` into `leader-chart-pass-rate.svg` (+ `.png`), 2300×1320, on 2026-10-01.
+
 | # | run | date | candidate | strict | repaired reading | notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 35353146750 | 09-18 | 6a9f15e | 66.7% (20/30) | — | 0 error / 0 not-evaluated |
