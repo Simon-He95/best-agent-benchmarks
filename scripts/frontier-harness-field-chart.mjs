@@ -60,6 +60,8 @@ const withoutVerdict = (dataset.reading?.stillWithoutVerdict ?? []).length;
 const failedCells = ours.cells - ours.passes - withoutVerdict;
 const bestPublished = published.reduce((best, entry) => (entry.passRate > best.passRate ? entry : best), published[0]);
 const cheapestPublished = published.reduce((best, entry) => (entry.costPerPass < best.costPerPass ? entry : best), published[0]);
+const priciestPublished = published.reduce((worst, entry) => (entry.costPerPass > worst.costPerPass ? entry : worst), published[0]);
+const weakestPublished = published.reduce((worst, entry) => (entry.passRate < worst.passRate ? entry : worst), published[0]);
 const fieldCostAverage = published.reduce((sum, entry) => sum + entry.costPerPass, 0) / published.length;
 const fieldRateAverage = published.reduce((sum, entry) => sum + entry.passRate, 0) / published.length;
 const cheaperThanBest = bestPublished.costPerPass / ours.costPerPass;
@@ -78,32 +80,56 @@ const FONT = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 const ADVANCE = 0.6;
 
 // --- geometry -----------------------------------------------------------------
-const WIDTH = 2300;
-const HEIGHT = 1320;
-const PANEL = { left: 190, right: 2016, top: 300, bottom: 1060 };
+// `field` is the record-shaped page. `share` is the same page cut to 16:9 with a
+// larger headline and a lighter label load, so the same numbers can be posted on
+// their own. Both layouts go through the same measurement and audit below.
+const LAYOUT = args.layout ?? "field";
+if (LAYOUT !== "field" && LAYOUT !== "share") throw new Error(`unknown --layout: ${LAYOUT}`);
+const SHARE = LAYOUT === "share";
+const WIDTH = SHARE ? 2400 : 2300;
+const HEIGHT = SHARE ? 1350 : 1320;
+const PANEL = SHARE ? { left: 210, right: 2250, top: 400, bottom: 1090 } : { left: 190, right: 2016, top: 300, bottom: 1060 };
 const LOG_MIN = Math.log10(0.1);
 const LOG_MAX = Math.log10(30);
 const xAt = (cost) => PANEL.left + ((Math.log10(cost) - LOG_MIN) / (LOG_MAX - LOG_MIN)) * (PANEL.right - PANEL.left);
 const Y_MIN = 0.45;
 const Y_MAX = 0.84;
 const yAt = (rate) => PANEL.bottom - ((rate - Y_MIN) / (Y_MAX - Y_MIN)) * (PANEL.bottom - PANEL.top);
-const SIZE = {
-  title: 46,
-  pill: 26,
-  subtitle: 26,
-  legend: 25,
-  headline: 100,
-  subhead: 26,
-  delta: 24,
-  tick: 24,
-  axis: 25,
-  name: 25,
-  value: 23,
-  ours: 32,
-  oursValue: 27,
-  note: 22,
-  footnote: 20,
-};
+const SIZE = SHARE
+  ? {
+      title: 48,
+      pill: 26,
+      subtitle: 27,
+      legend: 26,
+      headline: 170,
+      subhead: 34,
+      delta: 28,
+      tick: 24,
+      axis: 25,
+      name: 25,
+      value: 23,
+      ours: 34,
+      oursValue: 28,
+      note: 23,
+      footnote: 24,
+    }
+  : {
+      title: 46,
+      pill: 26,
+      subtitle: 26,
+      legend: 25,
+      headline: 100,
+      subhead: 26,
+      delta: 24,
+      tick: 24,
+      axis: 25,
+      name: 25,
+      value: 23,
+      ours: 32,
+      oursValue: 27,
+      note: 22,
+      footnote: 20,
+    };
 
 // --- measured text ------------------------------------------------------------
 const parts = [];
@@ -172,9 +198,31 @@ for (const tick of [0.1, 0.2, 0.5, 1, 2, 5, 10, 20]) {
 parts.push(
   `<text x="${(PANEL.left + PANEL.right) / 2}" y="${PANEL.bottom + 84}" font-family="${FONT}" font-size="${SIZE.axis}" fill="${INK.muted}" text-anchor="middle">cost per pass (USD, log scale)</text>`,
 );
-boxes.push({ value: "cost per pass (USD, log scale)", kind: "axis", left: 878, right: 1328, top: PANEL.bottom + 66, bottom: PANEL.bottom + 90 });
-parts.push(`<text x="86" y="690" transform="rotate(-90 86 690)" font-family="${FONT}" font-size="${SIZE.axis}" fill="${INK.muted}" text-anchor="middle">pass rate</text>`);
-boxes.push({ value: "pass rate", kind: "axis", left: 67, right: 103, top: 621, bottom: 759 });
+const xAxisTitle = "cost per pass (USD, log scale)";
+const xAxisHalf = (xAxisTitle.length * SIZE.axis * ADVANCE) / 2;
+boxes.push({
+  value: xAxisTitle,
+  kind: "axis",
+  left: (PANEL.left + PANEL.right) / 2 - xAxisHalf,
+  right: (PANEL.left + PANEL.right) / 2 + xAxisHalf,
+  top: PANEL.bottom + 84 - SIZE.axis * 0.74,
+  bottom: PANEL.bottom + 84 + SIZE.axis * 0.24,
+});
+// The y title is rotated, so its box is the text's length laid on the other axis.
+const yAxisX = PANEL.left - 104;
+const yAxisY = (PANEL.top + PANEL.bottom) / 2;
+parts.push(
+  `<text x="${yAxisX}" y="${yAxisY}" transform="rotate(-90 ${yAxisX} ${yAxisY})" font-family="${FONT}" font-size="${SIZE.axis}" fill="${INK.muted}" text-anchor="middle">pass rate</text>`,
+);
+const yAxisHalf = (9 * SIZE.axis * ADVANCE) / 2;
+boxes.push({
+  value: "pass rate",
+  kind: "axis",
+  left: yAxisX - SIZE.axis * 0.74,
+  right: yAxisX + SIZE.axis * 0.24,
+  top: yAxisY - yAxisHalf,
+  bottom: yAxisY + yAxisHalf,
+});
 
 // the best published pass rate, drawn as the line this run has to clear
 const bestY = yAt(bestPublished.passRate);
@@ -320,8 +368,18 @@ parts.push(
     { value: `${ours.passes}/${ours.cells} passed · ${money(ours.costPerPass)} per pass`, size: SIZE.oursValue, fill: INK.text, dy: 34 },
   ]),
 );
-for (const entry of ordered) {
-  if (entry === ours) continue;
+// The share card names the field's corners only — best, cheapest, priciest, weakest —
+// so the eye lands on this run; the record-shaped page names every entry.
+const labelled = SHARE
+  ? published.filter(
+      (entry) =>
+        entry.passRate === bestPublished.passRate ||
+        entry.costPerPass === cheapestPublished.costPerPass ||
+        entry.costPerPass === priciestPublished.costPerPass ||
+        entry.passRate === weakestPublished.passRate,
+    )
+  : ordered;
+for (const entry of labelled) {
   parts.push(
     place(xAt(entry.costPerPass), yAt(entry.passRate), [
       { value: entry.label, size: SIZE.name, fill: INK.text },
@@ -339,62 +397,89 @@ if (repriced !== null) {
 }
 
 // --- header, headline, footnotes ----------------------------------------------
-parts.push(rect(88, 52, 30, 30, { fill: INK.accent }));
-parts.push(text(136, 92, "FrontierHarness Eval", { size: SIZE.title, fill: INK.accent, weight: 700, kind: "header" }));
+const HEAD = SHARE
+  ? { markX: 110, markY: 96, mark: 36, titleX: 166, titleY: 126, subtitleY: 186, legendY: 250, legendX: 162, noteX: 800, bigY: 180, subY: 250, deltaY: 296 }
+  : { markX: 88, markY: 52, mark: 30, titleX: 136, titleY: 92, subtitleY: 148, legendY: 200, legendX: 140, noteX: 814, bigY: 166, subY: 216, deltaY: 252 };
+parts.push(rect(HEAD.markX, HEAD.markY, HEAD.mark, HEAD.mark, { fill: INK.accent }));
+parts.push(text(HEAD.titleX, HEAD.titleY, "FrontierHarness Eval", { size: SIZE.title, fill: INK.accent, weight: 700, kind: "header" }));
 const titleWidth = 19 * SIZE.title * ADVANCE;
-parts.push(rect(136 + titleWidth + 28, 54, 4 * SIZE.pill * ADVANCE + 40, 40, { fill: "none", stroke: INK.grid, radius: 8 }));
+const pill = { x: HEAD.titleX + titleWidth + 28, y: HEAD.titleY - 38, width: 4 * SIZE.pill * ADVANCE + 40, height: 40 };
+parts.push(rect(pill.x, pill.y, pill.width, pill.height, { fill: "none", stroke: INK.grid, radius: 8 }));
 parts.push(
-  text(136 + titleWidth + 28 + (4 * SIZE.pill * ADVANCE + 40) / 2, 82, "v1.0", { size: SIZE.pill, fill: INK.text, anchor: "middle", kind: "header" }),
+  text(pill.x + pill.width / 2, HEAD.titleY - 10, "v1.0", { size: SIZE.pill, fill: INK.text, anchor: "middle", kind: "header" }),
 );
 parts.push(
-  text(88, 148, "pass rate against cost per pass · 30 tasks · one predeclared attempt per cell", {
+  text(HEAD.markX, HEAD.subtitleY, `${ours.cells} tasks · one predeclared attempt per cell`, {
     size: SIZE.subtitle,
     fill: INK.muted,
     kind: "header",
   }),
 );
-parts.push(shapeAt("star", 108, 200, 13, { fill: INK.accent, stroke: INK.canvas, width: 2 }));
-parts.push(text(140, 210, "best-agent (this repository's self-run)", { size: SIZE.legend, fill: INK.text, kind: "header" }));
-parts.push(line(760, 200, 800, 200, { stroke: INK.accent, width: 1.8, opacity: 0.6 }));
-parts.push(text(814, 210, "published field staircase", { size: SIZE.legend, fill: INK.muted, kind: "header" }));
-parts.push(shapeAt(published[0].shape, 1220, 200, 11, { fill: INK.muted }));
-parts.push(text(1244, 210, `${published.length} published harnesses`, { size: SIZE.legend, fill: INK.muted, kind: "header" }));
+parts.push(shapeAt("star", HEAD.markX + 20, HEAD.legendY, 14, { fill: INK.accent, stroke: INK.canvas, width: 2 }));
+parts.push(text(HEAD.legendX, HEAD.legendY + 10, "best-agent — this repository's self-run", { size: SIZE.legend, fill: INK.text, kind: "header" }));
+parts.push(
+  text(
+    HEAD.noteX,
+    HEAD.legendY + 10,
+    SHARE
+      ? `vs ${published.length} published harnesses (${money(cheapestPublished.costPerPass)}–${money(priciestPublished.costPerPass)} per pass)`
+      : "published field staircase",
+    { size: SIZE.legend, fill: INK.muted, kind: "header" },
+  ),
+);
+if (!SHARE) {
+  parts.push(line(760, HEAD.legendY, 800, HEAD.legendY, { stroke: INK.accent, width: 1.8, opacity: 0.6 }));
+  parts.push(shapeAt(published[0].shape, 1220, HEAD.legendY, 11, { fill: INK.muted }));
+  parts.push(text(1244, HEAD.legendY + 10, `${published.length} published harnesses`, { size: SIZE.legend, fill: INK.muted, kind: "header" }));
+}
 
-parts.push(text(PANEL.right, 166, pct(ours.passRate), { size: SIZE.headline, fill: INK.accent, weight: 700, anchor: "end", kind: "headline" }));
-parts.push(text(PANEL.right, 216, `${ours.passes} of ${ours.cells} tasks passed`, { size: SIZE.subhead, fill: INK.text, anchor: "end", kind: "headline" }));
+parts.push(text(PANEL.right, HEAD.bigY, pct(ours.passRate), { size: SIZE.headline, fill: INK.accent, weight: 700, anchor: "end", kind: "headline" }));
+parts.push(text(PANEL.right, HEAD.subY, `${ours.passes} of ${ours.cells} tasks passed`, { size: SIZE.subhead, fill: INK.text, anchor: "end", kind: "headline" }));
 parts.push(
   text(
     PANEL.right,
-    252,
-    `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below ${bestPublished.label} (${money(bestPublished.costPerPass)}) · ${ours.sublabel ?? ""}`,
+    HEAD.deltaY,
+    `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below ${bestPublished.label} (${money(bestPublished.costPerPass)})`,
     { size: SIZE.delta, fill: INK.muted, anchor: "end", kind: "headline" },
   ),
 );
 
-parts.push(
-  text(
-    88,
-    HEIGHT - 100,
-    `A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is ${officialSource.modelLabel ?? "one model"} on Runta checkpoints.`,
-    { size: SIZE.footnote, fill: INK.faint, kind: "footer" },
-  ),
-);
-parts.push(
-  text(
-    88,
-    HEIGHT - 72,
-    `Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on ${officialName}; the hollow star re-prices this run's tokens.`,
-    { size: SIZE.footnote, fill: INK.faint, kind: "footer" },
-  ),
-);
-parts.push(
-  text(
-    88,
-    HEIGHT - 44,
-    `run ${runId}: ${ours.passes} passed / ${failedCells} failed / ${withoutVerdict} without verdict · cost coverage ${Math.round((ours.costCoverage ?? 0) * 100)}% of ${ours.cells} cells · field average ${pct(fieldRateAverage)} at ${money(fieldCostAverage)} per pass.`,
-    { size: SIZE.footnote, fill: INK.faint, kind: "footer" },
-  ),
-);
+const footerLines = SHARE
+  ? [
+      {
+        text: `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below the best published entry, ${(fieldCostAverage / ours.costPerPass).toFixed(0)}× below the field average`,
+        fill: INK.accent,
+        size: 30,
+      },
+      {
+        text: `Self-run, not leaderboard-comparable: different model (${ours.sublabel ?? "this repository's provider"} vs ${officialSource.modelLabel ?? "the published model"}), different runtime; costs are frozen price tables, not bills.`,
+        fill: INK.faint,
+        size: 22,
+      },
+    ]
+  : [
+      {
+        text: `A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is ${officialSource.modelLabel ?? "one model"} on Runta checkpoints.`,
+        fill: INK.faint,
+        size: SIZE.footnote,
+      },
+      {
+        text: `Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on ${officialName}; the hollow star re-prices this run's tokens.`,
+        fill: INK.faint,
+        size: SIZE.footnote,
+      },
+      {
+        text: `run ${runId}: ${ours.passes} passed / ${failedCells} failed / ${withoutVerdict} without verdict · cost coverage ${Math.round(
+          (ours.costCoverage ?? 0) * 100,
+        )}% of ${ours.cells} cells · field average ${pct(fieldRateAverage)} at ${money(fieldCostAverage)} per pass.`,
+        fill: INK.faint,
+        size: SIZE.footnote,
+      },
+    ];
+const footerStart = HEIGHT - 44 - (footerLines.length - 1) * 28 - (SHARE ? 12 : 0);
+footerLines.forEach((item, index) => {
+  parts.push(text(HEAD.markX, footerStart + index * 28, item.text, { size: item.size, fill: item.fill, kind: "footer" }));
+});
 
 // --- the figure is only written if it lays out cleanly -------------------------
 const layoutIssues = [];
