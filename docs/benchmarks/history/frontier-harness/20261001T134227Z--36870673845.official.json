@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "recordKind": "official-repaired-reading",
+  "sourceRun": {
+    "runId": 36870673845,
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261001T134227Z--36870673845.json",
+    "frozenRecordSha256": "ab489066e62e16df4b8bbb51d966d731de91e4cb2f29c04cac1627b1527b12e5",
+    "results": {
+      "passed": 19,
+      "failed": 10,
+      "error": 0,
+      "notEvaluated": 1
+    },
+    "passAt1": null
+  },
+  "repairs": [
+    {
+      "batchLabel": "recovery-docker-daemon-36870673845-20261002",
+      "kind": "recovery",
+      "runId": 36897458786,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36897458786",
+      "manifestPath": "config/frontier-harness-recovery-36870673845.json",
+      "cells": [
+        {
+          "task": "datacurve/arktype-json-schema-refs-dependencies",
+          "originalDisposition": "not-evaluated",
+          "remediatedDisposition": "failed",
+          "changed": true,
+          "class": "pre-model-environment-failure",
+          "rewards": {
+            "reward": 0,
+            "f2p_total": 25,
+            "f2p_passed": 23,
+            "p2p_total": 1679,
+            "p2p_passed": 1679,
+            "f2p": 0.92,
+            "p2p": 1,
+            "partial": 0.9988262910798122
+          },
+          "durationMs": 3219757
+        }
+      ]
+    },
+    {
+      "batchLabel": "diagnostic-merge-diff-36870673845-20261002",
+      "kind": "diagnostic-recheck",
+      "runId": 36897507974,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36897507974",
+      "manifestPath": "config/frontier-harness-diagnostic-recheck-36870673845.json",
+      "cells": [
+        {
+          "task": "terminal-bench/merge-diff-arc-agi-task",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "environment-class-recheck",
+          "rewards": {
+            "reward": 1
+          },
+          "durationMs": 270899
+        }
+      ]
+    },
+    {
+      "batchLabel": "recheck-variance-36870673845-20261002",
+      "kind": "recheck",
+      "runId": 36905842019,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36905842019",
+      "manifestPath": "config/frontier-harness-recheck-variance-36870673845.json",
+      "cells": [
+        {
+          "task": "datacurve/scc-bounded-memory-spilling",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "variance-check",
+          "rewards": {
+            "reward": 1,
+            "f2p_total": 31,
+            "f2p_passed": 31,
+            "p2p_total": 286,
+            "p2p_passed": 286,
+            "f2p": 1,
+            "p2p": 1,
+            "partial": 1
+          },
+          "durationMs": 1233689
+        },
+        {
+          "task": "terminal-bench/code-from-image",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "variance-check",
+          "rewards": {
+            "reward": 1
+          },
+          "durationMs": 259419
+        },
+        {
+          "task": "terminal-bench/extract-elf",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "variance-check",
+          "rewards": {
+            "reward": 1
+          },
+          "durationMs": 746174
+        }
+      ]
+    }
+  ],
+  "repairedReading": {
+    "passed": 23,
+    "failed": 7,
+    "error": 0,
+    "notEvaluated": 0,
+    "expected": 30,
+    "validCells": 30,
+    "passRate": 0.7666666666666667,
+    "passRateValidCells": 0.7666666666666667,
+    "passAt1": null,
+    "extraAttempts": 5,
+    "cells": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "originalDisposition": "not-evaluated",
+        "remediatedDisposition": "failed",
+        "changed": true,
+        "class": "pre-model-environment-failure"
+      },
+      {
+        "task": "terminal-bench/merge-diff-arc-agi-task",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "environment-class-recheck"
+      },
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "variance-check"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "variance-check"
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "variance-check"
+      }
+    ]
+  },
+  "official": {
+    "metric": "repairedPassRate",
+    "value": 0.7666666666666667,
+    "repairedCells": 5,
+    "extraAttempts": 5,
+    "ofExpected": 30,
+    "label": "FrontierHarness Eval v1.0, run 36870673845 on candidate da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93; 5 cell(s) re-measured once each under a frozen, declared manifest. The strict one-attempt-per-task pass@1 of the raw run is null; this official result counts the declared re-measurements and discloses them."
+  },
+  "boundary": "A repaired reading is not a pass@1. Every repaired cell received one extra attempt beyond the run's own predeclared attempts, so this figure counts more attempts than the run did, it is published beside the run's frozen record and never instead of it, and the run's own verdicts are unchanged. Across the whole reading a cell carries exactly one additional attempt at most, and each repair is labelled with the class it was admitted under so a reader can recompute the reading from the frozen record plus the named manifests."
+}
