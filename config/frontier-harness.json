@@ -72,7 +72,7 @@
   },
   "provider": {
     "kind": "openai",
-    "model": "deepseek-v4.1-flash",
+    "model": "deepseek-v4-flash",
     "baseURL": "https://dimagent.cn/v1",
     "compatibilityMode": "compatible",
     "reasoningEffort": "max",

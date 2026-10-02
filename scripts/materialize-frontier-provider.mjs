@@ -35,6 +35,7 @@ const options = provider?.reasoningEffortOptions;
 const admittedProviderProfiles = [
   { model: "glm-5.3", efforts: ["max", "high"] },
   { model: "deepseek-v4.1-flash", efforts: ["max"] },
+  { model: "deepseek-v4-flash", efforts: ["max"] },
 ];
 const admitted = admittedProviderProfiles.find(
   (profile) => profile.model === provider?.model,

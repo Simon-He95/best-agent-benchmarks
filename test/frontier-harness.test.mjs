@@ -79,9 +79,9 @@ test("frontier-harness pins the runner and a current Linux x64 source candidate"
   assert.equal(config.cli.target, "linux-x64-gnu");
 });
 
-test("frontier-harness freezes the deepseek-v4.1-flash max-effort provider profile", () => {
+test("frontier-harness freezes the deepseek-v4-flash max-effort provider profile", () => {
   assert.equal(config.provider.kind, "openai");
-  assert.equal(config.provider.model, "deepseek-v4.1-flash");
+  assert.equal(config.provider.model, "deepseek-v4-flash");
   assert.equal(config.provider.compatibilityMode, "compatible");
   assert.equal(config.provider.reasoningEffort, "max");
   // The profile declares the efforts a run may select, and its default is one of

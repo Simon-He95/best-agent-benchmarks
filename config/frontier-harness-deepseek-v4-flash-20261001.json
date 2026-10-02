@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-01: \"我们用deepseek-v4-flash来跑effort:max来挑战一下更弱的model的bench结果\" (run the same 30-task corpus with the older flash-tier model deepseek-v4-flash at reasoning effort max, and read the result against the published field the same way).",
+  "reason": "The previous full runs of this profile used deepseek-v4.1-flash at max (23/30 in run 36915041446). The user now asks for the same composition on deepseek-v4-flash, the flash-tier model name this repository froze earlier (config/best-agent-candidate.json and config/node-bundle-generation.json both pin deepseek-v4-flash at https://dimagent.cn/v1, compatible, dim-oauth; SWE-bench beta.17 waves ran openai/deepseek-v4-flash through the same relay). This is a new frozen profile and a new measurement, never a continuation or repair: no earlier verdict is reinterpreted or merged, and this run's pass@1 comes only from its own frozen report.",
+  "readingBoundary": "This run changes only the model name (deepseek-v4.1-flash -> deepseek-v4-flash) and nothing else. The repository has no same-field capability comparison of the two flash-tier names, so this profile does not claim which is weaker; the run exists to add one measured point for the older flash-tier model. Any per-cell difference against run 36915041446 is read as the model change plus run-to-run variance, never as a clean capability comparison of the model alone.",
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93, cliVersion 0.0.3-beta.41) — the same candidate pin as runs 36870673845 and 36915041446; the workflow builds the Linux SEA itself and freezes its receipt (candidateId cli-0.0.3-beta.41-da88e7a-<binarySha256[:12]>); the build is not byte-reproducible, so this run's binary hash differs from the previous run's by design.",
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "batchPlan": "config/frontier-harness-batches.json exact-covers the frozen corpus in corpus order (3 tracked batches, 30 unique tasks); the corpus, the task sources and the batch plan are untouched."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "max is the only effort this run declares, because deepseek-v4-flash's sanctioned pair in the repository is exactly (deepseek-v4-flash, max). The materializer refuses any (model, effort) pair outside its admitted list, so the profile and the declared option set cannot drift apart."
+  },
+  "providerSwitchAudit": {
+    "whatChanged": [
+      "config/frontier-harness.json#provider: model deepseek-v4.1-flash -> deepseek-v4-flash; reasoningEffortOptions stays [max] and reasoningEffort stays max.",
+      "scripts/materialize-frontier-provider.mjs: the admitted (model, effort) list gains {deepseek-v4-flash: [max]}, so a config edit alone still cannot switch the model or an effort, and both previous profiles remain admitted.",
+      "test/frontier-harness.test.mjs: the frozen-profile assertion now expects deepseek-v4-flash; the effort-variant and undeclared-effort negative cases are unchanged."
+    ],
+    "evidenceOfPrecedent": "config/best-agent-candidate.json and config/node-bundle-generation.json both freeze deepseek-v4-flash at https://dimagent.cn/v1 with compatibilityMode compatible and transportProfile dim-oauth; SWE-bench beta.17 waves (diagnostic-ci/artifacts/beta17-wave-*) ran openai/deepseek-v4-flash through the same dim OAuth relay with real task attempts.",
+    "whatDidNotChange": "The credential, the base URL, the compatibility mode, the transport profile, the runner, the corpus, the batch plan, the execution profile, the budgets, the agent timeout multiplier and the per-call ceiling."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 3,
+    "fh_batch": "v4-flash-full-20261001"
+  },
+  "knownRisks": {
+    "providerTransport": "Flash-tier models have shown transport-level shake before (9 of 58 attempts in the Terminal-Bench full run); the same class can cost cells here, and no cell is retried inside the run.",
+    "ecrThrottle": "Kept at fh_max_parallel=3, the width at which the previous two full runs had zero ECR throttles; a recurrence would be a pre-model environment failure with no attempt and no verdict.",
+    "specificationGaps": "Two corpus tasks carry a declared specification gap (httpx-multipart-response-parsing, meriyah-explicit-resource-declarations); their verdicts are real but cannot be read as capability.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; every Generate job verifies the credential at materialization before any attempt.",
+    "smokeGate": "No full run is dispatched until a single-task smoke has proven the candidate builds, the provider materializes under deepseek-v4-flash at max, and a task actually reaches the model phase with frozen evidence."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, all 30 Docker-eligible corpus tasks, one frozen candidate, the official agent and verifier budgets preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "This run's pass@1 comes only from its own frozen aggregate report. It is never merged with run 36915041446, with any earlier run, or with any diagnostic batch, and it replaces or reinterprets none of their verdicts.",
+    "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the effort stay exactly as the frozen composition declares them.",
+    "The corpus, the task sources, the batch plan and the pier pin are untouched: only the provider profile changes.",
+    "Nothing is published to main; the change and this manifest live on the working branch fh/usage-accounting-proof and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "plannedChecks": "After the report artifact is downloaded: the acceptance block; the disposition table against run 36915041446 cell by cell (the model delta); mechanical attribution of every verdict-less cell; usage and per-call durations; and the field comparison updated with this run's pass rate and cost.",
+  "smoke": {},
+  "dispatched": false,
+  "runId": null,
+  "runUrl": null,
+  "dispatchedAt": null,
+  "outcome": {}
+}
