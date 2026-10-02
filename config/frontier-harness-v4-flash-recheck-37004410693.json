@@ -28,9 +28,9 @@
   ],
   "readingBoundary": "A cell that passes here and failed in the full run is single-attempt variation under this composition (or time-management luck), not proof of capability; a cell that fails again here is evidence the failure is not a fluke. Either way the frozen full-run verdict stands.",
   "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each of the five cells against the full run's (db-wal-recovery, gcode-to-text, largest-eigenval, sqlite-db-truncate failed without a deliverable; expr-try-catch-errors failed 72/79 f2p); duration against the cell's own budget; whether a pass came with a complete deliverable; and the acceptance block of the batch.",
-  "dispatched": false,
-  "runId": null,
-  "runUrl": null,
-  "dispatchedAt": null,
+  "dispatched": true,
+  "runId": 37034756158,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37034756158",
+  "dispatchedAt": "2026-10-03T00:30:00Z",
   "outcome": {}
 }
