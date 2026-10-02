@@ -111,5 +111,49 @@
   "runId": 37004410693,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37004410693",
   "dispatchedAt": "2026-10-01T09:40:00Z",
-  "outcome": {}
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261002T120301Z--37004410693.json",
+  "frozenRecordSha256": "748c728d8b923430476aabfa5c55c8549ba7c3465ba21cb3841eda478f0a936a",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 30,
+    "passRate": 0.6,
+    "scoreable": true,
+    "capabilityMeasurement": true,
+    "passAt1": 0.6,
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-02T12:03:01Z -> 2026-10-02T15:36:53Z (about 3h34m), 33 of 33 jobs green at the workflow level; no verdict-less cell and no environment death",
+    "candidateId": "cli-0.0.3-beta.41-da88e7a-3f9ea2ea59e9",
+    "specificationGapTasks": [
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/meriyah-explicit-resource-declarations"
+    ],
+    "failedCells": [
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate"
+    ],
+    "comparisonToV41Run": "Run 36915041446 (the same candidate, deepseek-v4.1-flash at max, one predeclared attempt per cell) read 23 passed / 6 failed / 1 error (76.7%, passAt1 null). This run reads 18 passed / 12 failed / 0 error (60.0%, passAt1 0.6) and is the first scoreable full run of this profile. Cell-by-cell: 21 identical, 9 flipped. Pass-to-fail under v4-flash: arktype-json-schema-refs-dependencies, expr-try-catch-errors, fastapi-deprecation-response-headers, python-statemachine-state-data-scoping, dna-insert, sanitize-git-repo, sqlite-db-truncate. Fail/error-to-pass under v4-flash: scc-bounded-memory-spilling (failed -> passed), git-leak-recovery (error -> passed, the 429 cell). The four slowest failed datacurve cells burned most of their 5400s budget (arktype 5418s, katex 5370s, python-statemachine 4661s, meriyah 4634s), which is why the total agent wall clock rose to 589m52s while the median time per successful cell fell to 5m21s (vs 10m19s).",
+    "speedReading": "Median wall-clock seconds per successful cell: 5m21s (321s) for this run vs 10m19s (619s) for run 36915041446 and 5m41s-9m38s for the published field. This run is faster than every published entry on that metric. The speed gain is mostly the composition of which cells passed: the successes here are predominantly short terminal-bench cells, while the slow datacurve cells mostly failed (many at their budget edge).",
+    "evidence": "Artifact frontier-harness-report-37004410693 (report.json, report.json.md, failures.json/.md, the thirty per-task records and their raw evidence); the record is frozen at docs/benchmarks/history/frontier-harness/20261002T120301Z--37004410693.json."
+  }
 }

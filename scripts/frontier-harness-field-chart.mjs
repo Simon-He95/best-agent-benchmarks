@@ -494,9 +494,13 @@ parts.push(
     HEAD.deltaY,
     isCost
       ? `${money(ours.costPerPass)} per pass — ${cheaperThanBest.toFixed(0)}× below ${bestPublished.label} (${money(bestPublished.costPerPass)})`
-      : `${seconds(ours.medianSuccessfulSeconds)} per task — slowest of ${published.length + 1}: ${fastestPublished.label} is ${speedRatio.toFixed(
-          2,
-        )}× quicker`,
+      : speedRatio < 1
+        ? `${seconds(ours.medianSuccessfulSeconds)} per task — faster than all ${published.length} published entries (fastest ${fastestPublished.label} ${seconds(
+            fastestPublished.medianSuccessfulSeconds,
+          )})`
+        : `${seconds(ours.medianSuccessfulSeconds)} per task — slowest of ${published.length + 1}: ${fastestPublished.label} is ${speedRatio.toFixed(
+            2,
+          )}× quicker`,
     { size: SIZE.delta, fill: INK.muted, anchor: "end", kind: "headline" },
   ),
 );
@@ -524,7 +528,10 @@ const footerLines = (
         ]
       : [
           {
-            text: `${seconds(ours.medianSuccessfulSeconds)} per successful task — slower than all ${published.length} published entries (field ${fieldSpread})`,
+            text:
+              speedRatio < 1
+                ? `${seconds(ours.medianSuccessfulSeconds)} per successful task — faster than all ${published.length} published entries (field ${fieldSpread})`
+                : `${seconds(ours.medianSuccessfulSeconds)} per successful task — slower than all ${published.length} published entries (field ${fieldSpread})`,
             fill: INK.accent,
             size: 30,
           },
@@ -649,9 +656,11 @@ const table = [
     fastestPublished.medianSuccessfulSeconds,
   )}, slowest ${seconds(Math.max(...published.map((entry) => entry.medianSuccessfulSeconds)))}${
     published.filter((entry) => entry.medianSuccessfulSeconds === Math.max(...published.map((other) => other.medianSuccessfulSeconds)))[0]?.label ?? ""
-  }). This run is therefore ${speedRatio.toFixed(2)}× the fastest entry and ${speedSlowestRatio.toFixed(
-    2,
-  )}× the slowest: **slower than every published entry on this metric**.`,
+  }). This run is therefore ${
+    speedRatio < 1
+      ? `**faster than every published entry on this metric** (${speedRatio.toFixed(2)}× the fastest entry)`
+      : `${speedRatio.toFixed(2)}× the fastest entry and ${speedSlowestRatio.toFixed(2)}× the slowest: **slower than every published entry on this metric**.`
+  }`,
   ``,
   speedRange === null
     ? `The speed spread across this repository's own full runs was not declared to this invocation (\`--speed-range\`), so it is not quoted here.`

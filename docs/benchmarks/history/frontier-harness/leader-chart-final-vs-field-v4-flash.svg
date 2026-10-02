@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2300" height="1320" viewBox="0 0 2300 1320" role="img" aria-label="FrontierHarness Eval v1.0: best-agent 60.0% at $0.1545 per pass, against the published FrontierHarness Eval v1.0 field"><title>best-agent 60.0% at $0.1545 per pass, against the published FrontierHarness Eval v1.0 field</title>
+<rect width="2300" height="1320" fill="#0a0a0c"/>
+<rect x="190.0" y="300.0" width="1826.0" height="760.0" rx="10" fill="#101014" stroke="#26262c" stroke-width="1"/>
+<line x1="191.0" y1="1060.0" x2="2015.0" y2="1060.0" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="1060.0" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">45%</text>
+<line x1="191.0" y1="962.6" x2="2015.0" y2="962.6" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="962.6" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">50%</text>
+<line x1="191.0" y1="865.1" x2="2015.0" y2="865.1" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="865.1" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">55%</text>
+<line x1="191.0" y1="767.7" x2="2015.0" y2="767.7" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="767.7" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">60%</text>
+<line x1="191.0" y1="670.3" x2="2015.0" y2="670.3" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="670.3" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">65%</text>
+<line x1="191.0" y1="572.8" x2="2015.0" y2="572.8" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="572.8" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">70%</text>
+<line x1="191.0" y1="475.4" x2="2015.0" y2="475.4" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="475.4" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">75%</text>
+<line x1="191.0" y1="377.9" x2="2015.0" y2="377.9" stroke="#26262c" stroke-width="1.2" stroke-dasharray="1 6"/>
+<text x="172.0" y="377.9" dy="9" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">80%</text>
+<line x1="190.0" y1="301.0" x2="190.0" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="190.0" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$0.1</text>
+<line x1="411.9" y1="301.0" x2="411.9" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="411.9" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$0.2</text>
+<line x1="705.2" y1="301.0" x2="705.2" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="705.2" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$0.5</text>
+<line x1="927.1" y1="301.0" x2="927.1" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="927.1" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$1</text>
+<line x1="1149.0" y1="301.0" x2="1149.0" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1149.0" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$2</text>
+<line x1="1442.4" y1="301.0" x2="1442.4" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1442.4" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$5</text>
+<line x1="1664.3" y1="301.0" x2="1664.3" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1664.3" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$10</text>
+<line x1="1886.2" y1="301.0" x2="1886.2" y2="1059.0" stroke="#26262c" stroke-width="1.1" stroke-dasharray="1 6"/>
+<text x="1886.2" y="1098.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="middle">$20</text>
+<text x="1103" y="1144" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">cost per pass (USD, log scale)</text>
+<text x="86" y="680" transform="rotate(-90 86 680)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" text-anchor="middle">pass rate</text>
+<line x1="191.0" y1="637.8" x2="2015.0" y2="637.8" stroke="#9a9aa2" stroke-width="1.5" stroke-dasharray="7 7" opacity="0.5"/>
+<text x="210.0" y="637.8" dy="-12" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#9a9aa2" font-weight="400" text-anchor="start">best published 66.7% (Codex)</text>
+<path d="M941.3,897.6 L1211.8,767.7 L1307.9,702.7 L1325.3,637.8" fill="none" stroke="#ff6418" stroke-width="1.8" opacity="0.5" stroke-linejoin="round"/>
+<circle cx="1325.3" cy="637.8" r="13.0" fill="#9385ff" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1307.9,689.7 1319.9,712.9 1295.9,712.9" fill="#70b6ee" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1858.4,688.4 1872.7,702.7 1858.4,717.0 1844.1,702.7" fill="#f0a57f" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1200.7,756.6 1222.8,756.6 1222.8,778.7 1200.7,778.7" fill="#f0f0f0" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1414.1,753.4 1428.4,767.7 1414.1,782.0 1399.8,767.7" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1313.4,756.6 1335.5,756.6 1335.5,778.7 1313.4,778.7" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1425.7,818.3 1440.0,832.6 1425.7,846.9 1411.4,832.6" fill="#f2a777" stroke="#0a0a0c" stroke-width="2"/>
+<circle cx="1341.4" cy="832.6" r="13.0" fill="#83d7c5" stroke="#0a0a0c" stroke-width="2"/>
+<circle cx="1423.8" cy="832.6" r="13.0" fill="#75b8ed" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="941.3,910.6 930.0,904.1 930.0,891.1 941.3,884.6 952.5,891.1 952.5,904.1" fill="#d3d3d3" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1292.9,951.5 1315.0,951.5 1315.0,973.6 1292.9,973.6" fill="#a978e7" stroke="#0a0a0c" stroke-width="2"/>
+<polygon points="1268.5,949.6 1280.4,972.7 1256.5,972.7" fill="#a3a3a3" stroke="#0a0a0c" stroke-width="2"/>
+<line x1="329.3" y1="767.7" x2="1584.6" y2="767.7" stroke="#ff6418" stroke-width="1.6" stroke-dasharray="4 5" opacity="0.65"/>
+<polygon points="1584.6,747.5 1589.8,760.5 1603.8,761.5 1593.0,770.4 1596.4,784.0 1584.6,776.6 1572.7,784.0 1576.2,770.4 1565.4,761.5 1579.4,760.5" fill="none" stroke="#ff6418" stroke-width="2.4" stroke-linejoin="round"/>
+<circle cx="329.3" cy="767.7" r="35.1" fill="none" stroke="#ff6418" stroke-width="2" opacity="0.15"/>
+<circle cx="329.3" cy="767.7" r="22.8" fill="none" stroke="#ff6418" stroke-width="2" opacity="0.38"/>
+<polygon points="329.3,742.3 335.9,758.7 353.5,759.9 339.9,771.1 344.2,788.2 329.3,778.8 314.4,788.2 318.7,771.1 305.2,759.9 322.8,758.7" fill="#ff6418" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/>
+<line x1="329.3" y1="726.2" x2="329.3" y2="726.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="499.3" y="685.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="32" fill="#ff6418" font-weight="700" text-anchor="middle">best-agent — 60.0%</text>
+<text x="499.3" y="719.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="27" fill="#e8e8ea" font-weight="400" text-anchor="middle">18/30 passed · $0.1545 per task</text>
+<line x1="941.3" y1="927.1" x2="941.3" y2="927.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="941.3" y="945.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Exo Harness</text>
+<text x="941.3" y="972.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#d3d3d3" font-weight="400" text-anchor="middle">53.3% · $1.05</text>
+<line x1="1211.8" y1="797.2" x2="1211.8" y2="797.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1211.8" y="815.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Pi</text>
+<text x="1211.8" y="842.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#f0f0f0" font-weight="400" text-anchor="middle">60.0% · $2.43</text>
+<line x1="1268.5" y1="992.1" x2="1268.5" y2="992.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1268.5" y="1010.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Hermes</text>
+<text x="1268.5" y="1037.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#a3a3a3" font-weight="400" text-anchor="middle">50.0% · $2.90</text>
+<line x1="1303.9" y1="916.9" x2="1303.9" y2="913.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1303.9" y="880.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">OpenCode</text>
+<text x="1303.9" y="907.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#a978e7" font-weight="400" text-anchor="middle">50.0% · $3.24</text>
+<line x1="1307.9" y1="657.0" x2="1307.9" y2="603.3" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1307.9" y="570.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">DSH Creator</text>
+<text x="1307.9" y="597.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#70b6ee" font-weight="400" text-anchor="middle">63.3% · $3.28</text>
+<line x1="1363.3" y1="743.7" x2="1404.4" y2="718.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1494.4" y="685.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">DSH Standard</text>
+<text x="1494.4" y="712.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#75b8ed" font-weight="400" text-anchor="middle">60.0% · $3.46</text>
+<line x1="1325.3" y1="592.1" x2="1325.3" y2="538.3" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1325.3" y="505.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Codex</text>
+<text x="1325.3" y="532.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#9385ff" font-weight="400" text-anchor="middle">66.7% · $3.47</text>
+<line x1="1341.4" y1="878.3" x2="1341.4" y2="912.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1421.4" y="930.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Kimi Code</text>
+<text x="1421.4" y="957.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#83d7c5" font-weight="400" text-anchor="middle">56.7% · $3.65</text>
+<line x1="1414.1" y1="722.0" x2="1414.1" y2="668.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1494.1" y="635.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">DSH PTC</text>
+<text x="1494.1" y="662.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#75b8ed" font-weight="400" text-anchor="middle">60.0% · $4.58</text>
+<line x1="1423.8" y1="878.3" x2="1423.8" y2="962.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1423.8" y="980.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">DSH Minimal</text>
+<text x="1423.8" y="1007.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#75b8ed" font-weight="400" text-anchor="middle">56.7% · $4.72</text>
+<line x1="1425.7" y1="862.1" x2="1425.7" y2="862.1" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1505.7" y="880.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Oh My Pi</text>
+<text x="1505.7" y="907.6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#f2a777" font-weight="400" text-anchor="middle">56.7% · $4.75</text>
+<line x1="1858.4" y1="732.2" x2="1858.4" y2="732.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1858.4" y="750.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="middle">Claude Code</text>
+<text x="1858.4" y="777.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#f0a57f" font-weight="400" text-anchor="middle">63.3% · $18.34</text>
+<line x1="1584.6" y1="722.0" x2="1584.6" y2="618.2" stroke="#e8e8ea" stroke-width="1.1" stroke-dasharray="3 5" opacity="0.34"/>
+<text x="1664.6" y="585.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#ff6418" font-weight="400" text-anchor="middle">same tokens on the field's price table</text>
+<text x="1664.6" y="612.7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="23" fill="#ff6418" font-weight="400" text-anchor="middle">$7.80 per pass</text>
+<rect x="88.0" y="52.0" width="30.0" height="30.0" fill="#ff6418"/>
+<text x="136.0" y="92.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="46" fill="#ff6418" font-weight="700" text-anchor="start">FrontierHarness Eval</text>
+<rect x="688.4" y="54.0" width="102.4" height="40.0" rx="8" fill="none" stroke="#26262c" stroke-width="1"/>
+<text x="739.6" y="82.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="middle">v1.0</text>
+<text x="88.0" y="148.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#9a9aa2" font-weight="400" text-anchor="start">pass rate against cost per pass · 30 tasks · one predeclared attempt per cell</text>
+<polygon points="108.0,186.0 111.6,195.0 121.3,195.7 113.9,201.9 116.2,211.3 108.0,206.2 99.8,211.3 102.1,201.9 94.7,195.7 104.4,195.0" fill="#ff6418" stroke="#0a0a0c" stroke-width="2" stroke-linejoin="round"/>
+<text x="140.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#e8e8ea" font-weight="400" text-anchor="start">best-agent — this repository's self-run</text>
+<text x="814.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" font-weight="400" text-anchor="start">published field staircase</text>
+<line x1="760.0" y1="200.0" x2="800.0" y2="200.0" stroke="#ff6418" stroke-width="1.8" opacity="0.6"/>
+<circle cx="1220.0" cy="200.0" r="11.0" fill="#9a9aa2" stroke="#0a0a0c" stroke-width="2"/>
+<text x="1244.0" y="210.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" fill="#9a9aa2" font-weight="400" text-anchor="start">12 published harnesses</text>
+<text x="2016.0" y="166.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="100" fill="#ff6418" font-weight="700" text-anchor="end">60.0%</text>
+<text x="2016.0" y="216.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#e8e8ea" font-weight="400" text-anchor="end">18 of 30 tasks passed</text>
+<text x="2016.0" y="252.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#9a9aa2" font-weight="400" text-anchor="end">$0.1545 per pass — 22× below Codex ($3.47)</text>
+<text x="2016.0" y="282.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="end">deepseek-v4.1-flash max effort</text>
+<text x="88.0" y="1220.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">A self-run is not comparable to the published leaderboard: this is best-agent on GitHub-hosted runners, the field is Kimi K3 on Runta checkpoints.</text>
+<text x="88.0" y="1248.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">Cost is a frozen price table, not a bill: this run on the adopted DeepSeek public list (off-peak), the field on kimi-k3-2026-08-20; the hollow star re-prices this run's tokens.</text>
+<text x="88.0" y="1276.0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#6a6a72" font-weight="400" text-anchor="start">run 37004410693: 18 passed / 12 failed / 0 without verdict · cost coverage 100% of 30 cells · field average 58.1% at $4.66 per pass.</text>
+</svg>
