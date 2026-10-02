@@ -107,9 +107,9 @@
     "result": "Every job succeeded in about 4 minutes: candidate build 1m58s, corpus 18s, plan 13s, the single Generate job 2m20s (Verify provider credential and Materialize the frozen provider identity both passed), aggregate report 10s. The task PASSED (disposition passed, 115.5s, 12 model calls, 216,595 tokens, reward 1) and the acceptance block reads candidate.single passed (cli-0.0.3-beta.41-da88e7a-03f964da98a4), provider.single passed (model(s) deepseek-v4-flash at reasoning effort max), verdicts.complete passed (1 present, 0 error), instructions.frozen passed, coverage.full failed exactly as a 1-of-30 smoke must.",
     "gateReading": "The two things this smoke existed to prove are mechanically proven: the candidate builds and runs, and deepseek-v4-flash serves real task attempts at reasoning effort max through the dim-oauth credential with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere."
   },
-  "dispatched": false,
-  "runId": null,
-  "runUrl": null,
-  "dispatchedAt": null,
+  "dispatched": true,
+  "runId": 37004410693,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37004410693",
+  "dispatchedAt": "2026-10-01T09:40:00Z",
   "outcome": {}
 }
