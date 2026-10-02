@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.33",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "d631b6230528c7cde415f2779534e579faa1bb8d",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 4,
+    "expectedEligible": 4,
+    "present": 4,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 3,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "passRate": 0.25,
+  "validCells": 4,
+  "passRateValidCells": 0.25,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "4 records agree on one frozen candidate (cli-0.0.3-beta.33-d631b62-13907d1e3c8d|0.0.3-beta.33|13907d1e3c8d4b0321670123860aa9fe3424d69af70028642442635bf27a4caa|bfe918cd2cfa6a4f471023cff4fe6d7773af3a271e68537f5ed283f13383a69f)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "4 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 4,
+    "promptTokens": 4133675,
+    "completionTokens": 126346,
+    "cacheReadTokens": 3904960,
+    "totalTokens": 4260021,
+    "modelCallCount": 136,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "passed",
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 788294,
+      "usage": {
+        "promptTokens": 892199,
+        "completionTokens": 28415,
+        "cacheReadTokens": 845888,
+        "costUsd": null,
+        "totalTokens": 920614,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 46311,
+        "modelCallCount": 29,
+        "reportedCallCount": 29,
+        "reportedInputTokens": 892199
+      },
+      "evidenceSha256": "19d6f76fef74decbe2f23c418a4b1c514f1ac8671710de64f0acf55d53e1a432",
+      "batchId": "diagnostic-timeout-rerun-20260924"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 1200.0 seconds"
+      },
+      "durationMs": 1231009,
+      "usage": {
+        "promptTokens": 1038350,
+        "completionTokens": 49376,
+        "cacheReadTokens": 968384,
+        "costUsd": null,
+        "totalTokens": 1087726,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 69966,
+        "modelCallCount": 38,
+        "reportedCallCount": 38,
+        "reportedInputTokens": 1038350
+      },
+      "evidenceSha256": "0e2c474420ee9b13d031ca15a9129d9fffaeb15f8ebb87ab3b53e8b9c64e61a6",
+      "batchId": "diagnostic-timeout-rerun-20260924"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 900.0 seconds"
+      },
+      "durationMs": 943855,
+      "usage": {
+        "promptTokens": 1316363,
+        "completionTokens": 31987,
+        "cacheReadTokens": 1230336,
+        "costUsd": null,
+        "totalTokens": 1348350,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 86027,
+        "modelCallCount": 31,
+        "reportedCallCount": 31,
+        "reportedInputTokens": 1316363
+      },
+      "evidenceSha256": "2e5605885fc3063c756171605345ccb73100809972aa659a7455caac5a43d8bd",
+      "batchId": "diagnostic-timeout-rerun-20260924"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "AgentTimeoutError",
+        "message": "Agent execution timed out after 900.0 seconds"
+      },
+      "durationMs": 932727,
+      "usage": {
+        "promptTokens": 886763,
+        "completionTokens": 16568,
+        "cacheReadTokens": 860352,
+        "costUsd": null,
+        "totalTokens": 903331,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 26411,
+        "modelCallCount": 38,
+        "reportedCallCount": 38,
+        "reportedInputTokens": 886763
+      },
+      "evidenceSha256": "2b6aa5ba4d3a5cf2d23390a3b244336d8ae5b5defb6a51ac9b257e6d9b315bc1",
+      "batchId": "diagnostic-timeout-rerun-20260924"
+    }
+  ]
+}

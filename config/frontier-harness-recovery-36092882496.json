@@ -1,0 +1,706 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "source": {
+    "runId": 36092882496,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36092882496",
+    "headSha": "f366a572797c42b867af8153c897a689caecc8e4",
+    "batchId": "latest-beta34-6ce38f17-high-20260925",
+    "formalRunId": "formal-36092882496",
+    "reportArtifact": "frontier-harness-report-36092882496",
+    "reportSha256": "3fd51d66316d52dd712334bbfefdfbe11dbc1b38a8a1f94675e19926180d4a6f",
+    "candidateId": "cli-0.0.3-beta.34-6ce38f1-102986a152ee",
+    "candidatePin": "config/frontier-harness.json#cli (sourceCommit 6ce38f173e74259726a8532ebad58f6e0797be2c, cliVersion 0.0.3-beta.34)",
+    "verdicts": {
+      "passed": 19,
+      "failed": 11,
+      "error": 0,
+      "notEvaluated": 0,
+      "coverage": "30 of 30 Docker-eligible corpus tasks predeclared",
+      "passAt1": 0.6333333333333333,
+      "reasonPassAt1Present": "all five acceptance criteria passed and the corpus has no missing verdict"
+    },
+    "failureClassification": {
+      "byStage": {
+        "model": 7,
+        "agent-timeout": 3,
+        "specification-gap": 1
+      },
+      "upstreamFailures": 0,
+      "environmentFailures": 0,
+      "method": "Every one of the 11 failed attempts was classified mechanically from its own frozen evidence: the per-task result record (exception, effectiveAgentTimeoutSec, durationMs, pierExitCode, modelOutcomes) plus its best-agent-evidence.jsonl (model-request and model-outcome counts, model-failure entries). No classification was inferred from the verifier, from logs, or from prose.",
+      "finding": "The count of model-failure entries is 0 in all 11 failed attempts; model requests and outcomes are equal or differ by exactly one (the request the harness cut at the budget boundary); pierExitCode is 0 for all 11; the aggregate report records 0 error and 0 not-evaluated cells. No task in run 36092882496 failed for an upstream/provider or an environment reason. The only rerun-eligible failures are the 3 agent-budget timeouts below."
+    },
+    "notRerun": [
+      {
+        "stage": "model",
+        "tasks": [
+          "datacurve/expr-try-catch-errors",
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/scc-bounded-memory-spilling",
+          "terminal-bench/db-wal-recovery",
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "reason": "Each ended with terminalCause completed well inside its own budget (3025s/5400s, 2459s/5400s, 1606s/5400s, 646s/900s, 651s/1800s, 215s/900s, 441s/900s), with zero model-failure entries and a real graded verifier result (f2p 78/79, 0/94, 28/31, and reward=0 respectively). These are genuine capability outcomes of the agent, not upstream, timeout or environment effects, so they are not rerun: re-running a genuine model failure to obtain a different verdict is best-of-N / rescue and is prohibited by the repository's benchmark rules."
+      },
+      {
+        "stage": "specification-gap",
+        "tasks": [
+          "datacurve/meriyah-explicit-resource-declarations"
+        ],
+        "reason": "Pre-declared in config/frontier-harness.json#specificationGaps: the task's pinned instruction omits a rule its hidden tests require. The attempt itself was a real model outcome (252 model outcomes, 252/252 answered, 4077s/5400s, terminalCause completed) and the aggregate report already excludes this task from capability comparisons. A rerun cannot repair a frozen task defect, and the source run's own classification leaves its verdict standing unchanged."
+      }
+    ]
+  },
+  "batches": [
+    {
+      "id": "diagnostic-timeout-rerun-20260925",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "terminal-bench/chess-best-move",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval"
+      ],
+      "reason": "User-authorized rerun of the failures whose cause is a timeout. Each task carries an existing canonical verdict (failed) in run 36092882496, so this batch is a variance probe only and can never replace or reinterpret those verdicts. Mechanical classification of the timeout: all three attempts ended on AgentTimeoutError at their own official 900s agent budget (947s, 930s, 933s) while the agent was still iterating, and every one of the three frozen attempt evidences contains zero model-failure entries (chess-best-move 35 requests / 35 outcomes, gcode-to-text 49/48, largest-eigenval 21/20 \u2014 the single unanswered request in the last two is the one cut at the budget boundary). The agent was killed at the budget boundary, not by a provider transport or connection failure. The timeout is chronic across candidates: the same tasks also hit their official budget in run 35992545942 (candidate d631b623/beta.33), where chess-best-move passed inside budget in the diagnostic rerun 36005393416 and the other two reproduced their timeout. In run 36092882496 the fourth chronic task, terminal-bench/code-from-image, completed inside its own budget and passed, so it is not in this batch. The official agent budget is preserved (fh_agent_timeout_multiplier=1); it is never extended to convert a budget outcome into a pass.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace the canonical verdicts of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is unchanged from the source run (config/frontier-harness.json is unchanged); the recorded candidateId must match cli-0.0.3-beta.34-6ce38f1-*.",
+        "The official agent/verifier time budgets are preserved, never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "Only these three timeout failures are rerun; the seven genuine model failures and the pre-declared specification-gap task are deliberately excluded, as recorded in source.notRerun."
+      ],
+      "dispatched": true,
+      "runId": 36103695160,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36103695160",
+      "batchId": "diagnostic-timeout-rerun-20260925",
+      "candidateId": "cli-0.0.3-beta.34-6ce38f1-6ccec301a8d4",
+      "candidateBinarySha256": "6ccec301a8d4d7613e100ee1c19998ec18c8414429419cec535e9b5548a9ea80",
+      "candidateNote": "Same source commit and unchanged pin as the source run, but a different binary sha256 than the source run's 102986a152ee5f8b4fc0efda7639802dafcfc123939c369d925b5e8914edc123: the SEA build is not byte-reproducible, as the source run's own record states.",
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_tasks": "terminal-bench/chess-best-move,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval",
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 3,
+        "fh_batch": "diagnostic-timeout-rerun-20260925"
+      },
+      "outcome": {
+        "terminal-bench/chess-best-move": "failed",
+        "terminal-bench/gcode-to-text": "failed",
+        "terminal-bench/largest-eigenval": "failed"
+      },
+      "outcomeDetail": {
+        "terminal-bench/chess-best-move": "Reproduced the timeout: AgentTimeoutError at 941s of the official 900s budget, 39 model outcomes, zero model-failure entries (39 requests, 39 answered).",
+        "terminal-bench/gcode-to-text": "Reproduced the timeout: AgentTimeoutError at 930s of 900s, 39 model outcomes, zero model-failure entries (40 requests, 39 answered; the single unanswered request is the one cut at the budget boundary).",
+        "terminal-bench/largest-eigenval": "Reproduced the timeout: AgentTimeoutError at 930s of 900s, 34 model outcomes, zero model-failure entries (35 requests, 34 answered; the single unanswered request is the one cut at the budget boundary)."
+      },
+      "aggregate": {
+        "present": 3,
+        "missing": 0,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0,
+        "acceptance": "verdicts.complete, candidate.single, provider.single, instructions.frozen passed; coverage.full failed by design (3 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+      },
+      "evidence": "Artifact frontier-harness-report-36103695160 (report.json + report.json.md + failures.json) and the per-task artifacts frontier-harness-task-36103695160-<task>; frozen record docs/benchmarks/history/frontier-harness/20260925T063724Z--36103695160.json (sha256 b4a9cd0ee56c012a9b970e6515f877c10e7ad02b0a3c8ec129ec88e634b97f70) with its Chinese record. The batch ran 7/7 jobs green in 19m05s.",
+      "conclusion": "3 of 3 timeout verdicts reproduced and every attempt again recorded zero model-failure entries with pierExitCode 0, so the timeout remains a budget outcome of the agent, not an upstream/provider outage and not an environment death. Across candidates the timeout is chronic for gcode-to-text and largest-eigenval; chess-best-move has real run-to-run variance (it passed inside budget in run 36005393416 under candidate d631b623) but was killed at the 900s boundary in both attempts of this candidate. No further rerun of these tasks is permitted."
+    },
+    {
+      "id": "diagnostic-failed-rerun-20260926",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/scc-bounded-memory-spilling",
+        "terminal-bench/chess-best-move",
+        "terminal-bench/db-wal-recovery",
+        "terminal-bench/dna-insert",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval",
+        "terminal-bench/openssl-selfsigned-cert",
+        "terminal-bench/sanitize-git-repo"
+      ],
+      "reason": "Every one of the 11 cells that failed in run 36092882496 is re-measured on a NEW candidate (0.0.3-beta.36 / c9ae2e2f), which is the first candidate that carries spec 241: bounded per-call call times in the attempt evidence. This is a measurement of the new candidate, not a rescue of the old verdicts. Two questions only: (a) does each failure reproduce on a different candidate, and (b) where did each attempt's wall clock actually go. Question (b) could not be answered from any earlier artifact at all: every elapsed-time figure in the previous records is a derivation (a waitMs sum, or durationMs divided by the model-call count), and a request the harness cut at the budget boundary carried no time bound whatsoever. The new candidate changes measurement and naming only: spec 241 records two bounded integers on an existing record variant, and the runner-side B1 conformance renames an attempt-derived ceiling without changing its value. No task-visible behaviour, tool surface, instruction text or budget changes, so this batch is expected to measure variance rather than improvement, and it cannot support any capability claim.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace or reinterpret any canonical verdict of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is the new one (config/frontier-harness.json#cli = 0.0.3-beta.36 / c9ae2e2f), declared here before dispatch; it is deliberately not the source run's candidate.",
+        "Because the candidate differs, nothing in this batch is comparable with run 36092882496 or with batch diagnostic-timeout-rerun-20260925; it is a separate measurement.",
+        "The official agent/verifier time budgets are preserved (fh_agent_timeout_multiplier=1), never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "Batch diagnostic-timeout-rerun-20260925 concluded that no further rerun of its three tasks was permitted; that conclusion was about the variance of candidate d631b623/6ce38f17 and is not contradicted here, because this batch measures a different candidate for a different purpose.",
+        "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons."
+      ],
+      "candidatePin": "config/frontier-harness.json#cli (sourceCommit c9ae2e2fefb9f20cc0f57e6dfd8d0c9120aa2bd6, cliVersion 0.0.3-beta.36)",
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 8,
+        "fh_batch": "diagnostic-failed-rerun-20260926"
+      },
+      "candidateId": null,
+      "outcome": null,
+      "outcomeDetail": null,
+      "evidence": null,
+      "splitReason": "The workflow refuses more than 10 predeclared tasks per run (\"Each workflow run must preselect between 1 and 10 tasks.\"), so the 11 declared cells are dispatched as two parts. The parts run sequentially on purpose: two concurrent runs would put up to 16 model calls in flight against the same provider, and the whole point of this batch is a clean measurement, so the frozen conditions of the source run (fh_max_parallel=8, one run at a time) are preserved. Part A holds the six longest-budget cells and part B the five shorter ones.",
+      "dispatchFailure": {
+        "runId": 36161850040,
+        "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36161850040",
+        "stage": "plan",
+        "reason": "Each workflow run must preselect between 1 and 10 tasks (11 were declared). The plan job exited 1, the Generate matrix was empty, and no task attempt was made; the run produced no per-task record and no verdict.",
+        "note": "Not a measurement and not a task outcome. The candidate freeze job in that run did succeed, so candidate 0.0.3-beta.36 / c9ae2e2f is confirmed buildable and delivery-verified."
+      },
+      "dispatches": [
+        {
+          "part": "a",
+          "tasks": [
+            "datacurve/expr-try-catch-errors",
+            "datacurve/katex-multicolumn-array-spans",
+            "datacurve/meriyah-explicit-resource-declarations",
+            "datacurve/scc-bounded-memory-spilling",
+            "terminal-bench/dna-insert",
+            "terminal-bench/sanitize-git-repo"
+          ],
+          "dispatched": true,
+          "runId": 36162170626,
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36162170626",
+          "batchLabel": "diagnostic-failed-rerun-20260926a",
+          "fhMaxParallel": 6,
+          "candidateId": "cli-0.0.3-beta.36-c9ae2e2-256240336629",
+          "outcome": {
+            "datacurve/expr-try-catch-errors": "error",
+            "datacurve/katex-multicolumn-array-spans": "passed",
+            "datacurve/meriyah-explicit-resource-declarations": "failed",
+            "datacurve/scc-bounded-memory-spilling": "passed",
+            "terminal-bench/dna-insert": "passed",
+            "terminal-bench/sanitize-git-repo": "failed"
+          },
+          "outcomeDetail": {
+            "datacurve/katex-multicolumn-array-spans": "Flipped from failed (f2p 0/94) to passed (reward=1, f2p 94/94, p2p 599/599). The candidate carries no task-affecting change over the source run, so this is run-to-run variance, not improvement.",
+            "datacurve/scc-bounded-memory-spilling": "Flipped from failed (f2p 28/31) to passed (reward=1, f2p 31/31, p2p 286/286). Same reading: variance.",
+            "terminal-bench/dna-insert": "Flipped from failed (651s/1800s) to passed (reward=1, 509s). Same reading: variance.",
+            "datacurve/meriyah-explicit-resource-declarations": "Reproduced: failed, f2p 45/49, p2p 51469/51469 \u2014 the pre-declared specification gap, excluded from capability comparisons.",
+            "terminal-bench/sanitize-git-repo": "Reproduced: failed, reward=0, 167s (source run 441s).",
+            "datacurve/expr-try-catch-errors": "NOT a task outcome: the attempt died on an explicit upstream provider transport failure (one model-failure entry, reason=connection; NonZeroAgentExitCodeError; pierExitCode=0; 295 requests / 294 outcomes, 0 unanswered; verifier f2p partial 0.9988, i.e. the attempt was nearly complete). disposition=error means the cell carries no verdict. Re-measured in part B under the user's standing authorization for upstream-caused failures."
+          },
+          "evidence": "Artifact frontier-harness-report-36162170626; frozen record docs/benchmarks/history/frontier-harness/20260925T163943Z--36162170626.json (sha256 06b245ef8618f04a303ae1976ae610316fa9971fd25548d3471e030f50c6e6cd) with its Chinese record. 9/9 jobs green in 1h19m34s; 3 passed / 2 failed / 1 error; 0 budget-exhausted.",
+          "candidateBinarySha256": "2562403366298b52959c03989c0b17db7d4f4153e9f2e67929dbed1479ff0e6f",
+          "measuredCallDurations": {
+            "note": "First artifact set whose attempt evidence carries measured call times (spec 241). Model share = sum of per-call durations / agent wall clock; the error cell exceeds 100% because it ran subagents in parallel.",
+            "perTask": {
+              "datacurve/expr-try-catch-errors": {
+                "calls": 295,
+                "sumSec": 5309,
+                "medianSec": 9.6,
+                "maxSec": 584.0,
+                "wallSec": 4296,
+                "modelSharePct": 124
+              },
+              "datacurve/katex-multicolumn-array-spans": {
+                "calls": 162,
+                "sumSec": 3538,
+                "medianSec": 12.9,
+                "maxSec": 321.9,
+                "wallSec": 3726,
+                "modelSharePct": 95
+              },
+              "datacurve/meriyah-explicit-resource-declarations": {
+                "calls": 253,
+                "sumSec": 4252,
+                "medianSec": 10.9,
+                "maxSec": 132.3,
+                "wallSec": 4590,
+                "modelSharePct": 93
+              },
+              "datacurve/scc-bounded-memory-spilling": {
+                "calls": 123,
+                "sumSec": 2805,
+                "medianSec": 15.9,
+                "maxSec": 312.5,
+                "wallSec": 3011,
+                "modelSharePct": 93
+              },
+              "terminal-bench/dna-insert": {
+                "calls": 21,
+                "sumSec": 450,
+                "medianSec": 5.3,
+                "maxSec": 214.8,
+                "wallSec": 502,
+                "modelSharePct": 90
+              },
+              "terminal-bench/sanitize-git-repo": {
+                "calls": 12,
+                "sumSec": 127,
+                "medianSec": 10.3,
+                "maxSec": 18.3,
+                "wallSec": 162,
+                "modelSharePct": 78
+              }
+            },
+            "unansweredRequests": 0,
+            "finding": "Model-call time is 78-95% of the agent wall clock on every cell of this part; tool and process waits are the minority. The hypothesis that recovering wasted tool waits would flip a timeout verdict is not supported here."
+          },
+          "conclusion": "Three of five valid cells flipped to passed on a candidate with no task-affecting change over the source run, which is direct evidence of run-to-run variance in per-task verdicts. One cell (expr-try-catch-errors) carries no verdict because of an explicit upstream provider transport failure. No cell exhausted its budget."
+        },
+        {
+          "part": "b",
+          "tasks": [
+            "terminal-bench/chess-best-move",
+            "terminal-bench/db-wal-recovery",
+            "terminal-bench/gcode-to-text",
+            "terminal-bench/largest-eigenval",
+            "terminal-bench/openssl-selfsigned-cert",
+            "datacurve/expr-try-catch-errors"
+          ],
+          "dispatched": true,
+          "runId": 36171961895,
+          "dispatchNote": "Part B is dispatched only after part A reached a terminal state, so the provider load stays comparable to the source run. It now carries 6 cells: the 5 originally declared plus the upstream-failed error cell of part A.",
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36171961895",
+          "batchLabel": "diagnostic-failed-rerun-20260926b",
+          "fhMaxParallel": 6,
+          "candidateId": "cli-0.0.3-beta.36-c9ae2e2-55b6e33f4e61",
+          "outcome": {
+            "terminal-bench/chess-best-move": "passed",
+            "terminal-bench/db-wal-recovery": "passed",
+            "terminal-bench/gcode-to-text": "failed",
+            "terminal-bench/largest-eigenval": "failed",
+            "terminal-bench/openssl-selfsigned-cert": "passed",
+            "datacurve/expr-try-catch-errors": "passed"
+          },
+          "outcomeDetail": {
+            "terminal-bench/chess-best-move": "Flipped from failed (AgentTimeoutError at 947s of the official 900s budget) to passed: reward=1, terminalCause=completed, 894s of the 900s budget, 35 model outcomes, 0 unanswered requests. It did not exhaust its budget this time; it has real run-to-run variance (it also passed inside budget in run 36005393416 and was killed at 941s in run 36103695160).",
+            "terminal-bench/db-wal-recovery": "Flipped from failed (model, 646s/900s, reward=0) to passed: reward=1, but this attempt did exhaust the budget (AgentTimeoutError at the 900s edge, 940s elapsed, 30 model outcomes, 1 request cut at the boundary). The verifier grades the delivered artifacts, so a budget-exhausted attempt still carries a real verdict.",
+            "terminal-bench/gcode-to-text": "Reproduced: failed, reward=0, AgentTimeoutError at the 900s edge (940s), 39 model outcomes, 1 request cut at the budget boundary.",
+            "terminal-bench/largest-eigenval": "Reproduced: failed, reward=0, AgentTimeoutError at the 900s edge (931s), 10 model outcomes, 1 request cut at the budget boundary.",
+            "terminal-bench/openssl-selfsigned-cert": "Flipped from failed (model, 215s/900s, reward=0) to passed: reward=1, terminalCause=completed, 158s, 22 model outcomes.",
+            "datacurve/expr-try-catch-errors": "Resolves the part A error cell: passed, reward=1, f2p 79/79, p2p 66265/66265, terminalCause=completed in 3306s, 214 model outcomes and 0 model-failure entries. The upstream transport failure of part A did not recur; that error record stands unchanged."
+          },
+          "aggregate": {
+            "present": 6,
+            "missing": 0,
+            "passed": 4,
+            "failed": 2,
+            "error": 0,
+            "notEvaluated": 0,
+            "budgetExhausted": 3,
+            "budgetExhaustedStillPassed": 1,
+            "passRate": 0.6666666666666666,
+            "acceptance": "verdicts.complete, candidate.single, provider.single and instructions.frozen passed; coverage.full failed by design (6 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+          },
+          "evidence": "Artifact frontier-harness-report-36171961895 (report.json sha256 8c1fc67cbe351b7224632f69a2c2366bdd91fa93b50f9a2579163d8b4f3c24ac, report.json.md, failures.json, failures.md, expected-tasks.txt) with the per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260925T181239Z--36171961895.json (same sha256) with its Chinese record. 10/10 jobs green in 57m53s; 4 passed / 2 failed / 0 error; 3 budget-exhausted of which 1 still passed.",
+          "candidateBinarySha256": "55b6e33f4e61965ac0192c658b6e633a783583ab5b9219715fc803d5f7c7f740",
+          "measuredCallDurations": {
+            "note": "Same measurement as part A (spec 241): startedAtMs on each model-request record, durationMs on its matching model-outcome or model-failure. calls = model-request records, including a request cut at the budget boundary; closures = requests with a matching outcome. Model share = sum of per-call durations / agent wall clock.",
+            "perTask": {
+              "terminal-bench/chess-best-move": {
+                "calls": 35,
+                "sumSec": 829,
+                "medianSec": 6.9,
+                "maxSec": 229.8,
+                "wallSec": 885,
+                "modelSharePct": 94
+              },
+              "terminal-bench/db-wal-recovery": {
+                "calls": 31,
+                "sumSec": 901,
+                "medianSec": 21.3,
+                "maxSec": 190.2,
+                "wallSec": 936,
+                "modelSharePct": 96
+              },
+              "terminal-bench/gcode-to-text": {
+                "calls": 40,
+                "sumSec": 743,
+                "medianSec": 5.3,
+                "maxSec": 208.3,
+                "wallSec": 936,
+                "modelSharePct": 79
+              },
+              "terminal-bench/largest-eigenval": {
+                "calls": 11,
+                "sumSec": 710,
+                "medianSec": 8.5,
+                "maxSec": 578.1,
+                "wallSec": 927,
+                "modelSharePct": 77
+              },
+              "terminal-bench/openssl-selfsigned-cert": {
+                "calls": 22,
+                "sumSec": 126,
+                "medianSec": 4.6,
+                "maxSec": 15.4,
+                "wallSec": 154,
+                "modelSharePct": 82
+              },
+              "datacurve/expr-try-catch-errors": {
+                "calls": 214,
+                "sumSec": 2540,
+                "medianSec": 5.8,
+                "maxSec": 193.0,
+                "wallSec": 3302,
+                "modelSharePct": 77
+              }
+            },
+            "unansweredRequests": 3,
+            "unansweredRequestsDetail": {
+              "terminal-bench/db-wal-recovery": "1 — startedAtMs 902137",
+              "terminal-bench/gcode-to-text": "1 — startedAtMs 873743",
+              "terminal-bench/largest-eigenval": "1 — startedAtMs 717213"
+            },
+            "modelFailures": 0,
+            "finding": "Model-call time is 77-96% of the agent wall clock on every cell, so tool and process waits are the minority. The hypothesis that recovering wasted tool waits would flip a timeout verdict is not supported by measurement: on db-wal-recovery the model-time sum alone (901s) exceeds the whole 900s budget, and on the two reproduced timeouts the model-time sum is 83% (gcode-to-text, 743s) and 79% (largest-eigenval, 710s) of the budget, while the spread of a single model call (max 190.2s / 208.3s / 578.1s) is far larger than the non-model time that remains. chess-best-move, the cell the earlier ~180s process-polling upper bound was derived from, measured only 56s of non-model time and finished inside its budget."
+          },
+          "conclusion": "4 of 6 cells flipped to passed on a candidate with no task-affecting change over the source run, which is run-to-run variance rather than improvement; the 2 reproduced failures are both budget outcomes at the official 900s edge. gcode-to-text and largest-eigenval have now hit their official budget in four measured attempts across three candidates (chronic), while chess-best-move and db-wal-recovery flipped. All six attempts again recorded zero model-failure entries with pierExitCode 0, and the part A error cell is resolved as a clean pass. No further rerun is proposed for these cells."
+        }
+      ],
+      "partBAdditions": [
+        {
+          "task": "datacurve/expr-try-catch-errors",
+          "from": "part A (run 36162170626)",
+          "stage": "provider",
+          "reason": "Explicit upstream provider transport failure, mechanically proven: exactly one model-failure entry with reason=connection, NonZeroAgentExitCodeError, pierExitCode=0, 295 requests against 294 outcomes with 0 unanswered, and a verifier that had run with f2p partial 0.9988. disposition=error, so the cell carries no verdict and nothing is being reinterpreted. The user's standing authorization is to re-run failures caused by upstream problems, timeouts or external factors.",
+          "boundary": "This is a diagnostic re-measurement inside a diagnostic batch, not a benchmark-level recovery that fills a formal cell: the attempt produced a model.patch, so the 'no prediction' condition of the recovery rule is not met, and this cell is therefore never treated as a missing formal cell. The error disposition of part A stands as that batch's record and is never overwritten."
+        }
+      ]
+    },
+    {
+      "id": "diagnostic-latest-rerun-20260927",
+      "kind": "diagnostic-rerun",
+      "tasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/scc-bounded-memory-spilling",
+        "terminal-bench/chess-best-move",
+        "terminal-bench/db-wal-recovery",
+        "terminal-bench/dna-insert",
+        "terminal-bench/gcode-to-text",
+        "terminal-bench/largest-eigenval",
+        "terminal-bench/openssl-selfsigned-cert",
+        "terminal-bench/sanitize-git-repo"
+      ],
+      "reason": "User-authorized re-measurement of the same 11 cells that failed in run 36092882496, on a candidate built from the latest main of the source repository: 0.0.3-beta.37 / a5784538. This is a measurement of the new candidate, not a rescue of the old verdicts: the canonical verdicts of run 36092882496 and the diagnostic outcomes of batch diagnostic-failed-rerun-20260926 are preserved, never replaced, never reinterpreted and never merged. Two questions only: (a) does each failure reproduce on the freshly built latest main, and (b) how do the outcomes and the spec-241 measured per-call times compare with the source run and with the beta.36 measurement. Candidate delta, mechanically checked in the source repository: beta.36 -> beta.37 is 33 commits over 95 files, and none of them changes the benchmark path's executed behaviour. Eight changed files are inside the value-import closure of the headless entry (apps/cli/src/index.ts -> v3-run.ts:326 -> product-slices/thread-orchestration-root.ts:274), but none executes under the argv the benchmark actually uses (scripts/frontier-harness-harness.mjs:195 builds `best-agent run ...` with no --compact-dir): product-slices/compact.ts is enabled only by --compact-dir (v3-run.ts:1402, v3-run-options.ts:457/956), so compactedContextSelected stays false and v3-prompt-composition.ts:305 appends nothing; native-runtime-bridge.ts is reached only through applicationRootFamily.nativeBridge (TUI / subagent loop) while run goes through runV3SinglePromptWithThreadOrchestration; dimsdk/shared/git-branch.ts has no call site in v3-run.ts; the remaining changed files are TUI-only slices and pages, generated product manifests, tests and docs. So, exactly as with beta.34 -> beta.36, no changed file lands on the benchmark path's executed behaviour, and any outcome difference in this batch is run-to-run variance rather than an effect of the new code; the batch cannot support a capability claim.",
+      "constraints": [
+        "This batch is diagnostic only: its outcomes cannot replace or reinterpret any canonical verdict of run 36092882496 and cannot enter a pass@1.",
+        "The candidate pin is the new one (config/frontier-harness.json#cli = 0.0.3-beta.37 / a5784538), declared here before dispatch; it is deliberately neither the source run's candidate (0.0.3-beta.34 / 6ce38f17) nor the previous batch's (0.0.3-beta.36 / c9ae2e2f).",
+        "Because the candidate differs, nothing in this batch is comparable with run 36092882496 or with batch diagnostic-failed-rerun-20260926, and it is never merged with either. Batch diagnostic-failed-rerun-20260926 concluded that no further rerun was proposed for these cells; that conclusion was about the variance of its own candidate and its own measurement, and it is not contradicted here, because this batch measures a different candidate for a different purpose.",
+        "The official agent/verifier time budgets are preserved (fh_agent_timeout_multiplier=1), never extended.",
+        "The original verdicts and their evidence are preserved and are never overwritten.",
+        "The previously declared specification gap (datacurve/meriyah-explicit-resource-declarations) is included for completeness only; its re-measurement cannot repair a frozen task defect and stays excluded from capability comparisons.",
+        "The dispatch is user-authorized: on 2026-09-27 the user asked to build the latest code and re-run the failed tasks."
+      ],
+      "candidatePin": "config/frontier-harness.json#cli (sourceCommit a5784538ba627a80ffaf37d95e6893277154b0af, cliVersion 0.0.3-beta.37)",
+      "dispatchInputs": {
+        "fh_run": true,
+        "fh_run_full": false,
+        "fh_reasoning_effort": "high",
+        "fh_agent_timeout_multiplier": 1,
+        "fh_max_parallel": 6,
+        "fh_batch": "diagnostic-latest-rerun-20260927"
+      },
+      "candidateId": "cli-0.0.3-beta.37 (part A binary aa3d4b0fd3b9, part B binary d74e506a2bec — same source commit a5784538, SEA build not byte-reproducible)",
+      "outcome": {
+        "partA": "2 passed / 4 failed / 0 error (run 36285013315)",
+        "partB": "3 passed / 2 failed / 0 error (run 36288388627)",
+        "combined": "5 passed / 6 failed / 0 error out of 11 cells (diagnostic tally only, never a pass@1)"
+      },
+      "outcomeDetail": {
+        "flipsToPassed": "datacurve/expr-try-catch-errors (source failed f2p 78/79), datacurve/katex-multicolumn-array-spans (source failed f2p 0/94), terminal-bench/chess-best-move (source agent-timeout 947s), terminal-bench/db-wal-recovery (source model failure, reward=0), terminal-bench/openssl-selfsigned-cert (source model failure, reward=0)",
+        "reproducedFailures": "datacurve/meriyah-explicit-resource-declarations (specification gap, f2p 48/49), terminal-bench/gcode-to-text (third consecutive budget timeout), terminal-bench/largest-eigenval (third consecutive budget timeout)",
+        "revertedToSourceFailure": "datacurve/scc-bounded-memory-spilling (f2p 28/31, identical to the source run; it had passed in beta.36 part A), terminal-bench/dna-insert (first measured instance of this task hitting its own 1800s budget; it passed at 509s in beta.36 part A), terminal-bench/sanitize-git-repo (third consecutive failure)",
+        "reading": "The candidate carries no task-affecting change over the source run or over beta.36 (mechanically checked: the benchmark argv has no --compact-dir, so compact/context/prompt changes never execute; the native bridge is only instantiated on TUI/subagent paths; git-branch has no call site in v3-run.ts). Every verdict difference in this batch is therefore run-to-run variance, not improvement, and the batch supports no capability claim.",
+        "varianceMagnitude": "db-wal-recovery measured 89s of model time in this batch versus 901s in beta.36 (where it exhausted its budget but still passed) and 646s in the source run; chess-best-move 460s versus 829s; dna-insert went from a 509s pass (beta.36) to a budget timeout (part A)."
+      },
+      "aggregate": {
+        "parts": 2,
+        "cells": 11,
+        "passed": 5,
+        "failed": 6,
+        "error": 0,
+        "notEvaluated": 0,
+        "budgetExhausted": 3,
+        "budgetExhaustedStillPassed": 0,
+        "budgetExhaustedTasks": [
+          "terminal-bench/dna-insert",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval"
+        ],
+        "acceptance": "Both parts: verdicts.complete, candidate.single, provider.single, instructions.frozen passed; coverage.full failed by design (6 of 30 and 5 of 30 predeclared), so both parts are scoreable=false, capabilityMeasurement=false, passAt1=null"
+      },
+      "evidence": "Artifacts frontier-harness-report-36285013315 (report.json sha256 fcc83b8f8842ef70751b7fce63879f64551b129a039875efa0baa1ae32f03f77) and frontier-harness-report-36288388627 (report.json sha256 70f5a14c4a55b765d966de9baa0bb1340529e2082751798c7b7b360e481e9360); frozen records docs/benchmarks/history/frontier-harness/20260927T011603Z--36285013315.json and docs/benchmarks/history/frontier-harness/20260927T022348Z--36288388627.json with their Chinese records. Part A: 10/10 jobs green, 56m31s. Part B: 9/9 jobs green, 18m17s. Zero model-failure entries, pierExitCode 0 and pierSignal null across all 11 attempts.",
+      "conclusion": "Re-measured the same 11 failed cells of run 36092882496 on a candidate built from the latest main (0.0.3-beta.37 / a5784538), which carries no task-affecting change: 5 passed / 6 failed / 0 error, of which 3 cells hit their official budget (dna-insert for the first time, gcode-to-text and largest-eigenval for the third consecutive measurement). All 11 attempts recorded zero model-failure entries with pierExitCode 0, so nothing failed for an upstream, provider or environment reason. The mechanical per-call measurement keeps showing that the wall clock is dominated by model latency (54-100% across the 11 cells); on the two chronic timeouts gcode-to-text's model-time sum alone reached 94% of the whole 900s budget, which bounds any tool-wait optimisation there to at most 77s. The verdict pattern differs from both the source run and the beta.36 re-measurement on the same cells, so per-task verdicts at this budget are dominated by run-to-run variance and single-run verdicts cannot support capability claims.",
+      "nonModelAttribution": {
+        "method": "Union-of-intervals attribution of the agent wall clock, computed from the same frozen evidence the per-call measurement uses (model-request.startedAtMs and the matching closure's durationMs), by .tmp/fh-local-20260924/non-model-attribution.mjs. Model-busy is the union of every call interval, because calls can overlap (a subagent's requests are separate runs and a sum can exceed the wall clock); non-model time is wall clock minus that union, and it decomposes into head (agent start to first call), the gaps between calls (tool execution plus prompt assembly), and the tail (after the last call ends). The per-call table above divides a SUM by the wall clock, so it over- or under-states the model share whenever calls overlap; the numbers below are the decomposition.",
+        "correction": "The Chinese record for part A states that dna-insert was 'the first cell in this repository whose non-model time approaches half the wall clock (847s)'. That reading is wrong and is corrected here: the 847s is not tool or process time. Union attribution puts dna-insert's model-busy time at 1791s of its 1835s wall clock (98%), with 44s (2%) non-model, of which 34.9s is the post-kill tail; its inter-call gaps sum to 9s (median 0.0s, max 4.0s). The 847s is a single model call that stayed in flight: the last request started at 992.9s and was never answered before the attempt was killed at its 1800s budget, so it was in flight for about 807s. The CLI's own per-call ceiling is modelTimeoutMs=840000 (840s), which is longer than the budget that remained, so the agent budget killed the attempt while one slow call was still outstanding. dna-insert is therefore a model-latency budget outcome, exactly like the other two budget cells, and not a tool-wait one.",
+        "perCell": {
+          "terminal-bench/dna-insert": { "wallSec": 1835, "modelBusySec": 1791, "modelBusyPct": 98, "nonModelSec": 44, "nonModelPct": 2, "headSec": 0.5, "tailSec": 34.9, "unanswered": 1, "inFlightSec": 807 },
+          "datacurve/expr-try-catch-errors": { "wallSec": 3225, "modelBusySec": 2820, "modelBusyPct": 87, "nonModelSec": 404, "nonModelPct": 13, "headSec": 0.5, "tailSec": 139.4, "unanswered": 0 },
+          "datacurve/katex-multicolumn-array-spans": { "wallSec": 2623, "modelBusySec": 2379, "modelBusyPct": 91, "nonModelSec": 244, "nonModelPct": 9, "headSec": 0.5, "tailSec": 130.2, "unanswered": 0 },
+          "datacurve/meriyah-explicit-resource-declarations": { "wallSec": 2963, "modelBusySec": 2736, "modelBusyPct": 92, "nonModelSec": 226, "nonModelPct": 8, "headSec": 1.4, "tailSec": 160.2, "unanswered": 0, "note": "2 runs and overlapping call intervals: this attempt used a subagent, which is why the per-call sum exceeds the wall clock" },
+          "datacurve/scc-bounded-memory-spilling": { "wallSec": 1897, "modelBusySec": 1715, "modelBusyPct": 90, "nonModelSec": 182, "nonModelPct": 10, "headSec": 0.5, "tailSec": 117.8, "unanswered": 0 },
+          "terminal-bench/sanitize-git-repo": { "wallSec": 121, "modelBusySec": 81, "modelBusyPct": 67, "nonModelSec": 40, "nonModelPct": 33, "headSec": 0.5, "tailSec": 34.9, "unanswered": 0 },
+          "terminal-bench/chess-best-move": { "wallSec": 509, "modelBusySec": 460, "modelBusyPct": 90, "nonModelSec": 49, "nonModelPct": 10, "headSec": 0.3, "tailSec": 43.5, "unanswered": 0 },
+          "terminal-bench/db-wal-recovery": { "wallSec": 128, "modelBusySec": 89, "modelBusyPct": 70, "nonModelSec": 39, "nonModelPct": 30, "headSec": 0.5, "tailSec": 37.9, "unanswered": 0 },
+          "terminal-bench/gcode-to-text": { "wallSec": 931, "modelBusySec": 849, "modelBusyPct": 91, "nonModelSec": 81, "nonModelPct": 9, "headSec": 0.5, "tailSec": 21.6, "unanswered": 0 },
+          "terminal-bench/largest-eigenval": { "wallSec": 930, "modelBusySec": 891, "modelBusyPct": 96, "nonModelSec": 38, "nonModelPct": 4, "headSec": 0.5, "tailSec": 29.6, "unanswered": 1, "inFlightSec": 222 },
+          "terminal-bench/openssl-selfsigned-cert": { "wallSec": 238, "modelBusySec": 204, "modelBusyPct": 86, "nonModelSec": 34, "nonModelPct": 14, "headSec": 0.5, "tailSec": 32.3, "unanswered": 0 }
+        },
+        "previousBatchRecomputed": {
+          "note": "The beta.36 batch (run 36171961895, part B) was recomputed with the same union method so the two batches are read on one basis. Its Chinese record's model-share column is a sum and is superseded by these numbers for the cells it lists.",
+          "perCell": {
+            "terminal-bench/chess-best-move": { "wallSec": 894, "modelBusySec": 829, "modelBusyPct": 93, "nonModelSec": 65, "unanswered": 0 },
+            "terminal-bench/db-wal-recovery": { "wallSec": 941, "modelBusySec": 901, "modelBusyPct": 96, "nonModelSec": 40, "unanswered": 1, "inFlightSec": 0 },
+            "datacurve/expr-try-catch-errors": { "wallSec": 3307, "modelBusySec": 2540, "modelBusyPct": 77, "nonModelSec": 767, "unanswered": 0 },
+            "terminal-bench/gcode-to-text": { "wallSec": 940, "modelBusySec": 769, "modelBusyPct": 82, "nonModelSec": 171, "unanswered": 1, "inFlightSec": 26 },
+            "terminal-bench/largest-eigenval": { "wallSec": 931, "modelBusySec": 893, "modelBusyPct": 96, "nonModelSec": 38, "unanswered": 1, "inFlightSec": 183 },
+            "terminal-bench/openssl-selfsigned-cert": { "wallSec": 158, "modelBusySec": 126, "modelBusyPct": 79, "nonModelSec": 33, "unanswered": 0 }
+          }
+        },
+        "finding": "Across the 17 cells measured with this method (11 in this batch, 6 in the beta.36 part B), time with a model call in flight is 67-98% of the whole agent wall clock, and the residual is dominated by a fixed post-kill tail of 22-160s plus inter-call gaps whose median is 0.0s. Harness-side time (tool execution, prompt assembly, agent startup) is therefore of order seconds to a couple of minutes per cell, while single model calls reach 58.9s to 578.1s and one call held in flight for 807s. Any harness-side optimisation is bounded by that residual: even setting it to zero leaves every budget-exhausted cell short, because in each of them the model-busy time alone already equals 91-98% of the wall clock. What remains unproven, and is being measured separately by the full-corpus max-effort run, is whether the remaining failures are model capability or model latency: the two chronic 900s timeouts are killed mid-iteration, so their verdicts bound capability and speed together and are not clean capability reads.",
+        "tailComposition": "UNVERIFIED: the tail (wall clock minus the last call's end) is measured, not attributed; it plausibly contains the agent's own finalisation, shutdown and harness teardown, but no artifact separates those."
+      },
+      "splitReason": "The workflow refuses more than 10 predeclared tasks per run (\"Each workflow run must preselect between 1 and 10 tasks.\"), so the same 11 cells are dispatched as the same two parts as batch diagnostic-failed-rerun-20260926 — part A: the six longest-budget cells, part B: the five shorter ones — so the two batches stay cell-for-cell comparable. The parts run sequentially on purpose: two concurrent runs would put up to 11 model calls in flight against the same provider, and this batch is a clean measurement, so the frozen condition of the source run (one run at a time) is preserved.",
+      "dispatches": [
+        {
+          "part": "a",
+          "tasks": [
+            "datacurve/expr-try-catch-errors",
+            "datacurve/katex-multicolumn-array-spans",
+            "datacurve/meriyah-explicit-resource-declarations",
+            "datacurve/scc-bounded-memory-spilling",
+            "terminal-bench/dna-insert",
+            "terminal-bench/sanitize-git-repo"
+          ],
+          "dispatched": true,
+          "runId": 36285013315,
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36285013315",
+          "batchLabel": "diagnostic-latest-rerun-20260927a",
+          "fhMaxParallel": 6,
+          "headSha": "a96039b8d66f8073e59dc26dc3eebf0e57a84bed",
+          "candidateId": "cli-0.0.3-beta.37-a578453-aa3d4b0fd3b9",
+          "candidateBinarySha256": "aa3d4b0fd3b96bb0281402582e5908db4af693f74a6e2a207f2804db22bf1fa4",
+          "candidateManifestSha256": "d39fc24ac9aece074a6c93dccfd157b116fcc7bcb01a2bbb8aa55256d0bf2e8d",
+          "outcome": {
+            "datacurve/expr-try-catch-errors": "passed",
+            "datacurve/katex-multicolumn-array-spans": "passed",
+            "datacurve/meriyah-explicit-resource-declarations": "failed",
+            "datacurve/scc-bounded-memory-spilling": "failed",
+            "terminal-bench/dna-insert": "failed",
+            "terminal-bench/sanitize-git-repo": "failed"
+          },
+          "outcomeDetail": {
+            "datacurve/expr-try-catch-errors": "Flipped from failed (model, f2p 78/79) to passed: reward=1, f2p 79/79, p2p 66265/66265, terminalCause=completed in 3225s of a 5400s budget, 195 model outcomes, 0 unanswered requests. It also passed in the beta.36 part B re-measurement; the candidate carries no task-affecting change, so this is run-to-run variance, not improvement.",
+            "datacurve/katex-multicolumn-array-spans": "Reproduced the beta.36 part A pass: reward=1, f2p 94/94, p2p 599/599, terminalCause=completed in 2623s of 5400s, 149 model outcomes. Still a variance reading against the source run's failed (f2p 0/94).",
+            "datacurve/meriyah-explicit-resource-declarations": "Reproduced: failed, f2p 48/49 (source run and beta.36 both 45/49), p2p 51469/51469, terminalCause=completed in 2963s of 5400s, 209 model outcomes. The pre-declared specification gap, excluded from capability comparisons.",
+            "datacurve/scc-bounded-memory-spilling": "Reverted to the source run's outcome: failed, f2p 28/31 (identical to the source run's 28/31), p2p 286/286, terminalCause=completed in 1897s of 5400s, 105 model outcomes. It had passed in beta.36 part A (31/31), so the same task's verdict has now moved failed -> passed -> failed across three candidates with no task-affecting change.",
+            "terminal-bench/dna-insert": "Reverted and exhausted the budget: failed, reward=0, AgentTimeoutError at the 1800s edge (1835s elapsed), 30 model outcomes, 1 request cut at the budget boundary (startedAtMs 992893). It passed inside budget (509s) in beta.36 part A and ended completed at 651s in the source run, so this is the first measured instance of this task hitting its own budget.",
+            "terminal-bench/sanitize-git-repo": "Reproduced: failed, reward=0, terminalCause=completed in 121s of 900s, 10 model outcomes. Third consecutive failure across the source run (441s), beta.36 part A (167s) and this batch."
+          },
+          "aggregate": {
+            "present": 6,
+            "missing": 0,
+            "passed": 2,
+            "failed": 4,
+            "error": 0,
+            "notEvaluated": 0,
+            "budgetExhausted": 1,
+            "budgetExhaustedStillPassed": 0,
+            "passRate": 0.3333333333333333,
+            "usage": "tasks 6, promptTokens 79812335, completionTokens 417666, cacheReadTokens 78823616, totalTokens 80230001, modelCallCount 628, costUsd null",
+            "acceptance": "verdicts.complete, candidate.single, provider.single and instructions.frozen passed; coverage.full failed by design (6 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+          },
+          "evidence": "Artifact frontier-harness-report-36285013315 (report.json sha256 fcc83b8f8842ef70751b7fce63879f64551b129a039875efa0baa1ae32f03f77, report.json.md, failures.json, failures.md, expected-tasks.txt) with the per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T011603Z--36285013315.json (same sha256) with its Chinese record. 10/10 jobs green in 56m31s (2026-09-27T01:16:03Z -> 02:12:34Z); 2 passed / 4 failed / 0 error; 1 budget-exhausted, none of them passed. failures.json byStage = {specification-gap: 1, model: 2, agent-timeout: 1}.",
+          "mechanicalAttribution": {
+            "method": "Every one of the 6 attempts was classified from its own frozen evidence: the per-task result record (exception, effectiveAgentTimeoutSec, durationMs, pierExitCode, pierSignal, modelOutcomes) plus its best-agent-evidence.jsonl (model-request and model-outcome counts, model-failure entries).",
+            "modelFailures": 0,
+            "pierExitCodes": "0 for all six; pierSignal null for all six",
+            "finding": "No task failed for an upstream/provider or an environment reason. The single budget outcome is terminal-bench/dna-insert (AgentTimeoutError at its own official 1800s budget). The other three failures ended completed inside their own budgets with real graded verifier results (meriyah f2p 48/49, scc 28/31, sanitize reward=0). No error cell exists in this part, so part B needs no upstream-failure addition."
+          },
+          "measuredCallDurations": {
+            "note": "Same measurement as the previous batches (spec 241): startedAtMs on each model-request record, durationMs on its matching model-outcome or model-failure. calls = model-request records, including a request cut at the budget boundary; closures = requests with a matching outcome. Model share = sum of per-call durations / agent wall clock.",
+            "perTask": {
+              "datacurve/expr-try-catch-errors": {
+                "calls": 195,
+                "closures": 195,
+                "sumSec": 2820,
+                "medianSec": 6.8,
+                "maxSec": 275.9,
+                "wallSec": 3220,
+                "modelSharePct": 88
+              },
+              "datacurve/katex-multicolumn-array-spans": {
+                "calls": 149,
+                "closures": 149,
+                "sumSec": 2379,
+                "medianSec": 5.7,
+                "maxSec": 273.6,
+                "wallSec": 2615,
+                "modelSharePct": 91
+              },
+              "datacurve/meriyah-explicit-resource-declarations": {
+                "calls": 209,
+                "closures": 209,
+                "sumSec": 2970,
+                "medianSec": 5.5,
+                "maxSec": 261.7,
+                "wallSec": 2959,
+                "modelSharePct": 100
+              },
+              "datacurve/scc-bounded-memory-spilling": {
+                "calls": 105,
+                "closures": 105,
+                "sumSec": 1715,
+                "medianSec": 7.5,
+                "maxSec": 199.7,
+                "wallSec": 1892,
+                "modelSharePct": 91
+              },
+              "terminal-bench/dna-insert": {
+                "calls": 31,
+                "closures": 30,
+                "sumSec": 984,
+                "medianSec": 4.9,
+                "maxSec": 338.0,
+                "wallSec": 1831,
+                "modelSharePct": 54
+              },
+              "terminal-bench/sanitize-git-repo": {
+                "calls": 10,
+                "closures": 10,
+                "sumSec": 81,
+                "medianSec": 8.3,
+                "maxSec": 15.7,
+                "wallSec": 117,
+                "modelSharePct": 69
+              }
+            },
+            "unansweredRequests": 1,
+            "unansweredRequestsDetail": {
+              "terminal-bench/dna-insert": "1 — startedAtMs 992893"
+            },
+            "modelFailures": 0,
+            "finding": "Model-call time still dominates on the four datacurve cells (88-100% of the agent wall clock), so the earlier reading that the wall clock is mostly model latency holds there. The new measurement is terminal-bench/dna-insert: only 54% (984s of 1831s), i.e. 847s of non-model time, and it is the one cell that exhausted its budget in this part. sanitize-git-repo measured 69% but ran only 117s in total, so its share is not comparable. No datacurve cell came near its budget (model-time sums 32-55% of 5400s)."
+          },
+          "conclusion": "2 of 6 cells passed on a candidate with no task-affecting change over the source run (and none over beta.36 either), while 2 reproduced and 2 reverted to the source run's failure — including dna-insert, which is the first measured instance of that task hitting its own budget. Across the three candidates the same six cells have now produced three different verdict patterns, which is direct evidence that per-task verdicts are dominated by run-to-run variance. No upstream or environment failure occurred: zero model-failure entries, pierExitCode 0 and pierSignal null for all six."
+        },
+        {
+          "part": "b",
+          "tasks": [
+            "terminal-bench/chess-best-move",
+            "terminal-bench/db-wal-recovery",
+            "terminal-bench/gcode-to-text",
+            "terminal-bench/largest-eigenval",
+            "terminal-bench/openssl-selfsigned-cert"
+          ],
+          "dispatched": true,
+          "runId": 36288388627,
+          "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36288388627",
+          "batchLabel": "diagnostic-latest-rerun-20260927b",
+          "fhMaxParallel": 5,
+          "headSha": "0fec53b1b9a764e15a64ac2cb590620dd614c5be",
+          "candidateId": "cli-0.0.3-beta.37-a578453-d74e506a2bec",
+          "candidateBinarySha256": "d74e506a2bece25737f4068db829f19ad59cf8f9717b934a44b90e5166e578db",
+          "candidateManifestSha256": "549632606f406231a97436cd82d885ca1820cbc3b947c5774eb8295b95616d62",
+          "outcome": {
+            "terminal-bench/chess-best-move": "passed",
+            "terminal-bench/db-wal-recovery": "passed",
+            "terminal-bench/gcode-to-text": "failed",
+            "terminal-bench/largest-eigenval": "failed",
+            "terminal-bench/openssl-selfsigned-cert": "passed"
+          },
+          "outcomeDetail": {
+            "terminal-bench/chess-best-move": "Flipped again and much faster: reward=1, terminalCause=completed in 509s of the 900s budget (source run: AgentTimeoutError at 947s; beta.36 part B: passed at 894s), 47 model outcomes, 0 unanswered requests.",
+            "terminal-bench/db-wal-recovery": "Flipped again and much faster, and it did NOT exhaust its budget this time: reward=1, terminalCause=completed in 127.5s of 900s with 15 model outcomes (source run: model failure at 646s with reward=0; beta.36 part B: passed but budget-exhausted at 940s).",
+            "terminal-bench/gcode-to-text": "Third consecutive timeout: failed, reward=0, AgentTimeoutError at the 900s edge (930.8s elapsed), 52 model outcomes and 52/52 requests answered (no request cut at the boundary this time).",
+            "terminal-bench/largest-eigenval": "Third consecutive timeout: failed, reward=0, AgentTimeoutError at the 900s edge (929.6s elapsed), 24 model outcomes, 1 request cut at the budget boundary (startedAtMs 678379).",
+            "terminal-bench/openssl-selfsigned-cert": "Reproduced the beta.36 flip: reward=1, terminalCause=completed in 237.8s of 900s, 24 model outcomes (source run: model failure at 215s with reward=0)."
+          },
+          "aggregate": {
+            "present": 5,
+            "missing": 0,
+            "passed": 3,
+            "failed": 2,
+            "error": 0,
+            "notEvaluated": 0,
+            "budgetExhausted": 2,
+            "budgetExhaustedStillPassed": 0,
+            "passRate": 0.6,
+            "usage": "tasks 5, promptTokens 4475851, completionTokens 89551, cacheReadTokens 4299200, totalTokens 4565402, modelCallCount 160, costUsd null",
+            "acceptance": "verdicts.complete, candidate.single, provider.single and instructions.frozen passed; coverage.full failed by design (5 of 30 predeclared), so scoreable=false, capabilityMeasurement=false, passAt1=null"
+          },
+          "evidence": "Artifact frontier-harness-report-36288388627 (report.json sha256 70f5a14c4a55b765d966de9baa0bb1340529e2082751798c7b7b360e481e9360, report.json.md, failures.json, failures.md, expected-tasks.txt) with the per-task frozen results and raw evidence; frozen record docs/benchmarks/history/frontier-harness/20260927T022348Z--36288388627.json (same sha256) with its Chinese record. 9/9 jobs green in 18m17s (2026-09-27T02:23:48Z -> 02:42:05Z); 3 passed / 2 failed / 0 error; 2 budget-exhausted, none of them passed. failures.json byStage = {agent-timeout: 2} with an empty failedTools list.",
+          "mechanicalAttribution": {
+            "method": "Every one of the 5 attempts was classified from its own frozen evidence: the per-task result record (exception, effectiveAgentTimeoutSec, durationMs, pierExitCode, pierSignal, modelOutcomes) plus its best-agent-evidence.jsonl (model-request and model-outcome counts, model-failure entries).",
+            "modelFailures": 0,
+            "pierExitCodes": "0 for all five; pierSignal null for all five",
+            "finding": "No task failed for an upstream/provider or an environment reason. The two failures are budget outcomes: both ended on AgentTimeoutError at their own official 900s budget with reward=0 and zero model-failure entries. No error cell exists in this part."
+          },
+          "measuredCallDurations": {
+            "note": "Same measurement as the previous batches (spec 241): startedAtMs on each model-request record, durationMs on its matching model-outcome or model-failure. calls = model-request records, including a request cut at the budget boundary; closures = requests with a matching outcome. Model share = sum of per-call durations / agent wall clock.",
+            "perTask": {
+              "terminal-bench/chess-best-move": {
+                "calls": 47,
+                "closures": 47,
+                "sumSec": 460,
+                "medianSec": 5.5,
+                "maxSec": 88.0,
+                "wallSec": 504,
+                "modelSharePct": 91
+              },
+              "terminal-bench/db-wal-recovery": {
+                "calls": 15,
+                "closures": 15,
+                "sumSec": 89,
+                "medianSec": 4.2,
+                "maxSec": 21.2,
+                "wallSec": 123,
+                "modelSharePct": 72
+              },
+              "terminal-bench/gcode-to-text": {
+                "calls": 52,
+                "closures": 52,
+                "sumSec": 849,
+                "medianSec": 7.3,
+                "maxSec": 58.9,
+                "wallSec": 926,
+                "modelSharePct": 92
+              },
+              "terminal-bench/largest-eigenval": {
+                "calls": 25,
+                "closures": 24,
+                "sumSec": 670,
+                "medianSec": 5.0,
+                "maxSec": 227.5,
+                "wallSec": 925,
+                "modelSharePct": 72
+              },
+              "terminal-bench/openssl-selfsigned-cert": {
+                "calls": 24,
+                "closures": 24,
+                "sumSec": 204,
+                "medianSec": 4.6,
+                "maxSec": 49.3,
+                "wallSec": 234,
+                "modelSharePct": 87
+              }
+            },
+            "unansweredRequests": 1,
+            "unansweredRequestsDetail": {
+              "terminal-bench/largest-eigenval": "1 — startedAtMs 678379"
+            },
+            "modelFailures": 0,
+            "finding": "On the two reproduced timeouts the wall clock is still dominated by model latency: gcode-to-text measured a model-time sum of 849s against the official 900s budget (94%; non-model time at most 77s, less than its own largest single call of 58.9s) and largest-eigenval 670s of 900s (74%, with 255s of non-model time, the largest non-model share of any cell measured so far). The two flips were simply fast: db-wal-recovery completed 15 calls in 89s of model time where beta.36 measured 901s on the same task, and chess-best-move 47 calls in 460s where beta.36 measured 829s."
+          },
+          "conclusion": "3 of 5 cells passed on a candidate with no task-affecting change, so the beta.36 flip pattern partly reproduced while gcode-to-text and largest-eigenval hit their official 900s budget for the third measurement in a row. The two flips also show the widest wall-clock swings yet measured on a single task between candidates: db-wal-recovery 89s of model time here versus 901s in beta.36 (and a budget-exhausted pass there), chess-best-move 460s versus 829s. gcode-to-text's model-time sum reached 94% of its whole budget, which bounds any tool-wait optimisation to at most 77s on that cell. Zero model-failure entries, pierExitCode 0 and pierSignal null for all five: no upstream or environment failure."
+        }
+      ]
+    }
+  ]
+}

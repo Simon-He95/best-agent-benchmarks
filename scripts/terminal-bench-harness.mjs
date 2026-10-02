@@ -29,6 +29,9 @@
  *   BEST_AGENT_PROVIDER_CONFIG / DIMCODE_HOME  frozen provider identity files
  *   BEST_AGENT_PROVIDER_MODEL / BENCHMARK_PROVIDER_API_KEY  credential context
  *   BEST_AGENT_CLI_CANDIDATE_DIR            pre-attempt Linux candidate artifact
+ *   BEST_AGENT_GIT_IDENTITY_NAME/EMAIL      optional explicit override of the git
+ *                                           identity frozen into the task environment
+ *                                           (default: this host's own git identity)
  *   TB_HARBOR_BIN                            harbor binary (default: harbor)
  */
 
@@ -55,6 +58,46 @@ const config = JSON.parse(
 function sha256File(path) {
   if (!existsSync(path)) return undefined;
   return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+/**
+ * The git identity to freeze into a task environment. A task image ships no git
+ * identity of its own, so a model commit stops at "unable to auto-detect email
+ * address" — observed in a real attempt, where the model then paid a turn to
+ * discover `-c user.name=... -c user.email=...`. The identity is read from this
+ * harness host: an explicit override first, then this machine's git
+ * configuration, then git's own environment detection, and only then a neutral
+ * fallback, so a host with no identity at all still yields a usable attempt.
+ */
+export function resolveGitIdentity() {
+  const override = {
+    name: process.env.BEST_AGENT_GIT_IDENTITY_NAME,
+    email: process.env.BEST_AGENT_GIT_IDENTITY_EMAIL,
+  };
+  if (override.name && override.email) return override;
+  const configured = {
+    name: gitConfigValue("user.name"),
+    email: gitConfigValue("user.email"),
+  };
+  if (configured.name && configured.email) return configured;
+  return gitEnvironmentAuthor() ?? { name: "best-agent", email: "best-agent@localhost" };
+}
+
+function gitConfigValue(key) {
+  const result = spawnSync("git", ["config", "--get", key], { encoding: "utf8" });
+  return result.status === 0 && result.stdout ? result.stdout.trim() : "";
+}
+
+function gitEnvironmentAuthor() {
+  const result = spawnSync("git", ["var", "GIT_AUTHOR_IDENT"], { encoding: "utf8" });
+  if (result.status !== 0 || !result.stdout) return undefined;
+  const match = /^(.*?) <([^>]+)>/u.exec(result.stdout.trim());
+  if (!match) return undefined;
+  const email = match[2];
+  // git reports `user@host.(none)` when the host has no domain name, which is not
+  // an address a container commit should carry; require a plausible one.
+  if (!email.includes("@") || email.endsWith(".(none)")) return undefined;
+  return { name: match[1], email };
 }
 
 function findResultJson(jobsDir, jobName) {
@@ -143,6 +186,40 @@ function parseArgs(argv) {
   return parsed;
 }
 
+/**
+ * The one projection of an execution profile onto the CLI's one-shot argv. `processClosePolicy` is
+ * opt-in per config: a released process outlives the agent phase, which is what every task whose
+ * verifier runs after the agent needs, while a run pinned to a CLI that predates
+ * `--process-close-policy` keeps its exact argv. An undeclared value fails closed instead of
+ * silently running `terminate`.
+ */
+export function projectExecutionArgs(
+  execution,
+  { maxModelCycles, workspaceProcessDurationMs, toolExcludeNetwork },
+) {
+  const closePolicy = execution.processClosePolicy;
+  if (closePolicy !== undefined && closePolicy !== "terminate" && closePolicy !== "release") {
+    throw new Error("executionProfile.processClosePolicy must be terminate or release.");
+  }
+  return [
+    "--max-model-cycles",
+    String(maxModelCycles),
+    "--workspace-backend",
+    execution.workspaceBackend,
+    "--workspace-authorization",
+    execution.workspaceAuthorization,
+    "--process-isolation",
+    execution.processIsolation,
+    ...(closePolicy === undefined ? [] : ["--process-close-policy", closePolicy]),
+    "--command-policy",
+    execution.commandPolicy,
+    "--workspace-process-duration-ms",
+    String(workspaceProcessDurationMs ?? execution.workspaceProcessDurationMs),
+    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
+    ...(toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
+  ];
+}
+
 export function verifyFrozenIdentity() {
   const cli = config.cli;
   const candidateDir = process.env.BEST_AGENT_CLI_CANDIDATE_DIR;
@@ -198,22 +275,12 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_VERSION = candidate.cliVersion;
   const execution = config.generation.executionProfile;
-  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
-    "--max-model-cycles",
-    String(config.generation.maxModelCycles),
-    "--workspace-backend",
-    execution.workspaceBackend,
-    "--workspace-authorization",
-    execution.workspaceAuthorization,
-    "--process-isolation",
-    execution.processIsolation,
-    "--command-policy",
-    execution.commandPolicy,
-    "--workspace-process-duration-ms",
-    String(execution.workspaceProcessDurationMs),
-    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
-    ...(config.generation.toolExcludeNetwork ? ["--tool-exclude", "network"] : []),
-  ]);
+  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify(
+    projectExecutionArgs(execution, {
+      maxModelCycles: config.generation.maxModelCycles,
+      toolExcludeNetwork: config.generation.toolExcludeNetwork,
+    }),
+  );
   return {
     packageName: candidate.packageName,
     cliVersion: candidate.cliVersion,
@@ -319,12 +386,19 @@ async function main() {
   mkdirSync(args.jobsDir, { recursive: true });
 
   const effectiveAgentTimeoutSec = task.agentTimeoutSec * args.agentTimeoutMultiplier;
-  const providerTimeoutMs =
+  // One model invocation ceiling for this attempt, derived from the task's own agent budget. It is
+  // published under its own name and reaches the CLI as the explicit `--model-timeout-ms` flag, so
+  // no attempt wall clock is ever handed to the CLI as a provider timeout. The ceiling bounds one
+  // model call; it is not an attempt deadline and the harness does not claim one.
+  const modelTimeoutMs =
     args.timeoutMs ??
     Math.max(60_000, Math.round((effectiveAgentTimeoutSec - 60) * 1000));
-  // Keep the in-container CLI timeout identical to the harness-derived value so
-  // the agent fails cleanly before Harbor kills the trial.
-  process.env.BEST_AGENT_TIMEOUT_MS = String(providerTimeoutMs);
+  process.env.BEST_AGENT_MODEL_TIMEOUT_MS = String(modelTimeoutMs);
+  // The attempt's git identity travels with the attempt: the plugin writes it into the
+  // task environment's global git config before the model starts.
+  const gitIdentity = resolveGitIdentity();
+  process.env.BEST_AGENT_GIT_IDENTITY_NAME = gitIdentity.name;
+  process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = gitIdentity.email;
 
   const harborBin = process.env.TB_HARBOR_BIN ?? "harbor";
   const harborArgs = [
@@ -410,7 +484,7 @@ async function main() {
     harborVersion: config.harbor.version,
     agentTimeoutMultiplier: args.agentTimeoutMultiplier,
     effectiveAgentTimeoutSec,
-    providerTimeoutMs,
+    modelTimeoutMs,
     workspaceProcessDurationMs: config.generation.executionProfile.workspaceProcessDurationMs,
     jobName: args.jobName,
     trialDir: trialDir ? relative(repoRoot, trialDir) : undefined,

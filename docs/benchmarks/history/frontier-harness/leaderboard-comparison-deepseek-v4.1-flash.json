@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "label": "best-agent (this repository's frontier-harness composition) on deepseek-v4.1-flash",
+  "generatedAt": "2026-10-01T00:18:30.308Z",
+  "point": {
+    "key": "best-agent-deepseek-v4.1-flash",
+    "label": "best-agent",
+    "sublabel": "deepseek-v4.1-flash max effort",
+    "color": "#ff6418",
+    "shape": "star",
+    "cells": 30,
+    "passes": 23,
+    "passRate": 0.7666666666666667,
+    "costPerPass": 0.14615627217391305,
+    "medianSuccessfulSeconds": 403.525,
+    "costCoverage": 1,
+    "successfulCells": 23,
+    "officialPriceRepricing": {
+      "priceTableName": "kimi-k3-2026-08-20",
+      "costPerPass": 7.188152739130431,
+      "note": "The same cells and the same tokens as costPerPass above, priced on the official leaderboard's frozen price table instead of this run's provider list. It separates token volume from unit price: it is a repricing, not a bill."
+    }
+  },
+  "reading": {
+    "basis": "User policy, 2026-10-01: tasks that failed because the environment or the upstream was busy may be re-run, and the re-run may be taken as the correct result. Fairness invariant of this reading: every one of the 30 cells carries exactly ONE graded model attempt - the 27 already-valid cells keep the attempt they had in run 36711152110, and each of the 3 refilled cells received its single graded attempt from the same-candidate recovery chain because its source-run cell had none at all (no model request, no agent directory, no evidence file). No cell was attempted twice with a verdict to choose from, no verdict was replaced or reinterpreted, no evaluator output re-entered a model attempt, and no budget, effort or grader setting was changed. The source run's own frozen report is unchanged: 3 error cells, verdicts.complete failed, passAt1 null, and its 27 valid cells read 23/27 = 85.2%.",
+    "cells": [
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "disposition": "passed",
+        "durationSeconds": 1423.802,
+        "costUsd": 0.146733786
+      },
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "disposition": "passed",
+        "durationSeconds": 4456.64,
+        "costUsd": 0.49287991200000003
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationSeconds": 1679.762,
+        "costUsd": 0.27028736999999997
+      },
+      {
+        "task": "datacurve/fastapi-deprecation-response-headers",
+        "disposition": "passed",
+        "durationSeconds": 1866.151,
+        "costUsd": 0.16299081599999998
+      },
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "disposition": "failed",
+        "durationSeconds": 1650.173,
+        "costUsd": 0.14809553399999997
+      },
+      {
+        "task": "datacurve/katex-multicolumn-array-spans",
+        "disposition": "failed",
+        "durationSeconds": 2007.751,
+        "costUsd": 0.35314243799999995
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "disposition": "failed",
+        "durationSeconds": 3571.141,
+        "costUsd": 0.35788646999999996
+      },
+      {
+        "task": "datacurve/python-statemachine-state-data-scoping",
+        "disposition": "failed",
+        "durationSeconds": 1938.545,
+        "costUsd": 0.31213941599999995
+      },
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "disposition": "passed",
+        "durationSeconds": 1583.291,
+        "costUsd": 0.13602232199999997
+      },
+      {
+        "task": "terminal-bench/build-cython-ext",
+        "disposition": "passed",
+        "durationSeconds": 808.808,
+        "costUsd": 0.064464942
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "disposition": "passed",
+        "durationSeconds": 723.193,
+        "costUsd": 0.06132691800000001
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "passed",
+        "durationSeconds": 371.915,
+        "costUsd": 0.03132326999999999
+      },
+      {
+        "task": "terminal-bench/constraints-scheduling",
+        "disposition": "passed",
+        "durationSeconds": 189.672,
+        "costUsd": 0.012430788
+      },
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "passed",
+        "durationSeconds": 315.544,
+        "costUsd": 0.024705935999999998
+      },
+      {
+        "task": "terminal-bench/dna-insert",
+        "disposition": "passed",
+        "durationSeconds": 1475.114,
+        "costUsd": 0.14178758399999997
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "disposition": "passed",
+        "durationSeconds": 802.253,
+        "costUsd": 0.114400644
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationSeconds": 776.388,
+        "costUsd": 0.085628508
+      },
+      {
+        "task": "terminal-bench/git-leak-recovery",
+        "disposition": "passed",
+        "durationSeconds": 247.469,
+        "costUsd": 0.016777398000000002
+      },
+      {
+        "task": "terminal-bench/kv-store-grpc",
+        "disposition": "passed",
+        "durationSeconds": 170.59,
+        "costUsd": 0.009330581999999999
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "durationSeconds": 764.667,
+        "costUsd": 0.08042586
+      },
+      {
+        "task": "terminal-bench/log-summary-date-ranges",
+        "disposition": "passed",
+        "durationSeconds": 136.139,
+        "costUsd": 0.008712059999999999
+      },
+      {
+        "task": "terminal-bench/merge-diff-arc-agi-task",
+        "disposition": "passed",
+        "durationSeconds": 362.018,
+        "costUsd": 0.039892698000000004
+      },
+      {
+        "task": "terminal-bench/modernize-scientific-stack",
+        "disposition": "passed",
+        "durationSeconds": 354.998,
+        "costUsd": 0.011094714
+      },
+      {
+        "task": "terminal-bench/multi-source-data-merger",
+        "disposition": "passed",
+        "durationSeconds": 261.506,
+        "costUsd": 0.021748775999999997
+      },
+      {
+        "task": "terminal-bench/openssl-selfsigned-cert",
+        "disposition": "passed",
+        "durationSeconds": 187.973,
+        "costUsd": 0.01656606
+      },
+      {
+        "task": "terminal-bench/polyglot-c-py",
+        "disposition": "passed",
+        "durationSeconds": 417.649,
+        "costUsd": 0.051112128
+      },
+      {
+        "task": "terminal-bench/regex-log",
+        "disposition": "passed",
+        "durationSeconds": 403.525,
+        "costUsd": 0.049878809999999996
+      },
+      {
+        "task": "terminal-bench/sanitize-git-repo",
+        "disposition": "passed",
+        "durationSeconds": 440.476,
+        "costUsd": 0.099587958
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationSeconds": 459.842,
+        "costUsd": 0.035034275999999996
+      },
+      {
+        "task": "terminal-bench/vulnerable-secret",
+        "disposition": "passed",
+        "durationSeconds": 84.49,
+        "costUsd": 0.005186286
+      }
+    ],
+    "refilledFromRecovery": [
+      "datacurve/expr-try-catch-errors",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/python-statemachine-state-data-scoping"
+    ],
+    "stillWithoutVerdict": [],
+    "rawPrimaryRun": {
+      "passes": 23,
+      "validCells": 27,
+      "passRateOverExpected": 0.7666666666666667,
+      "passRateOverValidCells": 0.8518518518518519
+    }
+  },
+  "tokens": {
+    "inputTokens": 385893514,
+    "freshInputTokens": 5680394,
+    "cacheReadTokens": 380213120,
+    "outputTokens": 2281493,
+    "modelCalls": 2249
+  },
+  "usage": {
+    "totalCostUsd": 3.36159426,
+    "knownCostCells": 30,
+    "priceTable": {
+      "schemaVersion": 1,
+      "name": "deepseek-v4.1-flash-2026-09-30",
+      "model": "deepseek-v4.1-flash",
+      "basis": "DeepSeek's published public price list for deepseek-v4.1-flash, off-peak column, USD per million tokens. Adopted because this repository ships no frozen price table for this provider (its records carry costUsd null by design).",
+      "freshInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": 0,
+      "cacheReadUsdPerMillion": 0.003,
+      "outputUsdPerMillion": 0.6,
+      "cacheNote": "The model's context cache is implicit and automatic: requests declare nothing, the cache is built on disk by the provider, and there is no cache-write product or fee. The write rate is therefore 0 rather than a guess. Cache reads are billed at the cache-hit rate.",
+      "peakOffPeak": {
+        "window": "Peak = 01:00-04:00 and 06:00-10:00 UTC, Monday to Friday excluding Chinese public holidays; every other hour is off-peak at 50% of the peak rate (peak: $0.30 fresh input, $0.006 cache read, $1.20 output per million).",
+        "runWindow": "Run 36711152110 executed 2026-09-30T11:51:55Z -> 13:22:06Z and the recovery batch was dispatched 2026-09-30T18:32:06Z; both windows fall outside the peak hours, which is why the off-peak column is the primary basis here.",
+        "sensitivity": "Pricing the same tokens at the peak column doubles the input and output components and therefore roughly doubles cost per pass; the comparison record states both the primary number and this multiplier."
+      },
+      "source": {
+        "official": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "priceChangeNews": "https://api-docs.deepseek.com/news/news260910",
+        "cachingGuide": "https://api-docs.deepseek.com/guides/kv_cache",
+        "readAt": "2026-10-01",
+        "effectiveFrom": "2026-09-10T04:00:00Z"
+      },
+      "providerNote": "The run was served through the dimagent.cn relay (dim-oauth transport) rather than DeepSeek's own API. That relay publishes credit prices, not USD, so this table is an adopted public-list basis for the chart and not a provider bill; gateway markup or tier discounts are not reflected.",
+      "comparabilityNote": "The official leaderboard prices its field on its own frozen table (kimi-k3-2026-08-20: $3.00 fresh input and cache write, $0.30 cache read, $15.00 output per million). A cost column that mixes the official rows with this run therefore compares two different public price lists, and the difference is a property of the models' vendors, not of the harnesses."
+    }
+  },
+  "provenance": {
+    "primaryRecord": "docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json",
+    "recoveryRecords": "docs/benchmarks/history/frontier-harness/20260930T183206Z--36759265603.json,docs/benchmarks/history/frontier-harness/20260930T194234Z--36767542570.json",
+    "officialSnapshot": "docs/benchmarks/history/frontier-harness/leaderboard-official-v1.0-k3.json",
+    "officialSource": {
+      "resultsFile": "https://raw.githubusercontent.com/frontier-harness-eval/eval/main/results/eval-data.json",
+      "resultsGeneratedAt": "2026-08-22T16:04:57.538734+00:00",
+      "resultsRepoCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+      "website": "https://frontierharness.org/",
+      "blog": "https://runta.com/blog/introducing-frontierharness-eval/",
+      "harnessVersions": "https://raw.githubusercontent.com/frontier-harness-eval/eval/main/metadata/harness-versions.json",
+      "fetchedAt": "2026-10-01",
+      "model": "k3",
+      "modelLabel": "Kimi K3",
+      "modelServing": "Fireworks (published baselines)",
+      "runtime": "Runta golden checkpoints; every trial is a fresh restore with identical vCPU, memory, disk size, disk contents and memory state"
+    },
+    "officialPriceTable": {
+      "name": "kimi-k3-2026-08-20",
+      "source": "https://raw.githubusercontent.com/frontier-harness-eval/eval/main/skills/frontierharness-eval/reference.md",
+      "freshInputUsdPerMillion": 3,
+      "cacheWriteUsdPerMillion": 3,
+      "cacheReadUsdPerMillion": 0.3,
+      "outputUsdPerMillion": 15,
+      "note": "The published baselines' costs are computed on this frozen table, not on live provider bills. First-turn cache reads are repriced at the fresh-input rate so the first call of every harness is costed consistently (cost_first_cold_usd)."
+    }
+  },
+  "officialHarnesses": [
+    {
+      "key": "codex",
+      "label": "Codex",
+      "version": "0.148.0",
+      "color": "#9385ff",
+      "shape": "circle",
+      "successful": 20,
+      "passRate": 0.6666666666666666,
+      "costPerPass": 3.468296325,
+      "medianSuccessfulSeconds": 403.3207145,
+      "medianCostPerSuccessfulTask": 0.12425444999999999,
+      "medianCostPerSuccessfulTaskFmt": "$0.1243",
+      "cacheHitRateTypical": 0.8796567078512081
+    },
+    {
+      "key": "dsh-creator",
+      "label": "DSH Creator",
+      "version": "0.1.0-rc.8",
+      "color": "#70b6ee",
+      "shape": "triangle",
+      "successful": 19,
+      "passRate": 0.6333333333333333,
+      "costPerPass": 3.284902642105263,
+      "medianSuccessfulSeconds": 403.943982,
+      "medianCostPerSuccessfulTask": 0.1194408,
+      "medianCostPerSuccessfulTaskFmt": "$0.1194",
+      "cacheHitRateTypical": 0.8430020151050968
+    },
+    {
+      "key": "claude-code",
+      "label": "Claude Code",
+      "version": "2.1.237",
+      "color": "#f0a57f",
+      "shape": "diamond",
+      "successful": 19,
+      "passRate": 0.6333333333333333,
+      "costPerPass": 18.33683390526316,
+      "medianSuccessfulSeconds": 577.971591,
+      "medianCostPerSuccessfulTask": 0.2879886,
+      "medianCostPerSuccessfulTaskFmt": "$0.2880",
+      "cacheHitRateTypical": 0.677949269665246
+    },
+    {
+      "key": "pi-responses",
+      "label": "Pi",
+      "version": "0.84.2",
+      "color": "#f0f0f0",
+      "shape": "square",
+      "successful": 18,
+      "passRate": 0.6,
+      "costPerPass": 2.4329655,
+      "medianSuccessfulSeconds": 453.28672900000004,
+      "medianCostPerSuccessfulTask": 0.07088475,
+      "medianCostPerSuccessfulTaskFmt": "$0.0709",
+      "cacheHitRateTypical": 0.7937786348907315
+    },
+    {
+      "key": "dsh-ptc",
+      "label": "DSH PTC",
+      "version": "0.1.0-rc.8",
+      "color": "#75b8ed",
+      "shape": "diamond",
+      "successful": 18,
+      "passRate": 0.6,
+      "costPerPass": 4.5774473833333325,
+      "medianSuccessfulSeconds": 463.7817995,
+      "medianCostPerSuccessfulTask": 0.13697925,
+      "medianCostPerSuccessfulTaskFmt": "$0.1370",
+      "cacheHitRateTypical": 0.8718780463171638
+    },
+    {
+      "key": "dsh-standard",
+      "label": "DSH Standard",
+      "version": "0.1.0-rc.8",
+      "color": "#75b8ed",
+      "shape": "square",
+      "successful": 18,
+      "passRate": 0.6,
+      "costPerPass": 3.4588863333333335,
+      "medianSuccessfulSeconds": 376.5249955,
+      "medianCostPerSuccessfulTask": 0.1200954,
+      "medianCostPerSuccessfulTaskFmt": "$0.1201",
+      "cacheHitRateTypical": 0.8646567782129603
+    },
+    {
+      "key": "oh-my-pi",
+      "label": "Oh My Pi",
+      "version": "17.4.0",
+      "color": "#f2a777",
+      "shape": "diamond",
+      "successful": 17,
+      "passRate": 0.5666666666666667,
+      "costPerPass": 4.745542235294117,
+      "medianSuccessfulSeconds": 406.40901,
+      "medianCostPerSuccessfulTask": 0.1353654,
+      "medianCostPerSuccessfulTaskFmt": "$0.1354",
+      "cacheHitRateTypical": 0.8215358636533213
+    },
+    {
+      "key": "kimi-code",
+      "label": "Kimi Code",
+      "version": "0.37.2",
+      "color": "#83d7c5",
+      "shape": "circle",
+      "successful": 17,
+      "passRate": 0.5666666666666667,
+      "costPerPass": 3.6470870647058824,
+      "medianSuccessfulSeconds": 475.880631,
+      "medianCostPerSuccessfulTask": 0.18175319999999998,
+      "medianCostPerSuccessfulTaskFmt": "$0.1818",
+      "cacheHitRateTypical": 0.8802864677647251
+    },
+    {
+      "key": "dsh-minimal",
+      "label": "DSH Minimal",
+      "version": "0.1.0-rc.8",
+      "color": "#75b8ed",
+      "shape": "circle",
+      "successful": 17,
+      "passRate": 0.5666666666666667,
+      "costPerPass": 4.717955664705882,
+      "medianSuccessfulSeconds": 341.183775,
+      "medianCostPerSuccessfulTask": 0.12140220000000002,
+      "medianCostPerSuccessfulTaskFmt": "$0.1214",
+      "cacheHitRateTypical": 0.8463733761676777
+    },
+    {
+      "key": "exo",
+      "label": "Exo Harness",
+      "version": "0.1.0",
+      "color": "#d3d3d3",
+      "shape": "hexagon",
+      "successful": 16,
+      "passRate": 0.5333333333333333,
+      "costPerPass": 1.04517110625,
+      "medianSuccessfulSeconds": 377.205152,
+      "medianCostPerSuccessfulTask": 0.07481280000000001,
+      "medianCostPerSuccessfulTaskFmt": "$0.0748",
+      "cacheHitRateTypical": 0.7032915021509234
+    },
+    {
+      "key": "opencode",
+      "label": "OpenCode",
+      "version": "1.18.19",
+      "color": "#a978e7",
+      "shape": "square",
+      "successful": 15,
+      "passRate": 0.5,
+      "costPerPass": 3.24434552,
+      "medianSuccessfulSeconds": 387.253527,
+      "medianCostPerSuccessfulTask": 0.0614517,
+      "medianCostPerSuccessfulTaskFmt": "$0.0615",
+      "cacheHitRateTypical": 0.7149173842215499
+    },
+    {
+      "key": "hermes",
+      "label": "Hermes",
+      "version": "0.20.4",
+      "color": "#a3a3a3",
+      "shape": "triangle",
+      "successful": 15,
+      "passRate": 0.5,
+      "costPerPass": 2.9043034800000003,
+      "medianSuccessfulSeconds": 417.767917,
+      "medianCostPerSuccessfulTask": 0.174564,
+      "medianCostPerSuccessfulTaskFmt": "$0.1746",
+      "cacheHitRateTypical": 0.8591308757616211
+    }
+  ],
+  "comparability": {
+    "officialInvariants": [
+      "same model for every configuration (Kimi K3), served through one gateway",
+      "one golden checkpoint per task, one fresh restore per trial",
+      "no formal task ever executed before the checkpoint was frozen",
+      "one attempt per cell, no retries, no best-of-N"
+    ],
+    "repoRule": "This repository's own runs are diagnostic self-runs on GitHub-hosted runners and are not comparable to the published frontierharness.org leaderboard; docs/benchmarks/history/frontier-harness/*.json all carry that sentence. Any chart that places a self-run next to these rows must keep the caveat visible."
+  }
+}

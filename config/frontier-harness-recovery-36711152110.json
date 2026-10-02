@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-ecr-36711152110-20261001",
+  "passAt1": null,
+  "passAt1Note": "A three-task recovery cannot produce a pass@1 of its own, and per AGENTS.md a recovery is never merged into a formal run. Run 36711152110 keeps its own frozen report unchanged (23 passed / 4 failed / 3 error, verdicts.complete failed, passAt1 null). This batch fills the three cells that carry no verdict at all and replaces none of its verdicts.",
+  "requestedBy": "User, 2026-10-01: \"环境和上游繁忙失败的任务，重跑仍然是公平的，可以作为正确的结果\" (tasks that failed because the environment or the upstream was busy may be re-run; the re-run is still fair and may be taken as the correct result). The user said this while asking for the deepseek-v4.1-flash cost-vs-pass-rate and speed-vs-pass-rate comparison charts, so this manifest also records the declared reading basis for those charts.",
+  "sourceRun": {
+    "runId": 36711152110,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36711152110",
+    "headSha": "706d1821f8ff290e9331f9c7af1aeaa8b818594a",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json",
+    "frozenRecordSha256": "6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-90c87483be97",
+    "outcome": "30 of 30 corpus tasks present; 23 passed / 4 failed / 3 error; validCells 27; verdicts.complete failed on the 3 error cells, so scoreable=false, capabilityMeasurement=false, passAt1=null."
+  },
+  "admission": {
+    "preModelEnvironmentFailure": {
+      "tasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "class": "pre-model environment failure",
+      "evidence": "Mechanically proven from the frozen per-task records of run 36711152110, independently re-read from docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json (sha256 6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9): each cell's exception is RuntimeError 'Docker compose command failed for environment <task>', whose captured build output ends at '#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:<digest>: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded'. All three strings ('429 Too Many Requests', 'toomanyrequests', 'Data limit exceeded') occur exactly three times each in the record, once per cell. The trial never reached the agent phase: the three durations are 5549ms / 6065ms / 5558ms, each per-task record carries no artifacts at all (no jobs/<task>/.../agent/best-agent-evidence.jsonl, no process receipt, no attempt timing), and the aggregate classifies them as disposition=error with no rewards. There is therefore no model request, no attempt and no prediction to overwrite. This is the class AGENTS.md admits for benchmark-level recovery, and it is the same signature the 2026-09-27 precedent admitted (recovery-no-prediction-20260927 filled three beta.37 ECR cells 3/3).",
+      "notAdmitted": [
+        {
+          "tasks": [
+            "terminal-bench/gcode-to-text",
+            "terminal-bench/largest-eigenval"
+          ],
+          "why": "Both cells carry a real graded prediction (disposition=failed, reward=0, a full attempt evidence file with 58 and 30 model outcomes) and their primary Run was cancelled by beta.41's own attempt-delivery budget boundary at ~719.9s of a 900s attempt budget (ATTEMPT_DELIVERY_RESERVE_MS = 180000), not by an environment or upstream event; the one in-flight call was cut by that cancellation and recorded as model-failure reason=transport. They are excluded here: no prediction may be replaced, and the class is not a pre-model environment failure nor an explicit provider transport failure."
+        }
+      ]
+    }
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c",
+    "cliVersion": "0.0.3-beta.41",
+    "note": "Identical to the candidate of run 36711152110, so this is a same-candidate recovery. The SEA cannot be byte-reproducible: the CI-built binary of this batch will carry a different sha256 from run 36711152110's 90c87483be977d52cb106ff9e6d885bbb5f1e2ae3c01b25ab87595ed3e61160e, and the batch freezes its own receipt."
+  },
+  "compositionDeltasVsSourceRun": {
+    "concurrency": "fh_max_parallel 5 -> 1. This is the environment fix: the three cells died on a public.ecr.aws image-metadata throttle under concurrent Docker builds, and serial generation is the only composition in which the throttle has never been reproduced (2026-09-30 serial diagnostic 36669802530: 0 occurrences of toomanyrequests across all 143 artifact files, 3 of 3 cells reaching the model phase). Reducing concurrency to 5 did not remove it, so the batch goes to 1.",
+    "everythingElse": "Unchanged: the corpus pin (frontier-harness-eval/eval e837a70b, 21 Terminal-Bench + 9 DeepSWE tasks), the task sources, the batch plan, the pier pin (0.3.1 / df89f994), the provider (deepseek-v4.1-flash @ https://dimagent.cn/v1, compatible, transport dim-oauth), fh_reasoning_effort=max, fh_agent_timeout_multiplier=1 and every declared agent and verifier budget."
+  },
+  "constraints": [
+    "Only the three named no-prediction cells are attempted; every verdict of run 36711152110 and of every other run is preserved and never replaced, repaired or reinterpreted.",
+    "Same candidate and same formal-run semantics: config/frontier-harness.json#cli stays pinned at cf29eea8, fh_reasoning_effort=max and fh_agent_timeout_multiplier=1, so the cells are re-measured under the run's own effort, budgets and grader.",
+    "One predeclared headless attempt per cell; nothing is retried inside the batch and no second dispatch is made if a cell dies again.",
+    "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "Run 36711152110 keeps its own frozen report and passAt1=null; this batch repairs no pass@1 and is never merged into one.",
+    "Nothing is published to main; the manifest and its outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "readingForComparison": {
+    "statement": "Under the user's declared policy the three refilled cells count as the correct result for the environment class, so the comparison chart reads run 36711152110 as 30 cells: its 27 already-valid cells plus the 3 cells this batch refills.",
+    "boundary": "This reading is a user-declared policy for the comparison, not a change to any canonical record. The frozen report of run 36711152110 keeps its 3 error cells, verdicts.complete failed and passAt1=null, and the formal pass@1 of the corpus therefore remains null; the chart is labelled as a repaired reading, and both numbers (raw run and repaired reading) are reported side by side."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/expr-try-catch-errors,datacurve/katex-multicolumn-array-spans,datacurve/python-statemachine-state-data-scoping",
+    "fh_limit": "3",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-ecr-36711152110-20261001"
+  },
+  "expectedTasks": [
+    "datacurve/expr-try-catch-errors",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/python-statemachine-state-data-scoping"
+  ],
+  "knownRisks": {
+    "ecrThrottle": "Serial generation removes the concurrent-pull trigger, but a throttle caused by other tenants on the shared public.ecr.aws quota cannot be excluded. A cell that dies pre-model again still carries no attempt and no verdict, and nothing is retried inside this batch.",
+    "providerTransport": "deepseek-v4.1-flash carries real transport shake in this corpus (9 provider transport failures out of 58 attempts in an earlier Terminal-Bench full run); a cell that dies that way would keep the batch from filling.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT (last written 2026-09-29T05:42:32Z, expiring 2026-10-05T12:41:07Z). An expired token fails every Generate job at provider materialization before any attempt.",
+    "budget": "Each of these three tasks has a 5400s datacurve budget and the batch is serial, so the expected window is up to about three hours in the worst case."
+  },
+  "plannedChecks": "After the report artifact is downloaded: each cell's disposition against its three earlier measurements (beta.40 error, this run's error, and the beta.37 recovery that filled the same class), mechanical attribution of any verdict-less cell, whether the attempt evidence carries the wrapper attemptTiming block, whether any public.ecr.aws 429 recurs, the acceptance block as it applies to a 3-task subset, usage and per-call durations.",
+  "dispatched": true,
+  "runId": 36759265603,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36759265603",
+  "headSha": "145ad5903ecc9f5b8bbb380837ee693a78521508",
+  "dispatchedAt": "2026-09-30T18:32:06Z",
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 3 Generate jobs + 1 Aggregate = 7; generation at most 1 concurrently.",
+  "outcome": {
+    "present": 3,
+    "passed": 0,
+    "failed": 2,
+    "error": 1,
+    "notEvaluated": 0,
+    "validCells": 2,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "runWindow": "2026-09-30T18:32:06Z -> 2026-09-30T19:40Z (about 1h08m), 7/7 jobs green, headSha 145ad5903ecc9f5b8bbb380837ee693a78521508",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-518d8fe01482",
+    "candidateBinarySha256": "518d8fe01482df9bf3e3654f22988318b12f3abec84308a258e897938d393bbc",
+    "candidateManifestSha256": "00850412b438c4458b4c88dd68c5c67a8a8fd0969119cc5424573ef36c5c3bf6",
+    "acceptance": "coverage.full failed by design (3 of 30 predeclared), candidate.single passed, provider.single passed, instructions.frozen passed, verdicts.complete FAILED (1 error remains) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "usage": "tasks 2, promptTokens 95832728, completionTokens 373100, cacheReadTokens 95070336, totalTokens 96205828, modelCallCount 422, costUsd null",
+    "filledCells": {
+      "datacurve/expr-try-catch-errors": "FILLED: failed, reward=0, f2p 78/79, p2p 66265/66265, partial 0.99998, 28m00s of its 5400s budget, 217 model calls, no model-failure entry.",
+      "datacurve/katex-multicolumn-array-spans": "FILLED: failed, reward=0, f2p 0/94, p2p 599/599, partial 0.86436, 33m28s, 205 model calls, no model-failure entry."
+    },
+    "stillMissing": {
+      "datacurve/python-statemachine-state-data-scoping": "STILL NO VERDICT, same class as the source run: RuntimeError 'Docker compose command failed for environment ...' whose captured build output ends at '429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded' for manifest sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a, 4849ms, no agent directory, no attempt evidence and no usage. Serial generation (fh_max_parallel=1) did not prevent it, so this throttle is a shared-quota service whose trigger is not only this repository's own concurrency."
+    },
+    "reading": "Two of the three no-verdict cells now carry real graded attempts, and both failed on their own merits; the third died pre-model again on the same shared-quota throttle. Each of the three filled-or-refilled datacurve cells reached the model phase in the serial composition except the one the throttle struck, which is the same pattern every earlier measurement showed.",
+    "evidence": "Artifact frontier-harness-report-36759265603 (report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, three per-task result records and their raw evidence); local copy of the report to be frozen under docs/benchmarks/history/frontier-harness/ as the record of this batch. 7/7 jobs green in 1h08m. failures.json byStage = {model: 2, infra: 1}."
+  },
+  "followUp": "config/frontier-harness-recovery-36711152110-second.json froze a second dispatch for the one cell that was still without a verdict, under the user's 2026-10-01 policy and with the boundary stated there.",
+  "followUpOutcome": "That dispatch (run 36767542570, 2026-09-30T19:42:34Z -> 20:19:12Z, 5/5 jobs green) FILLED datacurve/python-statemachine-state-data-scoping: failed, reward=0, f2p 70/72, p2p 1286/1286, partial 0.99853, terminalCause completed in 1938545ms of its 5400s budget, 241 model calls, no model-failure entry; the 429 did not recur on that attempt. All three cells that had no verdict in run 36711152110 therefore now carry exactly one graded attempt each, and all three failed on their own merits. The source run keeps its own frozen report (sha256 6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9) with 3 error cells and passAt1=null; this batch and the follow-up are never merged into it.",
+  "fairnessInvariant": "Across the whole reading, every one of the 30 cells carries exactly ONE graded model attempt: the 27 already-valid cells keep the attempt they had in run 36711152110, and each refilled cell received its single graded attempt from the recovery chain because its source-run cell had none at all (no model request, no agent directory, no evidence file). No cell was attempted twice with a verdict to choose from, no verdict was replaced or reinterpreted, no evaluator output re-entered a model attempt, and no budget, effort or grader setting was changed. The refills therefore restore coverage of a predeclared attempt; they are not a second chance at a cell that had already been graded."
+}

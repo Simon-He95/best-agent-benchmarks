@@ -1,0 +1,392 @@
+{
+  "benchmark": "swe-bench-lite",
+  "candidateId": "28d89f8",
+  "generatedAt": "2026-08-18T01:22:38.885Z",
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "compatibilityMode": "compatible"
+  },
+  "composition": {
+    "fullAccess": true,
+    "permissionMode": "full",
+    "interactionTools": false,
+    "workspaceBackend": "plain",
+    "maxModelCycles": 600,
+    "reasoningEffort": "max",
+    "taskTimeoutMs": 1800000,
+    "shard": 3,
+    "shardTotal": 4
+  },
+  "corpus": {
+    "path": "/Users/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/corpora/swe-bench-verified.jsonl",
+    "dataset": "verified",
+    "label": "SWE-bench Verified",
+    "totalTasks": 500,
+    "tasksRun": 31
+  },
+  "summary": {
+    "resolved": 0,
+    "errored": 11,
+    "environmentBlocked": 3,
+    "timedOut": 2,
+    "passAt1": 0,
+    "wallMs": 8697821.8,
+    "avgTaskMs": 280574.9
+  },
+  "byRepo": {
+    "django/django": {
+      "total": 26,
+      "resolved": 0,
+      "errored": 9,
+      "environmentBlocked": 0,
+      "timedOut": 2,
+      "wallMs": 9952918.800000003,
+      "passAt1": 0,
+      "avgTaskMs": 382804.6
+    },
+    "astropy/astropy": {
+      "total": 5,
+      "resolved": 0,
+      "errored": 2,
+      "environmentBlocked": 3,
+      "timedOut": 0,
+      "wallMs": 3004498.7,
+      "passAt1": 0,
+      "avgTaskMs": 600899.7
+    }
+  },
+  "tasks": [
+    {
+      "instance_id": "astropy__astropy-13398",
+      "repo": "astropy/astropy",
+      "wallMs": 219286.9,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run failed: tool-unknown\nv3 run tool: stat:unknown:malformed"
+    },
+    {
+      "instance_id": "astropy__astropy-14096",
+      "repo": "astropy/astropy",
+      "wallMs": 406280.9,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: process-read:not-invoked:invalid-input"
+    },
+    {
+      "instance_id": "astropy__astropy-14369",
+      "repo": "astropy/astropy",
+      "wallMs": 894195,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14369-6yaueK/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n  \n  × Preparing metadata (pyproject.toml) did not run successfully.\n  │ exit code: 1\n  ╰─> [46 lines of output]\n      Extension astropy.io.fits._tiled_compression._compression contains source files (astropy/io/fits/_tiled_compression/src/compression.c, astropy/io/fits/_tiled_compression/src/unquantize.c) that are specified using an absolute path, which will not be supported in future.\n      /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14369-6yaueK/repo/.swe-bench-venv/lib/python3.11/site-packages/vcs_versioning/_backends/_git.py:431: UserWarning: \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14369-6yaueK/repo\" is shallow and may cause errors\n        pre_parse(wd)\n      running\n...\ngg_info_dir = self.ignore_egg_info_in_manifest  # type: ignore[attr-defined]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/distutils/cmd.py\", line 103, in __getattr__\n          raise AttributeError(attr)\n      AttributeError: ignore_egg_info_in_manifest\n      [end of output]\n  \n  note: This error originates from a subprocess, and is likely not a problem with pip.\nerror: metadata-generation-failed\n\n× Encountered error while generating package metadata.\n╰─> See above for output.\n\nnote: This is an issue with the package mentioned above, not pip.\nhint: See above for details.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "astropy__astropy-14995",
+      "repo": "astropy/astropy",
+      "wallMs": 495273.5,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14995-o8YMXt/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n  \n  × Preparing metadata (pyproject.toml) did not run successfully.\n  │ exit code: 1\n  ╰─> [46 lines of output]\n      Extension astropy.io.fits._tiled_compression._compression contains source files (astropy/io/fits/_tiled_compression/src/compression.c, astropy/io/fits/_tiled_compression/src/unquantize.c) that are specified using an absolute path, which will not be supported in future.\n      /private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14995-o8YMXt/repo/.swe-bench-venv/lib/python3.11/site-packages/vcs_versioning/_backends/_git.py:431: UserWarning: \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-14995-o8YMXt/repo\" is shallow and may cause errors\n        pre_parse(wd)\n      running\n...\ngg_info_dir = self.ignore_egg_info_in_manifest  # type: ignore[attr-defined]\n                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        File \"/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/distutils/cmd.py\", line 103, in __getattr__\n          raise AttributeError(attr)\n      AttributeError: ignore_egg_info_in_manifest\n      [end of output]\n  \n  note: This error originates from a subprocess, and is likely not a problem with pip.\nerror: metadata-generation-failed\n\n× Encountered error while generating package metadata.\n╰─> See above for output.\n\nnote: This is an issue with the package mentioned above, not pip.\nhint: See above for details.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "astropy__astropy-7671",
+      "repo": "astropy/astropy",
+      "wallMs": 989462.4,
+      "resolved": false,
+      "timedOut": false,
+      "environmentBlocked": true,
+      "environmentError": "/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7671-KQLbqG/repo/.swe-bench-venv/bin/python -m pip install -e . with --no-build-isolation failed: error: subprocess-exited-with-error\n    \n    × python setup.py develop did not run successfully.\n    │ exit code: 1\n    ╰─> [27 lines of output]\n        Traceback (most recent call last):\n          File \"<string>\", line 2, in <module>\n          File \"<pip-setuptools-caller>\", line 34, in <module>\n          File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7671-KQLbqG/repo/setup.py\", line 51, in <module>\n            package_info = get_package_info()\n                           ^^^^^^^^^^^^^^^^^^\n          File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7671-KQLbqG/repo/astropy_helpers/astropy_helpers/setup_helpers.py\", line 388, in get_package_info\n            ext_modules.extend(setuppkg.get_extensions())\n     \n...\ndule>\n        from .diff import FITSDiff, HDUDiff\n      File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7671-KQLbqG/repo/astropy/io/fits/diff.py\", line 25, in <module>\n        from .header import Header\n      File \"/private/var/folders/df/djsxfhc17x95674wsm_g8s980000gn/T/swe-bench-astropy__astropy-7671-KQLbqG/repo/astropy/io/fits/header.py\", line 1907, in <module>\n        collections.MutableSequence.register(Header)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    AttributeError: module 'collections' has no attribute 'MutableSequence'\n    [end of output]\n\nnote: This error originates from a subprocess, and is likely not a problem with pip.\n\n[notice] A new release of pip is available: 24.0 -> 26.2.1\n[notice] To update, run: python -m pip install --upgrade pip"
+    },
+    {
+      "instance_id": "django__django-10554",
+      "repo": "django/django",
+      "wallMs": 623751.1,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-10999",
+      "repo": "django/django",
+      "wallMs": 159460.1,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 14,
+      "agentPatch": "diff --git a/django/utils/dateparse.py b/django/utils/dateparse.py\nindex 8d08b7d..a037758 100644\n--- a/django/utils/dateparse.py\n+++ b/django/utils/dateparse.py\n@@ -29,7 +29,7 @@ datetime_re = re.compile(\n standard_duration_re = re.compile(\n     r'^'\n     r'(?:(?P<days>-?\\d+) (days?, )?)?'\n-    r'((?:(?P<hours>-?\\d+):)(?=\\d+:\\d+))?'\n+    r'((?:(?P<hours>-?\\d+):)(?=-?\\d+:-?\\d+))?'\n     r'(?:(?P<minutes>-?\\d+):)?'\n     r'(?P<seconds>-?\\d+)'\n     r'(?:\\.(?P<microseconds>\\d{1,6})\\d{0,6})?'\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_negative (utils_tests.test_dateparse.DurationParseTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-11099",
+      "repo": "django/django",
+      "wallMs": 103838.6,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 23,
+      "agentPatch": "diff --git a/django/contrib/auth/validators.py b/django/contrib/auth/validators.py\nindex b4878cf..1304f20 100644\n--- a/django/contrib/auth/validators.py\n+++ b/django/contrib/auth/validators.py\n@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _\n \n @deconstructible\n class ASCIIUsernameValidator(validators.RegexValidator):\n-    regex = r'^[\\w.@+-]+$'\n+    regex = r'\\A[\\w.@+-]+\\Z'\n     message = _(\n         'Enter a valid username. This value may contain only English letters, '\n         'numbers, and @/./+/-/_ characters.'\n@@ -17,7 +17,7 @@ class ASCIIUsernameValidator(validators.RegexValidator):\n \n @deconstructible\n class UnicodeUsernameValidator(validators.RegexValidator):\n-    regex = r'^[\\w.@+-]+$'\n+    regex = r'\\A[\\w.@+-]+\\Z'\n     message = _(\n         'Enter a valid username. This value may contain only letters, '\n         'numbers, and @/./+/-/_ characters.'\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_ascii_validator (auth_tests.test_validators.UsernameValidatorsTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 3
+    },
+    {
+      "instance_id": "django__django-11141",
+      "repo": "django/django",
+      "wallMs": 199264.7,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 16,
+      "agentPatch": "diff --git a/django/db/migrations/loader.py b/django/db/migrations/loader.py\nindex 8c30862..cdf3748 100644\n--- a/django/db/migrations/loader.py\n+++ b/django/db/migrations/loader.py\n@@ -86,10 +86,6 @@ class MigrationLoader:\n             else:\n                 # Empty directories are namespaces.\n                 # getattr() needed on PY36 and older (replace w/attribute access).\n-                if getattr(module, '__file__', None) is None:\n-                    self.unmigrated_apps.add(app_config.label)\n-                    continue\n-                # Module is not a package (e.g. migrations.py).\n                 if not hasattr(module, '__path__'):\n                     self.unmigrated_apps.add(app_config.label)\n                     continue\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: Migration directories without an __init__.py file are loaded.",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11206",
+      "repo": "django/django",
+      "wallMs": 298591.5,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 19,
+      "agentPatch": "diff --git a/django/utils/numberformat.py b/django/utils/numberformat.py\nindex 88b35fc..0c58bff 100644\n--- a/django/utils/numberformat.py\n+++ b/django/utils/numberformat.py\n@@ -27,6 +27,13 @@ def format(number, decimal_sep, decimal_pos=None, grouping=0, thousand_sep='',\n     # sign\n     sign = ''\n     if isinstance(number, Decimal):\n+        if decimal_pos is not None:\n+            # If the provided number is too small to affect any of the visible\n+            # decimal places, consider it equal to '0'.\n+            cutoff = Decimal('0.' + '1'.rjust(decimal_pos, '0'))\n+            if abs(number) < cutoff:\n+                number = Decimal('0')\n+\n         # Format values with more than 200 digits (an arbitrary cutoff) using\n         # scientific notation to avoid high memory usage in {:f}'.format().\n         _, digits, exponent = number.as_tuple()\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_decimal_numbers (utils_tests.test_numberformat.TestNumberFormat)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-11276",
+      "repo": "django/django",
+      "wallMs": 114441.1,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 36,
+      "agentPatch": "diff --git a/django/utils/html.py b/django/utils/html.py\nindex 9c51997..b4a546d 100644\n--- a/django/utils/html.py\n+++ b/django/utils/html.py\n@@ -1,5 +1,6 @@\n \"\"\"HTML utilities suitable for global use.\"\"\"\n \n+import html\n import json\n import re\n from html.parser import HTMLParser\n@@ -24,14 +25,6 @@ word_split_re = re.compile(r'''([\\s<>\"']+)''')\n simple_url_re = re.compile(r'^https?://\\[?\\w', re.IGNORECASE)\n simple_url_2_re = re.compile(r'^www\\.|^(?!http)\\w[^@]+\\.(com|edu|gov|int|mil|net|org)($|/.*)$', re.IGNORECASE)\n \n-_html_escapes = {\n-    ord('&'): '&amp;',\n-    ord('<'): '&lt;',\n-    ord('>'): '&gt;',\n-    ord('\"'): '&quot;',\n-    ord(\"'\"): '&#39;',\n-}\n-\n \n @keep_lazy(str, SafeString)\n def escape(text):\n@@ -43,7 +36,7 @@ def escape(text):\n     This may result in double-escaping. If this is a concern, use\n     conditional_escape() instead.\n     \"\"\"\n-    return mark_safe(str(text).translate(_html_escapes))\n+    return mark_safe(html.escape(str(text)))\n \n \n _js_escapes = {\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_make_list02 (template_tests.filter_tests.test_make_list.MakeListTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 26
+    },
+    {
+      "instance_id": "django__django-11400",
+      "repo": "django/django",
+      "wallMs": 786202.4,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 66,
+      "agentPatch": "diff --git a/django/contrib/admin/filters.py b/django/contrib/admin/filters.py\nindex d65e01d..7b4aa9c 100644\n--- a/django/contrib/admin/filters.py\n+++ b/django/contrib/admin/filters.py\n@@ -193,11 +193,15 @@ class RelatedFieldListFilter(FieldListFilter):\n     def expected_parameters(self):\n         return [self.lookup_kwarg, self.lookup_kwarg_isnull]\n \n-    def field_choices(self, field, request, model_admin):\n-        ordering = ()\n+    def field_admin_ordering(self, field, request, model_admin):\n+        \"\"\"Return the ordering of a related admin.\"\"\"\n         related_admin = model_admin.admin_site._registry.get(field.remote_field.model)\n         if related_admin is not None:\n-            ordering = related_admin.get_ordering(request)\n+            return related_admin.get_ordering(request)\n+        return ()\n+\n+    def field_choices(self, field, request, model_admin):\n+        ordering = self.field_admin_ordering(field, request, model_admin)\n         return field.get_choices(include_blank=False, ordering=ordering)\n \n     def choices(self, changelist):\n@@ -419,4 +423,5 @@ FieldListFilter.register(lambda f: True, AllValuesFieldListFilter)\n class RelatedOnlyFieldListFilter(RelatedFieldListFilter):\n     def field_choices(self, field, request, model_admin):\n         pk_qs = model_admin.get_queryset(request).distinct().values_list('%s__pk' % self.field_path, flat=True)\n-        return field.get_choices(include_blank=False, limit_choices_to={'pk__in': pk_qs})\n+        ordering = self.field_admin_ordering(field, request, model_admin)\n+        return field.get_choices(include_blank=False, limit_choices_to={'pk__in': pk_qs}, ordering=ordering)\ndiff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\nindex 194514c..1aad845 100644\n--- a/django/db/models/fields/__init__.py\n+++ b/django/db/models/fields/__init__.py\n@@ -825,9 +825,11 @@ class Field(RegisterLookupMixin):\n             if hasattr(self.remote_field, 'get_related_field')\n             else 'pk'\n         )\n+        qs = rel_model._default_manager.complex_filter(limit_choices_to)\n+        if ordering:\n+            qs = qs.order_by(*ordering)\n         return (blank_choice if include_blank else []) + [\n-            (choice_func(x), str(x))\n-            for x in rel_model._default_manager.complex_filter(limit_choices_to).order_by(*ordering)\n+            (choice_func(x), str(x)) for x in qs\n         ]\n \n     def value_to_string(self, obj):\ndiff --git a/django/db/models/fields/reverse_related.py b/django/db/models/fields/reverse_related.py\nindex eb6b934..700410a 100644\n--- a/django/db/models/fields/reverse_related.py\n+++ b/django/db/models/fields/reverse_related.py\n@@ -122,8 +122,11 @@ class ForeignObjectRel(FieldCacheMixin):\n         Analog of django.db.models.fields.Field.get_choices(), provided\n         initially for utilization by RelatedFieldListFilter.\n         \"\"\"\n+        qs = self.related_model._default_manager.all()\n+        if ordering:\n+            qs = qs.order_by(*ordering)\n         return (blank_choice if include_blank else []) + [\n-            (x.pk, str(x)) for x in self.related_model._default_manager.order_by(*ordering)\n+            (x.pk, str(x)) for x in qs\n         ]\n \n     def is_hidden(self):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_get_choices_default_ordering (model_fields.tests.GetChoicesOrderingTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 6
+    },
+    {
+      "instance_id": "django__django-11490",
+      "repo": "django/django",
+      "wallMs": 392024.8,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 13,
+      "agentPatch": "diff --git a/django/db/models/sql/compiler.py b/django/db/models/sql/compiler.py\nindex a44adfc..a791908 100644\n--- a/django/db/models/sql/compiler.py\n+++ b/django/db/models/sql/compiler.py\n@@ -426,6 +426,7 @@ class SQLCompiler:\n                 # must have the same columns list. Set the selects defined on\n                 # the query on all combined queries, if not already set.\n                 if not compiler.query.values_select and self.query.values_select:\n+                    compiler.query = compiler.query.clone()\n                     compiler.query.set_values((\n                         *self.query.extra_select,\n                         *self.query.values_select,\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_union_with_values (queries.test_qs_combinators.QuerySetSetOperationTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-11603",
+      "repo": "django/django",
+      "wallMs": 72766.5,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 35,
+      "agentPatch": "diff --git a/django/db/models/aggregates.py b/django/db/models/aggregates.py\nindex da4ff92..3effaa7 100644\n--- a/django/db/models/aggregates.py\n+++ b/django/db/models/aggregates.py\n@@ -99,6 +99,7 @@ class Aggregate(Func):\n class Avg(FixDurationInputMixin, NumericOutputFieldMixin, Aggregate):\n     function = 'AVG'\n     name = 'Avg'\n+    allow_distinct = True\n \n \n class Count(Aggregate):\n@@ -121,11 +122,13 @@ class Count(Aggregate):\n class Max(Aggregate):\n     function = 'MAX'\n     name = 'Max'\n+    allow_distinct = True\n \n \n class Min(Aggregate):\n     function = 'MIN'\n     name = 'Min'\n+    allow_distinct = True\n \n \n class StdDev(NumericOutputFieldMixin, Aggregate):\n@@ -142,6 +145,7 @@ class StdDev(NumericOutputFieldMixin, Aggregate):\n class Sum(FixDurationInputMixin, Aggregate):\n     function = 'SUM'\n     name = 'Sum'\n+    allow_distinct = True\n \n \n class Variance(NumericOutputFieldMixin, Aggregate):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_distinct_on_aggregate (aggregation.tests.AggregateTestCase)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-11749",
+      "repo": "django/django",
+      "wallMs": 141350.7,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: Cannot connect to API: read ECONNRESET\nv3 run failed: model-failure\nv3 run tool: exec:succeeded"
+    },
+    {
+      "instance_id": "django__django-11848",
+      "repo": "django/django",
+      "wallMs": 136854.5,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 24,
+      "agentPatch": "diff --git a/django/utils/http.py b/django/utils/http.py\nindex 572cfb4..b106a72 100644\n--- a/django/utils/http.py\n+++ b/django/utils/http.py\n@@ -176,10 +176,15 @@ def parse_http_date(date):\n     try:\n         year = int(m.group('year'))\n         if year < 100:\n-            if year < 70:\n-                year += 2000\n+            current_year = datetime.datetime.utcnow().year\n+            current_century = current_year - (current_year % 100)\n+            if year - (current_year % 100) > 50:\n+                # year that appears to be more than 50 years in the future are\n+                # interpreted as representing the most recent year in the past\n+                # with the same last two digits.\n+                year += current_century - 100\n             else:\n-                year += 1900\n+                year += current_century\n         month = MONTHS.index(m.group('mon').lower()) + 1\n         day = int(m.group('day'))\n         hour = int(m.group('hour'))\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_parsing_rfc850 (utils_tests.test_http.HttpDateProcessingTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-11964",
+      "repo": "django/django",
+      "wallMs": 1812738,
+      "resolved": false,
+      "timedOut": true
+    },
+    {
+      "instance_id": "django__django-12125",
+      "repo": "django/django",
+      "wallMs": 1378277.2,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 19,
+      "agentPatch": "diff --git a/django/db/migrations/serializer.py b/django/db/migrations/serializer.py\nindex 7d22695..3ecc4cf 100644\n--- a/django/db/migrations/serializer.py\n+++ b/django/db/migrations/serializer.py\n@@ -267,8 +267,12 @@ class TypeSerializer(BaseSerializer):\n         if hasattr(self.value, \"__module__\"):\n             module = self.value.__module__\n             if module == builtins.__name__:\n-                return self.value.__name__, set()\n+                return self.value.__qualname__, set()\n             else:\n+                if \"<\" not in self.value.__qualname__:  # Qualname can include <locals>\n+                    return \"%s.%s\" % (module, self.value.__qualname__), {\"import %s\" % module}\n+                # Fall back to the non-qualified name for locally-defined\n+                # classes, which can't be referenced by their module path.\n                 return \"%s.%s\" % (module, self.value.__name__), {\"import %s\" % module}\n \n \n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_serialize_nested_class (migrations.test_writer.WriterTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-12209",
+      "repo": "django/django",
+      "wallMs": 1813949.1,
+      "resolved": false,
+      "timedOut": true
+    },
+    {
+      "instance_id": "django__django-12304",
+      "repo": "django/django",
+      "wallMs": 265529,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 16,
+      "agentPatch": "diff --git a/django/db/models/enums.py b/django/db/models/enums.py\nindex f48143d..abcc59c 100644\n--- a/django/db/models/enums.py\n+++ b/django/db/models/enums.py\n@@ -68,6 +68,10 @@ class Choices(enum.Enum, metaclass=ChoicesMeta):\n         \"\"\"\n         return str(self.value)\n \n+    @property\n+    def do_not_call_in_templates(self):\n+        return True\n+\n \n class IntegerChoices(int, Choices):\n     \"\"\"Class for creating enumerated integer choices.\"\"\"\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_templates (model_enums.tests.ChoicesTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12419",
+      "repo": "django/django",
+      "wallMs": 311729.3,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 77,
+      "agentPatch": "diff --git a/django/conf/global_settings.py b/django/conf/global_settings.py\nindex 09c9b95..8bb59a4 100644\n--- a/django/conf/global_settings.py\n+++ b/django/conf/global_settings.py\n@@ -637,6 +637,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = False\n SECURE_HSTS_PRELOAD = False\n SECURE_HSTS_SECONDS = 0\n SECURE_REDIRECT_EXEMPT = []\n-SECURE_REFERRER_POLICY = None\n+SECURE_REFERRER_POLICY = 'same-origin'\n SECURE_SSL_HOST = None\n SECURE_SSL_REDIRECT = False\ndiff --git a/django/core/checks/security/base.py b/django/core/checks/security/base.py\nindex b69c2a1..3c916ba 100644\n--- a/django/core/checks/security/base.py\n+++ b/django/core/checks/security/base.py\n@@ -103,7 +103,7 @@ W021 = Warning(\n )\n \n W022 = Warning(\n-    'You have not set the SECURE_REFERRER_POLICY setting. Without this, your '\n+    'The SECURE_REFERRER_POLICY setting is set to None. Without this, your '\n     'site will not send a Referrer-Policy header. You should consider '\n     'enabling this header to protect user privacy.',\n     id='security.W022',\ndiff --git a/docs/ref/checks.txt b/docs/ref/checks.txt\nindex e7b0a5e..f45bb1c 100644\n--- a/docs/ref/checks.txt\n+++ b/docs/ref/checks.txt\n@@ -431,8 +431,8 @@ The following checks are run if you use the :option:`check --deploy` option:\n * **security.W021**: You have not set the\n   :setting:`SECURE_HSTS_PRELOAD` setting to ``True``. Without this, your site\n   cannot be submitted to the browser preload list.\n-* **security.W022**: You have not set the :setting:`SECURE_REFERRER_POLICY`\n-  setting. Without this, your site will not send a Referrer-Policy header. You\n+* **security.W022**: The :setting:`SECURE_REFERRER_POLICY` setting is set to\n+  ``None``. Without this, your site will not send a Referrer-Policy header. You\n   should consider enabling this header to protect user privacy.\n * **security.E023**: You have set the :setting:`SECURE_REFERRER_POLICY` setting\n   to an invalid value.\ndiff --git a/docs/ref/settings.txt b/docs/ref/settings.txt\nindex b4a5bdc..f194833 100644\n--- a/docs/ref/settings.txt\n+++ b/docs/ref/settings.txt\n@@ -2395,11 +2395,12 @@ from URL paths, so patterns shouldn't include them, e.g.\n \n .. versionadded:: 3.0\n \n-Default: ``None``\n+Default: ``'same-origin'``\n \n If configured, the :class:`~django.middleware.security.SecurityMiddleware` sets\n the :ref:`referrer-policy` header on all responses that do not already have it\n-to the value provided.\n+to the value provided. If set to ``None``, no ``Referrer-Policy`` header will\n+be sent.\n \n .. setting:: SECURE_SSL_HOST\n \ndiff --git a/docs/releases/3.1.txt b/docs/releases/3.1.txt\nindex 4a16515..4451aba 100644\n--- a/docs/releases/3.1.txt\n+++ b/docs/releases/3.1.txt\n@@ -388,6 +388,12 @@ Miscellaneous\n   Django 3.1, the first request to any previously cached template fragment will\n   be a cache miss.\n \n+* The default value of the :setting:`SECURE_REFERRER_POLICY` setting is now\n+  ``'same-origin'``. As a result, the\n+  :class:`~django.middleware.security.SecurityMiddleware` now sends a\n+  ``Referrer-Policy: same-origin`` header on all responses that do not already\n+  have it. Set the setting to ``None`` to disable the header.\n+\n * The logic behind the decision to return a redirection fallback or a 204 HTTP\n   response from the :func:`~django.views.i18n.set_language` view is now based\n   on the ``Accept`` HTTP header instead of the ``X-Requested-With`` HTTP header\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_middleware_headers (project_template.test_settings.TestStartProjectSettings)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-12741",
+      "repo": "django/django",
+      "wallMs": 71417.8,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 30,
+      "agentPatch": "diff --git a/django/core/management/commands/flush.py b/django/core/management/commands/flush.py\nindex e8ed396..bc8021c 100644\n--- a/django/core/management/commands/flush.py\n+++ b/django/core/management/commands/flush.py\n@@ -60,7 +60,7 @@ Are you sure you want to do this?\n \n         if confirm == 'yes':\n             try:\n-                connection.ops.execute_sql_flush(database, sql_list)\n+                connection.ops.execute_sql_flush(sql_list)\n             except Exception as exc:\n                 raise CommandError(\n                     \"Database %s couldn't be flushed. Possible reasons:\\n\"\ndiff --git a/django/db/backends/base/operations.py b/django/db/backends/base/operations.py\nindex 70ac07a..f07580c 100644\n--- a/django/db/backends/base/operations.py\n+++ b/django/db/backends/base/operations.py\n@@ -400,9 +400,9 @@ class BaseDatabaseOperations:\n         \"\"\"\n         raise NotImplementedError('subclasses of BaseDatabaseOperations must provide a sql_flush() method')\n \n-    def execute_sql_flush(self, using, sql_list):\n+    def execute_sql_flush(self, sql_list):\n         \"\"\"Execute a list of SQL statements to flush the database.\"\"\"\n-        with transaction.atomic(using=using, savepoint=self.connection.features.can_rollback_ddl):\n+        with transaction.atomic(using=self.connection.alias, savepoint=self.connection.features.can_rollback_ddl):\n             with self.connection.cursor() as cursor:\n                 for sql in sql_list:\n                     cursor.execute(sql)\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_execute_sql_flush_statements (backends.base.test_operations.SqlFlushTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 2
+    },
+    {
+      "instance_id": "django__django-12965",
+      "repo": "django/django",
+      "wallMs": 20894.6,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 202608180911442522843404AanA4kP)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-13033",
+      "repo": "django/django",
+      "wallMs": 16455,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818091143422574510HySvwLb)\nv3 run failed: model-failure\nv3 run tool: search:succeeded"
+    },
+    {
+      "instance_id": "django__django-13121",
+      "repo": "django/django",
+      "wallMs": 47387.9,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 202608180912321875218843MIr54zL)\nv3 run failed: model-failure\nv3 run tool: search:succeeded"
+    },
+    {
+      "instance_id": "django__django-13212",
+      "repo": "django/django",
+      "wallMs": 17205.7,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run failed: tool-unknown\nv3 run tool: stat:unknown:malformed"
+    },
+    {
+      "instance_id": "django__django-13343",
+      "repo": "django/django",
+      "wallMs": 542189,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 26,
+      "agentPatch": "diff --git a/django/db/models/fields/files.py b/django/db/models/fields/files.py\nindex e10a5bb..d0535bf 100644\n--- a/django/db/models/fields/files.py\n+++ b/django/db/models/fields/files.py\n@@ -227,7 +227,8 @@ class FileField(Field):\n     def __init__(self, verbose_name=None, name=None, upload_to='', storage=None, **kwargs):\n         self._primary_key_set_explicitly = 'primary_key' in kwargs\n \n-        self.storage = storage or default_storage\n+        self._storage = storage or default_storage\n+        self.storage = self._storage\n         if callable(self.storage):\n             self.storage = self.storage()\n             if not isinstance(self.storage, Storage):\n@@ -278,8 +279,8 @@ class FileField(Field):\n         if kwargs.get(\"max_length\") == 100:\n             del kwargs[\"max_length\"]\n         kwargs['upload_to'] = self.upload_to\n-        if self.storage is not default_storage:\n-            kwargs['storage'] = self.storage\n+        if self._storage is not default_storage:\n+            kwargs['storage'] = self._storage\n         return name, path, args, kwargs\n \n     def get_internal_type(self):\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: test_deconstruction (file_storage.tests.FieldCallableFileStorageTests)",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-13401",
+      "repo": "django/django",
+      "wallMs": 519786.4,
+      "resolved": false,
+      "timedOut": false,
+      "patchLines": 36,
+      "agentPatch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\nindex 2837427..fde71a2 100644\n--- a/django/db/models/fields/__init__.py\n+++ b/django/db/models/fields/__init__.py\n@@ -516,17 +516,27 @@ class Field(RegisterLookupMixin):\n     def __eq__(self, other):\n         # Needed for @total_ordering\n         if isinstance(other, Field):\n-            return self.creation_counter == other.creation_counter\n+            return self.creation_counter == other.creation_counter and (\n+                getattr(self, 'model', None) == getattr(other, 'model', None)\n+            )\n         return NotImplemented\n \n     def __lt__(self, other):\n         # This is needed because bisect does not take a comparison function.\n         if isinstance(other, Field):\n-            return self.creation_counter < other.creation_counter\n+            return (\n+                self.creation_counter,\n+                getattr(self, 'model', None)._meta.app_label,\n+                getattr(self, 'model', None)._meta.model_name,\n+            ) < (\n+                other.creation_counter,\n+                getattr(other, 'model', None)._meta.app_label,\n+                getattr(other, 'model', None)._meta.model_name,\n+            )\n         return NotImplemented\n \n     def __hash__(self):\n-        return hash(self.creation_counter)\n+        return hash((self.creation_counter, getattr(self, 'model', None)))\n \n     def __deepcopy__(self, memodict):\n         # We don't have to deepcopy very much here, since most things are not\n",
+      "evaluationError": "python3.11 -m pytest failed: ERROR: file or directory not found: Field instances from abstract models are not equal.",
+      "verification": "fail-to-pass",
+      "failToPassCount": 1
+    },
+    {
+      "instance_id": "django__django-13449",
+      "repo": "django/django",
+      "wallMs": 50008.3,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092226115697499XGuz1Lae)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-13551",
+      "repo": "django/django",
+      "wallMs": 47530.8,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092227585859702Zkn9mTwx)\nv3 run failed: model-failure\nv3 run tool: read:succeeded"
+    },
+    {
+      "instance_id": "django__django-13658",
+      "repo": "django/django",
+      "wallMs": 9274.7,
+      "resolved": false,
+      "timedOut": false,
+      "error": "Agent produced no diff",
+      "cliExitCode": 1,
+      "cliError": "v3 run model-failure: transport: 获取重试渠道失败: channel not found (request id: 20260818092237618307052q6dyT3h6)\nv3 run failed: model-failure\nv3 run tool: list:succeeded"
+    }
+  ]
+}

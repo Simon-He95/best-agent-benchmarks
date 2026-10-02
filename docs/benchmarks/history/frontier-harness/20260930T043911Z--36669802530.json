@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.41",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "5547563b2b59333a22f24e093fc6102e50a2f95f",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/fastapi-deprecation-response-headers"
+  ],
+  "coverage": {
+    "expected": 3,
+    "expectedEligible": 3,
+    "present": 3,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.3333333333333333,
+  "validCells": 3,
+  "passRateValidCells": 0.3333333333333333,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "3 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "3 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "3 records agree on one frozen candidate (cli-0.0.3-beta.41-5547563-4fbd84721448|0.0.3-beta.41|4fbd847214481e697a395b1436b23bc8362837635c8bff3540564f9d621f349d|205d514bae7735120452bdc8ea70bd49b75f7f24821716f3ece2fc1644656b16)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) deepseek-v4.1-flash at reasoning effort max; the frozen profile is deepseek-v4.1-flash"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "3 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 3,
+    "promptTokens": 62599729,
+    "completionTokens": 339599,
+    "cacheReadTokens": 61441664,
+    "totalTokens": 62939328,
+    "modelCallCount": 362,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 9,
+        "f2p_passed": 8,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 0.8888888888888888,
+        "p2p": 1,
+        "partial": 0.9902912621359223
+      },
+      "durationMs": 1247102,
+      "usage": {
+        "promptTokens": 27474788,
+        "completionTokens": 109018,
+        "cacheReadTokens": 27199872,
+        "costUsd": null,
+        "totalTokens": 27583806,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 274916,
+        "modelCallCount": 149,
+        "reportedCallCount": 149,
+        "reportedInputTokens": 27474788
+      },
+      "evidenceSha256": "e4352153689dca2f7d1d371fd9448535c2c6655538fd2c6e149909a08e08d3cb",
+      "batchId": "beta41-diag-ecr-serial-20260930"
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 137,
+        "f2p_passed": 137,
+        "p2p_total": 3134,
+        "p2p_passed": 3134,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1218492,
+      "usage": {
+        "promptTokens": 13396829,
+        "completionTokens": 126527,
+        "cacheReadTokens": 13184128,
+        "costUsd": null,
+        "totalTokens": 13523356,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 212701,
+        "modelCallCount": 93,
+        "reportedCallCount": 93,
+        "reportedInputTokens": 13396829
+      },
+      "evidenceSha256": "3dcdff8fab2d365b9f62ec5e8fe2131326b667926df622c861e976e914160903",
+      "batchId": "beta41-diag-ecr-serial-20260930"
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 31,
+        "f2p_passed": 28,
+        "p2p_total": 286,
+        "p2p_passed": 286,
+        "f2p": 0.9032258064516129,
+        "p2p": 1,
+        "partial": 0.9905362776025236
+      },
+      "durationMs": 1355971,
+      "usage": {
+        "promptTokens": 21728112,
+        "completionTokens": 104054,
+        "cacheReadTokens": 21057664,
+        "costUsd": null,
+        "totalTokens": 21832166,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 670448,
+        "modelCallCount": 120,
+        "reportedCallCount": 120,
+        "reportedInputTokens": 21728112
+      },
+      "evidenceSha256": "5d1ff30027c666d144e2dc8bb866ab7cfa502ee6fa5b29521b9169c868fb4c6f",
+      "batchId": "beta41-diag-ecr-serial-20260930"
+    }
+  ]
+}

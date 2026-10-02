@@ -238,7 +238,7 @@ jobs:
       - name: Verify controls before any worker starts
         run: |
           node scripts/verify-swe-ci-candidate.mjs
-          node --test --test-skip-pattern='beta\.9 diagnostic plan' test/*.test.mjs
+          node --test --experimental-test-module-mocks --test-skip-pattern='beta\.9 diagnostic plan' test/*.test.mjs
 
   corpus:
     name: Freeze SWE-bench corpus

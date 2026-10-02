@@ -1173,6 +1173,7 @@ function writeCompleteEvidence(
   path,
   failureReason,
   terminalCause = failureReason === undefined ? "completed" : "model-failure",
+  callTimes,
 ) {
   const runKey = {
     kind: "run",
@@ -1193,6 +1194,7 @@ function writeCompleteEvidence(
     resourceId,
     runId: resourceId,
     invocationId,
+    ...(callTimes === undefined ? {} : { startedAtMs: callTimes.startedAtMs }),
     request: {
       instructions: [],
       messages: [{ kind: "user", runKey, message: { content: "fixture" } }],
@@ -1206,6 +1208,7 @@ function writeCompleteEvidence(
     resourceId,
     runId: resourceId,
     invocationId,
+    ...(callTimes === undefined ? {} : { durationMs: callTimes.durationMs }),
     ...(failureReason === undefined
       ? { outcome: { kind: "response", candidate: { content: "done", toolCalls: [] } } }
       : { failure: { kind: "failure", reason: failureReason } }),
@@ -1259,3 +1262,46 @@ function reference(path) {
 function sha256(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
+
+test("attempt evidence admits both the pre-240 and the call-time shape, and refuses anything else", () => {
+  const root = mkdtempSync(resolve(tmpdir(), "attempt-evidence-call-times-"));
+  try {
+    // A frozen artifact written by a candidate that predates the call-time fields stays
+    // admissible: the widening must never invalidate evidence already on disk.
+    const legacyPath = resolve(root, "legacy.jsonl");
+    writeCompleteEvidence(legacyPath);
+    assert.equal(inspectAttemptEvidence(legacyPath).prefixValid, true);
+
+    // The same artifact carrying the two bounded call-time fields is admitted too.
+    const timedPath = resolve(root, "timed.jsonl");
+    writeCompleteEvidence(timedPath, undefined, "completed", { startedAtMs: 1_000, durationMs: 250 });
+    const timed = inspectAttemptEvidence(timedPath);
+    assert.equal(timed.prefixValid, true);
+    assert.equal(timed.complete, true);
+
+    // A negative or non-integer reading is refused, not admitted as a number.
+    const negativePath = resolve(root, "negative.jsonl");
+    writeCompleteEvidence(negativePath, undefined, "completed", { startedAtMs: -1, durationMs: 250 });
+    assert.deepEqual(inspectAttemptEvidence(negativePath), {
+      prefixValid: false,
+      complete: false,
+      reason: "invalid-model-request",
+    });
+
+    // An undeclared key is still a refusal: the record contract stays closed.
+    const unknownPath = resolve(root, "unknown.jsonl");
+    writeCompleteEvidence(unknownPath, undefined, "completed", { startedAtMs: 1_000, durationMs: 250 });
+    const records = readFileSync(unknownPath, "utf8").trimEnd().split("\n");
+    const first = JSON.parse(records[1]);
+    first.elapsedMs = 1;
+    records[1] = JSON.stringify(first);
+    writeFileSync(unknownPath, `${records.join("\n")}\n`);
+    assert.deepEqual(inspectAttemptEvidence(unknownPath), {
+      prefixValid: false,
+      complete: false,
+      reason: "invalid-model-request",
+    });
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

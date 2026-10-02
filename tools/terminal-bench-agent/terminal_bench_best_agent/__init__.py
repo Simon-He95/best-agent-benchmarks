@@ -17,6 +17,56 @@ def _required_env(key: str) -> str:
     return value
 
 
+def _git_identity_command() -> str:
+    """One idempotent write of the attempt's frozen git identity into the task
+    environment, in the two places a commit can read it.
+
+    A task image ships no git identity of its own, so a model commit stops at
+    "unable to auto-detect email address" and the attempt then pays a turn to work
+    around it. Writing the agent user's global config alone does not fix that: the
+    CLI runs every command the model issues with ``GIT_CONFIG_GLOBAL=/dev/null``
+    and ``GIT_CONFIG_NOSYSTEM=1`` (its own comment calls the chain deterministic),
+    so such a commit reads no global config at all. Observed in run 36870673845:
+    the global write had already run and the model's ``git config --list
+    --show-origin`` still reported nothing but ``file:.git/config``.
+
+    The identity therefore goes into the agent's global config (for commands that
+    do read it) and into the local config of every repository already present under
+    the workspace, which is the only channel a model-issued commit has. Repositories
+    are found by bounded path expansion rather than `find`, so no extra tool has to
+    exist; `git` is optional in a task image; a repository that already declares an
+    identity keeps it; and a write that fails is a setup failure, never a silently
+    skipped one.
+    """
+    name = _required_env("BEST_AGENT_GIT_IDENTITY_NAME")
+    email = _required_env("BEST_AGENT_GIT_IDENTITY_EMAIL")
+    for value in (name, email):
+        if any(character in value for character in ("\n", "\r", "\0")):
+            raise RuntimeError("BEST_AGENT_GIT_IDENTITY_* must be a single line")
+    workspace = os.environ.get("BEST_AGENT_CLI_WORKSPACE") or "/app"
+    quoted_name = shlex.quote(name)
+    quoted_email = shlex.quote(email)
+    return (
+        "set -e; if command -v git >/dev/null 2>&1; then\n"
+        f"git config --global --replace-all user.name {quoted_name}\n"
+        f"git config --global --replace-all user.email {quoted_email}\n"
+        f"for root in {shlex.quote(workspace)} \"$HOME\"; do\n"
+        '  for candidate in "$root"/.git "$root"/*/.git "$root"/*/*/.git'
+        ' "$root"/*/*/*/.git; do\n'
+        '    if [ -d "$candidate" ]; then\n'
+        '      git --git-dir="$candidate" config --local --get user.name'
+        ' >/dev/null 2>&1'
+        f" || git --git-dir=\"$candidate\" config user.name {quoted_name}\n"
+        '      git --git-dir="$candidate" config --local --get user.email'
+        ' >/dev/null 2>&1'
+        f" || git --git-dir=\"$candidate\" config user.email {quoted_email}\n"
+        "    fi\n"
+        "  done\n"
+        "done\n"
+        "fi"
+    )
+
+
 class BestAgentCli(BaseInstalledAgent):
     @staticmethod
     @override
@@ -39,6 +89,9 @@ class BestAgentCli(BaseInstalledAgent):
             environment,
             command="set -e; mkdir -p -- " + shlex.quote(f"{home}/.best-agent") + " " + shlex.quote(f"{home}/.dimcode/dimcode"),
         )
+        # The task environment's git identity: a commit the model makes is part of
+        # the workspace the verifier grades, and an image with no identity refuses it.
+        await self.exec_as_agent(environment, command=_git_identity_command())
         for source, target in files:
             await environment.upload_file(str(source), target)
         targets = " ".join(shlex.quote(target) for _, target in files)
@@ -80,7 +133,7 @@ class BestAgentCli(BaseInstalledAgent):
         context: AgentContext,
     ) -> None:
         model = _required_env("BEST_AGENT_PROVIDER_MODEL")
-        timeout_ms = _required_env("BEST_AGENT_TIMEOUT_MS")
+        model_timeout_ms = _required_env("BEST_AGENT_MODEL_TIMEOUT_MS")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
         await self._prepare_provider(environment)
         workspace = (await self.exec_as_agent(environment, command="pwd")).stdout.strip()
@@ -94,11 +147,12 @@ class BestAgentCli(BaseInstalledAgent):
                 'export DIMCODE_HOME="$HOME/.dimcode"',
                 "export BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime",
                 "export BEST_AGENT_PROVIDER_MODEL=" + shlex.quote(model),
-                "export BEST_AGENT_PROVIDER_TIMEOUT_MS=" + shlex.quote(timeout_ms),
                 "set +e",
                 '"$HOME/.best-agent-cli/bin/best-agent" run '
                 + "--model "
                 + shlex.quote(model)
+                + " --model-timeout-ms "
+                + shlex.quote(model_timeout_ms)
                 + " --workspace "
                 + shlex.quote(workspace)
                 + " "

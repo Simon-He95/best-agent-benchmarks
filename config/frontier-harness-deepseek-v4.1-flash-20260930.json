@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-09-30: \"我们用最新best-agent构建产物，用deepseek-v4.1-flash去跑\" (run on the latest best-agent build artifact, with deepseek-v4.1-flash).",
+  "reason": "Two conditions change together on this corpus for the first time. (1) The candidate is re-pinned from 0.0.3-beta.38 / 3ecccb40 to the latest main, 0.0.3-beta.40 / de63decb. (2) The provider model changes from the profile's glm-5.3 to deepseek-v4.1-flash at reasoning effort max — the exact (model, effort) pair this repository already sanctions and has already run at full-corpus scale on Terminal-Bench 4.0 (run 34757660356: same dim-oauth credential, same base URL, real task attempts with a 256 MB evidence trajectory and verifier rewards). This is a new frozen profile and a new benchmark run, never a continuation or repair of an earlier one: no earlier verdict is reinterpreted or merged, and this run's pass@1 comes only from its own frozen report.",
+  "sourceComparison": {
+    "highBaseline": {
+      "runId": 36092882496,
+      "formal": true,
+      "reasoningEffort": "high",
+      "candidatePin": "0.0.3-beta.34 / 6ce38f173e74259726a8532ebad58f6e0797be2c",
+      "model": "glm-5.3",
+      "verdicts": { "passed": 19, "failed": 11, "error": 0, "notEvaluated": 0 },
+      "passAt1": 0.6333333333333333,
+      "note": "The only scoreable full-corpus result on record. It is shown only as a reference and is never merged with this run."
+    },
+    "latestGlmMaxRun": {
+      "runId": 36527461937,
+      "formal": true,
+      "reasoningEffort": "max",
+      "candidatePin": "0.0.3-beta.38 / 3ecccb409b83eff11fd8c8d8c9ee713718517a00",
+      "model": "glm-5.3",
+      "verdicts": { "passed": 14, "failed": 11, "error": 5, "notEvaluated": 0 },
+      "passAt1": null,
+      "note": "Also not scoreable (5 verdict-less cells: 3 pre-model public.ecr.aws 429 image-pull failures + 2 cells whose single model call outran the CLI's own 840s ceiling). Per-cell comparison only; never merged."
+    }
+  },
+  "readingBoundary": "This run is confounded by construction: the candidate moves 21 commits and the model changes at the same time. Any per-cell difference against the glm-5.3 runs must be read as the model change plus this candidate delta plus run-to-run variance, and never as a clean capability comparison of either single variable.",
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit de63decbc71705e2ee142068bb7da0fd77e432b2, cliVersion 0.0.3-beta.40) — the current main of Simon-He95/best-agent at 2026-09-29T17:33:03Z",
+  "candidateEvidence": "The pin mechanism is proven by five earlier dispatches (beta.36 twice, beta.37 three times). The workflow checks out this commit with BEST_AGENT_SOURCE_TOKEN, builds the linux-x64-gnu SEA with `pnpm pack:tui` + stage-cli-sea-packages.mjs on ubuntu-24.04, and freezes its own receipt (binary/tarball/staged lock/runtime lock/build report hashes) as artifact frontier-harness-candidate-<runId>. The SEA build is not byte-reproducible, so no candidateId or hash is pre-filled here; fh-candidate asserts the built version equals the frozen cliVersion before any task runs. The version field's source of truth is apps/cli/package.json (0.0.3-beta.40 at this commit), not the monorepo root manifest.",
+  "candidateDeltaAudit": {
+    "from": "3ecccb409b83eff11fd8c8d8c9ee713718517a00 (beta.38)",
+    "to": "de63decbc71705e2ee142068bb7da0fd77e432b2 (beta.40)",
+    "size": "21 commits, 90 changed files",
+    "method": "Read-only compare of the two commits (gh api .../compare) against the argv the benchmark actually uses (headless `best-agent run --model ... --model-timeout-ms 840000 ...`, no --compact-dir, no --memory-dir). Files in the four paths audited for the previous re-pin were checked by presence in the changed-file list first, then the remaining changed files were inspected for model-visible surface.",
+    "unchangedPipelinePaths": "The 840s model-timeout pipeline (apps/cli/src/v3-run.ts, v3-run-options.ts, v3/plan.ts, v3/kernel/transition.ts), the prompt/context composition (v3-prompt-composition.ts, v3-context-composition.ts), the headless entry (apps/cli/src/index.ts, v3-run.ts, product-slices/thread-orchestration-root.ts) and the thread tools (v3-thread-tool.ts) are ALL ABSENT from the changed-file list: byte-identical to the beta.38 build whose 840s ceiling and transport behaviour were measured twice.",
+    "modelVisibleChanges": [
+      "Instruction part (prompt-visible): composeProcess's contribution now adds 'Prefer process-start for builds, tests, installs and commands of uncertain duration. Omit lifetimeMs unless you need an intentional hard cutoff; do not use an estimated duration as [a kill deadline]' (apps/cli/src/product-slices/process.ts). The task model reads this sentence; it is the only prompt-composition change found.",
+      "Builtin workspace tools (description-only): list/stat/mkdir/remove descriptions now state their accepted key set via the spec-213 sentence (packages/capability-builtin-tools/src/index.ts). Input schemas and accepted keys are unchanged — the tools already took only `path`; only the description text is new.",
+      "Process tools (description-only): start/read/write/stop descriptions now name their own key sets, and the 30s waitMs ceiling is named by one constant shared by the canonicalizer, JSON Schema and description (packages/capability-process-tools/src/index.ts). The ceiling value itself is unchanged.",
+      "exec failure naming: a call whose cwd is missing or is not a directory is now reported as `cwd does not exist (<cwd>)` / `cwd is not a directory (<cwd>)` with the observation still `not-found`, instead of one generic not-found naming only the command (packages/workspace-tools-backend/src/index.ts). This changes a failure-path message the model can read.",
+      "Model binding window anchoring (spec 257): input-window samples now carry a history fingerprint and a session with no sample of its own anchors on the most recent report for the same history, so a fold-replacement or freshly seeded Session reuses the count that history was measured in (packages/model-binding-ai-sdk/src/index.ts). Affects window/fold decisions only; the conservative-estimate fallback is unchanged.",
+      "Subagent loop: states providerModelImageInputSupport unknown instead of inheriting a chat pair (apps/cli/src/v3-subagent-loop.ts, spec 252).",
+      "Runtime: a rejected Dim OAuth refresh keeps the persisted login instead of dropping it (apps/cli/src/runtime.ts) — robustness of the credential this run itself uses.",
+      "Thread store: SCHEMA_VERSION 52 -> 53 with migrations that keep every parent reference and child row on a legacy rebuild (spec 255)."
+    ],
+    "nonModelVisibleChanges": "The dimsdk tree (TUI), render-core locales, tui-cpu-control, auto-compact / auto-compact-turn TUI wiring, image-models TUI, native-runtime-bridge, snapshot-to-messages presentation, scripts/pack-cli-node.mjs and scripts/dimsdk-tui.ts, docs/**, specs/** and the *.test.ts files. They are outside the headless closure the benchmark invokes.",
+    "reading": "Unlike beta.37 -> beta.38 (one model-visible delta), this transition carries several small model-visible deltas: one added prompt sentence about long-running commands, self-describing key sets on the workspace and process tools, a more specific exec cwd failure message, and the window-anchoring rule. The timeout, retry and context-window mechanics that produced every measured outcome and latency figure are unchanged, so the two known failure modes (public.ecr.aws pull throttle, a first call outrunning the 840s per-call ceiling) must be re-observed rather than assumed away."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "batchPlan": "config/frontier-harness-batches.json exact-covers the frozen corpus in corpus order (3 tracked batches, 30 unique tasks); the corpus, the task sources and the batch plan are untouched by this change."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "max is the only effort this run declares, because deepseek-v4.1-flash's sanctioned pair in the repository is exactly (deepseek-v4.1-flash, max). The materializer refuses any (model, effort) pair outside its admitted list, so the profile and the declared option set cannot drift apart."
+  },
+  "providerSwitchAudit": {
+    "whatChanged": [
+      "config/frontier-harness.json#provider: model glm-5.3 -> deepseek-v4.1-flash; reasoningEffortOptions [max, high] -> [max] (the model has one sanctioned effort in this repository; declaring an effort nobody has measured would be an unbacked claim).",
+      "scripts/materialize-frontier-provider.mjs: the hard-coded `model !== \"glm-5.3\"` gate became an admitted (model, effort) list — {glm-5.3: [max, high], deepseek-v4.1-flash: [max]} — so a config edit alone still cannot switch the model or an effort, and the previous profile remains admitted.",
+      "test/frontier-harness.test.mjs: the frozen-profile assertion, the effort-variant cases and the undeclared-effort negative cases now exercise the single declared effort; `high` is still asserted to be refused, as an effort this profile never declared."
+    ],
+    "evidenceOfPrecedent": "config/terminal-bench.json#provider has frozen deepseek-v4.1-flash + https://dimagent.cn/v1 + compatible + max + dim-oauth since 2026-09-12, and Terminal-Bench 4.0 run 34757660356 executed 58 real attempts on it through the same dim OAuth relay (local evidence: .tmp/tb28-report/report.json provider block; a 256,330,314-byte agent/best-agent-evidence.jsonl with verifier reward 1.0 on telecom-entity-resolution; failure attribution model 34 / provider 9 / tool 6 / infra 1).",
+    "whatDidNotChange": "The credential, the base URL, the compatibility mode, the transport profile, the runner, the corpus, the batch plan, the execution profile, the budgets, the agent timeout multiplier and the per-call ceiling."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 8,
+    "fh_batch": "latest-beta40-de63decb-deepseek-v4.1-flash-max-20260930"
+  },
+  "knownRisks": {
+    "ecrThrottle": "8 concurrent Docker image builds tripped a public.ecr.aws pull throttle (`429 toomanyrequests: Data limit exceeded`) on 3 datacurve cells in the beta.38 max run. The condition is kept at fh_max_parallel=8 for fidelity, so it may recur; such a cell is a pre-model environment failure with no attempt and no verdict.",
+    "perCallCeiling": "Under glm-5.3 at max, two cells (polyglot-c-py, regex-log) errored twice because a single model call outran the CLI's own --model-timeout-ms 840000 ceiling. The timeout pipeline is byte-identical in beta.40, so the ceiling behaves exactly as measured; whether these two models share that latency profile is one of the things this run measures.",
+    "providerTransport": "deepseek-v4.1-flash's Terminal-Bench full run carried 9 provider transport failures out of 58 attempts, so transport-level shake is real for this model and is not zero.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT (last written 2026-09-29T05:42:32Z, expiring 2026-10-05T12:41:07Z). An expired token fails every Generate job at provider materialization before any attempt (as in run 36526276851), which is why a smoke precedes the full run.",
+    "smokeGate": "No full run is dispatched until a single-task smoke has proven the candidate builds, the provider materializes under the new model, and a task actually reaches the model phase with frozen evidence."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, all 30 Docker-eligible corpus tasks, one frozen candidate, the official agent and verifier budgets preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "This run's pass@1 comes only from its own frozen aggregate report. It is never merged with run 36092882496, with the beta.37 or beta.38 max runs, or with any diagnostic batch, and it replaces or reinterprets none of their verdicts.",
+    "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the effort stay exactly as the frozen composition declares them.",
+    "The corpus, the task sources, the batch plan and the pier pin are untouched: only the candidate pin and the provider profile change.",
+    "Nothing is published to main; the change and this manifest live on the working branch fh/usage-accounting-proof and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "plannedChecks": "After the report artifact is downloaded: per-task disposition against the beta.38 max run, mechanical attribution of every verdict-less cell (pierExitCode/pierSignal, exception, model-failure reason, pre-model failure), the acceptance block (coverage.full / verdicts.complete / candidate.single / provider.single / instructions.frozen), usage and per-call durations, and the budget-exhausted population. pass@1 is read from the frozen report alone and is null unless the report itself declares the run scoreable.",
+  "smoke": {
+    "runId": 36657843752,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36657843752",
+    "headSha": "9308ce44bedb96c319067bc30d16c92af7227b3e",
+    "task": "terminal-bench/log-summary-date-ranges",
+    "dispatchInputs": {
+      "fh_run": true,
+      "fh_run_full": false,
+      "fh_tasks": "terminal-bench/log-summary-date-ranges",
+      "fh_limit": 1,
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "beta40-deepseek-smoke-20260930"
+    },
+    "whyThisTask": "A terminal-bench task that passed the beta.38 max run in 206.9s, so it exercises the full path (candidate download, provider materialization, real model calls, task verifier, evidence upload) quickly and its plumbing signal is unambiguous. The frozen smokeTask (terminal-bench/regex-log) is one of the two cells the 840s per-call ceiling has repeatedly killed, which would have made a plumbing smoke ambiguous.",
+    "result": "Every job succeeded: corpus 13s, the beta.40 candidate built and delivery-verified in 2m0s, plan 13s, the single Generate job 1m59s (Verify provider credential and Materialize the frozen provider identity both passed), report 18s. The task itself PASSED (disposition passed, 87.6s, 11 model calls, 189,577 tokens) and the acceptance block reads candidate.single passed (cli-0.0.3-beta.40-de63dec-e5841e2ffd07), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), verdicts.complete passed (1 present, 0 error), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "The two things this smoke existed to prove are mechanically proven: the re-pinned beta.40 candidate builds, delivery-verifies and runs, and deepseek-v4.1-flash serves real task attempts through the dim-oauth credential with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere."
+  },
+  "dispatched": true,
+  "runId": 36658268335,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36658268335",
+  "headSha": "9308ce44bedb96c319067bc30d16c92af7227b3e",
+  "dispatchedAt": "2026-09-30T02:06:16Z",
+  "completedAt": "2026-09-30T03:10:39Z",
+  "runDurationMinutes": 64,
+  "runNote": "All 30 Generate jobs and all four freeze/aggregate jobs succeeded; no job failure anywhere in the run. The candidate was built in CI from de63decb and froze its own receipt cli-0.0.3-beta.40-de63dec-67027fb53ab6 (binary 67027fb5…, manifest 3bd9c65d…). fh_run_full=true, so the workflow predeclared all 30 corpus tasks from the tracked batch plan and the aggregate report was built with --formal; the run's own report is the only source of its pass@1.",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 9,
+    "error": 3,
+    "notEvaluated": 0,
+    "passRate": 0.6,
+    "validCells": 27,
+    "passRateValidCells": 0.6666666666666666,
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full passed (30 of 30 predeclared), candidate.single passed (30 records agree on one frozen candidate), provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max), instructions.frozen passed, verdicts.complete FAILED (30 present, 0 missing, 3 error, 0 not-evaluated) -> scoreable=false, capabilityMeasurement=false, passAt1=null",
+    "errorCells": [
+      "datacurve/anko-typed-variable-bindings (5.3s, RuntimeError: docker compose build failed, public.ecr.aws 429 toomanyrequests: Data limit exceeded)",
+      "datacurve/fastapi-deprecation-response-headers (5.9s, same)",
+      "datacurve/scc-bounded-memory-spilling (8.7s, same)"
+    ],
+    "errorCellClass": "All three are pre-model environment failures of the same shape the beta.37 and beta.38 max runs produced: the Docker image metadata load for public.ecr.aws/d3j8x8q7/swe-bench-202605 was throttled (429) while 8 images built concurrently. There is no jobs/<task>/.../agent directory, no best-agent-evidence.jsonl and no model call, so they are neither task verdicts nor model failures. AGENTS.md admits exactly this class for benchmark-level recovery, and a recovery precedent exists (recovery-no-prediction-20260927 filled beta.37's three ECR cells 3/3). No recovery was dispatched in this run.",
+    "budgetExhausted": {
+      "attempts": 6,
+      "passed": 2,
+      "tasks": ["terminal-bench/chess-best-move", "terminal-bench/code-from-image", "terminal-bench/extract-elf", "terminal-bench/gcode-to-text", "terminal-bench/largest-eigenval", "terminal-bench/regex-log"],
+      "passedTasks": ["terminal-bench/largest-eigenval", "terminal-bench/regex-log"],
+      "note": "Six cells consumed their whole declared agent budget and were cut at that edge, each with exactly one unanswered request at the boundary. That is a budget outcome, not a task verdict: the verifier grades the delivered artifacts, and two of the six still passed."
+    },
+    "failureStages": { "infra": 3, "model": 3, "provider": 1, "specification-gap": 1, "agent-timeout": 4 }
+  },
+  "knownRisksObserved": {
+    "ecrThrottle": "RECURRED, exactly as predicted: 3 datacurve cells lost pre-model to a public.ecr.aws pull throttle at fh_max_parallel=8.",
+    "perCallCeiling": "DID NOT RECUR. The whole run contains exactly one model-failure entry (one provider transport failure inside the httpx attempt, which the run survived and which did not decide its verdict). The largest single model call was 254.2s (dna-insert) against the unchanged 840s per-call ceiling; regex-log 230.9s and extract-elf 215.3s. Both cells that the glm-5.3 max runs had killed at 840.021/840.026s (polyglot-c-py, regex-log) PASSED here.",
+    "providerTransport": "Only one transport-level model failure in 1889 calls, so this model's transport shake was far lower than its Terminal-Bench full run suggested for this corpus."
+  },
+  "aggregate": {
+    "usage": { "tasks": 27, "promptTokens": 322736918, "completionTokens": 2175610, "cacheReadTokens": 318520704, "totalTokens": 324912528, "modelCallCount": 1889, "costUsd": null },
+    "measuredCallDurations": "Per-task medians 3.1-11.4s; per-task maxima 13.0-254.2s; model-in-flight share of agent wall clock 55-119% (five cells above 100% because a model call straddled a budget cut or overlap). One unanswered request per budget-killed cell, stopped at the budget boundary.",
+    "perTaskVerdicts": [
+      "datacurve/anko-typed-variable-bindings error",
+      "datacurve/arktype-json-schema-refs-dependencies failed",
+      "datacurve/expr-try-catch-errors failed",
+      "datacurve/fastapi-deprecation-response-headers error",
+      "datacurve/httpx-multipart-response-parsing failed",
+      "datacurve/katex-multicolumn-array-spans passed",
+      "datacurve/meriyah-explicit-resource-declarations failed",
+      "datacurve/python-statemachine-state-data-scoping failed",
+      "datacurve/scc-bounded-memory-spilling error",
+      "terminal-bench/build-cython-ext passed",
+      "terminal-bench/chess-best-move failed",
+      "terminal-bench/code-from-image failed",
+      "terminal-bench/constraints-scheduling passed",
+      "terminal-bench/db-wal-recovery passed",
+      "terminal-bench/dna-insert passed",
+      "terminal-bench/extract-elf failed",
+      "terminal-bench/gcode-to-text failed",
+      "terminal-bench/git-leak-recovery passed",
+      "terminal-bench/kv-store-grpc passed",
+      "terminal-bench/largest-eigenval passed",
+      "terminal-bench/log-summary-date-ranges passed",
+      "terminal-bench/merge-diff-arc-agi-task passed",
+      "terminal-bench/modernize-scientific-stack passed",
+      "terminal-bench/multi-source-data-merger passed",
+      "terminal-bench/openssl-selfsigned-cert passed",
+      "terminal-bench/polyglot-c-py passed",
+      "terminal-bench/regex-log passed",
+      "terminal-bench/sanitize-git-repo passed",
+      "terminal-bench/sqlite-db-truncate passed",
+      "terminal-bench/vulnerable-secret passed"
+    ],
+    "perCellComparison": {
+      "vsBeta38GlmMax": "14 passed / 11 failed / 5 error -> 18 passed / 9 failed / 3 error, 15 cells flipped: 8 gained (katex error->passed, build-cython-ext, dna-insert, largest-eigenval, openssl-selfsigned-cert, sanitize-git-repo failed->passed, polyglot-c-py and regex-log error->passed) and 5 lost (anko and fastapi passed->error, expr-try-catch-errors and httpx passed->failed, scc failed->error); arktype and python-statemachine moved from error to a real failed verdict.",
+      "vsHighBaseline": "passed->passed 12, passed->error 2, passed->failed 5, failed->passed 6, failed->error 1, failed->failed 4 (14 flips vs run 36092882496).",
+      "reading": "This run changed the model and the candidate at once (21 commits / 90 files), so every per-cell difference is the composite of the model change, the candidate delta and run-to-run variance, and can be attributed to no single variable."
+    }
+  },
+  "evidence": "Frozen report copy docs/benchmarks/history/frontier-harness/20260930T020616Z--36658268335.json (sha256 51fe44a2b269ecda85b3f390d0b52e1fc467f0a683db42ed292c7b2041dc73d8, byte-identical to report.json inside artifact frontier-harness-report-36658268335), with the failure analysis beside it (.failures.json / .failures.md and the run record .md). Per-task frozen records, complete attempt evidence, terminal patches/hashes and unmodified stdout/stderr live in the 90-day task artifacts frontier-harness-task-36658268335-<task> and the candidate artifact frontier-harness-candidate-36658268335.",
+  "budgetExhausted": "6 attempts (0.6 of 30), 2 of them still passed: terminal-bench/largest-eigenval, terminal-bench/regex-log. Compare beta.38/glm-5.3 max: 9 attempts, 0 still passed.",
+  "conclusion": "The latest candidate and deepseek-v4.1-flash both ran the full 30-task corpus in one predeclared attempt per task, 64 minutes wall clock, with zero job failures: 18 passed / 9 failed / 3 error. pass@1 is null again because three datacurve cells never reached a model (public.ecr.aws 429 image-pull throttle, the same pre-model environment class the two previous max runs hit), so verdicts.complete failed and the run is not scoreable. What the run does establish mechanically: the beta.40 candidate builds, delivery-verifies and runs; deepseek-v4.1-flash serves this corpus at reasoning effort max through the frozen dim-oauth profile; the 840s per-call ceiling that killed two cells under glm-5.3 at max did NOT recur (largest call 254.2s, and both former victims passed); and the ECR throttle remains the single recurring environment risk of the 8-way-parallel composition. Nothing was changed to make the run scoreable, no recovery was dispatched, no earlier verdict was reinterpreted, and this run's number can never be merged with any other."
+}

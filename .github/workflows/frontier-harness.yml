@@ -18,15 +18,21 @@ name: Frontier-Harness 1.0
 #
 # Fairness composition (frozen): one headless `best-agent run` attempt per
 # predeclared task (no TUI, no interaction tools), full workspace permissions
-# (unrestricted + read/write/exec), the CLI's network tool excluded, one frozen
-# candidate, no evaluator output ever re-enters a model attempt, and the task's
-# own verifier is the only grader. Task environments are internet-connected
+# (unrestricted + read/write/exec), the CLI's network tool excluded, a released
+# process close policy so a service a task's verifier needs outlives the agent
+# phase, one frozen candidate, no evaluator output ever re-enters a model
+# attempt, and the task's own verifier is the only grader. Task environments are
+# internet-connected
 # (the task verifiers install dependencies at trial time, matching the original
 # benchmark's egress-allowlisted runtime; the agent phase of no-network tasks
 # is normalized to public because the CLI needs direct provider egress). This
 # matches the repo's Terminal-Bench 4.0 diagnostic composition: no closed-book
 # claim is made. Results are a diagnostic self-run; they are not comparable to
 # the published frontierharness.org leaderboard.
+# The provider reasoning effort is one the frozen profile itself declares
+# (`config/frontier-harness.json#provider.reasoningEffortOptions`, default
+# `reasoningEffort`), and the materialized effort is frozen into every per-task
+# record, so a run is always reported at the effort its attempts actually ran.
 
 on:
   workflow_dispatch:
@@ -66,10 +72,14 @@ on:
         description: Multiplier over each task's declared agent timeout
         required: false
         default: "1"
-      fh_timeout_ms:
-        description: Per-task provider timeout in ms (empty = derived from task timeout)
+      fh_reasoning_effort:
+        description: Declared reasoning effort for this run (empty = the frozen config default)
         required: false
         default: ""
+      fh_max_parallel:
+        description: Maximum concurrent generate jobs (1-8; empty = 8)
+        required: false
+        default: "8"
 
 concurrency:
   group: frontier-harness-${{ inputs.fh_batch || 'default' }}
@@ -166,6 +176,20 @@ jobs:
           };
           writeFileSync("results/candidate/candidate.json", JSON.stringify(receipt, null, 2) + "\n");
           NODE
+
+      # Delivery gate: a receipt proves which bytes were built, not that the
+      # delivery is usable. `pnpm pack:tui` runs the project's own build (including
+      # typecheck) and smoke-tests the packages it packs, but this job ships its own
+      # tarball (npm install into the stage + tar czf) which nothing starts or
+      # verifies. Fail here and fh-generate never runs. The step writes one record
+      # (results/candidate/delivery-verification.json) and never rewrites
+      # candidate.json, whose bytes are the frozen candidateManifestSha256.
+      - name: Verify the delivered candidate (typecheck, packaging, runtime)
+        run: |
+          node scripts/verify-frontier-harness-candidate.mjs \
+            --candidate-dir results/candidate \
+            --source-dir tools/best-agent-source \
+            --expect-runtime
 
       - uses: actions/upload-artifact@v4
         with:
@@ -373,7 +397,7 @@ jobs:
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 8
+      max-parallel: ${{ fromJSON(inputs.fh_max_parallel || '8') }}
       matrix:
         entry: ${{ fromJSON(needs.fh-plan.outputs.tasks) }}
     steps:
@@ -455,7 +479,7 @@ jobs:
         run: test -n "$BENCHMARK_PROVIDER_API_KEY"
 
       - name: Materialize the frozen provider identity
-        run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json
+        run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json "${{ inputs.fh_reasoning_effort }}"
 
       - name: Generate and freeze the task attempt
         env:
@@ -476,7 +500,6 @@ jobs:
             --job-name "fh-${{ github.run_id }}-${TASK_SHORT}" \
             --model "${{ steps.candidate.outputs.model }}" \
             --agent-timeout-multiplier "${{ inputs.fh_agent_timeout_multiplier }}" \
-            --timeout-ms "${{ inputs.fh_timeout_ms }}" \
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
             --batch-id "${{ matrix.entry.batchId }}" \
             --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"

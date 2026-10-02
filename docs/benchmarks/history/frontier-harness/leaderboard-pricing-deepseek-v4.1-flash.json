@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "name": "deepseek-v4.1-flash-2026-09-30",
+  "model": "deepseek-v4.1-flash",
+  "basis": "DeepSeek's published public price list for deepseek-v4.1-flash, off-peak column, USD per million tokens. Adopted because this repository ships no frozen price table for this provider (its records carry costUsd null by design).",
+  "freshInputUsdPerMillion": 0.15,
+  "cacheWriteUsdPerMillion": 0.0,
+  "cacheReadUsdPerMillion": 0.003,
+  "outputUsdPerMillion": 0.6,
+  "cacheNote": "The model's context cache is implicit and automatic: requests declare nothing, the cache is built on disk by the provider, and there is no cache-write product or fee. The write rate is therefore 0 rather than a guess. Cache reads are billed at the cache-hit rate.",
+  "peakOffPeak": {
+    "window": "Peak = 01:00-04:00 and 06:00-10:00 UTC, Monday to Friday excluding Chinese public holidays; every other hour is off-peak at 50% of the peak rate (peak: $0.30 fresh input, $0.006 cache read, $1.20 output per million).",
+    "runWindow": "Run 36711152110 executed 2026-09-30T11:51:55Z -> 13:22:06Z and the recovery batch was dispatched 2026-09-30T18:32:06Z; both windows fall outside the peak hours, which is why the off-peak column is the primary basis here.",
+    "sensitivity": "Pricing the same tokens at the peak column doubles the input and output components and therefore roughly doubles cost per pass; the comparison record states both the primary number and this multiplier."
+  },
+  "source": {
+    "official": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "priceChangeNews": "https://api-docs.deepseek.com/news/news260910",
+    "cachingGuide": "https://api-docs.deepseek.com/guides/kv_cache",
+    "readAt": "2026-10-01",
+    "effectiveFrom": "2026-09-10T04:00:00Z"
+  },
+  "providerNote": "The run was served through the dimagent.cn relay (dim-oauth transport) rather than DeepSeek's own API. That relay publishes credit prices, not USD, so this table is an adopted public-list basis for the chart and not a provider bill; gateway markup or tier discounts are not reflected.",
+  "comparabilityNote": "The official leaderboard prices its field on its own frozen table (kimi-k3-2026-08-20: $3.00 fresh input and cache write, $0.30 cache read, $15.00 output per million). A cost column that mixes the official rows with this run therefore compares two different public price lists, and the difference is a property of the models' vendors, not of the harnesses."
+}

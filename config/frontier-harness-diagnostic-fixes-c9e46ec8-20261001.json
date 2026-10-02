@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "kind": "diagnostic-rerun",
+  "batchLabel": "beta41-fixes-recheck-7cells-20261001",
+  "passAt1": null,
+  "passAt1Note": "A diagnostic subset can never produce a pass@1. This batch predeclares 7 of the 30 corpus tasks, so coverage.full fails by construction and these numbers are read side by side with run 36711152110, never merged into it.",
+  "requestedBy": "User, 2026-10-01: \"7个issue都修复了，用本地最新的构建再重新跑一次看看是否真的解决了这些问题\" (all 7 issues are fixed; rebuild from the latest local code and run once more to see whether these problems are really solved). The 7 issues were filed by this session from run 36711152110's own evidence and accepted by the user (#168 exec signal closure, #169 process-ref refusal fidelity, #170 exec command-name fidelity, #171 subagent name admission, #172 process-read waitMs clamp, #173 write parents / read symlink, #174 attempt-delivery output bound).",
+  "notARecovery": {
+    "statement": "This batch is explicitly NOT a benchmark-level recovery of run 36711152110 or of its two recovery batches. It re-runs those cells on a NEW candidate, so it compensates, replaces and reinterprets nothing.",
+    "consequences": [
+      "Run 36711152110 keeps its own frozen record unchanged (docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json, sha256 6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9): 30 of 30 present, 23 passed / 4 failed / 3 error, verdicts.complete failed, passAt1 null.",
+      "Recovery batches recovery-ecr-36711152110-20261001 (run 36759265603, 2 of 3 filled) and recovery-ecr-36711152110-python-20261001 (run 36767542570, 1 filled) keep their own frozen outcomes.",
+      "AGENTS.md admits benchmark-level recovery only for a task with no prediction under the SAME candidate; here the candidate differs, so no cell's verdict is being repaired. Every earlier verdict stands as measured on cf29eea8.",
+      "Because the candidate differs, a cell that passes here says nothing about what cf29eea8 would have produced, and a cell that fails here does not overturn any earlier verdict."
+    ]
+  },
+  "purpose": {
+    "primary": "Re-measure exactly the 7 cells in which the 7 filed defects were observed, on the candidate that contains their fixes, and compare the resulting evidence shapes (tool-closure kinds/codes, delivery terminal cause, attempt timing) with run 36711152110's frozen evidence.",
+    "secondary": "Exercise both terminal-bench delivery cells end to end again, to check whether spec 271 removed the 'attempt without a verdict' outcome and to record that the 180 s reserve itself is unchanged by design (spec 271 corrects the output bound only).",
+    "explicitlyNot": "This is not a capability claim about the fixed candidate and not a pass@1: 7 of 30 tasks, one attempt each, diagnostic only."
+  },
+  "defectsUnderRecheck": [
+    {
+      "issue": "Simon-He95/best-agent#168",
+      "spec": "specs/270-v3-exec-observed-signal-closure.md",
+      "commit": "a781382f",
+      "observedOn": "terminal-bench/largest-eigenval",
+      "observedEvidence": "closure {\"kind\":\"unknown\",\"reason\":\"uncertain\",\"observation\":\"signal=SIGSEGV; exitCode=null; terminationRequest=null; stderrTruncated=false; stdoutTruncated=false; stderr: ; stdout:\"}",
+      "expectedAfterFix": "known/failed with outcome=signaled, signal=SIGSEGV, exitCode=null, stdout/stderr as structured members"
+    },
+    {
+      "issue": "Simon-He95/best-agent#169",
+      "spec": "specs/269-v3-process-ref-refusal-fidelity.md",
+      "commit": "b072e090",
+      "observedOn": "terminal-bench/gcode-to-text",
+      "observedEvidence": "closure {\"kind\":\"known\",\"status\":\"failed\",\"payload\":{\"code\":\"process-unavailable\"}} after a process-read 5.56 min after the process's record was recycled",
+      "expectedAfterFix": "process-expired with expiredAtMs+retainedMs when a tombstone matches, process-unknown-ref otherwise; process-unavailable no longer accepted"
+    },
+    {
+      "issue": "Simon-He95/best-agent#170",
+      "spec": "specs/267-v3-exec-command-name-fidelity.md",
+      "commit": "9e6412d9",
+      "observedOn": "datacurve/httpx-multipart-response-parsing, datacurve/katex-multicolumn-array-spans",
+      "observedEvidence": "command \"git log --oneline -3 && git status --short && ls\" (and \"git log --oneline -5\") accepted by the canonicalizer and rejected at PATH resolution with not-found \"executable was not found on the frozen PATH\"",
+      "expectedAfterFix": "the path shape sentence states one command name (no whitespace splitting) and not-found names the exact literal it looked for"
+    },
+    {
+      "issue": "Simon-He95/best-agent#171",
+      "spec": "specs/260-v3-subagent-explicit-display-name.md (updated)",
+      "commit": "c13b406e",
+      "observedOn": "datacurve/httpx-multipart-response-parsing, datacurve/katex-multicolumn-array-spans, datacurve/python-statemachine-state-data-scoping",
+      "observedEvidence": "5 closures {\"kind\":\"not-invoked\",\"reason\":\"malformed-input\",\"issue\":{\"code\":\"invalid\",\"field\":\"name\",\"message\":\"must be 1 to 4 code points and at most 48 UTF-8 bytes after trimming\"}} for names such as \"Tests\", \"Model\"",
+      "expectedAfterFix": "admitted with acceptedName = first 5 code points and truncatedFrom present; only >64 code points or an empty name is refused"
+    },
+    {
+      "issue": "Simon-He95/best-agent#172",
+      "spec": "specs/268-v3-process-read-wait-clamp.md",
+      "commit": "beba25c3",
+      "observedOn": "datacurve/httpx-multipart-response-parsing, datacurve/meriyah-explicit-resource-declarations, datacurve/expr-try-catch-errors, datacurve/katex-multicolumn-array-spans, datacurve/python-statemachine-state-data-scoping",
+      "observedEvidence": "5 closures {\"kind\":\"not-invoked\",\"reason\":\"malformed-input\",\"issue\":{\"code\":\"maximum\",\"field\":\"waitMs\",\"maximum\":30000}}",
+      "expectedAfterFix": "the call executes at the 30000 ms ceiling and its receipt states waitMsClampedFrom"
+    },
+    {
+      "issue": "Simon-He95/best-agent#173",
+      "spec": "specs/267, spec 269 work item (PR #173)",
+      "commit": "9f74f0a3",
+      "observedOn": "datacurve/expr-try-catch-errors, datacurve/python-statemachine-state-data-scoping, datacurve/katex-multicolumn-array-spans",
+      "observedEvidence": "5 closures parent-missing for write; 5 occurrence-mismatch for edit; 1 symlink-not-allowed for read of an in-repository symlink",
+      "expectedAfterFix": "write creates missing parents inside the workspace; read admits an in-workspace symlink; both are stated in the model-visible descriptions"
+    },
+    {
+      "issue": "Simon-He95/best-agent#174",
+      "spec": "specs/271-v3-attempt-delivery-output-bound.md",
+      "commit": "c9e46ec8",
+      "observedOn": "terminal-bench/gcode-to-text, terminal-bench/largest-eigenval",
+      "observedEvidence": "primary Run cancelled at ~720 s of a 900 s budget, delivery Run terminal cause model-output-too-large (4,096-byte bound measured over content+toolCalls+reasoning), CLI exit 1, NonZeroAgentExitCodeError, cell without a verdict",
+      "expectedAfterFix": "the delivery Plan freezes the primary Plan's maxModelOutputBytes (4,194,304), so an ordinary status report is adopted; the cell is graded instead of erroring"
+    }
+  ],
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit c9e46ec8a0f35f3413085fd978eec78c5a02ff60, cliVersion 0.0.3-beta.41) — the main of Simon-He95/best-agent at 2026-10-01T03:25Z, verified in sync with origin/main (`git status --short --branch` reports no ahead/behind) and carrying all 7 fix commits on top of the previous candidate.",
+  "candidateEvidence": "The pin mechanism is proven by many earlier dispatches. The version string is unchanged because apps/cli/package.json still declares 0.0.3-beta.41 at this commit; candidate identity is the commit plus the receipt the CI build freezes itself (candidateId = cli-0.0.3-beta.41-c9e46ec-<binarySha256[:12]>). The workflow checks out c9e46ec8 with BEST_AGENT_SOURCE_TOKEN, builds the linux-x64-gnu artifact on ubuntu-24.04 with `pnpm pack:tui` + stage-cli-sea-packages.mjs, asserts the built version equals the frozen cliVersion, and freezes its own receipt; nothing is published.",
+  "localBuildEvidence": {
+    "why": "The request names the latest local build, so the identical commit was built on this machine before the dispatch, as an independent check that the commit builds and packs; the Linux candidate is still the one CI builds, because a Darwin artifact can never be the frozen target.",
+    "command": "fnm exec --using=24.15.0 -- pnpm pack:tui  (cwd /Users/Simon/Github/best-agent, exit 0)",
+    "commit": "c9e46ec8a0f35f3413085fd978eec78c5a02ff60",
+    "whatPassed": "check:cli-product, check:provider-catalogs, typecheck (tsc -b + TUI project), CPU supervisor, CLI TUI bundle (13.45 MiB), SEA injection, `npm install` of the staged package, and the packer's installed-artifact smokes: launcher-help, cpu-supervisor, capability-ocr smoke, sandbox-host smoke — all four exit 0.",
+    "toolchainNote": "The repository .nvmrc pins 24.15.0 and the SEA build report must name it, so the host default v26.10.0 is not used for the build.",
+    "artifacts": {
+      "seaExecutable": { "path": ".tmp/sea/darwin-arm64/best-agent", "bytes": 139273312, "sha256": "014460d9eed43e7144fe2c670467a78ac8f40f0dae1ac5cc7ab8897b02b1ddf2" },
+      "darwinArm64Tarball": { "path": ".tmp/npm/best-agent-cli-darwin-arm64-0.0.3-beta.41.tgz", "bytes": 43492921, "sha256": "06b409e11871321682d0d9a7d18e54e7e96a3158fb339fdd0d0487febd9f3252" },
+      "launcherTarball": { "path": ".tmp/npm/best-agent-cli-0.0.3-beta.41.tgz", "bytes": 4896, "sha256": "1fcdfb24c982369889a5fc4dba1ceb99b7abba1356ba10e669da31800ad67df1" },
+      "buildReport": { "path": ".tmp/sea/darwin-arm64/build-report.json", "sha256": "84633780d2223879fc207ae9d2df7c2acebbb8c36aff9f0cd480af1f0fa18faf", "artifact": "@best-agent/cli 0.0.3-beta.41, node v24.15.0, target darwin-arm64" },
+      "acceptanceEvidence": { "path": ".tmp/sea/darwin-arm64/acceptance-evidence.json", "sha256": "3b8bb3c9a69877a59d47fe3f9aa7021312ea58a2e720b54352e847d754225880", "allStepsExitCodeZero": true }
+    },
+    "deltaVsPreviousBuild": "Against the previous candidate's local build of cf29eea8 (SEA c20df4a1…, darwin-arm64 tarball cafac180…), the SEA and the platform tarball differ while the version-only launcher tarball is byte-identical, as expected for a code change that leaves the version string alone.",
+    "gitState": "HEAD stayed c9e46ec8 before and after the build; the working tree kept its two pre-existing untracked entries (harness-perf-benchmark/, scripts/release-macos.mjs) and no tracked file changed."
+  },
+  "candidateDeltaAudit": {
+    "from": "cf29eea8edc2ddff1b08516e54d1f33c4ac9ac3c (0.0.3-beta.41, the candidate of run 36711152110)",
+    "to": "c9e46ec8a0f35f3413085fd978eec78c5a02ff60 (0.0.3-beta.41)",
+    "size": "8 commits, 70 changed files (+3931 / -496)",
+    "commits": [
+      "9e6412d9 Exec states one command name and names the literal it cannot resolve (spec 267) — #170",
+      "c13b406e Admit a subagent display name by shortening it instead of dropping the tool call (spec 260/#171)",
+      "beba25c3 Clamp the process-read waitMs ceiling instead of dropping the call (spec 268) — #172",
+      "b072e090 Spec 269: give a process ref one faithful refusal per loss — #169",
+      "a781382f Report an observed exec termination signal as a known result (spec 270) — #168",
+      "9f74f0a3 Create missing parents and admit in-workspace symlinks for read/stat — #173",
+      "c9e46ec8 attempt-delivery 冻结主 Run 的同一输出上限，而不是第二个 4 KiB 上限 (spec 271) — #174",
+      "4ca61779 Keep a queued edit's attachment chips inline in the composer (#167) — TUI-only, no headless effect"
+    ],
+    "modelVisibleChanges": [
+      "exec: the path command-shape sentence now states one command name and no whitespace splitting; `not-found` names the exact literal that was looked for, per backend wording (plain/frozen vs sandbox/captured).",
+      "exec: a known result is now `{command, cwd, outcome, exitCode, signal, stdout, stderr, stdoutTruncated, stderrTruncated}`; a process killed by a signal without a termination request closes as known/failed `outcome:\"signaled\"` with the signal name instead of an unknown/uncertain observation.",
+      "process-read: waitMs above 30,000 is clamped to the ceiling and executed; the succeeded receipt carries `waitMsClampedFrom`. Other bounds (maxBytes, stdin, argv, lifetimeMs) are still rejected, never clamped.",
+      "process-read/write/stop: a refused ref now closes as `process-expired` (with `expiredAtMs` and `retainedMs`) or `process-unknown-ref`; `process-unavailable` is no longer admitted, and a process with a live record stays readable.",
+      "subagent: the display name is 1 to 5 code points; a longer name (up to 64) is accepted and shortened to its first 5, and the result states `acceptedName` plus `truncatedFrom`; continue/cancel select by the same first-5 rule. An empty name or more than 64 code points is still invalid.",
+      "workspace files: write creates missing parent directories inside the workspace, and read admits an in-workspace symlink (an escaping symlink is still refused); both behaviours are now stated in the tool descriptions rather than learned from an error.",
+      "attempt delivery: the tool-free delivery Plan freezes the primary Plan's maxModelOutputBytes (4,194,304) instead of a second 4,096-byte bound; the 180,000 ms reserve, the single delivery cycle and the adoption rule are unchanged."
+    ],
+    "unchangedPipelinePaths": "No change to the harness-facing argv, the `--attempt-remaining-ms` / `--model-timeout-ms` parsing and its >210000 ms floor, the per-call ceiling (generation.modelInvocationTimeoutMs = 1800000), the tool-call caps, the retry policy or the kernel plan/transition."
+  },
+  "compositionDeltasVsSourceRun": {
+    "candidate": "cf29eea8 -> c9e46ec8 (see candidateDeltaAudit). This is the only intentional candidate change; every earlier result stands on cf29eea8.",
+    "concurrency": "fh_max_parallel 8 -> 1. The 5 datacurve cells of this subset are exactly the ones that died pre-model on a public.ecr.aws manifest throttle (429 toomanyrequests) in run 36711152110, and both prior recovery batches only stopped reproducing it at serial generation, so this batch is serial too.",
+    "budgets": "fh_agent_timeout_multiplier=1 and the frozen per-task budgets are unchanged: 5400 s for the 5 datacurve cells, 900 s for the 2 terminal-bench cells.",
+    "attemptDeliveryReserve": "ATTEMPT_DELIVERY_RESERVE_MS stays 180,000 by design (spec 271 corrects only the output bound), so the two terminal-bench cells are again expected to stop their primary Run at ~720 s of 900 s; the recheck is whether the attempt now ends with a delivered report and a graded cell instead of a NonZeroAgentExitCodeError with no verdict.",
+    "provider": "Unchanged: deepseek-v4.1-flash at reasoning effort max, compatible, dim-oauth, https://dimagent.cn/v1.",
+    "harnessEvidence": "Unchanged from run 36711152110: attempt evidence carries attemptBudgetMs and the wrapper's attemptTiming, model failures are attributed to the primary Run by rootRunId, and a delivery Run's terminal cause is reported separately."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "predeclaredSubset": 7
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": ["max"],
+    "transportProfile": "dim-oauth",
+    "note": "Unchanged from run 36711152110; only the candidate differs."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/httpx-multipart-response-parsing,datacurve/meriyah-explicit-resource-declarations,datacurve/expr-try-catch-errors,datacurve/katex-multicolumn-array-spans,datacurve/python-statemachine-state-data-scoping,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval",
+    "fh_limit": 7,
+    "fh_offset": 0,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 1,
+    "fh_batch": "beta41-fixes-recheck-7cells-20261001"
+  },
+  "expectedTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/python-statemachine-state-data-scoping",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/largest-eigenval"
+  ],
+  "sourceRun": {
+    "runId": 36711152110,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36711152110",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20260930T115155Z--36711152110.json",
+    "frozenRecordSha256": "6beaf87fa081441d293ef58a78dce29c36c3307de93a0292e2b697f289ed6ba9",
+    "candidateId": "cli-0.0.3-beta.41-cf29eea-90c87483be97",
+    "perCellEvidenceBasis": "The 7 cells' tool-closure inventories used as the before-image were read from the frozen per-task records of this run (aggregated failures.json, 117 failed closures) and from the two recovery batches for the three ECR cells.",
+    "beforeImage": {
+      "datacurve/httpx-multipart-response-parsing": "failed, f2p 121/122, p2p 1272/1272, 1650 s of 5400 s, 116 calls, 15 failed closures (1 not-found from a whole command line, 4 not-invoked, 1 git exit 128, 10 command exits)",
+      "datacurve/meriyah-explicit-resource-declarations": "failed, f2p 45/49, p2p 51469/51469, 3571 s of 5400 s, 221 calls, 35 failed closures",
+      "datacurve/expr-try-catch-errors": "recovery batch: failed, f2p 78/79, p2p 66265/66265, 25 failed closures (3 write parent-missing, 1 not-invoked, 1 git exit 128)",
+      "datacurve/katex-multicolumn-array-spans": "recovery batch: failed, f2p 0/94, p2p 599/599, 21 failed closures (5 edit occurrence-mismatch, 5 not-invoked, 2 git exit 128)",
+      "datacurve/python-statemachine-state-data-scoping": "recovery batch: failed, f2p 70/72, p2p 1286/1286, 9 failed closures (3 subagent name invalid, 2 not-invoked, 1 symlink-not-allowed, 1 git exit 128)",
+      "terminal-bench/gcode-to-text": "failed, reward 0, 776 s of 900 s, terminal cause stopped, delivery cause model-output-too-large, 7 failed closures (1 process-unavailable, 6 command exits)",
+      "terminal-bench/largest-eigenval": "failed, reward 0, 765 s of 900 s, terminal cause stopped, delivery cause model-output-too-large, 5 failed closures (1 unknown/uncertain SIGSEGV, 4 command exits), verifier was already 24 passed / 3 failed at cancellation"
+    }
+  },
+  "knownRisks": {
+    "ecrThrottle": "Serialization removes the concurrent-pull trigger, but a throttle caused by other tenants on the shared public.ecr.aws quota cannot be excluded; if it recurs, the cell again has no model attempt and nothing is retried inside this run.",
+    "fixVisibility": "These 7 fixes are contract-level: a cell can only exhibit them if the model again makes the same call shape. A clean cell therefore does not by itself prove the fix, which is why the deterministic local contract probes below are recorded alongside this batch, and a recurring closure is the stronger evidence.",
+    "attemptDelivery": "Spec 271 corrects the delivery output bound only. The primary Run is still stopped at budget minus the 180 s reserve, so the two terminal-bench cells are expected to remain unfinished; what must change is that the attempt ends with an adopted delivery report (exit 0, graded cell) instead of model-output-too-large with no verdict.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; the earlier batch recorded an expiry five days out from 2026-09-30. Every Generate job verifies the credential at materialization before any attempt.",
+    "budget": "Five 5400 s cells plus two 900 s cells run serially, so this batch is expected to take up to about four hours in the worst case."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, and only the 7 named tasks; no other task is touched.",
+    "This batch is diagnostic: passAt1 stays null and it is never merged with run 36711152110, its recovery batches, or any max-effort run.",
+    "Every earlier verdict stands as measured on cf29eea8; this batch replaces, repairs and reinterprets nothing.",
+    "The official agent and verifier budgets are preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "Nothing is published to main and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "localContractChecks": {
+    "why": "The 7 defects are deterministic contracts, so each was probed locally through the built CLI's own headless entrypoint (the same argv the harness uses) before the batch is read; these probes are evidence about the contracts, not about a task verdict.",
+    "probes": [
+      "#168: exec of `python3 -c \"import os,signal; os.kill(os.getpid(), signal.SIGSEGV)\"` closes as known/failed with outcome=signaled, signal=SIGSEGV, exitCode=null (not unknown/uncertain).",
+      "#169: process-read of a fabricated ref closes as process-unknown-ref, and a read after the 300,000 ms retention of a released record closes as process-expired with expiredAtMs+retainedMs.",
+      "#170: exec of a whole command line (`git log --oneline -3 && ls`) closes as not-found whose message names that exact literal, and the exec description no longer contains 'spaces and Unicode allowed'.",
+      "#171: subagent with a display name longer than 5 code points is admitted and returns acceptedName plus truncatedFrom.",
+      "#172: process-read with waitMs 60000 executes and its receipt states waitMsClampedFrom 60000.",
+      "#173: write into a missing nested directory succeeds, and read of an in-workspace symlink succeeds.",
+      "#174: `run --attempt-remaining-ms` stops the primary Run at the reserved boundary and then returns an adopted delivery report with exit 0 instead of 'v3 run cancelled: stopped' plus exit 1."
+    ]
+  },
+  "plannedChecks": "After the report artifact is downloaded: each of the 7 cells' disposition and reward against its before-image above; the failed-closure code histogram per cell (expect no unknown/uncertain for a signal kill, no not-invoked for waitMs or subagent name, a not-found message naming the whole command line where it recurs, process-unknown-ref/process-expired instead of a blanket process-unavailable, and no parent-missing for write); each terminal-bench cell's terminal cause, delivery terminal cause, CLI exit status and whether a delivery report was adopted; the attemptTiming block and the candidate identity agreement across the 7 records; and the acceptance block as it applies to a 7-task subset (coverage.full fails by construction).",
+  "dispatched": true,
+  "runId": 36810567609,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/36810567609",
+  "headSha": "b8056e2a06f68b8c146239bfedf8ceb9e536c5d8",
+  "dispatchedAt": "2026-10-01T03:27:10Z",
+  "completedAt": "2026-10-01T06:12:02Z",
+  "runDurationMinutes": 165,
+  "runNote": "Dispatched from the commit that froze this manifest, on the working branch only. All nine jobs succeeded (candidate freeze 1m49s, corpus 10s, plan 10s, seven serial Generate jobs 21m35s / 34m55s / 23m56s / 28m19s / 26m9s / 13m33s / 13m35s, aggregate 43s); no job failure and no cancellation. Serialization was in effect: at any moment exactly one Generate job ran. The candidate was built in CI from c9e46ec8 and froze its own receipt; no public.ecr.aws 429 occurred anywhere in the batch.",
+  "candidateId": "cli-0.0.3-beta.41-c9e46ec-12ca2dfbe998",
+  "candidateReceipt": {
+    "binarySha256": "12ca2dfbe998252acb8a55d6859ad0a08b3e910f4bbcc629b5be02635edc1059",
+    "tarballSha256": "728899a1f138a77752540e784e830f86f489fbd079a8eac25e25b67f59f09a7b",
+    "candidateManifestSha256": "966d223aa372f194d8f17a98a2b5e9da1f88c92aebfca9f07c4edb0a641119a9",
+    "deliveryVerification": "results/candidate/delivery-verification.json verified=true: packaging.files, packaging.receipt (@best-agent/cli-linux-x64-gnu@0.0.3-beta.41 linux-x64-gnu c9e46ec), packaging.bytes, packaging.tarball (4212 members), packaging.runtimeClosure, typecheck.source (tsc -b + TUI project, exit 0) and runtime.binary (best-agent --version -> 0.0.3-beta.41 on linux-x64-gnu, packaged node v24.15.0) all passed"
+  },
+  "outcome": {
+    "present": 7,
+    "passed": 1,
+    "failed": 6,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": "7 of 7 (every predeclared cell carries a real verdict)",
+    "passAt1": null,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "acceptance": "coverage.full FAILED (7 of 30 corpus tasks were predeclared - expected and correct for a predeclared subset); verdicts.complete PASSED (7 present, 0 missing, 0 error, 0 not-evaluated); candidate.single passed (7 records agree on cli-0.0.3-beta.41-c9e46ec-12ca2dfbe998); provider.single passed (model(s) deepseek-v4.1-flash at reasoning effort max); instructions.frozen passed (7 records match the frozen instruction hash of their task)",
+    "perTask": [
+      "datacurve/httpx-multipart-response-parsing: failed, reward=0, f2p 121/122, p2p 1272/1272, 1265s, 105 calls, terminalCause completed (before-image: failed, f2p 121/122, 1650s)",
+      "datacurve/meriyah-explicit-resource-declarations: failed, reward=0, f2p 45/49, p2p 51469/51469, 2062s, 222 calls, terminalCause completed (before-image: failed, f2p 45/49, 3571s)",
+      "datacurve/expr-try-catch-errors: failed, reward=0, f2p 78/79, p2p 66265/66265, 1404s, 136 calls, terminalCause completed (before-image, recovery batch: failed, f2p 78/79)",
+      "datacurve/katex-multicolumn-array-spans: PASSED, reward=1, f2p 94/94, p2p 599/599, 1666s, 143 calls, terminalCause completed, zero failed tool closures (before-image, recovery batch: failed, f2p 0/94, 21 failed closures)",
+      "datacurve/python-statemachine-state-data-scoping: failed, reward=0, f2p 70/72, p2p 1286/1286, 1538s, 135 calls, terminalCause completed, every failed closure is an ordinary nonzero exit (before-image, recovery batch: failed, f2p 70/72, 9 failed closures incl. 3 subagent-name refusals, 2 parent-missing, 1 symlink-not-allowed, 1 waitMs refusal, 1 input-shape refusal)",
+      "terminal-bench/gcode-to-text: failed, reward=0, 770s, 74 calls, terminalCause stopped, delivery terminal cause completed, CLI exit 0 (before-image: failed, reward=0, 776s, terminalCause stopped, delivery model-output-too-large, NonZeroAgentExitCodeError, no verdict)",
+      "terminal-bench/largest-eigenval: failed, reward=0, 775s, 41 calls, terminalCause stopped, delivery terminal cause completed, CLI exit 0 (before-image: failed, reward=0, 765s, terminalCause stopped, delivery model-output-too-large, NonZeroAgentExitCodeError, no verdict)"
+    ],
+    "usage": {
+      "tasks": 7,
+      "modelCallCount": 858,
+      "promptTokens": 187905076,
+      "completionTokens": 971069,
+      "cacheReadTokens": 185492992,
+      "totalTokens": 188876145
+    },
+    "budgetExhaustedCells": 0
+  },
+  "comparison": {
+    "totalFailedClosures": "117 across the before-image (62 in run 36711152110 for 4 cells + 46 in recovery batch 36759265603 + 9 in recovery batch 36767542570) -> 79 in this batch",
+    "issue168": "Before: exactly one unknown/uncertain closure in the whole before-image, with observation 'signal=SIGSEGV; exitCode=null; terminationRequest=null; ...' (largest-eigenval). After: the same cell's signal kill closes as known/failed with the structured payload {command, cwd, outcome:\"signaled\", signal:\"SIGSEGV\", exitCode:null, stdout, stderr, stdoutTruncated, stderrTruncated}, and NO unknown/uncertain closure exists anywhere in the batch. Every exec failure in all 7 cells now states outcome (exited/signaled) instead of the before-image's bare exit shape.",
+    "issue169": "Before: one blanket process-unavailable (gcode-to-text, a read 5.56 min after the record was recycled). After: no process-unavailable and no process-read refusal at all in this batch, because the model never read a recycled ref this time; the fix is therefore verified deterministically (packages/external-process-service/tests/service.test.ts 'keeps an expired ref distinguishable from a ref this owner never held') and locally through the built CLI: a fabricated ref closes process-unknown-ref, and a read after the 300,000 ms retention of a released record closes process-expired with expiredAtMs and retainedMs.",
+    "issue170": "The description half is in place: the built bundle's live exec description states '... (1..255 UTF-8 bytes, resolved once from the captured PATH; exec is not a shell and never splits this value on whitespace, so it is one name and every argument belongs in args) ...', the old '(spaces and Unicode allowed)' parenthetical survives only inside a source comment, and the local model transcript shows the model reading that sentence and correctly predicting a '/' -containing value would be refused. No whole-command-line exec recurred in this batch (the before-image's two not-found 'executable was not found on the frozen PATH' closures did not reproduce), so that half of the fix is not exercised here. The rejection-message half regressed - see newFindings.",
+    "issue171": "Before: 5 not-invoked/malformed-input/name refusals (4 code-point message, 1 in httpx, 1 in katex, 3 in python-statemachine). After: zero name refusals in any cell; the subagent calls that still fail now fail on an unexpected extra key ('description') with the issue stated (meriyah).",
+    "issue172": "Before: 5 not-invoked with issue {code:'maximum', field:'waitMs', maximum:30000} across 5 cells. After: zero waitMs refusals in any cell, and no not-invoked on any process-read.",
+    "issue173": "Before: 5 parent-missing write refusals + 1 symlink-not-allowed read refusal. After: zero in-workspace parent-missing and zero symlink refusals. The two parent-missing closures that remain (expr-try-catch-errors) are attempts to write OUTSIDE the workspace root (/tmp/probe/go.mod, /tmp/probe/main.go) - a boundary refusal, not the fixed defect; their message is the opaque \"ENOENT: no such file or directory, lstat '<path>'\".",
+    "issue174": "Before: both terminal-bench cells ended with delivery terminal cause model-output-too-large, the CLI exited 1 (NonZeroAgentExitCodeError) and the two cells carried no verdict at all; the source run's aggregate therefore reported verdicts.complete failed. After: both cells end with primary terminal cause stopped and delivery terminal cause completed, the CLI exits 0 with an adopted status report, and this batch's aggregate reports verdicts.complete PASSED (7 present, 0 missing, 0 error, 0 not-evaluated). The 180 s reserve itself is unchanged by design, so both cells still stop their primary Run at ~720 s of 900 s.",
+    "katex": "The one cell whose verdict changed: before failed with f2p 0/94, after PASSED with f2p 94/94 and zero failed tool closures. No closure shape in the before-image maps to one of the 7 fixed defects (its before-image failures were 5 edit occurrence-mismatch and 3 not-invoked refusals), so this is recorded as the measured outcome of a single attempt, not as an attribution to a specific fix."
+  },
+  "environmentFixForNextDispatch": {
+    "what": "The task environment now carries a git identity. A task image ships none, so a model commit stops at 'fatal: unable to auto-detect email address (got root@<container>.(none))' — visible once in this batch's own evidence (httpx-multipart-response-parsing) and six times across run 36711152110's family — and the attempt then pays a turn to work around it with `-c user.name=... -c user.email=...` on every later commit.",
+    "owner": "The harness resolves the identity on its own host (an explicit BEST_AGENT_GIT_IDENTITY_* override, then this machine's git configuration, then git's own environment detection, then a neutral best-agent/best-agent@localhost fallback) and hands it to the plugin, which writes it into the agent's global git config, as the agent user, before the attempt starts. On the machine that dispatched this batch that resolves to 何健 <hejian@Simon-2.local>; a task image without git is left untouched instead of failing the attempt.",
+    "touched": [
+      "scripts/frontier-harness-harness.mjs",
+      "scripts/terminal-bench-harness.mjs",
+      "tools/frontier-harness-agent/frontier_harness_best_agent/__init__.py",
+      "tools/terminal-bench-agent/terminal_bench_best_agent/__init__.py",
+      "test/frontier-harness-agent.test.py",
+      "test/terminal-bench-agent.test.py",
+      "test/frontier-harness.test.mjs",
+      "test/terminal-bench.test.mjs"
+    ],
+    "notPartOfThisBatch": "Run 36810567609 already ran on the old composition, which is why its evidence still shows the workaround. The fix changes the next dispatch only; it repairs, replaces and reinterprets nothing here, and it belongs to the environment class rather than to capability.",
+    "verified": "Both plugin suites pass (frontier-harness-agent 9/9; terminal-bench-agent 7 tests with 4 docker fixtures skipped because TB_AGENT_TEST_IMAGE is unset) and both node suites pass 43/43, including a new test that pins the resolution order; the plugin's own command was then executed on this host with a scratch HOME, where a real commit carried the frozen identity and an empty PATH (no git) was tolerated.",
+    "sideFix": "test/terminal-bench-agent.test.py's record-count assertion was already wrong at HEAD (it asserted 4 while the plugin issued 5, because run() adds a workspace `pwd`); it now states the true sequence — metadata, mkdir, git identity, chown, pwd, CLI — and the same assertion reproduces as a failure on HEAD's files, so it was a stale test rather than a behaviour change."
+  },
+  "newFindings": [
+    {
+      "issue": "Simon-He95/best-agent#186",
+      "title": "spec 267 regression: the exec path command-shape clause is 260 characters, over the kernel's 256-character ToolInputIssue bound, so the issue is dropped and the model sees a bare invalid-input",
+      "inSituEvidence": "httpx-multipart-response-parsing, this batch: two exec calls are refused as {kind:'not-invoked', reason:'invalid-input'} with NO issue at all - input {command:'ls -la /app'} and input {command:'cd /app && git log --oneline -3 && git status'}. In the before-image the same class of command-shape refusal carried the 143-character clause message ({code:'invalid', field:'command', message:'must be one command name without \"/\" or \"\\\\\" (resolved from the captured PATH, spaces and Unicode allowed) or a bounded absolute executable path'}, 4 occurrences).",
+      "rootCause": "EXEC_COMMAND_SHAPE.path is both the description sentence and the rejection message (capability-builtin-tools): 143 -> 260 characters, while copyToolInputIssue enforces MAX_TOOL_INPUT_SYNTAX_MESSAGE_CHARACTERS = 256 (v3/src/kernel/data.ts:149, :210) and returns undefined, so transition.ts:777-783 falls back to 'invalid-input' and silently drops the issue.",
+      "localEvidence": "A local probe through the built CLI reproduced it deterministically (command 'node_modules/.bin/jest'); the built model-visible transcript for that call records only {kind:'not-invoked', reason:'invalid-input'}.",
+      "recommendedCheck": "Assert at composition level that every model-visible ToolInputIssue message fits the kernel bound, so a wording change can never again degrade silently into 'invalid-input'."
+    },
+    {
+      "observation": "residual wording: process-start's model-visible description still contains 'argv[0] is one command name without a path separator (spaces and Unicode allowed) resolved from the captured startup PATH ...' (packages/capability-process-tools/src/index.ts:265). Unlike the exec clause this sentence already states 'one command name' and 'no shell expansion', so it is recorded as a wording follow-up in issue #186 rather than a defect.",
+      "status": "not fixed in this batch; no effect observed in any cell"
+    }
+  ],
+  "evidence": {
+    "artifact": "frontier-harness-report-36810567609 (180,911,162 bytes): report.json, failures.json/.md, results/ (one frozen record per cell) and jobs/ (the seven attempt-evidence files, one per cell)",
+    "acceptanceBlock": "see outcome.acceptance",
+    "localContractProbes": "Five headless probe runs of the built CLI (same argv as the harness) plus one refusal probe: 17/18 product checks passed (the single failure was this session's own bundle-path guess for a text scan, replaced by the runtime check below). Verified: exec signal -> known/failed signalled with signal=SIGSEGV; exec whole command line -> not-found naming the literal 'no executable named \"git log --oneline -3 && ls\" on the frozen PATH'; process-read waitMs 60000 -> succeeded with waitMsClampedFrom=60000; fabricated ref -> process-unknown-ref; read after the retention window -> process-expired with expiredAtMs and retainedMs 300000; a longer-than-5-code-point subagent name -> admitted with acceptedName and truncatedFrom; write into a missing nested directory -> succeeded; in-workspace symlink read -> succeeded; --attempt-remaining-ms 230000 -> primary stopped, delivery completed, exit 0 with an adopted report. The one regression probe (command 'node_modules/.bin/jest') produced the bare invalid-input recorded in newFindings.",
+    "deterministicTests": "Four repository test groups on c9e46ec8 (Node 24.15.0): packages/capability-builtin-tools + packages/workspace-tools-backend 281 passed; packages/external-process-service + packages/capability-process-tools 74 passed; the six CLI files covering #171/#172/#174 215 passed; packages/workspace-tools-sandbox-backend + two CLI files 38 passed / 1 skipped. Zero failures.",
+    "localBuild": "see localBuildEvidence (SEA 014460d9..., all four installed-artifact smokes exit 0)"
+  },
+  "conclusion": "On this candidate the two defects that cost a cell its verdict are gone: both terminal-bench cells now end stopped + delivered with exit 0, and the aggregate reports 7 present / 0 missing / 0 error. The three contract defects whose call shapes recurred are gone in situ (no name refusal, no waitMs refusal, no blanket process-unavailable, no unknown/uncertain for the signal kill), and the workspace-file defects produced no in-workspace parent-missing or symlink refusal. Task rewards are otherwise unchanged (6 of 7 cells still fail, all of them at 0.99+ partial credit; katex flipped to a pass), so this batch measures fidelity, not capability, and it is diagnostic only: passAt1 stays null and no earlier verdict is repaired, replaced or reinterpreted. It also surfaced one regression (issue #186) that no local check of the fixed defects could have caught, because it was introduced by the #170 wording change itself."
+}

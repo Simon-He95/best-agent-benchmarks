@@ -44,6 +44,32 @@ class RecordedEnvironment:
         self.uploads.append((target_path, Path(source_path).read_bytes()))
 
 
+def _expected_git_identity_command() -> str:
+    """The task environment's git identity, stated independently of the plugin.
+
+    A task image ships no identity of its own, and a model-issued command reads no
+    global config at all (the CLI runs it with ``GIT_CONFIG_GLOBAL=/dev/null``), so
+    the attempt writes the identity into the agent's global config *and* into the
+    local config of every repository under the workspace; every value is quoted as a
+    single shell word. The `set -o pipefail; ` prefix is harbor's own wrapping of
+    `exec_as_agent`.
+    """
+    return (
+        "set -o pipefail; set -e; if command -v git >/dev/null 2>&1; then\n"
+        "git config --global --replace-all user.name 'Test Agent'\n"
+        "git config --global --replace-all user.email test.agent@example.invalid\n"
+        'for root in \'/work space\' "$HOME"; do\n'
+        '  for candidate in "$root"/.git "$root"/*/.git "$root"/*/*/.git "$root"/*/*/*/.git; do\n'
+        '    if [ -d "$candidate" ]; then\n'
+        '      git --git-dir="$candidate" config --local --get user.name >/dev/null 2>&1 || git --git-dir="$candidate" config user.name \'Test Agent\'\n'
+        '      git --git-dir="$candidate" config --local --get user.email >/dev/null 2>&1 || git --git-dir="$candidate" config user.email test.agent@example.invalid\n'
+        "    fi\n"
+        "  done\n"
+        "done\n"
+        "fi"
+    )
+
+
 class AgentTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="tb-agent-test-")
@@ -57,9 +83,12 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.sources = [self.provider, self.dimcode / "config.json", self.dimcode / "dimcode/auth.json"]
         self.env_patch = patch.dict(os.environ, {
             "BEST_AGENT_PROVIDER_CONFIG": str(self.provider), "DIMCODE_HOME": str(self.dimcode),
-            "BEST_AGENT_PROVIDER_MODEL": "synthetic-model", "BEST_AGENT_TIMEOUT_MS": "30000",
+            "BEST_AGENT_PROVIDER_MODEL": "synthetic-model",
+            "BEST_AGENT_MODEL_TIMEOUT_MS": "30000",
             "BEST_AGENT_CLI_WORKSPACE": "/work space",
             "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": '["--no-base-instructions","--tool-exclude","network"]',
+            "BEST_AGENT_GIT_IDENTITY_NAME": "Test Agent",
+            "BEST_AGENT_GIT_IDENTITY_EMAIL": "test.agent@example.invalid",
         })
         self.env_patch.start()
         self.addCleanup(self.env_patch.stop)
@@ -94,9 +123,27 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     if auth:
                         targets.append(home + "/.dimcode/dimcode/auth.json")
                     self.assertEqual(env.uploads, list(zip(targets, [p.read_bytes() for p in selected])))
-                    self.assertEqual(len(env.records), 4)
-                    self.assertEqual([r["user"] for r in env.records], [None, None, "root", None])
-                    ownership = env.records[2]["command"]
+                    # metadata, mkdir, git identity, chown, the workspace `pwd`, the CLI Run.
+                    # (The `pwd` record long predates the git identity step; this assertion
+                    # said 4 while the plugin already issued 5.)
+                    self.assertEqual(len(env.records), 6)
+                    self.assertEqual([r["user"] for r in env.records], [None, None, None, "root", None, None])
+                    # The task environment's git identity is written as the agent user, after the
+                    # agent home exists and before anything the attempt depends on: the container
+                    # ships no identity, so a model commit would otherwise be refused.
+                    git_identity = env.records[2]["command"]
+                    self.assertEqual(git_identity, _expected_git_identity_command())
+                    self.assertIn(shlex.quote("Test Agent"), git_identity)
+                    self.assertIn(shlex.quote("test.agent@example.invalid"), git_identity)
+                    # The global write alone is not enough: the CLI runs every model command with
+                    # GIT_CONFIG_GLOBAL=/dev/null, so the identity must also reach each repository's
+                    # own config, and the workspace root must survive as one shell word.
+                    self.assertIn(shlex.quote("/work space"), git_identity)
+                    self.assertEqual(git_identity.count("config --local --get user.name"), 1)
+                    self.assertEqual(git_identity.count("config --local --get user.email"), 1)
+                    self.assertIn('--git-dir="$candidate" config user.name', git_identity)
+                    self.assertIn('--git-dir="$candidate" config user.email', git_identity)
+                    ownership = env.records[3]["command"]
                     self.assertIn("set -e", ownership)
                     self.assertIn(f"chown {uid}:{gid} --", ownership)
                     self.assertIn("chmod 600 --", ownership)
@@ -107,6 +154,12 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(cli.count('best-agent" run'), 1)
                     self.assertIn(shlex.quote("public task 'quoted'"), cli)
                     self.assertIn("--no-base-instructions --tool-exclude network", cli)
+                    # The attempt-derived ceiling reaches the CLI as its own flag. No attempt wall
+                    # clock is exported under a provider-timeout name: the env wins over the flag,
+                    # so a leftover export would silently ignore this one.
+                    self.assertIn("--model-timeout-ms 30000", cli)
+                    self.assertNotIn("BEST_AGENT_PROVIDER_TIMEOUT_MS", cli)
+                    self.assertNotIn("BEST_AGENT_TIMEOUT_MS", cli)
                     self.assert_no_transfer_secrets(env.records, str(logs.records))
 
     async def test_original_setup_failure_stops_before_cli(self):

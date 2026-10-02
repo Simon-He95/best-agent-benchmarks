@@ -71,6 +71,29 @@ test("candidate preparation passes the frozen maximum budget and unrestricted pr
       assert.equal(args[args.indexOf(option) + 1], value);
     }
     assert.deepEqual(args.flatMap((arg, index) => arg === "--workspace-grant" ? [args[index + 1]] : []), ["read", "write", "exec"]);
+    // The release close policy is opt-in per config and never restated: an undeclared policy keeps
+    // the exact argv above, a declared one adds exactly one flag, and an unknown value fails closed.
+    const { projectExecutionArgs } = await import("../scripts/terminal-bench-harness.mjs");
+    const execution = config.generation.executionProfile;
+    const project = (overrides) =>
+      projectExecutionArgs(
+        { ...execution, ...overrides },
+        {
+          maxModelCycles: config.generation.maxModelCycles,
+          toolExcludeNetwork: config.generation.toolExcludeNetwork,
+        },
+      );
+    assert.deepEqual(project({}), args);
+    for (const policy of ["release", "terminate"]) {
+      const withPolicy = project({ processClosePolicy: policy });
+      assert.equal(withPolicy.filter((arg) => arg === "--process-close-policy").length, 1);
+      assert.equal(withPolicy[withPolicy.indexOf("--process-close-policy") + 1], policy);
+      assert.deepEqual(
+        withPolicy.filter((arg) => arg !== "--process-close-policy" && arg !== policy),
+        args,
+      );
+    }
+    assert.throws(() => project({ processClosePolicy: "detach" }), /processClosePolicy/u);
   } finally {
     for (const key of Object.keys(process.env)) if (!(key in environment)) delete process.env[key];
     Object.assign(process.env, environment);
@@ -862,6 +885,33 @@ test("workflow reuses the pinned candidate and keeps the rebuild an explicit cho
     } else {
       assert.equal(typeof batch.reason, "string", "a pending recovery batch declares its mechanical evidence");
       assert.ok(Array.isArray(batch.constraints) && batch.constraints.length > 0);
+    }
+  }
+});
+
+test("a task environment's git identity comes from this host and is never empty", async () => {
+  const { resolveGitIdentity } = await import(
+    `../scripts/terminal-bench-harness.mjs?git-identity=${Date.now()}`
+  );
+  const keys = ["BEST_AGENT_GIT_IDENTITY_NAME", "BEST_AGENT_GIT_IDENTITY_EMAIL"];
+  const saved = new Map(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.BEST_AGENT_GIT_IDENTITY_NAME = "Override Agent";
+    process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = "override@example.invalid";
+    assert.deepEqual(resolveGitIdentity(), {
+      name: "Override Agent",
+      email: "override@example.invalid",
+    });
+    delete process.env.BEST_AGENT_GIT_IDENTITY_NAME;
+    delete process.env.BEST_AGENT_GIT_IDENTITY_EMAIL;
+    const resolved = resolveGitIdentity();
+    assert.ok(resolved.name.length > 0, "a name is always resolved");
+    assert.ok(resolved.email.includes("@"), "an address is always resolved");
+  } finally {
+    for (const key of keys) {
+      const value = saved.get(key);
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
     }
   }
 });

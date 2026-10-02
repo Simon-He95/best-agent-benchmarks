@@ -24,10 +24,9 @@
  * diagnostic composition); the CLI's network tool stays excluded and no
  * closed-book claim is made.
  *
- * Composition fairness: one headless `best-agent run` per task (no TUI, no
- * interaction tools), full workspace permissions, one frozen candidate, one
- * predeclared attempt, and no evaluator output ever re-enters the model
- * attempt.
+ * Composition fairness: one headless CLI entry per task (no TUI or interaction
+ * tools), full workspace permissions, one frozen candidate, one predeclared
+ * Pier attempt, and no evaluator output ever re-enters the model attempt.
  *
  * Usage:
  *   node scripts/frontier-harness-harness.mjs [options]
@@ -46,13 +45,16 @@
  *   --candidate-id <id>               candidate identity (cli-<ver>-<commit>)
  *   --batch-id <id>                   batch label
  *   --formal-run-id <id>              formal/diagnostic run id
- *   --timeout-ms <ms>                 provider/CLI per-task timeout
  *
  * Environment:
  *   BEST_AGENT_PROVIDER_CONFIG / DIMCODE_HOME / BEST_AGENT_PROVIDER_BASE_URL
  *                                     frozen provider identity files and gateway
  *   BEST_AGENT_PROVIDER_MODEL         credential context
  *   BEST_AGENT_CLI_CANDIDATE_DIR      pre-attempt assembled cjs candidate artifact
+ *   BEST_AGENT_GIT_IDENTITY_NAME/EMAIL
+ *                                     optional explicit override of the git identity
+ *                                     frozen into each task environment (default: this
+ *                                     host's own git identity)
  *   FH_PIER_BIN                       pier binary (default: pier)
  */
 
@@ -69,6 +71,8 @@ import {
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { VERIFICATION_FILE } from "./verify-frontier-harness-candidate.mjs";
+
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const config = JSON.parse(
   readFileSync(join(repoRoot, "config", "frontier-harness.json"), "utf8"),
@@ -77,6 +81,46 @@ const config = JSON.parse(
 function sha256File(path) {
   if (!existsSync(path)) return undefined;
   return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+/**
+ * The git identity to freeze into a task environment. A task image ships no git
+ * identity of its own, so a model commit stops at "unable to auto-detect email
+ * address" — observed in a real attempt, where the model then paid a turn to
+ * discover `-c user.name=... -c user.email=...`. The identity is read from this
+ * harness host: an explicit override first, then this machine's git
+ * configuration, then git's own environment detection, and only then a neutral
+ * fallback, so a host with no identity at all still yields a usable attempt.
+ */
+export function resolveGitIdentity() {
+  const override = {
+    name: process.env.BEST_AGENT_GIT_IDENTITY_NAME,
+    email: process.env.BEST_AGENT_GIT_IDENTITY_EMAIL,
+  };
+  if (override.name && override.email) return override;
+  const configured = {
+    name: gitConfigValue("user.name"),
+    email: gitConfigValue("user.email"),
+  };
+  if (configured.name && configured.email) return configured;
+  return gitEnvironmentAuthor() ?? { name: "best-agent", email: "best-agent@localhost" };
+}
+
+function gitConfigValue(key) {
+  const result = spawnSync("git", ["config", "--get", key], { encoding: "utf8" });
+  return result.status === 0 && result.stdout ? result.stdout.trim() : "";
+}
+
+function gitEnvironmentAuthor() {
+  const result = spawnSync("git", ["var", "GIT_AUTHOR_IDENT"], { encoding: "utf8" });
+  if (result.status !== 0 || !result.stdout) return undefined;
+  const match = /^(.*?) <([^>]+)>/u.exec(result.stdout.trim());
+  if (!match) return undefined;
+  const email = match[2];
+  // git reports `user@host.(none)` when the host has no domain name, which is not
+  // an address a container commit should carry; require a plausible one.
+  if (!email.includes("@") || email.endsWith(".(none)")) return undefined;
+  return { name: match[1], email };
 }
 
 function findResultJson(jobsDir, jobName) {
@@ -109,7 +153,6 @@ function parseArgs(argv) {
     candidateId: "unknown",
     batchId: "local",
     formalRunId: "diagnostic-local",
-    timeoutMs: undefined,
   };
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
@@ -152,11 +195,6 @@ function parseArgs(argv) {
       case "--formal-run-id":
         parsed.formalRunId = argv[++i];
         break;
-      case "--timeout-ms": {
-        const raw = argv[++i];
-        parsed.timeoutMs = raw === undefined || raw === "" ? undefined : Number(raw);
-        break;
-      }
       default:
         throw new Error(`Unknown argument: ${argv[i]}`);
     }
@@ -181,6 +219,36 @@ function parseArgs(argv) {
     throw new Error("--agent-timeout-multiplier must be a positive number.");
   }
   return parsed;
+}
+
+/**
+ * The one projection of an execution profile onto the CLI's one-shot argv. `processClosePolicy` is
+ * opt-in per config: a released process outlives the agent phase, which is what every task whose
+ * verifier runs after the agent needs, while a run pinned to a CLI that predates
+ * `--process-close-policy` keeps its exact argv. An undeclared value fails closed instead of
+ * silently running `terminate`.
+ */
+export function projectExecutionArgs(execution, { workspace, toolExclude }) {
+  const closePolicy = execution.processClosePolicy;
+  if (closePolicy !== undefined && closePolicy !== "terminate" && closePolicy !== "release") {
+    throw new Error("executionProfile.processClosePolicy must be terminate or release.");
+  }
+  return [
+    "--no-base-instructions",
+    "--workspace",
+    workspace,
+    "--workspace-backend",
+    execution.workspaceBackend,
+    "--workspace-authorization",
+    execution.workspaceAuthorization,
+    "--process-isolation",
+    execution.processIsolation,
+    ...(closePolicy === undefined ? [] : ["--process-close-policy", closePolicy]),
+    "--command-policy",
+    execution.commandPolicy,
+    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
+    ...toolExclude.flatMap((tool) => ["--tool-exclude", tool]),
+  ];
 }
 
 export function verifyFrozenIdentity() {
@@ -215,6 +283,27 @@ export function verifyFrozenIdentity() {
   ) {
     throw new Error("Current Linux candidate identity does not match config/frontier-harness.json.");
   }
+  // The delivery gate owns exactly one fact: whether this candidate's packaging, its
+  // source typecheck and its packed artifact were verified for the frozen target. The
+  // harness requires that fact and never re-derives it, so a candidate directory that
+  // was never verified — or whose record belongs to other receipt bytes — cannot
+  // reach a task attempt.
+  const deliveryPath = join(candidateDir, VERIFICATION_FILE);
+  if (!existsSync(deliveryPath)) {
+    throw new Error(
+      `Current Linux candidate has no ${VERIFICATION_FILE}; run scripts/verify-frontier-harness-candidate.mjs on the target host before any task attempt.`,
+    );
+  }
+  const delivery = JSON.parse(readFileSync(deliveryPath, "utf8"));
+  if (
+    delivery.schemaVersion !== 1 ||
+    delivery.verified !== true ||
+    delivery.candidateManifestSha256 !== sha256File(candidatePath)
+  ) {
+    throw new Error(
+      `Current Linux candidate delivery verification is not a pass bound to this receipt (${VERIFICATION_FILE}).`,
+    );
+  }
   const provider = config.provider;
   const model = process.env.BEST_AGENT_PROVIDER_MODEL ?? provider.model;
   if (model !== provider.model) {
@@ -225,6 +314,24 @@ export function verifyFrozenIdentity() {
   const providerOverride = process.env.BEST_AGENT_PROVIDER_CONFIG;
   if (!providerOverride || !existsSync(providerOverride)) {
     throw new Error("BEST_AGENT_PROVIDER_CONFIG must point to the frozen provider.json.");
+  }
+  // The effort is read back from the materialized identity the CLI actually
+  // consumes, so the frozen record states the effort this attempt ran at; an
+  // effort outside the profile's declared options fails closed here instead of
+  // being recorded as something the profile never named.
+  const materialized = JSON.parse(readFileSync(providerOverride, "utf8"));
+  const effortOptions = provider.reasoningEffortOptions;
+  const reasoningEffort = materialized?.reasoningEffort;
+  if (
+    materialized?.model !== provider.model ||
+    materialized?.timeoutMs !== undefined ||
+    process.env.BEST_AGENT_PROVIDER_TIMEOUT_MS !== undefined ||
+    !Array.isArray(effortOptions) ||
+    !effortOptions.includes(reasoningEffort)
+  ) {
+    throw new Error(
+      "The materialized provider identity does not match the frozen frontier-harness provider profile.",
+    );
   }
   const dimcodeHome = process.env.DIMCODE_HOME;
   if (!dimcodeHome || !existsSync(join(dimcodeHome, "config.json"))) {
@@ -241,21 +348,12 @@ export function verifyFrozenIdentity() {
   process.env.BEST_AGENT_CLI_RUNTIME_LOCK_SHA256 = candidate.runtimeLockSha256;
   process.env.BEST_AGENT_CLI_WORKSPACE = config.workspace;
   const execution = config.generation.executionProfile;
-  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify([
-    "--no-base-instructions",
-    "--workspace",
-    config.workspace,
-    "--workspace-backend",
-    execution.workspaceBackend,
-    "--workspace-authorization",
-    execution.workspaceAuthorization,
-    "--process-isolation",
-    execution.processIsolation,
-    "--command-policy",
-    execution.commandPolicy,
-    ...execution.workspaceGrants.flatMap((grant) => ["--workspace-grant", grant]),
-    ...(config.generation.toolExclude ?? []).flatMap((tool) => ["--tool-exclude", tool]),
-  ]);
+  process.env.BEST_AGENT_CLI_EXECUTION_ARGS_JSON = JSON.stringify(
+    projectExecutionArgs(execution, {
+      workspace: config.workspace,
+      toolExclude: config.generation.toolExclude ?? [],
+    }),
+  );
   return {
     packageName: candidate.packageName,
     cliVersion: candidate.cliVersion,
@@ -264,6 +362,7 @@ export function verifyFrozenIdentity() {
     candidateManifestSha256: sha256File(candidatePath),
     candidatePath,
     model,
+    reasoningEffort,
   };
 }
 
@@ -412,59 +511,141 @@ export function canonicalPassed(rewards) {
 }
 
 /**
- * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
- * were written, and the run's terminal cause. The footer's writtenCounts are
- * authoritative when present; otherwise model-outcome entries are counted.
+ * The `reason` values of a best-agent `model-failure` evidence entry, as defined
+ * by the CLI's own `classifyModelFailure` (packages/model-binding-ai-sdk): the
+ * provider was unreachable at the transport level (DNS/connect/reset) or the
+ * request was rejected provider-side (HTTP status, TLS, upstream). Neither is a
+ * model outcome — the request never produced an answer — so a trial that ends on
+ * one carries no gradeable attempt.
  *
- * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null }}
+ * `timeout` is deliberately absent: it means the invocation was aborted on the
+ * deadline this harness itself pinned (agent budget minus the guard interval), so
+ * a task that used that budget up is a budget outcome, not an outage.
+ */
+const PROVIDER_FAILURE_REASONS = new Set(["connection", "transport"]);
+
+/**
+ * Summarize a best-agent attempt-evidence JSONL file: how many model outcomes
+ * were written for the primary Run, its terminal cause, and why its model calls failed.
+ * For a single-Run legacy record, the footer count remains authoritative.
+ *
+ * The input may be the file's text or its bytes. Bytes are what the record path
+ * passes, because an attempt's evidence can grow past the longest string V8 can
+ * hold (2^29 - 24 characters, about 512 MiB) and `readFileSync(path, "utf8")` then
+ * throws `Cannot create a string longer than 0x1fffffe8 characters`, which cost a
+ * real recovery cell its record on 2026-10-02 (a 536 MiB attempt evidence file).
+ * Splitting the bytes on newlines keeps every string the parser sees line-sized.
+ *
+ * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
  */
 export function summarizeAttemptEvidence(evidenceText) {
-  if (typeof evidenceText !== "string" || evidenceText.trim() === "") {
-    return { present: false, modelOutcomes: null, terminalCause: null };
+  const state = createEvidenceSummary();
+  if (typeof evidenceText === "string") {
+    if (evidenceText.trim() === "") return state.result();
+    for (const line of evidenceText.split("\n")) state.feed(line);
+  } else if (Buffer.isBuffer(evidenceText)) {
+    if (evidenceText.length === 0) return state.result();
+    let lineStart = 0;
+    for (;;) {
+      const lineEnd = evidenceText.indexOf(0x0a, lineStart);
+      if (lineEnd === -1) break;
+      state.feed(evidenceText.toString("utf8", lineStart, lineEnd));
+      lineStart = lineEnd + 1;
+    }
+    state.feed(evidenceText.toString("utf8", lineStart));
+  } else {
+    return state.result();
   }
+  return state.result();
+}
+
+/**
+ * The reducer behind `summarizeAttemptEvidence`. Feeding it line by line, from a
+ * string or from a file's bytes, is the same computation either way.
+ */
+function createEvidenceSummary() {
   let footerOutcomes = null;
   let countedOutcomes = 0;
+  let primaryOutcomes = 0;
   let terminalCause = null;
-  for (const line of evidenceText.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    let entry;
-    try {
-      entry = JSON.parse(trimmed);
-    } catch {
-      continue;
-    }
-    if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
-      countedOutcomes += 1;
-    }
-    if (entry?.type === "footer" && entry.writtenCounts) {
-      if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
-        footerOutcomes = entry.writtenCounts.modelOutcome;
-      }
-    }
-    if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
-      terminalCause = String(entry.snapshot.terminalCause);
-    }
-  }
+  let deliveryTerminalCause = null;
+  let rootRunId = null;
+  const modelFailureReasons = [];
+  let sawContent = false;
   return {
-    present: true,
-    modelOutcomes: footerOutcomes ?? countedOutcomes,
-    terminalCause,
+    feed(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      sawContent = true;
+      let entry;
+      try {
+        entry = JSON.parse(trimmed);
+      } catch {
+        return;
+      }
+      if (typeof entry?.type === "string" && /^model-?outcome$/iu.test(entry.type)) {
+        countedOutcomes += 1;
+        if (entry.resourceId === rootRunId) primaryOutcomes += 1;
+      }
+      if (entry?.type === "header") rootRunId = entry.rootRunId;
+      if (entry?.type === "model-failure" && (rootRunId === null || entry.resourceId === rootRunId)) {
+        // The frozen CLI nests the fact as `failure.reason`; older artifacts
+        // carry the same value as a flat `reason`.
+        const reason = entry.failure?.reason ?? entry.reason;
+        if (typeof reason === "string" && reason.trim() !== "") {
+          modelFailureReasons.push(reason.trim());
+        }
+      }
+      if (entry?.type === "footer" && entry.writtenCounts) {
+        if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
+          footerOutcomes = entry.writtenCounts.modelOutcome;
+        }
+      }
+      if (entry?.type === "terminal-snapshot" && entry.snapshot?.terminalCause) {
+        if (rootRunId === null || entry.resourceId === rootRunId) {
+          terminalCause = String(entry.snapshot.terminalCause);
+        } else {
+          deliveryTerminalCause = String(entry.snapshot.terminalCause);
+        }
+      }
+    },
+    result() {
+      if (!sawContent) {
+        return {
+          present: false,
+          modelOutcomes: null,
+          terminalCause: null,
+          modelFailureReasons: [],
+        };
+      }
+      return {
+        present: true,
+        modelOutcomes: rootRunId === null ? footerOutcomes ?? countedOutcomes : primaryOutcomes,
+        terminalCause,
+        ...(deliveryTerminalCause === null ? {} : { deliveryTerminalCause }),
+        modelFailureReasons,
+      };
+    },
   };
 }
 
 /**
  * Transcribe one Pier trial into the harness disposition vocabulary.
  *
- * The task's own verifier reward is the only grader, but a trial whose agent
- * process failed before receiving a single model response (attempt evidence
- * recorded zero model outcomes) never started the attempt: that is an
- * environment/provider death, recorded as `error` — never scored as a task
- * failure — matching the benchmark rule that infrastructure deaths are marked
- * rather than graded.
+ * The task's own verifier reward is the only grader, but a trial that never
+ * received a model answer has no gradeable attempt: either the agent process
+ * failed before its first model response (attempt evidence recorded zero model
+ * outcomes), or the run ended on a provider transport failure (endpoint
+ * unreachable, quota exhausted, gateway error). Both are environment/provider
+ * deaths, recorded as `error` — never scored as a task failure — matching the
+ * benchmark rule that infrastructure deaths are marked rather than graded.
+ *
+ * `evidenceText` accepts the evidence's text or its bytes; see
+ * `summarizeAttemptEvidence` for why the record path passes bytes.
  */
 export function classifyTrialOutcome({ trialResult, evidenceText }) {
   const evidence = summarizeAttemptEvidence(evidenceText);
+
   const verifier = trialResult?.verifier_result;
   const hasRewards =
     verifier && verifier.rewards && Object.keys(verifier.rewards).length > 0;
@@ -486,6 +667,9 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
   const evidenceFields = {
     ...(evidence.present ? { modelOutcomes: evidence.modelOutcomes } : {}),
     ...(evidence.terminalCause ? { terminalCause: evidence.terminalCause } : {}),
+    ...(evidence.deliveryTerminalCause
+      ? { deliveryTerminalCause: evidence.deliveryTerminalCause }
+      : {}),
   };
   // The agent process errored out without ever receiving a model response.
   const preModelFailure = Boolean(exception) && evidence.modelOutcomes === 0;
@@ -494,6 +678,23 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
       disposition: "error",
       exception,
       preModelFailure: true,
+      ...evidenceFields,
+    };
+  }
+  // Only the failure that actually ended the run decides: the evidence is
+  // append-ordered, so the last model-failure is the fatal one. A provider
+  // outage that was survived must not excuse a later, fatal budget timeout.
+  // A verifier run over a workspace whose provider connection died cannot be
+  // attributed to the agent, so the verdict is withheld as an outage.
+  const fatalFailureReason = evidence.modelFailureReasons.at(-1);
+  const infraFailure =
+    evidence.terminalCause === "model-failure" &&
+    PROVIDER_FAILURE_REASONS.has(fatalFailureReason);
+  if (infraFailure) {
+    return {
+      disposition: "error",
+      ...(exception ? { exception } : {}),
+      infraFailure: true,
       ...evidenceFields,
     };
   }
@@ -510,6 +711,42 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
     return { disposition: "error", exception, ...evidenceFields };
   }
   return { disposition: "inconclusive", ...evidenceFields };
+}
+
+/**
+ * Transcribe a trial, and never lose the record to a classification failure.
+ *
+ * Every other step of a run is reconstructible from its artifacts; the record is
+ * the one thing that is not, and a cell without a record is a cell the aggregate
+ * can only report as missing (observed once: a 536 MiB evidence file made
+ * `readFileSync(path, "utf8")` throw, the harness exited 1, and the attempt's own
+ * graded verdict was never transcribed). So an unexpected failure here degrades to
+ * `inconclusive` — the vocabulary's word for "the available evidence does not
+ * prove one cause" — keeps the verifier's own rewards, and names the error in the
+ * record, which keeps the cell out of the numerator instead of inventing a verdict
+ * for it or dropping it.
+ */
+export function classifyTrialOutcomeOrDegrade({ trialResult, evidenceText }) {
+  try {
+    return classifyTrialOutcome({ trialResult, evidenceText });
+  } catch (error) {
+    // The fallback must not throw either: whatever the trial result is, the record
+    // is still written.
+    let rewards;
+    try {
+      const verifier = trialResult?.verifier_result;
+      if (verifier?.rewards && Object.keys(verifier.rewards).length > 0) {
+        rewards = verifier.rewards;
+      }
+    } catch {
+      rewards = undefined;
+    }
+    return {
+      disposition: "inconclusive",
+      evidenceSummaryError: error instanceof Error ? error.message : String(error),
+      ...(rewards ? { rewards } : {}),
+    };
+  }
 }
 
 function runPier(pierBin, args, env, stdioBase) {
@@ -608,7 +845,7 @@ async function main() {
   }
 
   const candidate = verifyFrozenIdentity();
-  const { cliVersion, model } = candidate;
+  const { cliVersion, model, reasoningEffort } = candidate;
 
   if (existsSync(args.output)) {
     throw new Error(`Refusing to overwrite ${args.output}.`);
@@ -616,12 +853,18 @@ async function main() {
   mkdirSync(args.jobsDir, { recursive: true });
 
   const effectiveAgentTimeoutSec = task.agentTimeoutSec * args.agentTimeoutMultiplier;
-  const providerTimeoutMs =
-    args.timeoutMs ??
-    Math.max(60_000, Math.round((effectiveAgentTimeoutSec - 60) * 1000));
-  // Keep the in-container CLI timeout identical to the harness-derived value so
-  // the agent fails cleanly before Pier kills the trial.
-  process.env.BEST_AGENT_TIMEOUT_MS = String(providerTimeoutMs);
+  const attemptBudgetMs = Math.round(effectiveAgentTimeoutSec * 1000);
+  const modelTimeoutMs = config.generation.modelInvocationTimeoutMs;
+  if (!Number.isSafeInteger(modelTimeoutMs) || modelTimeoutMs < 1) {
+    throw new Error("The frozen model invocation timeout is invalid.");
+  }
+  process.env.BEST_AGENT_MODEL_TIMEOUT_MS = String(modelTimeoutMs);
+  process.env.BEST_AGENT_ATTEMPT_BUDGET_MS = String(attemptBudgetMs);
+  // The attempt's git identity travels with the attempt: the plugin writes it into the
+  // task environment's global git config before the model starts.
+  const gitIdentity = resolveGitIdentity();
+  process.env.BEST_AGENT_GIT_IDENTITY_NAME = gitIdentity.name;
+  process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = gitIdentity.email;
 
   const pierBin = process.env.FH_PIER_BIN ?? "pier";
   const pierArgs = [
@@ -664,11 +907,14 @@ async function main() {
   const trialResult = trialDir
     ? JSON.parse(readFileSync(join(trialDir, "result.json"), "utf8"))
     : undefined;
+  // Bytes, not text: this file can outgrow the longest string V8 can hold, and a
+  // failure to read it must not cost the attempt its record (see
+  // classifyTrialOutcomeOrDegrade).
   const outcome = trialResult
-    ? classifyTrialOutcome({
+    ? classifyTrialOutcomeOrDegrade({
         trialResult,
         evidenceText: evidencePath && existsSync(evidencePath)
-          ? readFileSync(evidencePath, "utf8")
+          ? readFileSync(evidencePath)
           : undefined,
       })
     : { disposition: "not-evaluated" };
@@ -680,6 +926,18 @@ async function main() {
   const processReceiptPath = trialDir
     ? join(trialDir, "agent", "best-agent-process-receipt.json")
     : undefined;
+  const attemptTimingPath = trialDir
+    ? join(trialDir, "agent", "best-agent-attempt-timing.json")
+    : undefined;
+  let attemptTiming;
+  let attemptTimingUnreadable = false;
+  if (attemptTimingPath && existsSync(attemptTimingPath)) {
+    try {
+      attemptTiming = JSON.parse(readFileSync(attemptTimingPath, "utf8"));
+    } catch {
+      attemptTimingUnreadable = true;
+    }
+  }
   const pierResultPath = trialDir ? join(trialDir, "result.json") : undefined;
   const pierStdoutPath = `${args.output}.stdout.txt`;
   const pierStderrPath = `${args.output}.stderr.txt`;
@@ -700,12 +958,16 @@ async function main() {
     cliBinarySha256: candidate.binarySha256,
     candidateManifestSha256: candidate.candidateManifestSha256,
     model,
+    reasoningEffort,
     batchId: args.batchId,
     formalRunId: args.formalRunId,
     pierVersion: config.pier.version,
     agentTimeoutMultiplier: args.agentTimeoutMultiplier,
     effectiveAgentTimeoutSec,
-    providerTimeoutMs,
+    attemptBudgetMs,
+    ...(attemptTiming === undefined ? {} : { attemptTiming }),
+    ...(attemptTimingUnreadable ? { attemptTimingUnreadable: true } : {}),
+    modelTimeoutMs,
     jobName: args.jobName,
     trialDir: trialDir ? relative(repoRoot, trialDir) : undefined,
     result: {
@@ -715,6 +977,9 @@ async function main() {
       ...(outcome.preModelFailure ? { preModelFailure: true } : {}),
       ...(outcome.modelOutcomes === undefined ? {} : { modelOutcomes: outcome.modelOutcomes }),
       ...(outcome.terminalCause ? { terminalCause: outcome.terminalCause } : {}),
+      ...(outcome.deliveryTerminalCause
+        ? { deliveryTerminalCause: outcome.deliveryTerminalCause }
+        : {}),
     },
     ...(usage === undefined ? {} : { usage }),
     artifacts: {
@@ -731,6 +996,12 @@ async function main() {
         ? {
             processReceipt: relative(repoRoot, processReceiptPath),
             processReceiptSha256: sha256File(processReceiptPath),
+          }
+        : {}),
+      ...(attemptTimingPath && existsSync(attemptTimingPath)
+        ? {
+            attemptTiming: relative(repoRoot, attemptTimingPath),
+            attemptTimingSha256: sha256File(attemptTimingPath),
           }
         : {}),
       ...(pierResultPath && existsSync(pierResultPath)
@@ -771,6 +1042,7 @@ async function main() {
     `| candidate | ${args.candidateId} |`,
     `| cli | ${cliVersion} |`,
     `| model | ${model} |`,
+    `| reasoning effort | ${reasoningEffort} |`,
     ...(exception ? [`| exception | ${exception.type}: ${exception.message.slice(0, 300)} |`] : []),
     "",
   ].join("\n");

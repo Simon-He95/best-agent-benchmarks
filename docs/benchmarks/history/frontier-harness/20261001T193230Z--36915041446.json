@@ -1,0 +1,866 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.3-beta.41",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4.1-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": true,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 30,
+    "expectedEligible": 30,
+    "present": 30,
+    "missing": [],
+    "fullExpected": true
+  },
+  "results": {
+    "passed": 23,
+    "failed": 6,
+    "error": 1,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.7666666666666667,
+  "validCells": 29,
+  "passRateValidCells": 0.7931034482758621,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "passed",
+      "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "failed",
+      "detail": "30 present, 0 missing, 1 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "30 records agree on one frozen candidate (cli-0.0.3-beta.41-da88e7a-28131ae4c81a|0.0.3-beta.41|28131ae4c81a2111cdf600847d648218e5bb70ede05f9e131b48f2b3eb6d5857|8cc432823dc050c4117eabfaca0168d823760825bef54f5cd8f2411c45bbcbc7)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) deepseek-v4.1-flash at reasoning effort max; the frozen profile is deepseek-v4.1-flash"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "30 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 30,
+    "promptTokens": 354607987,
+    "completionTokens": 2260543,
+    "cacheReadTokens": 349426816,
+    "totalTokens": 356868530,
+    "modelCallCount": 2162,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 9,
+        "f2p_passed": 9,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1286647,
+      "usage": {
+        "promptTokens": 22319723,
+        "completionTokens": 130827,
+        "cacheReadTokens": 22079360,
+        "costUsd": null,
+        "totalTokens": 22450550,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 240363,
+        "modelCallCount": 169,
+        "reportedCallCount": 169,
+        "reportedInputTokens": 22319723
+      },
+      "evidenceSha256": "ffe249eb66fc212dde7ebbe6cfa094ffc16e291bfb38dee504806bd50794e39d",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 25,
+        "f2p_passed": 25,
+        "p2p_total": 1679,
+        "p2p_passed": 1679,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3500995,
+      "usage": {
+        "promptTokens": 93382623,
+        "completionTokens": 255231,
+        "cacheReadTokens": 92821888,
+        "costUsd": null,
+        "totalTokens": 93637854,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 560735,
+        "modelCallCount": 324,
+        "reportedCallCount": 324,
+        "reportedInputTokens": 93382623
+      },
+      "evidenceSha256": "49b09434fe49a2d5e0fbb8787a3abfd25e730cfc67832155d750b5c8ea5d37c5",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 79,
+        "f2p_passed": 79,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1467380,
+      "usage": {
+        "promptTokens": 21696748,
+        "completionTokens": 131280,
+        "cacheReadTokens": 21450112,
+        "costUsd": null,
+        "totalTokens": 21828028,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 246636,
+        "modelCallCount": 145,
+        "reportedCallCount": 145,
+        "reportedInputTokens": 21696748
+      },
+      "evidenceSha256": "b0c42f3ca9c5165559df68416b8464b494ed3be35a365997ad9b37e4a50c618a",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 137,
+        "f2p_passed": 137,
+        "p2p_total": 3134,
+        "p2p_passed": 3134,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2210766,
+      "usage": {
+        "promptTokens": 16258727,
+        "completionTokens": 103484,
+        "cacheReadTokens": 16052992,
+        "costUsd": null,
+        "totalTokens": 16362211,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 205735,
+        "modelCallCount": 131,
+        "reportedCallCount": 131,
+        "reportedInputTokens": 16258727
+      },
+      "evidenceSha256": "5bf1bed23e3df82468febc0feb7b9f339fe09a99d3fda96b7481833d1daf670c",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 122,
+        "f2p_passed": 122,
+        "p2p_total": 1272,
+        "p2p_passed": 1272,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1196563,
+      "usage": {
+        "promptTokens": 16431230,
+        "completionTokens": 115587,
+        "cacheReadTokens": 16238336,
+        "costUsd": null,
+        "totalTokens": 16546817,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 192894,
+        "modelCallCount": 128,
+        "reportedCallCount": 128,
+        "reportedInputTokens": 16431230
+      },
+      "evidenceSha256": "bea2392cf7351395733e346f3080f69e7b74e11d5b0ef03098da6f8399907167",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 94,
+        "f2p_passed": 92,
+        "p2p_total": 599,
+        "p2p_passed": 599,
+        "f2p": 0.9787234042553191,
+        "p2p": 1,
+        "partial": 0.9971139971139971
+      },
+      "durationMs": 1458384,
+      "usage": {
+        "promptTokens": 26808737,
+        "completionTokens": 170615,
+        "cacheReadTokens": 26519168,
+        "costUsd": null,
+        "totalTokens": 26979352,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 289569,
+        "modelCallCount": 142,
+        "reportedCallCount": 142,
+        "reportedInputTokens": 26808737
+      },
+      "evidenceSha256": "77a9c2dec93d534c02e6433546b2195ccc5242f77993fcaa4c09274b8f840cb9",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 45,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0.9183673469387755,
+        "p2p": 1,
+        "partial": 0.9999223572343647
+      },
+      "durationMs": 1573650,
+      "usage": {
+        "promptTokens": 43987787,
+        "completionTokens": 145479,
+        "cacheReadTokens": 43616256,
+        "costUsd": null,
+        "totalTokens": 44133266,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 371531,
+        "modelCallCount": 216,
+        "reportedCallCount": 216,
+        "reportedInputTokens": 43987787
+      },
+      "evidenceSha256": "7d2f05de86a3dc2c2b29f1ede7d78b8ef6af614af9d9064bd92c7d9cbe654f08",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 72,
+        "f2p_passed": 72,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 906727,
+      "usage": {
+        "promptTokens": 28082977,
+        "completionTokens": 51872,
+        "cacheReadTokens": 27572736,
+        "costUsd": null,
+        "totalTokens": 28134849,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 510241,
+        "modelCallCount": 74,
+        "reportedCallCount": 74,
+        "reportedInputTokens": 28082977
+      },
+      "evidenceSha256": "bfcbbc3006838bb6e110cf93546742e4220e58e0274629774da5597b27417226",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 31,
+        "f2p_passed": 28,
+        "p2p_total": 286,
+        "p2p_passed": 286,
+        "f2p": 0.9032258064516129,
+        "p2p": 1,
+        "partial": 0.9905362776025236
+      },
+      "durationMs": 1131274,
+      "usage": {
+        "promptTokens": 21980215,
+        "completionTokens": 119959,
+        "cacheReadTokens": 21755776,
+        "costUsd": null,
+        "totalTokens": 22100174,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 224439,
+        "modelCallCount": 153,
+        "reportedCallCount": 153,
+        "reportedInputTokens": 21980215
+      },
+      "evidenceSha256": "6451505926d17d9b1ffb936a172690b810701e9d156375c900745307d5e2bf95",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 618521,
+      "usage": {
+        "promptTokens": 7074323,
+        "completionTokens": 62467,
+        "cacheReadTokens": 6922240,
+        "costUsd": null,
+        "totalTokens": 7136790,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 152083,
+        "modelCallCount": 92,
+        "reportedCallCount": 92,
+        "reportedInputTokens": 7074323
+      },
+      "evidenceSha256": "4a69d1e784f976eb0ce7443f97692a61c3397b46b9a6ead26a04a219337e1fca",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 723731,
+      "usage": {
+        "promptTokens": 21358898,
+        "completionTokens": 62129,
+        "cacheReadTokens": 20848000,
+        "costUsd": null,
+        "totalTokens": 21421027,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 510898,
+        "modelCallCount": 49,
+        "reportedCallCount": 49,
+        "reportedInputTokens": 21358898
+      },
+      "evidenceSha256": "b109b53a8bd1444faa5926757cfc43c2c2dffccc8d550bc4fbd39984e0f96790",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 824918,
+      "usage": {
+        "promptTokens": 5811324,
+        "completionTokens": 125396,
+        "cacheReadTokens": 5630336,
+        "costUsd": null,
+        "totalTokens": 5936720,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 180988,
+        "modelCallCount": 74,
+        "reportedCallCount": 74,
+        "reportedInputTokens": 5811324
+      },
+      "evidenceSha256": "bf56e86cf5595480b35dd9edf2f9ecf30c7d3067a80eb049750ca8733f2ba17f",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/constraints-scheduling",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 118774,
+      "usage": {
+        "promptTokens": 243063,
+        "completionTokens": 13032,
+        "cacheReadTokens": 225536,
+        "costUsd": null,
+        "totalTokens": 256095,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 17527,
+        "modelCallCount": 11,
+        "reportedCallCount": 11,
+        "reportedInputTokens": 243063
+      },
+      "evidenceSha256": "1ffb79c2b6bdf451904dbd767881f429c285ca5a3e8bf10f3fdb448016444a72",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 785431,
+      "usage": {
+        "promptTokens": 3360876,
+        "completionTokens": 77701,
+        "cacheReadTokens": 3134848,
+        "costUsd": null,
+        "totalTokens": 3438577,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 226028,
+        "modelCallCount": 33,
+        "reportedCallCount": 33,
+        "reportedInputTokens": 3360876
+      },
+      "evidenceSha256": "355d0c67261807e2f0b1418d1e77d8edb960b6eb55a0868f8f2b87a3be304bbf",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 900771,
+      "usage": {
+        "promptTokens": 8495462,
+        "completionTokens": 119569,
+        "cacheReadTokens": 8326656,
+        "costUsd": null,
+        "totalTokens": 8615031,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 168806,
+        "modelCallCount": 87,
+        "reportedCallCount": 87,
+        "reportedInputTokens": 8495462
+      },
+      "evidenceSha256": "4347feadbc51f464599f53de9fd14c0640920bb935b4500abd0a57f3cd968d40",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 729309,
+      "usage": {
+        "promptTokens": 2090905,
+        "completionTokens": 88828,
+        "cacheReadTokens": 1824768,
+        "costUsd": null,
+        "totalTokens": 2179733,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 266137,
+        "modelCallCount": 24,
+        "reportedCallCount": 24,
+        "reportedInputTokens": 2090905
+      },
+      "evidenceSha256": "1638bb7e0b0ffd9d1eca8214ed1ebda8febb3601ad9aab9f50e1cfec2b5ef3a1",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 770752,
+      "usage": {
+        "promptTokens": 5614225,
+        "completionTokens": 78927,
+        "cacheReadTokens": 5448064,
+        "costUsd": null,
+        "totalTokens": 5693152,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 166161,
+        "modelCallCount": 62,
+        "reportedCallCount": 62,
+        "reportedInputTokens": 5614225
+      },
+      "evidenceSha256": "b297f4a401466e2764e2e3b87946277946fe7942eadbf3f0ca03f56e66fbf857",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/git-leak-recovery",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":747,\"attemptRemainingMs\":899253,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=deepseek-v4.1-flash\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model deepseek-v4.1-flash --model-timeout-ms 1800000 --attempt-remaining-ms 899253 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'A secret was accidentally committed to this repository in /app and then removed by rewriting history.\nPlease \n 1. recover the secret and write it to a /app/secret.txt file. \n 2. clean up the secret in that repo to make sure it cannot be found anywhere in that repo.\n 3. make sure irrelevant files and commit messages remain untouched.\nHint:\n  - The repo is in /app/repo\n  - The secret format is secret[...].\n  - There is only one string in the repo with secret[...] format.\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 91162,
+      "usage": {
+        "promptTokens": 102149,
+        "completionTokens": 3825,
+        "cacheReadTokens": 96000,
+        "costUsd": null,
+        "totalTokens": 105974,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 6149,
+        "modelCallCount": 8,
+        "reportedCallCount": 8,
+        "reportedInputTokens": 102149
+      },
+      "evidenceSha256": "ddee64cc9506b281bd6d3a500c0b8ea745bf315a7d78fed263a5eed8ff14147a",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/kv-store-grpc",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 106723,
+      "usage": {
+        "promptTokens": 261403,
+        "completionTokens": 8800,
+        "cacheReadTokens": 247680,
+        "costUsd": null,
+        "totalTokens": 270203,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 13723,
+        "modelCallCount": 15,
+        "reportedCallCount": 15,
+        "reportedInputTokens": 261403
+      },
+      "evidenceSha256": "b24edc22e9ea96b2e611c4eef1b08980f075b8c18439f922675b90eaa15d3069",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 764751,
+      "usage": {
+        "promptTokens": 1625002,
+        "completionTokens": 115815,
+        "cacheReadTokens": 1484288,
+        "costUsd": null,
+        "totalTokens": 1740817,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 140714,
+        "modelCallCount": 27,
+        "reportedCallCount": 27,
+        "reportedInputTokens": 1625002
+      },
+      "evidenceSha256": "224af643d3a4b010e04350ba31473a3a9dc396d29f7f06b10ad10d315db71112",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/log-summary-date-ranges",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 75863,
+      "usage": {
+        "promptTokens": 168395,
+        "completionTokens": 6185,
+        "cacheReadTokens": 152192,
+        "costUsd": null,
+        "totalTokens": 174580,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 16203,
+        "modelCallCount": 8,
+        "reportedCallCount": 8,
+        "reportedInputTokens": 168395
+      },
+      "evidenceSha256": "6f5f489e80f366f97d8546d035da2eb8b941d9b23b32682b0d26fb80cdef634b",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/merge-diff-arc-agi-task",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 283892,
+      "usage": {
+        "promptTokens": 999627,
+        "completionTokens": 35725,
+        "cacheReadTokens": 952064,
+        "costUsd": null,
+        "totalTokens": 1035352,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 47563,
+        "modelCallCount": 31,
+        "reportedCallCount": 31,
+        "reportedInputTokens": 999627
+      },
+      "evidenceSha256": "3f19226f45d9c1889ec0dc5ca3ec82ec93246e83b89a910521e16638843255c6",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/modernize-scientific-stack",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 191328,
+      "usage": {
+        "promptTokens": 332355,
+        "completionTokens": 20373,
+        "cacheReadTokens": 304640,
+        "costUsd": null,
+        "totalTokens": 352728,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 27715,
+        "modelCallCount": 13,
+        "reportedCallCount": 13,
+        "reportedInputTokens": 332355
+      },
+      "evidenceSha256": "b10e896e2b3bbe85b6e19102f34e0d70cdeb7b5423d3c17c0771f95b595bca4a",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/multi-source-data-merger",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 215069,
+      "usage": {
+        "promptTokens": 759081,
+        "completionTokens": 19103,
+        "cacheReadTokens": 727296,
+        "costUsd": null,
+        "totalTokens": 778184,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 31785,
+        "modelCallCount": 28,
+        "reportedCallCount": 28,
+        "reportedInputTokens": 759081
+      },
+      "evidenceSha256": "61f561bca5254a8bae02ea20cefaf86c0e08c56619eef7bca7477dced9115380",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 249385,
+      "usage": {
+        "promptTokens": 573269,
+        "completionTokens": 37340,
+        "cacheReadTokens": 528896,
+        "costUsd": null,
+        "totalTokens": 610609,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 44373,
+        "modelCallCount": 18,
+        "reportedCallCount": 18,
+        "reportedInputTokens": 573269
+      },
+      "evidenceSha256": "dfbd4d8007077b3a2df64ed46876ba23381c3d270d990bf4c5db44715c95b85d",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 343561,
+      "usage": {
+        "promptTokens": 1373807,
+        "completionTokens": 41956,
+        "cacheReadTokens": 1320704,
+        "costUsd": null,
+        "totalTokens": 1415763,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 53103,
+        "modelCallCount": 29,
+        "reportedCallCount": 29,
+        "reportedInputTokens": 1373807
+      },
+      "evidenceSha256": "909558012be0f16807994e8021a7fee1bc6e33fc9c6af140fd8ed4fbffc38409",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 773798,
+      "usage": {
+        "promptTokens": 1073503,
+        "completionTokens": 48874,
+        "cacheReadTokens": 999296,
+        "costUsd": null,
+        "totalTokens": 1122377,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 74207,
+        "modelCallCount": 23,
+        "reportedCallCount": 23,
+        "reportedInputTokens": 1073503
+      },
+      "evidenceSha256": "311b5e5af216d12a1e5ef1fe1444e0b9f5da4121a5e9d7c32a1cf27dacdde295",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 199157,
+      "usage": {
+        "promptTokens": 1481051,
+        "completionTokens": 24232,
+        "cacheReadTokens": 1354368,
+        "costUsd": null,
+        "totalTokens": 1505283,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 126683,
+        "modelCallCount": 21,
+        "reportedCallCount": 21,
+        "reportedInputTokens": 1481051
+      },
+      "evidenceSha256": "c876924888386804d1bf26113ca4511a2f29bb8d3339897813b958b21c57f00f",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sqlite-db-truncate",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 352933,
+      "usage": {
+        "promptTokens": 689602,
+        "completionTokens": 41403,
+        "cacheReadTokens": 638720,
+        "costUsd": null,
+        "totalTokens": 731005,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 50882,
+        "modelCallCount": 18,
+        "reportedCallCount": 18,
+        "reportedInputTokens": 689602
+      },
+      "evidenceSha256": "5e3c976486a9674aa3dc3b90c7b3f7ec01b2afb60185f5179f9ebd6376b560e2",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 69773,
+      "usage": {
+        "promptTokens": 170900,
+        "completionTokens": 4529,
+        "cacheReadTokens": 153600,
+        "costUsd": null,
+        "totalTokens": 175429,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 17300,
+        "modelCallCount": 9,
+        "reportedCallCount": 9,
+        "reportedInputTokens": 170900
+      },
+      "evidenceSha256": "871713ae403dbd15fceea353d0891c91de83d61bea2ae8b932848791b0fdeaa5",
+      "batchId": "fh-batch-03"
+    }
+  ]
+}
