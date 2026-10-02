@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "v4-flash-recheck-37004410693",
+  "requestedBy": "User, 2026-10-03: \"派\" — proceed with the five-cell recheck proposed after attributing the 12 failures of run 37004410693.",
+  "reason": "Run 37004410693 (deepseek-v4-flash at max, same candidate da88e7a) scored 18 passed / 12 failed. The failure analysis attributed 6 cells to time/budget truncation (db-wal-recovery, gcode-to-text, largest-eigenval, sqlite-db-truncate and two others), 4 to model semantics, 2 to declared specification gaps. Five cells were judged plausibly recoverable — either by better time management or simply by a fresh single attempt under the same composition: terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text, terminal-bench/largest-eigenval, terminal-bench/sqlite-db-truncate, datacurve/expr-try-catch-errors. This batch re-measures exactly those five, one predeclared attempt each, under the identical composition, to separate 'model capability limit' from 'single-attempt variation / time management'. It is a variance check, not a repair: no earlier verdict is replaced or reinterpreted.",
+  "admissionClass": "variance-check",
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93), provider (deepseek-v4-flash at https://dimagent.cn/v1, compatible, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1 and each cell's own declared budget. Serial execution (fh_max_parallel=1) to keep the five cells on the same environment footing.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 5,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_batch": "v4-flash-recheck-37004410693"
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this batch exists only as a same-composition re-measurement for the five listed cells.",
+    "The result of this batch is never merged into any pass@1: run 37004410693 keeps its own frozen verdicts and its passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's; nothing is changed to make a cell pass.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "A cell that passes here and failed in the full run is single-attempt variation under this composition (or time-management luck), not proof of capability; a cell that fails again here is evidence the failure is not a fluke. Either way the frozen full-run verdict stands.",
+  "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each of the five cells against the full run's (db-wal-recovery, gcode-to-text, largest-eigenval, sqlite-db-truncate failed without a deliverable; expr-try-catch-errors failed 72/79 f2p); duration against the cell's own budget; whether a pass came with a complete deliverable; and the acceptance block of the batch.",
+  "dispatched": false,
+  "runId": null,
+  "runUrl": null,
+  "dispatchedAt": null,
+  "outcome": {}
+}
