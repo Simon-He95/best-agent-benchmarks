@@ -32,5 +32,29 @@
   "runId": 37034756158,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37034756158",
   "dispatchedAt": "2026-10-03T00:30:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 5,
+    "passed": 2,
+    "failed": 3,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.4,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-02T16:33:35Z -> 2026-10-02T18:18:47Z (about 1h45m), serial, all jobs green",
+    "cells": [
+      { "task": "terminal-bench/largest-eigenval", "disposition": "passed", "durationMs": 759677, "rewards": { "reward": 1 }, "vsFullRun": "failed -> passed" },
+      { "task": "terminal-bench/sqlite-db-truncate", "disposition": "passed", "durationMs": 623381, "rewards": { "reward": 1 }, "vsFullRun": "failed -> passed" },
+      { "task": "terminal-bench/db-wal-recovery", "disposition": "failed", "durationMs": 787858, "rewards": { "reward": 0 }, "vsFullRun": "failed -> failed (no deliverable)" },
+      { "task": "terminal-bench/gcode-to-text", "disposition": "failed", "durationMs": 871386, "rewards": { "reward": 0 }, "vsFullRun": "failed -> failed (no deliverable)" },
+      { "task": "datacurve/expr-try-catch-errors", "disposition": "failed", "durationMs": 2915991, "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 77, "f2p": 0.97468 }, "vsFullRun": "failed -> failed (72/79 -> 77/79)" }
+    ],
+    "reading": "2 of the 5 judged-plausibly-recoverable cells flipped to passed under the identical composition (largest-eigenval, sqlite-db-truncate): those two failures in the full run were single-attempt variation or time management, not capability. The other 3 did not flip (db-wal-recovery, gcode-to-text, expr-try-catch-errors): those are evidence the failure is not a fluke under this composition. expr-try-catch-errors improved 72/79 -> 77/79 but still misses the same semantic class (the custom-error representation), so it is best read as a model-semantics gap the harness did not recover. Run 37004410693's own verdicts and passAt1=0.6 are unchanged; nothing here replaces or reinterprets them."
+  }
 }
