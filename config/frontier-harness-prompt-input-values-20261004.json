@@ -64,5 +64,222 @@
   "dispatched": true,
   "passAt1": null,
   "runId": 37141096659,
-  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37141096659"
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37141096659",
+  "measurement": {
+    "status": "completed",
+    "releaseDecision": "Rejected for release: no target gain, sqlite guard failed, and no real delivery artifact. Keep Draft; no full thirty-cell expansion or merge.",
+    "perTask": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 0,
+          "total": 7
+        },
+        "durationMs": 789825,
+        "rootStatus": "cancelled",
+        "rootCause": "stopped",
+        "deliveryCause": "model-failure",
+        "modelFailures": [
+          {
+            "stage": "primary",
+            "reason": "transport",
+            "atReservedBudgetCancellation": true,
+            "independentProviderFailureEstablished": false
+          },
+          {
+            "stage": "delivery",
+            "reason": "malformed"
+          }
+        ],
+        "inputPreservation": {
+          "instructionPresent": true,
+          "originalWalBytes": 16512,
+          "requestedCopy": false,
+          "sqliteOpenedOriginal": true,
+          "acceptedSqliteResult": true,
+          "walMissingAfterOpen": true
+        },
+        "delivery": {
+          "recoveredJsonExists": false
+        },
+        "evidenceArtifactId": 11280064739,
+        "evidenceSha256": "4e61e8ff76419ee03be7cb0e96b0b6d7fa57e3ee4b3625aaa3f23ab8e383ec46",
+        "interpretation": "No demonstrated correctness or delivery gain. Input-preservation clause was ignored before reserved budget cancellation. Primary transport label coincides with stop; it is not independent provider-failure evidence. Delivery malformed is a separate observed failure."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 0,
+          "total": 2
+        },
+        "durationMs": 775433,
+        "rootStatus": "cancelled",
+        "rootCause": "stopped",
+        "deliveryCause": "completed",
+        "modelFailures": [
+          {
+            "stage": "primary",
+            "reason": "transport",
+            "atReservedBudgetCancellation": true,
+            "independentProviderFailureEstablished": false
+          }
+        ],
+        "delivery": {
+          "outTxtExists": false,
+          "confirmedAnswer": false
+        },
+        "observations": "tesseract installed and OCR attempted; garbled OCR was not accepted as a supported answer; reporting-only delivery honestly states out.txt was not written.",
+        "evidenceArtifactId": 11280474811,
+        "evidenceSha256": "8089e7d0fc64cb85e5e912a9584b86caf4fc30c59b98e520bedb4118f33d3613",
+        "interpretation": "No correctness or delivery gain. Primary transport label coincides with reserved budget cancellation; independent provider failure is not established. Reporting-only delivery is not task acceptance."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 0,
+          "total": 1
+        },
+        "durationMs": 788678,
+        "rootStatus": "cancelled",
+        "rootCause": "stopped",
+        "deliveryCause": "completed",
+        "modelFailures": [
+          {
+            "stage": "primary",
+            "reason": "transport",
+            "atReservedBudgetCancellation": true,
+            "independentProviderFailureEstablished": false
+          }
+        ],
+        "inputPreservation": {
+          "requestedCopy": true
+        },
+        "delivery": {
+          "recoverJsonExists": false
+        },
+        "modelOutcomes": 3,
+        "pendingModelInvocationMs": 708545,
+        "evidenceArtifactId": 11281800892,
+        "evidenceSha256": "0e4d41ede65fe069ef4d1b3d9adb1437bdf05b58744472fa814e1fcdd15f1700",
+        "interpretation": "Observed guard regression (control passes, candidate fails). Input copy happened but row recovery did not complete. Long pending model invocation was cancelled at the fixed reserve boundary; no causal prompt or independent provider-failure attribution."
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 77,
+          "total": 79
+        },
+        "p2p": {
+          "passed": 66265,
+          "total": 66265
+        },
+        "durationMs": 1981989,
+        "rootStatus": "completed",
+        "rootCause": "completed",
+        "modelFailures": [],
+        "modelOutcomes": 174,
+        "failedChecks": [
+          "TestTryCatch_ErrtypeTypeError",
+          "TestTryCatch_ErrtypeNilError"
+        ],
+        "failureValues": {
+          "type": {
+            "expected": "type",
+            "actual": "custom"
+          },
+          "nil": {
+            "expected": "nil",
+            "actual": "custom"
+          }
+        },
+        "upstreamTaskAnswerRetrievalObserved": false,
+        "externalUrlsInModelToolInputs": [],
+        "evidenceArtifactId": 11281724497,
+        "evidenceSha256": "a88f7770c76677c5b432c23cd48932e716c4da11a6532db16453f6874d1b352d",
+        "interpretation": "No gain: control had only the type failure (78/79), candidate has type and nil failures (77/79). Naturally completed within the 90-minute budget; no budget stop or model-failure event. All p2p checks remain passing. Single attempt establishes this outcome, not a causal effect size."
+      }
+    ],
+    "budgetInterpretation": "The unchanged CLI reserves a fixed 180000 ms, not a general one-fifth ratio. Primary transport labels coincide with the reserved stop boundary in the three completed cells; they do not establish independent provider failure. The report budgetExhausted.attempts=0 is its Pier timeout classification; three primary Runs nevertheless stopped at the CLI reserved boundary, as recorded in raw evidence.",
+    "ci": {
+      "runId": 37141446002,
+      "status": "not-started",
+      "reason": "GitHub reports failed account payments or an exhausted spending limit",
+      "requiredChecksPassed": false,
+      "separateLinuxCandidateDeliveryVerified": true
+    },
+    "report": {
+      "artifactId": 11282155265,
+      "sha256": "27d1fe9e374cf795c8c3f8827b17dc7b3203a96e7a7742c3afef891c656fec62",
+      "results": {
+        "passed": 0,
+        "failed": 4,
+        "error": 0,
+        "notEvaluated": 0
+      },
+      "coverage": {
+        "expected": 4,
+        "expectedEligible": 4,
+        "present": 4,
+        "missing": [],
+        "fullExpected": false
+      },
+      "passRate": 0,
+      "passAt1": null,
+      "acceptance": [
+        {
+          "id": "coverage.full",
+          "status": "failed",
+          "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+        },
+        {
+          "id": "verdicts.complete",
+          "status": "passed",
+          "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+        },
+        {
+          "id": "candidate.single",
+          "status": "passed",
+          "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-af0bdaf-14215a3d05ed|0.0.4-beta.1|14215a3d05eddca27edd5cf5297ac6424b6d920d3b1982f1ec8031c1982bfdbf|031fdf29219c1bb58f9c5f41d78c441e46012fa8e3c8725d58105a50ffc1e2f6)"
+        },
+        {
+          "id": "provider.single",
+          "status": "passed",
+          "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+        },
+        {
+          "id": "instructions.frozen",
+          "status": "passed",
+          "detail": "4 records match the frozen instruction hash of their task"
+        }
+      ],
+      "usage": {
+        "tasks": 4,
+        "promptTokens": 32998489,
+        "completionTokens": 249510,
+        "cacheReadTokens": 32389376,
+        "totalTokens": 33247999,
+        "modelCallCount": 272,
+        "costUsd": null
+      }
+    },
+    "controlComparison": {
+      "runId": 37126737714,
+      "passed": 1,
+      "total": 4,
+      "exprF2p": "78/79",
+      "exprP2p": "66265/66265",
+      "dbTests": "5/7",
+      "gcodeOutTxtExists": false,
+      "sqlitePassed": true
+    },
+    "attribution": "One attempt per cell. Rewritten, combined clauses in the system instruction are not identical to separate historical user-prefix arms. These data do not prove causal harm, but do not meet the predeclared acceptance gate. No retry, original frozen passAt1=0.6 unchanged."
+  }
 }
