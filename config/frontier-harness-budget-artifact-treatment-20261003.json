@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "kind": "diagnostic-batch",
-  "batchLabel": "budget-artifact-control-20261003",
+  "batchLabel": "budget-artifact-treatment-20261003",
   "requestedBy": "Simon explicitly requested implementation and the previous four deepseek-v4-flash cells in the current Codex chat on 2026-10-03.",
   "admissionClass": "product-budget-finalization-experiment",
-  "role": "control",
+  "role": "treatment",
   "candidate": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.4-beta.1",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+    "sourceCommit": "1de3f9e540c0e210d5399613bb63690bca817536",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -30,7 +30,7 @@
     "datacurve/expr-try-catch-errors"
   ],
   "promptPrefix": "",
-  "reason": "Current-source control for the budget/artifact finalization delta; older da88e7a prompt-prefix arms are historical only.",
+  "reason": "Same-current-source budget facts + early supported-answer instruction + bounded read/write finalization. This is the product composition itself, with no benchmark prefix.",
   "constraints": [
     "Exactly one predeclared attempt per cell. No retry after any canonical verdict.",
     "Original task budgets, multiplier=1, effort=max, max_parallel=1, task sources, Pier and official verifier unchanged.",
@@ -47,11 +47,18 @@
     "fh_max_parallel": "1",
     "fh_reasoning_effort": "max",
     "fh_agent_timeout_multiplier": "1",
-    "fh_batch": "budget-artifact-control-20261003",
+    "fh_batch": "budget-artifact-treatment-20261003",
     "fh_prefix": ""
   },
-  "dispatched": true,
+  "dispatched": false,
   "passAt1": null,
-  "runId": 37126737714,
-  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37126737714"
+  "runId": null,
+  "runUrl": null,
+  "controlRunId": 37126737714,
+  "gainDefinition": {
+    "primary": "Correct task delivery improves over the current-source control within the unchanged external budget, without upstream task-answer retrieval; sqlite guard does not regress.",
+    "secondary": "Earlier writing of an independently supported and correctly formatted task answer, with actual readback before the deadline. Mere file existence or a completed report is not a gain.",
+    "scope": "E/F prompt clauses are not included. Historical rev4 success is not treated as this product delta's baseline or guarantee."
+  },
+  "readingBoundary": "One predeclared task attempt per arm/cell, n=1. Report all failures and uncertainties. The two internal Runs are predeclared parts of one task attempt, not grader-driven retries. Any gain remains a single-attempt observation."
 }
