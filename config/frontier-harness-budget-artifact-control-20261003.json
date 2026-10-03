@@ -53,5 +53,159 @@
   "dispatched": true,
   "passAt1": null,
   "runId": 37126737714,
-  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37126737714"
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37126737714",
+  "outcome": {
+    "coverage": {
+      "expected": 4,
+      "expectedEligible": 4,
+      "present": 4,
+      "missing": [],
+      "fullExpected": false
+    },
+    "passRate": 0.25,
+    "scoreable": false,
+    "acceptance": [
+      {
+        "id": "coverage.full",
+        "status": "failed",
+        "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+      },
+      {
+        "id": "verdicts.complete",
+        "status": "passed",
+        "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+      },
+      {
+        "id": "candidate.single",
+        "status": "passed",
+        "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-8698d01-bf7e7d4394c8|0.0.4-beta.1|bf7e7d4394c8256bbfd58e8f1b1b26c8654c9250f0afc1e93539675fb6100192|29376aab6515f2ffab4b3730732ff8f16239f966bc293ed7d5631ba0646fc956)"
+      },
+      {
+        "id": "provider.single",
+        "status": "passed",
+        "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+      },
+      {
+        "id": "instructions.frozen",
+        "status": "passed",
+        "detail": "4 records match the frozen instruction hash of their task"
+      }
+    ],
+    "passAt1": null,
+    "usage": {
+      "tasks": 4,
+      "promptTokens": 76616016,
+      "completionTokens": 352661,
+      "cacheReadTokens": 75579392,
+      "totalTokens": 76968677,
+      "modelCallCount": 399,
+      "costUsd": null
+    },
+    "perTask": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 733556,
+        "usage": {
+          "promptTokens": 5012715,
+          "completionTokens": 40731,
+          "cacheReadTokens": 4613632,
+          "costUsd": null,
+          "totalTokens": 5053446,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 399083,
+          "modelCallCount": 36,
+          "reportedCallCount": 36,
+          "reportedInputTokens": 5012715
+        },
+        "evidenceSha256": "0200f767572914770abad85fef7bed322e6cf3e18c91b718077a19ae1cce1590",
+        "batchId": "budget-artifact-control-20261003"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 760978,
+        "usage": {
+          "promptTokens": 2775570,
+          "completionTokens": 59377,
+          "cacheReadTokens": 2629632,
+          "costUsd": null,
+          "totalTokens": 2834947,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 145938,
+          "modelCallCount": 41,
+          "reportedCallCount": 41,
+          "reportedInputTokens": 2775570
+        },
+        "evidenceSha256": "c452940db0e4df42d7cd8d8ed6fe58390464058e3e89ab4614a652ea64b014c8",
+        "batchId": "budget-artifact-control-20261003"
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 624869,
+        "usage": {
+          "promptTokens": 1688282,
+          "completionTokens": 54744,
+          "cacheReadTokens": 1619712,
+          "costUsd": null,
+          "totalTokens": 1743026,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 68570,
+          "modelCallCount": 34,
+          "reportedCallCount": 34,
+          "reportedInputTokens": 1688282
+        },
+        "evidenceSha256": "183fec41fc744e1f848b4ce1dd074ceb7b044c361bb106c2d8f7961c0d510b91",
+        "batchId": "budget-artifact-control-20261003"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 79,
+          "f2p_passed": 78,
+          "p2p_total": 66265,
+          "p2p_passed": 66265,
+          "f2p": 0.9873417721518988,
+          "p2p": 1,
+          "partial": 0.999984927046907
+        },
+        "durationMs": 3346858,
+        "usage": {
+          "promptTokens": 67139449,
+          "completionTokens": 197809,
+          "cacheReadTokens": 66716416,
+          "costUsd": null,
+          "totalTokens": 67337258,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 423033,
+          "modelCallCount": 288,
+          "reportedCallCount": 288,
+          "reportedInputTokens": 67139449
+        },
+        "evidenceSha256": "608d66229747c2b50ef42a116e12e0b60aad6d724ab97426db77b82f6b4ba407",
+        "batchId": "budget-artifact-control-20261003"
+      }
+    ],
+    "reading": "Completed diagnostic, n=1 per cell. Only sqlite passed; db-wal and gcode failed. Old frozen run 37004410693 and passAt1=0.6 remain unchanged.",
+    "exprReading": "78/79 f2p, 66265/66265 p2p; failing TestTryCatch_ErrtypeTypeError.",
+    "exprFailedTests": [
+      "TestTryCatch_ErrtypeTypeError"
+    ]
+  }
 }

@@ -60,5 +60,171 @@
     "secondary": "Earlier writing of an independently supported and correctly formatted task answer, with actual readback before the deadline. Mere file existence or a completed report is not a gain.",
     "scope": "E/F prompt clauses are not included. Historical rev4 success is not treated as this product delta's baseline or guarantee."
   },
-  "readingBoundary": "One predeclared task attempt per arm/cell, n=1. Report all failures and uncertainties. The two internal Runs are predeclared parts of one task attempt, not grader-driven retries. Any gain remains a single-attempt observation."
+  "readingBoundary": "One predeclared task attempt per arm/cell, n=1. Report all failures and uncertainties. The two internal Runs are predeclared parts of one task attempt, not grader-driven retries. Any gain remains a single-attempt observation.",
+  "outcome": {
+    "coverage": {
+      "expected": 4,
+      "expectedEligible": 4,
+      "present": 4,
+      "missing": [],
+      "fullExpected": false
+    },
+    "passRate": 0.25,
+    "scoreable": false,
+    "acceptance": [
+      {
+        "id": "coverage.full",
+        "status": "failed",
+        "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+      },
+      {
+        "id": "verdicts.complete",
+        "status": "passed",
+        "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+      },
+      {
+        "id": "candidate.single",
+        "status": "passed",
+        "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-1de3f9e-5635a5edbfc3|0.0.4-beta.1|5635a5edbfc36b03cf565857ed992fba95ddf8bf6b55430249ab86ebe7545cd1|38c1de199190cbd1a77cbf90410ad66d5d1b84761f5a32b5a8b72d7152bbc840)"
+      },
+      {
+        "id": "provider.single",
+        "status": "passed",
+        "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+      },
+      {
+        "id": "instructions.frozen",
+        "status": "passed",
+        "detail": "4 records match the frozen instruction hash of their task"
+      }
+    ],
+    "passAt1": null,
+    "usage": {
+      "tasks": 4,
+      "promptTokens": 88784051,
+      "completionTokens": 409760,
+      "cacheReadTokens": 87813888,
+      "totalTokens": 89193811,
+      "modelCallCount": 401,
+      "costUsd": null
+    },
+    "perTask": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 681654,
+        "usage": {
+          "promptTokens": 5223835,
+          "completionTokens": 51838,
+          "cacheReadTokens": 4947712,
+          "costUsd": null,
+          "totalTokens": 5275673,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 276123,
+          "modelCallCount": 31,
+          "reportedCallCount": 31,
+          "reportedInputTokens": 5223835
+        },
+        "evidenceSha256": "08012520b3a8f6e1803c0e26013ab915d41641e71a291f540dbefa7eb1c85632",
+        "batchId": "budget-artifact-treatment-20261003"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0
+        },
+        "exception": {
+          "type": "NonZeroAgentExitCodeError",
+          "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":605,\"attemptRemainingMs\":899395,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=deepseek-v4-flash\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model deepseek-v4-flash --model-timeout-ms 1800000 --attempt-remaining-ms 899395 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'I have provided a file called text.gcode. This is a gcode file for a Prusa MK4s. I'\"'\"'m trying to print some text onto an existing object. When I run the print, what will the text show? Write the output to /app/out.txt\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+        },
+        "durationMs": 871752,
+        "usage": {
+          "promptTokens": 2510179,
+          "completionTokens": 55140,
+          "cacheReadTokens": 2372352,
+          "costUsd": null,
+          "totalTokens": 2565319,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 137827,
+          "modelCallCount": 48,
+          "reportedCallCount": 48,
+          "reportedInputTokens": 2510179
+        },
+        "evidenceSha256": "5159a5fd406814916f4f84d2c536186e0bc711b215a47692527cd3f8aca9d5d6",
+        "batchId": "budget-artifact-treatment-20261003"
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 521577,
+        "usage": {
+          "promptTokens": 588883,
+          "completionTokens": 49868,
+          "cacheReadTokens": 521472,
+          "costUsd": null,
+          "totalTokens": 638751,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 67411,
+          "modelCallCount": 12,
+          "reportedCallCount": 12,
+          "reportedInputTokens": 588883
+        },
+        "evidenceSha256": "ec131fc24036d83f40f903b6d5b46bbe6b0c69d18824a6d1d2079ade326855fb",
+        "batchId": "budget-artifact-treatment-20261003"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "budgetExhausted": false,
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 79,
+          "f2p_passed": 72,
+          "p2p_total": 66265,
+          "p2p_passed": 66265,
+          "f2p": 0.9113924050632911,
+          "p2p": 1,
+          "partial": 0.9998944893283492
+        },
+        "durationMs": 4659485,
+        "usage": {
+          "promptTokens": 80461154,
+          "completionTokens": 252914,
+          "cacheReadTokens": 79972352,
+          "costUsd": null,
+          "totalTokens": 80714068,
+          "cacheWriteTokens": 0,
+          "noCacheInputTokens": 488802,
+          "modelCallCount": 310,
+          "reportedCallCount": 310,
+          "reportedInputTokens": 80461154
+        },
+        "evidenceSha256": "ec23aa50df2da52bbacc513d9c877e97f3ec1da329ec4df34e45c43784aadef2",
+        "batchId": "budget-artifact-treatment-20261003"
+      }
+    ],
+    "reading": "Completed diagnostic, n=1 per cell. Only sqlite passed; db-wal and gcode failed. Old frozen run 37004410693 and passAt1=0.6 remain unchanged.",
+    "exprReading": "72/79 f2p, 66265/66265 p2p: six fewer f2p passes than current-source control; 4,659,485 ms versus 3,346,858 ms.",
+    "deliveryReading": "db-wal: both primary Runs completed before cutoff, both 5/7 tests, incorrect WAL updates; no finalization. gcode: treatment finalization activated with read/write only, produced read requests but no write request, then was stopped at its reserved deadline; out.txt remained absent. sqlite guard passed in both arms.",
+    "gainVerdict": "NO OBSERVED DELIVERY/CORRECTNESS GAIN; observed expr regression. Do not merge or advertise the product delta as a solution to budget/no-deliverable failures. Single-attempt variation prevents a stable causal effect-size claim.",
+    "exprFailedTests": [
+      "TestTryCatch_BlockFormWithErrorVariable",
+      "TestTryCatch_FinallyWithErrorVariable",
+      "TestTryCatch_ErrorFilterWithVariable",
+      "TestTryCatch_ErrtypeTypeError",
+      "TestTryCatch_ErrtypeNilError",
+      "TestTryCatch_ThrowWithNonStringArg",
+      "TestTryCatch_FinallyBodyThrows"
+    ]
+  }
 }
