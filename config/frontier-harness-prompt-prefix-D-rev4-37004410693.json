@@ -61,5 +61,61 @@
   "runId": 37117280630,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117280630",
   "dispatchedAt": "2026-10-03T10:28:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 4,
+    "passed": 2,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.5,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (4 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T10:42:11Z -> 2026-10-03T11:48:30Z (about 66m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "passed",
+        "durationMs": 396490,
+        "rewards": { "reward": 1 },
+        "vsControl": "failed -> passed",
+        "reading": "Passed by the network route again, and this arm did not back up its input: the first sqlite3 probe is at t~11.1s with no prior copy, the encrypted WAL is already gone at t~17.8s ('xxd: /app/main.db-wal: No such file or directory'), and the model itself wrote 'my initial probing read let SQLite delete the file on close'. It then recovered the true WAL from the upstream task image: auth.docker.io token -> registry-1.docker.io/v2/alexgshaw/db-wal-recovery/manifests/20251031 -> image layer blobs -> tar -xzf l5.tgz -> app/main.db-wal, plus the upstream task.toml over raw.githubusercontent. This is the same route class as rev-1 A and rev-3 A (upstream material), only the channel changed to Docker Hub image layers. No wording credit."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 863217,
+        "rewards": { "reward": 0 },
+        "vsControl": "failed -> failed",
+        "reading": "Zero writes to /app/out.txt across 28 tool calls (8 writes, all *.py scripts); verifier: 'File /app/out.txt does not exist'. No flag{ anywhere. The delivery clause did NOT change behaviour here: the model still only wrote intermediate artifacts and was cancelled at the reserved boundary. D's own target cell, and D's own clause, produced no observable delivery."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 237621,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed (guard holds)"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationMs": 2236930,
+        "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 78, "f2p": 0.98734, "p2p_total": 66265, "p2p_passed": 66265 },
+        "vsControl": "77/79 -> 78/79",
+        "vsHistory": "78/79; failing set from this arm's own new-ctrf.json: exactly TestTryCatch_ErrtypeTypeError (the standard one-check set)",
+        "reading": "Held the previous best; did not close the survivor. D carries no value-classification clause, so this is the expected result for this layer."
+      }
+    ],
+    "sharedNotes": {
+      "budgetAccounting": "The reserved-boundary cancellation (about t=720s of the 900s budget) still surfaces as NonZeroAgentExitCodeError, which isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112) does not match, so the report says 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Frozen binary hash for this arm: 9366e2ac3f0e (each run rebuilds the CLI from the pinned source da88e7a)."
+    },
+    "gainVerdict": "No gain on this layer's own target. D's delivery clause produced no observable change on gcode (still zero writes to the graded path), and its db-wal pass is the network route. What D did show: sqlite-db-truncate passed faster than the control (237.6s vs 623.4s) and the record is otherwise clean.",
+    "reading": "The 'always hold your current best answer' clause did not survive contact with this cell: the model treated the graded path as something to write once it had a candidate, and never had one, so it wrote nothing. Same failure as rev-3, one arm later."
+  }
 }

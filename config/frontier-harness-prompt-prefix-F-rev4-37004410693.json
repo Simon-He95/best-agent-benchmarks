@@ -59,5 +59,62 @@
   "runId": 37117284880,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117284880",
   "dispatchedAt": "2026-10-03T10:28:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 4,
+    "passed": 2,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.5,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (4 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T10:42:16Z -> 2026-10-03T11:58:29Z (about 76m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "passed",
+        "durationMs": 562582,
+        "rewards": { "reward": 1 },
+        "vsControl": "failed -> passed",
+        "reading": "FIRST PASS IN THE SERIES THAT DID NOT FETCH THE ANSWER FROM UPSTREAM. The clause fired: it copied the inputs to a work directory before probing (cp /app/main.db /app/main.db-wal /app/work/, after mkdir), and backed the ciphertext up again to main.db-wal.original-backup before overwriting it in place. Its first sqlite3 probe of the original is therefore late (t~449.6s), and the 16512-byte encrypted WAL survives until t~447s. It derived the true values in-sandbox: the WAL head XOR 0x42 gives the SQLite WAL magic 377f0682, and the decrypted copy yields 1|apple|150, 2|banana|250 ... 11|mango|1100. Network use is limited to fetching SQLite's own src/wal.c (version-3.45.1) to validate the checksum algorithm - api.github.com, harbor-framework and terminal-bench all count 0, and no upstream task file or task data was retrieved. Verifier: reward.txt 1, '7 passed in 0.07s'.",
+        "note": "Independent re-check of the artifact's untouched environment/main.db-wal.encrypted (16512 B, sha256 68753bdc...) by XOR 0x42 reproduces the same 11 rows and PRAGMA integrity_check ok."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 871908,
+        "rewards": { "reward": 0 },
+        "vsControl": "failed -> failed",
+        "reading": "Zero writes to /app/out.txt across 54 tool calls (17 writes, all scripts and rendered text); verifier: 'File /app/out.txt does not exist'. Expected: F carries no delivery clause."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 494021,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed (guard holds)"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationMs": 2360671,
+        "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 77, "f2p": 0.97468, "p2p_total": 66265, "p2p_passed": 66265 },
+        "vsControl": "77/79 -> 77/79",
+        "vsHistory": "77/79; failing set from this arm's own new-ctrf.json: TestTryCatch_ErrtypeTypeError and TestTryCatch_ErrtypeNilError (the control's set). This is the first rev-4 arm to lose the render-family checks that the B layer had closed, i.e. this prefix neither helped nor held them.",
+        "reading": "F addresses inputs only; the expr cell is outside its scope, so the fall from 78/79 to 77/79 is recorded as variation rather than as a property of this clause."
+      }
+    ],
+    "sharedNotes": {
+      "budgetAccounting": "The reserved-boundary cancellation (about t=720s of the 900s budget) still surfaces as NonZeroAgentExitCodeError, which isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112) does not match, so the report says 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Frozen binary hash for this arm: a18b740e1605."
+    },
+    "gainVerdict": "PARTIAL-to-MATERIAL GAIN on its own target. This is the first db-wal pass in the series whose values were derived inside the sandbox rather than fetched from the upstream task, and the input-preservation clause is the only measured thing that separates it from rev-1 A / rev-3 A / D-rev4 (all of which destroyed the ciphertext at t~11-27s without a copy, then went to the network). No regression: the guard holds and every cell carries a verdict.",
+    "reading": "A mechanical, task-agnostic habit clause - copy the input aside before the first command that can write to it - changed the outcome of a cell that four previous arms and three more in this same batch could not solve without upstream material. Unlike the delivery clause in D, this one fired on the first two tool calls, which is why it shows up in the outcome."
+  }
 }

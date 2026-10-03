@@ -59,5 +59,64 @@
   "runId": 37117282899,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117282899",
   "dispatchedAt": "2026-10-03T10:28:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 4,
+    "passed": 2,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.5,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (4 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T10:42:14Z -> 2026-10-03T12:09:45Z (about 88m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "durationMs": 810155,
+        "rewards": { "reward": 0 },
+        "vsControl": "failed -> failed",
+        "reading": "Expected: E carries no delivery and no input-preservation clause."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 868722,
+        "rewards": { "reward": 0 },
+        "vsControl": "failed -> failed",
+        "reading": "Zero writes to /app/out.txt across 66 tool calls (13 writes, all scripts and rendered images); verifier: 'File /app/out.txt does not exist'. Expected: E carries no delivery clause."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 448476,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed (guard holds)"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "passed",
+        "durationMs": 2854121,
+        "rewards": { "reward": 1, "f2p_total": 79, "f2p_passed": 79, "f2p": 1, "p2p_total": 66265, "p2p_passed": 66265, "p2p": 1, "partial": 1 },
+        "vsControl": "77/79 -> 79/79 (PRIMARY GAIN)",
+        "vsHistory": "First arm in the whole series to pass this cell: the previous best was 78/79 under four different texts (rev-1 B, rev-2 B, rev-3 A, rev-3 B), always failing exactly TestTryCatch_ErrtypeTypeError",
+        "reading": "Verified real: new-ctrf.json summary tests 79 / passed 79 / failed 0, ctrf.json 66344/66344 (79 f2p + 66265 p2p, no skips outside the pre-existing fuzz seed skip), reward.json f2p 1.0 / p2p 1.0 / partial 1.0, and the run log carries '--- PASS: TestTryCatch_ErrtypeTypeError' and 'F2P 79/79 pass 0 fail'.",
+        "mechanism": "The survivor was the classification of a value the model's own code did not create: errtype(err) had to classify a runtime panic raised by code outside the patch. This arm implemented ErrType as pure message-content classification with no own-type branch at all - fmt.Sprintf(\"%v\", arg) then strings.Contains over 'index out of range' / 'cannot convert' / 'type mismatch' / 'nil pointer' / 'retry limit' - and normalised non-error panic values through recover() -> toError(r) = fmt.Errorf(\"%v\", r). The deciding substring is 'type mismatch': earlier arms already did keyword matching but none of them contained that literal, while the check raises panic(\"type mismatch: expected string, got int\"). The control arm shows the opposite shape (case *runtime.RuntimeError only, else 'custom'), which is exactly what every failing arm did. The model's own trace at 12:04-12:05Z quotes the prefix back ('classify such values by what the value itself says - its message and kind - never by whether your own code produced it') and walks the value space point by point; it never saw the 79-test file (the string test/trycatch appears 0 times in its evidence), so the closure came from self-checking, not from a leaked test.",
+        "caveat": "n=1. The arm ran once, the same prefix also produced two failed cells, and wording cannot be separated from single-attempt variation by one run. The mechanism match is exact, but the effect size is one attempt."
+      }
+    ],
+    "sharedNotes": {
+      "budgetAccounting": "The reserved-boundary cancellation (about t=720s of the 900s budget) still surfaces as NonZeroAgentExitCodeError, which isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112) does not match, so the report says 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Frozen binary hash for this arm: 242997163f73.",
+      "cost": "This arm used the most tokens of the three (49.4M prompt / 189.7K completion) and the longest cell duration (2854s)."
+    },
+    "gainVerdict": "PRIMARY GAIN. expr-try-catch-errors reached 79/79 for the first time in eleven measured arms, with the guard cell intact and every predeclared cell carrying a real verdict. The 411-character E text is the shortest prefix ever run and the only one that moved a cell from held-at-ceiling to passed.",
+    "reading": "The clause that worked is the one written against the survivor's mechanism rather than against a generic habit: state the value space as 'values your own code did not create' and require classification by the value's own message and kind. The same text did nothing for the delivery cells, which it does not address - consistent with the earlier finding that a prefix only moves what it names."
+  }
 }
