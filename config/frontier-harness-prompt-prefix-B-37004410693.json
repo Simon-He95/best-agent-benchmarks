@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-B-37004410693",
+  "requestedBy": "User, 2026-10-03: benchmark-side temporary prefix first; validate whether the A layer (timebox / land-early) and the B layer (spec self-check) each add measurable benefit before deciding on any prompt change. This is the B-arm.",
+  "reason": "Run 37004410693 (deepseek-v4-flash max, same candidate da88e7a) scored 18/30, and the five-cell variance recheck (37034756158) flipped largest-eigenval and sqlite-db-truncate to passed while db-wal-recovery, gcode-to-text and expr-try-catch-errors stayed failed. This arm re-measures exactly those three under the identical composition with one change only: the agent instruction carries the B prefix (spec self-check before declaring done). The same three cells are also run with the A prefix in a sibling arm, against the same no-prefix control, so each layer's effect is read in isolation.",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "B",
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p)"
+    }
+  },
+  "everythingElse": "Unchanged: corpus pin, per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is BEST_AGENT_INSTRUCTION_PREFIX=B, which the agent plugin prepends to the task instruction; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,datacurve/expr-try-catch-errors",
+    "fh_limit": 3,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "B",
+    "fh_batch": "prompt-prefix-B-37004410693"
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "A pass here where the control failed is evidence the B guidance helps under this composition; a continued fail is evidence it does not move that cell. Either way the frozen full-run verdicts stand. The comparison of interest is B vs no-prefix control on expr-try-catch-errors (a spec-class cell), and B vs control on db-wal-recovery and gcode-to-text (timebox cells, where B is not expected to help).",
+  "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each of the three cells against the control (37034756158) and against the full run; duration against the cell's own budget; whether a pass came with a complete deliverable at the expected path; and the acceptance block (coverage/verdicts/candidate/provider/instructions).",
+  "dispatched": false,
+  "runId": null,
+  "runUrl": null,
+  "dispatchedAt": null,
+  "outcome": {}
+}

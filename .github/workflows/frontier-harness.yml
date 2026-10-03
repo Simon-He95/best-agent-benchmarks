@@ -80,6 +80,10 @@ on:
         description: Maximum concurrent generate jobs (1-8; empty = 8)
         required: false
         default: "8"
+      fh_prefix:
+        description: Prompt-prefix experiment selector (A or B; empty = unchanged behaviour)
+        required: false
+        default: ""
 
 concurrency:
   group: frontier-harness-${{ inputs.fh_batch || 'default' }}
@@ -485,6 +489,7 @@ jobs:
         env:
           BEST_AGENT_CLI_CANDIDATE_DIR: ${{ github.workspace }}/results/candidate
           BEST_AGENT_PROVIDER_MODEL: ${{ steps.candidate.outputs.model }}
+          BEST_AGENT_INSTRUCTION_PREFIX: ${{ inputs.fh_prefix }}
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           TASK_SHORT="${{ steps.candidate.outputs.task_short }}"

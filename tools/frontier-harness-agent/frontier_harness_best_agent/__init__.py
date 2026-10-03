@@ -122,6 +122,40 @@ def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
     return None
 
 
+# Benchmark-side prompt-prefix experiment. The harness stages each task's own
+# instruction.md and freezes its hash before the agent runs, so prepending a prefix
+# to the text handed to the CLI changes neither `instructions.frozen` nor the
+# task's canonical verdict: the prefix is behaviour guidance only, and it carries
+# no task content and no verifier information.
+#
+# Select with BEST_AGENT_INSTRUCTION_PREFIX=A or =B (empty or unknown = unchanged).
+# The two prefixes are deliberately separated so each layer's effect can be read
+# against the same no-prefix control cells:
+#   A = timebox / land-early guidance (the "delivery sense" layer),
+#   B = spec self-check before declaring done (the coding closure layer).
+PROMPT_PREFIXES = {
+    "A": (
+        "Timebox and land early.\n"
+        "You operate under a hard wall-clock budget. When a verifier will read a "
+        "file path you were told about, write that file as soon as you have any "
+        "correct-enough version, then iterate on it in place. Stop exploring once "
+        "the budget is nearly gone: ship what is verifiable, not what is perfect. "
+        "A run that ends with nothing at the expected path is a failure; a run "
+        "that ends with a partial but real deliverable is closer."
+    ),
+    "B": (
+        "Before you say done:\n"
+        "1. Re-read the task's requirements as a checklist, one item at a time.\n"
+        "2. For each item, run the actual check the grader will run (the project's "
+        "tests, the CLI, the parser), not a check you invented.\n"
+        "3. Confirm exact strings and values the grader compares (error messages, "
+        "classifications, formats), not just that it looks right.\n"
+        "4. Only then commit. Never report success on your own test when the "
+        "grader's contract is unmet."
+    ),
+}
+
+
 class BestAgentCli(BaseInstalledAgent):
     @staticmethod
     def name() -> str:
@@ -252,6 +286,10 @@ class BestAgentCli(BaseInstalledAgent):
         environment: BaseEnvironment,
         context: AgentContext,
     ) -> None:
+        prefix_key = os.environ.get("BEST_AGENT_INSTRUCTION_PREFIX") or ""
+        prefix = PROMPT_PREFIXES.get(prefix_key)
+        if prefix is not None:
+            instruction = f"{prefix}\n\n{instruction}"
         started_ns = time.monotonic_ns()
         model = _required_env("BEST_AGENT_PROVIDER_MODEL")
         model_timeout_ms = _required_env("BEST_AGENT_MODEL_TIMEOUT_MS")
