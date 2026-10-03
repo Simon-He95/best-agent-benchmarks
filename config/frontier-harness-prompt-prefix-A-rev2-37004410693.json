@@ -47,9 +47,9 @@
   ],
   "readingBoundary": "The comparison of interest is rev-2 A vs first-arm A on gcode-to-text (the placeholder-first change), and rev-2 A vs control on all three. A continued gcode fail is evidence placeholder-first does not move that cell; a db-wal regression would flag the new wording. Either way the frozen full-run verdicts stand.",
   "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each cell against the first arm (37098488743) and the control (37034756158); duration against budget; whether a pass came with a complete deliverable at the expected path; acceptance block.",
-  "dispatched": false,
-  "runId": null,
-  "runUrl": null,
-  "dispatchedAt": null,
+  "dispatched": true,
+  "runId": 37103978307,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37103978307",
+  "dispatchedAt": "2026-10-03T03:10:00Z",
   "outcome": {}
 }

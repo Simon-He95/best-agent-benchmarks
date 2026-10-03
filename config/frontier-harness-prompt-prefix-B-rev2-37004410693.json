@@ -47,9 +47,9 @@
   ],
   "readingBoundary": "The comparison of interest is rev-2 B vs first-arm B on expr-try-catch-errors (the class-grouping change: 78/79 -> all pass?), and rev-2 B vs control on all three. A continued 78/79 or a regression is evidence the wording change does not close the last gap; a pass would close the case for B. Either way the frozen full-run verdicts stand.",
   "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each cell against the first arm (37098496404) and the control (37034756158); duration against budget; whether a pass came with the grader's exact strings passing; acceptance block.",
-  "dispatched": false,
-  "runId": null,
-  "runUrl": null,
-  "dispatchedAt": null,
+  "dispatched": true,
+  "runId": 37103979942,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37103979942",
+  "dispatchedAt": "2026-10-03T03:11:00Z",
   "outcome": {}
 }
