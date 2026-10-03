@@ -54,5 +54,9 @@
   ],
   "readingBoundary": "The comparison of interest is rev-3 A against the no-prefix control (five cells) and against the previous A arms on the delivery cells. Any gain is read cell by cell against the frozen full-run verdicts, which stand unchanged. A single attempt cannot separate wording from route variance for a cell that has varied before (db-wal-recovery, expr-try-catch-errors).",
   "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs of each cell; for gcode-to-text whether /app/out.txt exists and what its content is; for expr-try-catch-errors the failing check names against the previous arms' sets; for the guards whether they still pass; the acceptance block; and the terminal cause of every attempt.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37109588624,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109588624",
+  "dispatchedAt": "2026-10-03T08:26:00Z",
+  "outcome": {}
 }

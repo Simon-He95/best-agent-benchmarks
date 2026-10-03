@@ -54,5 +54,9 @@
   ],
   "readingBoundary": "The comparison of interest is rev-3 C against the no-prefix control (five cells) and against A-rev3 / B-rev3 on the cells each layer targets. C is a union text, so a gain is attributed to the union, not to one clause; a split follow-up would be the only way to attribute it. Single attempts cannot separate wording from route variance.",
   "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; whether the db-wal attempt kept its input (what the first sqlite3 probe did, whether a copy existed) and what values it wrote; whether /app/out.txt exists with a real candidate; the expr failing set; both guards; the acceptance block.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37109592900,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109592900",
+  "dispatchedAt": "2026-10-03T08:26:00Z",
+  "outcome": {}
 }

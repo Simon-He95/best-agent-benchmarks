@@ -60,5 +60,9 @@
   ],
   "readingBoundary": "The comparison of interest is rev-3 B against the no-prefix control and against rev-1 B / rev-2 B on the expr failing set. A single attempt cannot separate wording from route variance, and this cell's failing set has moved between arms before.",
   "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; expr-try-catch-errors f2p count and the exact failing check names against the recorded per-arm sets; guard cells still passing; the acceptance block; and the terminal cause of every attempt.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37109590762,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109590762",
+  "dispatchedAt": "2026-10-03T08:26:00Z",
+  "outcome": {}
 }
