@@ -106,7 +106,10 @@
         },
         "evidenceArtifactId": 11280064739,
         "evidenceSha256": "4e61e8ff76419ee03be7cb0e96b0b6d7fa57e3ee4b3625aaa3f23ab8e383ec46",
-        "interpretation": "No demonstrated correctness or delivery gain. Input-preservation clause was ignored before reserved budget cancellation. Primary transport label coincides with stop; it is not independent provider-failure evidence. Delivery malformed is a separate observed failure."
+        "interpretation": "No demonstrated correctness or delivery gain. Input-preservation clause was ignored before reserved budget cancellation. Primary transport label coincides with stop; it is not independent provider-failure evidence. Delivery malformed is a separate observed failure.",
+        "resultJsonSha256": "fd4661f168f583b38f23cb494576ef7999ab829850d328b7ea3ed0c8340f0512",
+        "verifierSha256": "167faa1416410583f22fc35782ecdf4d4be828826d3f000d8b5a908ebc007f45",
+        "verifierArtifactPath": "frontier-harness/jobs/db-wal-recovery/fh-37141096659-db-wal-recovery/pier-task__TbzZm7q/verifier/ctrf.json"
       },
       {
         "task": "terminal-bench/gcode-to-text",
@@ -135,7 +138,10 @@
         "observations": "tesseract installed and OCR attempted; garbled OCR was not accepted as a supported answer; reporting-only delivery honestly states out.txt was not written.",
         "evidenceArtifactId": 11280474811,
         "evidenceSha256": "8089e7d0fc64cb85e5e912a9584b86caf4fc30c59b98e520bedb4118f33d3613",
-        "interpretation": "No correctness or delivery gain. Primary transport label coincides with reserved budget cancellation; independent provider failure is not established. Reporting-only delivery is not task acceptance."
+        "interpretation": "No correctness or delivery gain. Primary transport label coincides with reserved budget cancellation; independent provider failure is not established. Reporting-only delivery is not task acceptance.",
+        "resultJsonSha256": "24d9e2de1afa9ea3506d7d4c2fd05e676b5a9c28d238ef849c3d316bd417dba3",
+        "verifierSha256": "836cfca907408c13a8359cdf65a6b830070bd02ffd127241989784840865bb68",
+        "verifierArtifactPath": "frontier-harness/jobs/gcode-to-text/fh-37141096659-gcode-to-text/pier-task__zVAibrx/verifier/ctrf.json"
       },
       {
         "task": "terminal-bench/sqlite-db-truncate",
@@ -167,7 +173,10 @@
         "pendingModelInvocationMs": 708545,
         "evidenceArtifactId": 11281800892,
         "evidenceSha256": "0e4d41ede65fe069ef4d1b3d9adb1437bdf05b58744472fa814e1fcdd15f1700",
-        "interpretation": "Observed guard regression (control passes, candidate fails). Input copy happened but row recovery did not complete. Long pending model invocation was cancelled at the fixed reserve boundary; no causal prompt or independent provider-failure attribution."
+        "interpretation": "Observed guard regression (control passes, candidate fails). Input copy happened but row recovery did not complete. Long pending model invocation was cancelled at the fixed reserve boundary; no causal prompt or independent provider-failure attribution.",
+        "resultJsonSha256": "ebbbc7037ee0d653b525495488dbc0b2ac342aa925cd6a5a8121be236593f7c0",
+        "verifierSha256": "5744b13afb5347df71812274ec28e1154d2cc00c8b8c8d9fec72f7716491c3ad",
+        "verifierArtifactPath": "frontier-harness/jobs/sqlite-db-truncate/fh-37141096659-sqlite-db-truncate/pier-task__duxth7W/verifier/ctrf.json"
       },
       {
         "task": "datacurve/expr-try-catch-errors",
@@ -204,7 +213,10 @@
         "externalUrlsInModelToolInputs": [],
         "evidenceArtifactId": 11281724497,
         "evidenceSha256": "a88f7770c76677c5b432c23cd48932e716c4da11a6532db16453f6874d1b352d",
-        "interpretation": "No gain: control had only the type failure (78/79), candidate has type and nil failures (77/79). Naturally completed within the 90-minute budget; no budget stop or model-failure event. All p2p checks remain passing. Single attempt establishes this outcome, not a causal effect size."
+        "interpretation": "No gain: control had only the type failure (78/79), candidate has type and nil failures (77/79). Naturally completed within the 90-minute budget; no budget stop or model-failure event. All p2p checks remain passing. Single attempt establishes this outcome, not a causal effect size.",
+        "resultJsonSha256": "762fb49cd6683e1d8506dc76b013b42654f65c55c7c36b09b99ceb5aeb796b89",
+        "verifierSha256": "8f88a123c105348d5db94d584b34edf9585d5caeb903b1cbaae16b0eab8eb616",
+        "verifierArtifactPath": "frontier-harness/jobs/expr-try-catch-errors/fh-37141096659-expr-try-catch-errors/pier-task__8BGL2rb/verifier/reports/new-ctrf.json"
       }
     ],
     "budgetInterpretation": "The unchanged CLI reserves a fixed 180000 ms, not a general one-fifth ratio. Primary transport labels coincide with the reserved stop boundary in the three completed cells; they do not establish independent provider failure. The report budgetExhausted.attempts=0 is its Pier timeout classification; three primary Runs nevertheless stopped at the CLI reserved boundary, as recorded in raw evidence.",
