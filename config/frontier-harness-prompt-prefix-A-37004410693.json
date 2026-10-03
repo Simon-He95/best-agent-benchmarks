@@ -42,5 +42,27 @@
   "runId": 37098488743,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37098488743",
   "dispatchedAt": "2026-10-03T02:00:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 3,
+    "passed": 1,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.3333,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (3 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "run 37098488743, serial, all jobs green",
+    "cells": [
+      { "task": "terminal-bench/db-wal-recovery", "disposition": "passed", "durationMs": 527765, "rewards": { "reward": 1 }, "vsControl": "failed -> passed (A flipped it)" },
+      { "task": "terminal-bench/gcode-to-text", "disposition": "failed", "durationMs": 873478, "rewards": { "reward": 0 }, "vsControl": "failed -> failed" },
+      { "task": "datacurve/expr-try-catch-errors", "disposition": "failed", "durationMs": 1659727, "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 73, "f2p": 0.92405 }, "vsControl": "failed -> failed (77/79 -> 73/79)" }
+    ],
+    "reading": "The A prefix (timebox / land early) flipped db-wal-recovery to passed in 528s, inside its 900s budget: the deliverable-first guidance directly addressed the control's no-deliverable failure. It did not move gcode-to-text, and expr-try-catch-errors regressed slightly (77/79 -> 73/79), consistent with A being a time/delivery layer, not a spec layer. One flipped cell of three: A has measurable benefit on the timebox class and no benefit on the spec class."
+  }
 }
