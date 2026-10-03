@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-A-rev2-37004410693",
+  "requestedBy": "User, 2026-10-03: adjust the prompt only if it fairly benefits the harness; the goal is a better benchmark result. Rev-2 of the A arm.",
+  "reason": "The first A arm (run 37098488743) flipped db-wal-recovery to passed (528s) but not gcode-to-text, whose failure is exploration-before-delivery (the run ends near budget with out.txt unwritten). This arm keeps the same composition and mechanism and only rewrites the A prefix: it now opens with the grader's fixed path and asks for a minimal placeholder there before anything else, so exploration cannot crowd out the deliverable. Same three cells as the control.",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "A",
+  "prefixRevision": 2,
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p)"
+    }
+  },
+  "priorArm": {
+    "runId": 37098488743,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "passed (528s)",
+      "terminal-bench/gcode-to-text": "failed",
+      "datacurve/expr-try-catch-errors": "failed (73/79 f2p)"
+    }
+  },
+  "everythingElse": "Unchanged: corpus pin, per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the revised A prefix text under BEST_AGENT_INSTRUCTION_PREFIX=A; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,datacurve/expr-try-catch-errors",
+    "fh_limit": 3,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "A",
+    "fh_batch": "prompt-prefix-A-rev2-37004410693"
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is rev-2 A vs first-arm A on gcode-to-text (the placeholder-first change), and rev-2 A vs control on all three. A continued gcode fail is evidence placeholder-first does not move that cell; a db-wal regression would flag the new wording. Either way the frozen full-run verdicts stand.",
+  "plannedChecks": "After the report artifact is downloaded: disposition and rewards of each cell against the first arm (37098488743) and the control (37034756158); duration against budget; whether a pass came with a complete deliverable at the expected path; acceptance block.",
+  "dispatched": false,
+  "runId": null,
+  "runUrl": null,
+  "dispatchedAt": null,
+  "outcome": {}
+}

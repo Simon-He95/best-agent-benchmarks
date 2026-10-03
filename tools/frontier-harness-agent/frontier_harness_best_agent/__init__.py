@@ -133,25 +133,34 @@ def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
 # against the same no-prefix control cells:
 #   A = timebox / land-early guidance (the "delivery sense" layer),
 #   B = spec self-check before declaring done (the coding closure layer).
+# Revision 2 (2026-10-03) tightens each layer to the failure mechanism the first
+# arm observed: A now starts from a placeholder deliverable (the gcode class burns
+# exploration time and ships nothing), B now groups remaining failures by class and
+# asks to fix until all pass (the expr class keeps stopping one test short).
 PROMPT_PREFIXES = {
     "A": (
-        "Timebox and land early.\n"
-        "You operate under a hard wall-clock budget. When a verifier will read a "
-        "file path you were told about, write that file as soon as you have any "
-        "correct-enough version, then iterate on it in place. Stop exploring once "
-        "the budget is nearly gone: ship what is verifiable, not what is perfect. "
-        "A run that ends with nothing at the expected path is a failure; a run "
-        "that ends with a partial but real deliverable is closer."
+        "You operate under a hard wall-clock budget and a grader reads files at "
+        "fixed paths. Land early and iterate in place:\n"
+        "1. First, identify the file path and format the grader reads, and write a "
+        "minimal placeholder there (even an empty or partial file) before you do "
+        "anything else.\n"
+        "2. Then improve it in place; never let exploration crowd out the "
+        "deliverable.\n"
+        "3. When the budget is nearly gone, stop exploring and ship what is "
+        "verifiable. A run that ends with nothing at the expected path is a "
+        "failure; a run that ends with a partial but real deliverable is closer."
     ),
     "B": (
         "Before you say done:\n"
         "1. Re-read the task's requirements as a checklist, one item at a time.\n"
         "2. For each item, run the actual check the grader will run (the project's "
         "tests, the CLI, the parser), not a check you invented.\n"
-        "3. Confirm exact strings and values the grader compares (error messages, "
-        "classifications, formats), not just that it looks right.\n"
-        "4. Only then commit. Never report success on your own test when the "
-        "grader's contract is unmet."
+        "3. Group every still-failing check by the kind of failure it is (a wrong "
+        "classification, a wrong message, a wrong edge case), then fix each group "
+        "as a class, not one instance at a time.\n"
+        "4. Re-run the whole check set and confirm the grader's exact strings and "
+        "values pass; only then commit. Never report success on your own test "
+        "when the grader's contract is unmet."
     ),
 }
 
