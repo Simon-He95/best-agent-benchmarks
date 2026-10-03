@@ -65,9 +65,9 @@
   },
   "cli": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
-    "cliVersion": "0.0.3-beta.41",
+    "cliVersion": "0.0.4-beta.1",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "da88e7a2580ebe7ff205b0f052f4e6bdc08cbd93",
+    "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -76,7 +76,9 @@
     "baseURL": "https://dimagent.cn/v1",
     "compatibilityMode": "compatible",
     "reasoningEffort": "max",
-    "reasoningEffortOptions": ["max"],
+    "reasoningEffortOptions": [
+      "max"
+    ],
     "transportProfile": "dim-oauth"
   },
   "workspace": "/app",
@@ -89,7 +91,9 @@
     "defaultHarnessTimeoutMs": 10800000,
     "hostCpus": 4,
     "hostMemoryMb": 16384,
-    "toolExclude": ["network"],
+    "toolExclude": [
+      "network"
+    ],
     "executionProfile": {
       "source": "explicit-custom",
       "workspaceBackend": "plain",
@@ -97,7 +101,11 @@
       "processIsolation": "host",
       "processClosePolicy": "release",
       "commandPolicy": "path",
-      "workspaceGrants": ["read", "write", "exec"]
+      "workspaceGrants": [
+        "read",
+        "write",
+        "exec"
+      ]
     }
   },
   "gpuTasks": [],

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-batch",
+  "batchLabel": "budget-artifact-control-20261003",
+  "requestedBy": "Simon explicitly requested implementation and the previous four deepseek-v4-flash cells in the current Codex chat on 2026-10-03.",
+  "admissionClass": "product-budget-finalization-experiment",
+  "role": "control",
+  "candidate": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.4-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "promptPrefix": "",
+  "reason": "Current-source control for the budget/artifact finalization delta; older da88e7a prompt-prefix arms are historical only.",
+  "constraints": [
+    "Exactly one predeclared attempt per cell. No retry after any canonical verdict.",
+    "Original task budgets, multiplier=1, effort=max, max_parallel=1, task sources, Pier and official verifier unchanged.",
+    "No benchmark prefix, evaluator feedback or task-specific hints.",
+    "Network remains agent-accessible through exec: upstream task-answer retrieval is disclosed and never attributed as reasoning gain.",
+    "Old frozen run 37004410693 and its passAt1=0.6 remain unchanged; this subset has passAt1=null."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": "4",
+    "fh_max_parallel": "1",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_batch": "budget-artifact-control-20261003",
+    "fh_prefix": ""
+  },
+  "dispatched": false,
+  "passAt1": null
+}
