@@ -50,10 +50,10 @@
     "fh_batch": "budget-artifact-treatment-20261003",
     "fh_prefix": ""
   },
-  "dispatched": false,
+  "dispatched": true,
   "passAt1": null,
-  "runId": null,
-  "runUrl": null,
+  "runId": 37127602803,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37127602803",
   "controlRunId": 37126737714,
   "gainDefinition": {
     "primary": "Correct task delivery improves over the current-source control within the unchanged external budget, without upstream task-answer retrieval; sqlite guard does not regress.",
