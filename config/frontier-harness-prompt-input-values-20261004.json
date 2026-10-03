@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-input-values-20261004",
+  "requestedBy": "Simon requested prompt optimization using the earlier benchmark constraints on 2026-10-04; prior authorization for deepseek-v4-flash benchmark validation remains in the same chat.",
+  "admissionClass": "product-prompt-content-experiment",
+  "candidate": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.4-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "af0bdaf8e993b3bc750e9d22b5e4e9960f9a9cb4",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "controlRunId": 37126737714,
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "promptPrefix": "",
+  "instructionOwner": "Only existing coding:instruction, Skill 2.13.0. Base remains absent in this benchmark.",
+  "textDelta": [
+    "Before opening, converting or probing supplied data files, databases or archives, copy the input and its companion files aside and work on the copy: these tools can silently modify or discard unfamiliar sidecar files.",
+    "Check the new behavior against values supplied by other code and by the runtime, including empty and nil values, values that are not strings, errors and panics. Render and classify them according to the public contract, using the value's message, kind and structured fields as required; do not assume that only values created by your own code can occur."
+  ],
+  "scope": "No PR 205 budget facts, early-delivery clause or read/write finalization code. All runtime, limits, permissions and tool selections are unchanged from control source 8698d01601b65a30c6c0e4a4e76b408eada74185.",
+  "historicalEvidence": "E/F rev4 were user-prefix arms on a different source, n=1. They motivate mechanisms only. These shortened contract-qualified clauses and their combined system placement are new and unverified.",
+  "constraints": [
+    "One predeclared task attempt per cell; no retry after a canonical verdict.",
+    "Same task sources, Pier, provider deepseek-v4-flash/max, budgets, multiplier=1, max_parallel=1 and verifier.",
+    "No prefix, grader feedback or task-specific hints.",
+    "Existing egress remains disclosed; upstream task-answer retrieval never counts as reasoning gain.",
+    "Diagnostic only, passAt1=null; run 37004410693 and its frozen passAt1=0.6 remain unchanged."
+  ],
+  "gainDefinition": {
+    "primary": "Correct WAL recovery using preserved original supplied inputs, or expr 79/79 without p2p/guard regression.",
+    "delivery": "gcode has a real correctly formatted answer and passes its verifier; mere file existence or a guessed answer is no gain.",
+    "bounds": "Every task remains within its original attempt budget. Report every verdict and uncertainty."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": "4",
+    "fh_max_parallel": "1",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_batch": "prompt-input-values-20261004",
+    "fh_prefix": ""
+  },
+  "dispatched": false,
+  "passAt1": null
+}
