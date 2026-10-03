@@ -81,7 +81,7 @@ on:
         required: false
         default: "8"
       fh_prefix:
-        description: Prompt-prefix experiment selector (A or B; empty = unchanged behaviour)
+        description: Prompt-prefix experiment selector (A, B or C; empty = unchanged behaviour)
         required: false
         default: ""
 

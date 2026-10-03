@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-B-rev3-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "The B layer is the one lever with a recorded effect: A arms failed six expr checks, both B arms failed exactly one (ErrtypeTypeError), and the class-grouping rewrite of rev-2 changed nothing. The surviving check is a behavior on a value the new construct never creates itself - errtype() must classify a panic raised by another implementation, and the already-closed family required string(err) to render as the bare message for a value handed in from outside. B-rev3 therefore keeps the self-check but states the value space explicitly: exercise the new behavior on values from other code, empty and nil values, non-string values, error paths, panics and repeated calls, and behave exactly as the rest of the project does. Same five cells, same composition, single delta (the B prefix text).",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "B",
+  "prefixRevision": 3,
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable; destroyed its own encrypted WAL with the first sqlite3 probe)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/largest-eigenval": "passed (759677 ms, guard)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p; failing: errtype type classification, errtype nil classification)"
+    }
+  },
+  "evidenceBasis": {
+    "exprPerArm": {
+      "control": "77/79 - ErrtypeTypeError, ErrtypeNilError",
+      "rev1A": "73/79 - BlockFormWithErrorVariable, FinallyWithErrorVariable, ErrorFilterWithVariable, ErrtypeTypeError, ThrowWithNonStringArg, FinallyBodyThrows",
+      "rev1B": "78/79 - ErrtypeTypeError",
+      "rev2A": "73/79 - same six as rev1A",
+      "rev2B": "78/79 - ErrtypeTypeError",
+      "frozenFullRun37004410693": "72/79 - rev2A's six plus ErrtypeNilError"
+    },
+    "survivorSemantics": "ErrtypeTypeError: errtype(err) must classify an unwrapped panic by its message (a runtime 'type mismatch' panic from code outside the model's own patch must classify as the type kind). The five checks the B layer already closed are about string(err) rendering the bare message of a value handed into the construct. Both families are behaviors on values the new construct did not create.",
+    "note": "The failing check names were read from the verifier's own per-check reports in each arm's artifact, not inferred."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-3 B prefix text under BEST_AGENT_INSTRUCTION_PREFIX=B; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 5,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "B",
+    "fh_batch": "prompt-prefix-B-rev3-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "expr-try-catch-errors reaches 79/79 f2p (its best measured result is 78/79) or gcode-to-text reaches passed.",
+    "partial": "expr-try-catch-errors closes the survivor check, or fails a strictly smaller set than the previous best of one check, without losing any of the five checks the B layer already closed.",
+    "noRegression": "Both guard cells still pass and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "The delivery cells (db-wal-recovery, gcode-to-text) are not targets of this layer; a change there is recorded as side effect."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "Five cells: three targets (db-wal-recovery, gcode-to-text, expr-try-catch-errors) and two guards (largest-eigenval, sqlite-db-truncate) that passed under the no-prefix control; the guards exist to detect a prefix regression and are not targets.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is rev-3 B against the no-prefix control and against rev-1 B / rev-2 B on the expr failing set. A single attempt cannot separate wording from route variance, and this cell's failing set has moved between arms before.",
+  "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; expr-try-catch-errors f2p count and the exact failing check names against the recorded per-arm sets; guard cells still passing; the acceptance block; and the terminal cause of every attempt.",
+  "dispatched": false
+}

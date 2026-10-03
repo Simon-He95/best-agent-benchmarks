@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-A-rev3-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "Revisions 1 and 2 produced per-cell evidence that fixes what each layer should say. Rev-3 rewrites the A layer against that evidence: (a) the harness stops the primary Run at its reserved boundary (about four fifths of the declared budget) with no in-run warning, so late exploration is budget the attempt never gets to use; (b) rev-2 A's placeholder-first wording produced exactly the defect it was meant to prevent - the gcode cell shipped the literal placeholder '(analyzing text.gcode...)' as its final answer and never replaced it; (c) the gcode class spent its whole run on a hand-rolled renderer instead of the standard tool (its own evidence shows the model installing pillow/pytesseract only late and never producing a candidate string); (d) rev-1 A's db-wal pass came from fetching the task's original files over the network (the model downloaded the upstream main.db and main.db-wal.encrypted at t~420s), which is route variance, not a wording effect, so no A wording is credited with it. A-rev3 therefore asks for a real answer early, forbids a placeholder as the final state, points at the standard tool when a capability is missing, and states the four-fifths deadline. It keeps the same five cells: three targets plus the two guard cells that passed under the no-prefix control. Same composition, same mechanism (BEST_AGENT_INSTRUCTION_PREFIX=A, now rev-3 text), single delta.",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "A",
+  "prefixRevision": 3,
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable; destroyed its own encrypted WAL with the first sqlite3 probe)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/largest-eigenval": "passed (759677 ms, guard)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p; failing: errtype type classification, errtype nil classification)"
+    }
+  },
+  "evidenceBasis": {
+    "gcodeToText": "Across five prior arms the deliverable was never produced: four arms never wrote /app/out.txt at all, and rev-2 A wrote '(analyzing text.gcode...)' at t=6.8s and submitted it 713s later without ever replacing it. The primary Run is cancelled at the reserved boundary (~719.8s of a 900s budget) and the adopted delivery Run then failed on a hung model call. Every arm burned the run on a self-built renderer and produced no candidate string.",
+    "exprTryCatchErrors": "The self-check layer is what closed this cell: A arms failed 6 checks, B arms failed 1 (ErrtypeTypeError), unchanged between rev-1 and rev-2 wording. The survivor asks errtype() to classify a panic raised by code the model did not write (a runtime type mismatch from another implementation), and the closed family asks string(err) to render as the bare message - both are behaviors on values the new construct does not create itself.",
+    "dbWalRecovery": "All four measured arms destroyed the encrypted WAL with their first sqlite3 probe (t=12s..27s). Rev-1 A passed only by downloading the task's original data and the real verifier file from the public upstream repository at t~420s; rev-2 A and rev-2 B never attempted the network and failed. The pass is therefore attributed to route variance (and to an internet-connected composition that allows retrieving upstream task files), not to the rev-1 A wording.",
+    "guards": "largest-eigenval and sqlite-db-truncate passed under the no-prefix control in this composition; they are carried as regression detectors. Their control reading is single-attempt, so a guard failure is suggestive, not conclusive."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-3 A prefix text under BEST_AGENT_INSTRUCTION_PREFIX=A; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 5,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "A",
+    "fh_batch": "prompt-prefix-A-rev3-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "gcode-to-text reaches passed (the deliverable exists and its content is the correct flag) or expr-try-catch-errors reaches 79/79 f2p - neither has happened in any measured arm.",
+    "partial": "gcode-to-text leaves a real candidate string at its path instead of a placeholder, or the expr failing set shrinks below the previous best of one check.",
+    "noRegression": "Both guard cells still pass and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "A guard failure or a cell regression is recorded as cost, not discounted; nothing here is evidence about other cells of the corpus."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "Five cells: three targets (db-wal-recovery, gcode-to-text, expr-try-catch-errors) and two guards (largest-eigenval, sqlite-db-truncate) that passed under the no-prefix control; the guards exist to detect a prefix regression and are not targets.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is rev-3 A against the no-prefix control (five cells) and against the previous A arms on the delivery cells. Any gain is read cell by cell against the frozen full-run verdicts, which stand unchanged. A single attempt cannot separate wording from route variance for a cell that has varied before (db-wal-recovery, expr-try-catch-errors).",
+  "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs of each cell; for gcode-to-text whether /app/out.txt exists and what its content is; for expr-try-catch-errors the failing check names against the previous arms' sets; for the guards whether they still pass; the acceptance block; and the terminal cause of every attempt.",
+  "dispatched": false
+}

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-C-rev3-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "C is the adoption candidate: it is the union of the two layers that have each moved a cell, plus the one discipline the db-wal cell needs. It carries rev-3 A (four-fifths deadline, a real answer instead of a placeholder, the standard tool instead of a hand-rolled substitute, read the deliverable back), rev-3 B (run the checks that grade each requirement, cover the values the new construct does not create itself, match the exact strings and classifications), and one added rule: copy the task's input data before any command that could write to it. The last rule is written against the db-wal mechanism measured in four arms - the first sqlite3 probe destroyed the encrypted WAL - and is a transferable habit, not task content. Five cells, same composition, single delta (the C prefix text).",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "C",
+  "prefixRevision": 3,
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable; destroyed its own encrypted WAL with the first sqlite3 probe)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/largest-eigenval": "passed (759677 ms, guard)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p; failing: errtype type classification, errtype nil classification)"
+    }
+  },
+  "evidenceBasis": {
+    "dbWalInputLoss": "Every measured arm lost the encrypted WAL to its first sqlite3 probe (control t~27s, rev1A t~13s, rev2A t~12s, rev2B t~12s). Rev-1 A still passed, but only by downloading the task's original main.db and main.db-wal.encrypted from the public upstream repository at t~420s; the three other arms never attempted the network and could only guess (rev-2 A wrote a structure-complete file with the wrong WAL values: assert 100 == 150).",
+    "gcodeDelivery": "Four arms never wrote /app/out.txt; rev-2 A wrote a literal placeholder and submitted it. The run's budget is cut at the reserved boundary (~719.8s of 900s), so a late conversion never happens.",
+    "exprSurvivor": "A arms fail six checks, B arms fail one (ErrtypeTypeError). Both families are behaviors on values handed in from outside the model's own code.",
+    "guards": "largest-eigenval and sqlite-db-truncate passed under the no-prefix control in this composition; they are carried as regression detectors, single-attempt reading only."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-3 C prefix text under BEST_AGENT_INSTRUCTION_PREFIX=C; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 5,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "C",
+    "fh_batch": "prompt-prefix-C-rev3-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "gcode-to-text reaches passed, or expr-try-catch-errors reaches 79/79 f2p - neither has happened in any measured arm. As the adoption candidate it is also required not to regress: both guard cells must still pass.",
+    "partial": "db-wal-recovery keeps its input and produces WAL-complete values (the previous best non-network attempt wrote the base values, assert 100 == 150), or gcode-to-text leaves a real candidate string, or the expr failing set shrinks below one check.",
+    "noRegression": "Both guard cells still pass and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "If C shows no gain over A or B alone, the extra rule is not credited; if it shows the only gain, the three parts are still one text and a follow-up arm would have to split them to attribute it."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "Five cells: three targets (db-wal-recovery, gcode-to-text, expr-try-catch-errors) and two guards (largest-eigenval, sqlite-db-truncate) that passed under the no-prefix control; the guards exist to detect a prefix regression and are not targets.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is rev-3 C against the no-prefix control (five cells) and against A-rev3 / B-rev3 on the cells each layer targets. C is a union text, so a gain is attributed to the union, not to one clause; a split follow-up would be the only way to attribute it. Single attempts cannot separate wording from route variance.",
+  "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; whether the db-wal attempt kept its input (what the first sqlite3 probe did, whether a copy existed) and what values it wrote; whether /app/out.txt exists with a real candidate; the expr failing set; both guards; the acceptance block.",
+  "dispatched": false
+}

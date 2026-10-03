@@ -128,39 +128,82 @@ def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
 # task's canonical verdict: the prefix is behaviour guidance only, and it carries
 # no task content and no verifier information.
 #
-# Select with BEST_AGENT_INSTRUCTION_PREFIX=A or =B (empty or unknown = unchanged).
-# The two prefixes are deliberately separated so each layer's effect can be read
+# Select with BEST_AGENT_INSTRUCTION_PREFIX=A, =B or =C (empty or unknown = unchanged).
+# The prefixes are deliberately separated so each layer's effect can be read
 # against the same no-prefix control cells:
-#   A = timebox / land-early guidance (the "delivery sense" layer),
-#   B = spec self-check before declaring done (the coding closure layer).
-# Revision 2 (2026-10-03) tightens each layer to the failure mechanism the first
-# arm observed: A now starts from a placeholder deliverable (the gcode class burns
-# exploration time and ships nothing), B now groups remaining failures by class and
-# asks to fix until all pass (the expr class keeps stopping one test short).
+#   A = budget / delivery discipline (land a real answer),
+#   B = spec self-check across the whole value space (close the last checks),
+#   C = A + B + preserving the task's input data before the first tool command.
+#
+# Revision 3 (2026-10-03) is written against the per-cell evidence the earlier
+# revisions produced, not against another hypothesis:
+#   * the harness stops the primary Run at a reserved boundary (about four fifths
+#     of the declared budget) with no in-run warning, so late exploration is time
+#     the attempt never gets to use; A and C say so.
+#   * a placeholder written early is not replaced later (the gcode cell shipped
+#     "(analyzing text.gcode...)" as its final answer), so a placeholder is now
+#     only admitted if the real answer replaces it.
+#   * the gcode class spent its whole budget on a hand-rolled renderer instead of
+#     the standard tool, so A and C ask for the standard tool when a capability is
+#     missing rather than a substitute built from scratch.
+#   * the expr class closed from 6 failing checks to 1 with the self-check layer,
+#     and the survivor is about a value the model's own code never produces, so B
+#     and C ask for the values the rest of the project can hand the new construct.
+#   * the db-wal class destroys its own input with its first exploratory command
+#     (sqlite3 drops the unrecognised WAL), so C asks for a copy of the input
+#     before any command that could write to it.
 PROMPT_PREFIXES = {
     "A": (
-        "You operate under a hard wall-clock budget and a grader reads files at "
-        "fixed paths. Land early and iterate in place:\n"
-        "1. First, identify the file path and format the grader reads, and write a "
-        "minimal placeholder there (even an empty or partial file) before you do "
-        "anything else.\n"
-        "2. Then improve it in place; never let exploration crowd out the "
-        "deliverable.\n"
-        "3. When the budget is nearly gone, stop exploring and ship what is "
-        "verifiable. A run that ends with nothing at the expected path is a "
-        "failure; a run that ends with a partial but real deliverable is closer."
+        "You work under a hard wall-clock budget, and the final stretch of it can "
+        "be taken away without warning: treat four fifths of the budget as your "
+        "real deadline.\n"
+        "1. Decide early what artifact the task asks you to produce and where it is "
+        "read back from (a file at a given path, a value, a report), then write your "
+        "best real answer there as soon as you have one. Never leave a placeholder, "
+        "a note to yourself or a stub as the final state: if you write one to claim "
+        "the path, the real answer must replace it before you stop.\n"
+        "2. When producing the answer needs a capability you do not have (decoding, "
+        "rendering, OCR, parsing, reading a format), obtain the standard tool for it "
+        "instead of hand-rolling your own substitute; the substitute is what "
+        "consumes the whole budget.\n"
+        "3. Before you stop, read the deliverable back from its path and confirm it "
+        "holds your final answer, not a note in progress."
     ),
     "B": (
         "Before you say done:\n"
-        "1. Re-read the task's requirements as a checklist, one item at a time.\n"
-        "2. For each item, run the actual check the grader will run (the project's "
-        "tests, the CLI, the parser), not a check you invented.\n"
-        "3. Group every still-failing check by the kind of failure it is (a wrong "
-        "classification, a wrong message, a wrong edge case), then fix each group "
-        "as a class, not one instance at a time.\n"
-        "4. Re-run the whole check set and confirm the grader's exact strings and "
-        "values pass; only then commit. Never report success on your own test "
-        "when the grader's contract is unmet."
+        "1. Re-read the task's requirements as a checklist, one item at a time, and "
+        "run the actual check that grades each item (the project's own tests, the "
+        "CLI, the parser), not a check you invented.\n"
+        "2. Exercise every behavior on the values your own code never produces: "
+        "values handed in from other code, empty and nil values, non-string values, "
+        "error paths, panics and repeated calls. The new construct has to behave on "
+        "those exactly as the rest of the project does.\n"
+        "3. Confirm the exact strings and classifications that are compared (error "
+        "messages, kinds, formats), not just that the result looks right.\n"
+        "4. Only then commit. Never report success on your own check when the real "
+        "contract is unmet."
+    ),
+    "C": (
+        "You work under a hard wall-clock budget, and the final stretch of it can "
+        "be taken away without warning: treat four fifths of the budget as your "
+        "real deadline.\n"
+        "1. Before any command that could write, keep a copy of the task's input "
+        "data (files, databases, archives): your first exploratory command must "
+        "never be the thing that destroys the input.\n"
+        "2. Decide early what artifact the task asks you to produce and where it is "
+        "read back from, then write your best real answer there as soon as you have "
+        "one. Never leave a placeholder, a note or a stub as the final state: if you "
+        "write one to claim the path, the real answer must replace it before you "
+        "stop.\n"
+        "3. When producing the answer needs a capability you do not have (decoding, "
+        "rendering, OCR, parsing, reading a format), obtain the standard tool for it "
+        "instead of hand-rolling your own substitute.\n"
+        "4. Before you stop: read the deliverable back from its path; re-read the "
+        "requirements as a checklist and run the actual checks the project provides; "
+        "cover the values your own code never produces (values from other code, "
+        "empty and nil, non-string, error paths, panics); confirm the exact strings "
+        "and classifications that are compared. Only then commit, and never report "
+        "success on your own check when the real contract is unmet."
     ),
 }
 
