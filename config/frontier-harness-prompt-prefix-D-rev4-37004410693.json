@@ -57,5 +57,9 @@
   ],
   "readingBoundary": "The comparison of interest is D against the no-prefix control and against rev-3 A on the gcode delivery (did a candidate value reach /app/out.txt at all). Single attempts cannot separate wording from route variance on the cells that have varied before; the network route to the db-wal cell remains available in this composition and any db-wal pass must be read against it.",
   "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; whether /app/out.txt exists and what it contains; the expr failing set; the guard cell; the acceptance block; and the terminal cause of every attempt.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37117280630,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117280630",
+  "dispatchedAt": "2026-10-03T10:28:00Z",
+  "outcome": {}
 }

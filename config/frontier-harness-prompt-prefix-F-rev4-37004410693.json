@@ -55,5 +55,9 @@
   ],
   "readingBoundary": "The comparison of interest is F against the control and against every prior arm on this cell's first probe and on whether a copy of the input existed before it. A pass here is only a gain if the deliverable's WAL rows are right and the evidence shows no upstream fetch; otherwise it is the network route repeating.",
   "plannedChecks": "After the report artifact is downloaded: whether a copy of the input existed before the first probing command; what the first probe did (did the ciphertext survive); whether the network was used (raw.githubusercontent / urllib / api.github.com); the deliverable's WAL rows against 150/250; the guard cell; the acceptance block.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37117284880,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117284880",
+  "dispatchedAt": "2026-10-03T10:28:00Z",
+  "outcome": {}
 }

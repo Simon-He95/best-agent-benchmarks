@@ -55,5 +55,9 @@
   ],
   "readingBoundary": "The comparison of interest is E against the four arms that reached 78/79 and against the control, on the expr failing set. A single attempt cannot separate wording from variation, and this cell's failing set has moved between arms before.",
   "plannedChecks": "After the report artifact is downloaded: the expr failing set and its exact headline check name against the recorded per-arm sets; the guard cell; the disposition/rewards/durationMs of every cell; the acceptance block.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 37117282899,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37117282899",
+  "dispatchedAt": "2026-10-03T10:28:00Z",
+  "outcome": {}
 }
