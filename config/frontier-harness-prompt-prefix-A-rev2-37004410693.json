@@ -51,5 +51,27 @@
   "runId": 37103978307,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37103978307",
   "dispatchedAt": "2026-10-03T03:10:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 3,
+    "passed": 0,
+    "failed": 3,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (3 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "run 37103978307, serial, all jobs green",
+    "cells": [
+      { "task": "terminal-bench/db-wal-recovery", "disposition": "failed", "durationMs": 602627, "rewards": { "reward": 0 }, "vsControl": "failed -> failed", "vsRev1": "passed (528s) -> failed: the rev-2 placeholder-first wording did NOT keep the rev-1 win" },
+      { "task": "terminal-bench/gcode-to-text", "disposition": "failed", "durationMs": 761626, "rewards": { "reward": 0 }, "vsControl": "failed -> failed", "vsRev1": "failed -> failed (placeholder-first did not flip it)" },
+      { "task": "datacurve/expr-try-catch-errors", "disposition": "failed", "durationMs": 2368259, "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 73, "f2p": 0.92405 }, "vsControl": "failed -> failed (77/79 -> 73/79)", "vsRev1": "73/79 -> 73/79 (no change)" }
+    ],
+    "reading": "The rev-2 A wording (placeholder-first) did not reproduce the rev-1 A win: db-wal-recovery reverted to failed despite the placeholder instruction, and gcode-to-text stayed failed. The rev-2 change to A is therefore a regression against rev-1 A on this sample, not an improvement. rev-1 A's 'write as soon as you have any correct-enough version' was the phrasing that moved db-wal; replacing it with 'write a minimal placeholder first' appears to have steered the model toward writing a placeholder and then not iterating it to completeness."
+  }
 }

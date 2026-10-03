@@ -51,5 +51,27 @@
   "runId": 37103979942,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37103979942",
   "dispatchedAt": "2026-10-03T03:11:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 3,
+    "passed": 0,
+    "failed": 3,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (3 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "run 37103979942, serial, all jobs green",
+    "cells": [
+      { "task": "terminal-bench/db-wal-recovery", "disposition": "failed", "durationMs": 561532, "rewards": { "reward": 0 }, "vsControl": "failed -> failed", "vsRev1": "failed -> failed" },
+      { "task": "terminal-bench/gcode-to-text", "disposition": "failed", "durationMs": 869184, "rewards": { "reward": 0 }, "vsControl": "failed -> failed", "vsRev1": "failed -> failed" },
+      { "task": "datacurve/expr-try-catch-errors", "disposition": "failed", "durationMs": 2443948, "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 78, "f2p": 0.98734 }, "vsControl": "failed -> failed (77/79 -> 78/79)", "vsRev1": "78/79 -> 78/79 (no change)" }
+    ],
+    "reading": "The rev-2 B wording (group by failure class, fix each class until all pass) reproduced the rev-1 B result exactly: expr-try-catch-errors again 78/79, one test short; db-wal and gcode unchanged. The class-grouping rewrite neither improved nor regressed against rev-1 B. B's ceiling on this cell is 78/79 under this composition; the missing test is the custom-error semantic class, which no wording tried so far has closed."
+  }
 }
