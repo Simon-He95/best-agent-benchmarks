@@ -61,6 +61,8 @@
     "fh_batch": "prompt-input-values-20261004",
     "fh_prefix": ""
   },
-  "dispatched": false,
-  "passAt1": null
+  "dispatched": true,
+  "passAt1": null,
+  "runId": 37141096659,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37141096659"
 }
