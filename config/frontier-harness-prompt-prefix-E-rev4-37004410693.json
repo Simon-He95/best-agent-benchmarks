@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-E-rev4-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "E isolates the one clause the expr evidence points at, and nothing else: the surviving failing check asks the new construct to classify a value that the model's own code did not create - a runtime panic raised by another implementation - by what the value says, while every measured arm classifies by whether its own type produced it ('custom'). E is 411 characters, shorter than every previous prefix, and deliberately carries no delivery, budget or tooling advice so that its effect is attributable.",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "E",
+  "prefixRevision": 4,
+  "cells": "Four cells, one composition: three targets (terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text, datacurve/expr-try-catch-errors) and one stable guard (terminal-bench/sqlite-db-truncate). The rev-3 guard 'largest-eigenval' is dropped: its pass/fail is decided by microsecond timing noise when the shipped stub is left in place (the control also never wrote /app/eigen.py yet passed 27/27), so it cannot detect a prefix regression.",
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable; destroyed its own encrypted WAL with the first sqlite3 probe)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p; failing ErrtypeTypeError and ErrtypeNilError)"
+    }
+  },
+  "bestRecorded": {
+    "expr-try-catch-errors": "78/79, reached by the self-check layer under four different texts (rev-1 B, rev-2 B, rev-3 A, rev-3 B), always failing exactly TestTryCatch_ErrtypeTypeError with expected 'type' and actual 'custom'; rev-3 C (the long union) fell to 72/79, the frozen full run's exact seven-check set",
+    "exprFailingFamilies": "A-layer arms fail six checks (five about rendering a value handed into the construct plus the classification survivor); B-layer arms fail only the classification survivor"
+  },
+  "evidenceBasis": {
+    "survivor": "TestTryCatch_ErrtypeTypeError: errtype(err) is asked to classify an unwrapped panic raised by code the model did not write (the runtime's own type-mismatch panic) and must return the kind 'type'; every measured arm returns 'custom' because its classifier only recognises its own error type. The nil sibling (test 835) behaves the same way and is passed only by the arms whose classifier inspects the value itself.",
+    "textLength": "The four texts that reached 78/79 range from 411 to 888 characters; the only arm to fall below the control was the 1273-character union. E therefore keeps the value-space clause and drops everything else."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a, rebuilt per run), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-4 E prefix text under BEST_AGENT_INSTRUCTION_PREFIX=E; it carries no task content and no verifier information.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 4,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "E",
+    "fh_batch": "prompt-prefix-E-rev4-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "expr-try-catch-errors reaches 79/79 (never recorded), or gcode-to-text reaches passed.",
+    "partial": "expr-try-catch-errors closes the survivor check, or fails a set strictly smaller than one check, without losing any of the five checks the B layer closes.",
+    "noRegression": "The guard cell (sqlite-db-truncate) still passes and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "E is a regression risk as well as a probe: the delivery cells are outside its scope, and an expr result that falls back to the six-check A-layer set is recorded as cost."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is E against the four arms that reached 78/79 and against the control, on the expr failing set. A single attempt cannot separate wording from variation, and this cell's failing set has moved between arms before.",
+  "plannedChecks": "After the report artifact is downloaded: the expr failing set and its exact headline check name against the recorded per-arm sets; the guard cell; the disposition/rewards/durationMs of every cell; the acceptance block.",
+  "dispatched": false
+}

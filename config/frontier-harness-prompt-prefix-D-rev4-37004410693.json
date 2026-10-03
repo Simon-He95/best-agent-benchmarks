@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-D-rev4-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "Rev-4 isolates one clause per arm, because the rev-3 evidence says a long union hides attribution and can cost ground: C (1273 characters) fell below the no-prefix control on expr and never fired its own clauses. D carries the delivery clause rewritten against the mechanism the rev-3 arms exhibited: the graded artifact must hold the current best answer even before the model is sure of anything, and when a standard tool returns nonsense the model must change what the tool is fed rather than write more code around the same picture. Evidence: across the rev-3 arms /app/out.txt was written ZERO times (verifier: 'File /app/out.txt does not exist') because the model only ever wrote once it had a real answer and never had one, while arm A did install and run tesseract (t=205s) and got noise; B installed it only at t=659.7s. D is 655 characters and deliberately narrower than rev-3 A (888) and C (1273).",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "D",
+  "prefixRevision": 4,
+  "cells": "Four cells, one composition: three targets (terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text, datacurve/expr-try-catch-errors) and one stable guard (terminal-bench/sqlite-db-truncate). The rev-3 guard 'largest-eigenval' is dropped from the rev-4 arms: its pass/fail is decided by microsecond timing noise when the shipped stub is left in place (the no-prefix control also never wrote /app/eigen.py and still passed 27/27 with reward 1; B and C failed on 1.2%-1.7% margins), so it cannot detect a prefix regression. sqlite-db-truncate passed in the control and in all three rev-3 arms and is kept as the guard.",
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (no deliverable; destroyed its own encrypted WAL with the first sqlite3 probe)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p)"
+    }
+  },
+  "bestRecorded": {
+    "gcode-to-text": "failed in every measured arm; the best any arm did was rev-2 A's single write of the placeholder '(analyzing text.gcode...)' at t=6.8s, and the rev-3 arms wrote nothing at all",
+    "expr-try-catch-errors": "78/79 (rev-1 B, rev-2 B, rev-3 A, rev-3 B); the single survivor is TestTryCatch_ErrtypeTypeError, expected 'type' / actual 'custom'",
+    "db-wal-recovery": "passed twice (rev-1 A 528s, rev-3 A 490s) and both times by fetching the upstream task archive over the network (solve.sh, real test_outputs.py, real encrypted WAL); no arm has ever produced WAL-correct values in-sandbox"
+  },
+  "evidenceBasis": {
+    "delivery": "rev-3 arms: A wrote /app/out.txt 0 times in 54 tool calls, B 0 in 46, C 0 in 53; every write was a *.py script. The rev-3 A clause 'write your best real answer there as soon as you have one' never fired because there was never an answer, so rev-4 D demands the current best answer instead of a real one.",
+    "tooling": "rev-3 A did obtain the standard tool (installed and ran tesseract at t=205s and t=629s) but the output was noise ('Me, | A: | LE | 2@y | ...') and the budget went into tuning the renderer until the reserved-boundary cancellation at t~715s; B installed tesseract at t=659.7s and never ran it; C never installed it.",
+    "budget": "Every arm was cut at the attempt's reserved boundary (about t=720s of the 900s budget) with no in-run warning, which D states as 'the last fifth can be taken away'."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a, rebuilt per run), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-4 D prefix text under BEST_AGENT_INSTRUCTION_PREFIX=D; it carries no task content and no verifier information, and it does not change the staged instruction.md hash that instructions.frozen verifies.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 4,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "D",
+    "fh_batch": "prompt-prefix-D-rev4-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "gcode-to-text reaches passed, or expr-try-catch-errors reaches 79/79.",
+    "partial": "gcode-to-text leaves a real candidate string at /app/out.txt (any string, correct or not) instead of nothing; or the expr failing set drops below one check; or db-wal-recovery delivers WAL-correct values without the network route.",
+    "noRegression": "The guard cell (sqlite-db-truncate) still passes and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "D's own target is delivery: 'wrote a candidate value at all' is the measurement, and a pass that required nothing but the value being present is still recorded as delivery, not as capability."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is D against the no-prefix control and against rev-3 A on the gcode delivery (did a candidate value reach /app/out.txt at all). Single attempts cannot separate wording from route variance on the cells that have varied before; the network route to the db-wal cell remains available in this composition and any db-wal pass must be read against it.",
+  "plannedChecks": "After the report artifact is downloaded: disposition/rewards/durationMs per cell; whether /app/out.txt exists and what it contains; the expr failing set; the guard cell; the acceptance block; and the terminal cause of every attempt.",
+  "dispatched": false
+}

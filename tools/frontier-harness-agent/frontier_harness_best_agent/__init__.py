@@ -128,30 +128,33 @@ def _read_thread_metrics(database_path: Path) -> dict[str, object] | None:
 # task's canonical verdict: the prefix is behaviour guidance only, and it carries
 # no task content and no verifier information.
 #
-# Select with BEST_AGENT_INSTRUCTION_PREFIX=A, =B or =C (empty or unknown = unchanged).
+# Select with BEST_AGENT_INSTRUCTION_PREFIX=A, =B, =C, =D, =E or =F
+# (empty or unknown = unchanged).
 # The prefixes are deliberately separated so each layer's effect can be read
 # against the same no-prefix control cells:
 #   A = budget / delivery discipline (land a real answer),
 #   B = spec self-check across the whole value space (close the last checks),
 #   C = A + B + preserving the task's input data before the first tool command.
 #
-# Revision 3 (2026-10-03) is written against the per-cell evidence the earlier
-# revisions produced, not against another hypothesis:
-#   * the harness stops the primary Run at a reserved boundary (about four fifths
-#     of the declared budget) with no in-run warning, so late exploration is time
-#     the attempt never gets to use; A and C say so.
-#   * a placeholder written early is not replaced later (the gcode cell shipped
-#     "(analyzing text.gcode...)" as its final answer), so a placeholder is now
-#     only admitted if the real answer replaces it.
-#   * the gcode class spent its whole budget on a hand-rolled renderer instead of
-#     the standard tool, so A and C ask for the standard tool when a capability is
-#     missing rather than a substitute built from scratch.
-#   * the expr class closed from 6 failing checks to 1 with the self-check layer,
-#     and the survivor is about a value the model's own code never produces, so B
-#     and C ask for the values the rest of the project can hand the new construct.
-#   * the db-wal class destroys its own input with its first exploratory command
-#     (sqlite3 drops the unrecognised WAL), so C asks for a copy of the input
-#     before any command that could write to it.
+# Revision 4 (2026-10-03) adds three single-purpose prefixes, each written against
+# a mechanism the rev-3 arms actually exhibited, and each deliberately short: the
+# rev-3 union text (C, 1273 characters) lost ground on the cell its B layer had
+# already closed and never fired its own clauses, so a longer prefix is not the
+# sum of its parts and attribution needs one clause per arm.
+#   D = the graded artifact must always hold the current best answer, even before
+#     the model is sure of anything (rev-3 arms wrote /app/out.txt zero times,
+#     because they only ever wrote once they had a real answer and never had one),
+#     plus: when a standard tool returns nonsense, change what it is fed rather
+#     than writing more code around the same picture (the gcode arms spent the
+#     whole budget on renderers while their OCR returned noise).
+#   E = check the new construct against values raised by other code and by the
+#     runtime itself, classifying them by what the value says rather than by
+#     whether the model's own code produced it (the single expr check that every
+#     measured arm fails is exactly this: a host panic that must be classified by
+#     its message).
+#   F = copy the task's own input data before the first command that could write
+#     to it (every measured db-wal arm destroyed its encrypted WAL with its first
+#     sqlite3 probe at t=9-27s and could never recover it in-sandbox).
 PROMPT_PREFIXES = {
     "A": (
         "You work under a hard wall-clock budget, and the final stretch of it can "
@@ -204,6 +207,34 @@ PROMPT_PREFIXES = {
         "empty and nil, non-string, error paths, panics); confirm the exact strings "
         "and classifications that are compared. Only then commit, and never report "
         "success on your own check when the real contract is unmet."
+    ),
+    "D": (
+        "You work under a hard wall-clock budget whose last fifth can be taken "
+        "away without warning: treat four fifths of the budget as the deadline.\n"
+        "1. The artifact the task is graded on must exist early and must always "
+        "hold your current best answer - a rough, uncertain value, never a note, a "
+        "plan or an empty file. Overwrite it every time your answer improves, and "
+        "read it back from its path before you stop.\n"
+        "2. If a standard tool you run to obtain the answer returns nonsense, do "
+        "not write more of your own code around the same picture: change what you "
+        "feed it (preparation, resolution, scale, its default mode) or re-check "
+        "your assumption about the raw input."
+    ),
+    "E": (
+        "Before you say done, check the new behavior against values your own code "
+        "did not create: values handed in by other code, empty and nil values, "
+        "non-string values, error paths, and the runtime's own failures such as "
+        "panics. Render and classify such values by what the value itself says - "
+        "its message and kind - never by whether your own code produced it, and "
+        "confirm the exact strings and kinds that are compared."
+    ),
+    "F": (
+        "Before your first command that opens, converts or probes the task's own "
+        "input data, copy it aside and work on the copy: an exploratory command "
+        "must never be the thing that destroys the input, because a database or "
+        "archive tool can modify or discard companion files it does not recognise "
+        "the moment it touches the original. If the input is already damaged, "
+        "recover it from any copy before trying to reason about its contents."
     ),
 }
 

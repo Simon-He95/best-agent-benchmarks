@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-prefix-F-rev4-37004410693",
+  "requestedBy": "User, 2026-10-03: keep adjusting the benchmark-side prompt only, and keep going until the adjustment brings a new gain. Nothing is landed in best-agent; this is a benchmark-side prompt experiment.",
+  "reason": "F isolates the input-preservation clause, which has never been measured alone: in rev-3 it rode inside the 1273-character union C, which lost ground elsewhere, so its effect is unattributable. The mechanism it targets is mechanical and identical in every measured db-wal arm: the first sqlite3 probe destroys the encrypted WAL (control t~27s, rev-1 A t~13s, rev-2 A t~12s, rev-2 B t~12s, rev-3 A t~9-12s), after which the cell can only be solved by guessing the WAL's rows or by fetching the upstream task files over the network. F is 424 characters and carries nothing else, so a movement on this cell is attributable to the clause.",
+  "admissionClass": "prompt-prefix-experiment",
+  "promptPrefix": "F",
+  "prefixRevision": 4,
+  "cells": "Four cells, one composition: three targets (terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text, datacurve/expr-try-catch-errors) and one stable guard (terminal-bench/sqlite-db-truncate). The rev-3 guard 'largest-eigenval' is dropped: its pass/fail is decided by microsecond timing noise when the shipped stub is left in place (the control also never wrote /app/eigen.py yet passed 27/27), so it cannot detect a prefix regression.",
+  "controlRun": {
+    "runId": 37034756158,
+    "verdicts": {
+      "terminal-bench/db-wal-recovery": "failed (never wrote recovered.json at all; destroyed its own encrypted WAL with the first sqlite3 probe and spent the rest of the run on the WAL frame format)",
+      "terminal-bench/gcode-to-text": "failed (no deliverable: /app/out.txt never written)",
+      "terminal-bench/sqlite-db-truncate": "passed (623381 ms, guard)",
+      "datacurve/expr-try-catch-errors": "failed (77/79 f2p)"
+    }
+  },
+  "bestRecorded": {
+    "db-wal-recovery": "passed twice, both times by the network route: rev-1 A (528s) and rev-3 A (490s) fetched the public upstream archive's solve.sh and real test_outputs.py at t~323s and the real main.db-wal.encrypted at t~335s, then XOR-decrypted it with the key the upstream README states. Neither arm preserved its input; both had already destroyed it. The best in-sandbox attempt is rev-2 A, which wrote a structure-complete recovered.json with the base values (assert 100 == 150)."
+  },
+  "evidenceBasis": {
+    "inputLoss": "Every measured arm destroys the encrypted WAL with its first sqlite3 probe, at t=9-27s, and observes it as 0 bytes within seconds (rev-3 A: 'The original WAL content is GONE - truncated by my own sqlite3 invocation ... do I have a backup? ... Hmm, this is a problem.').",
+    "whatPreservingBuys": "With the 16512-byte ciphertext intact, the cell is solvable in-sandbox: XOR with a single byte key (discoverable by brute force over 256 keys and validated by the SQLite WAL magic and checksum) yields the true rows, which is exactly what the network arms obtained. Without it, the values can only be guessed, and the verifier rejects guesses on the two WAL-updated rows.",
+    "compositionCaveat": "The composition still allows the network route (the agent's own network tool is excluded, but exec retains egress). A db-wal pass in this arm therefore has to be read against whether the arm used it."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate pin (cli 0.0.3-beta.41 da88e7a, rebuilt per run), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, budgets, execution profile, per-call ceiling, serial execution (fh_max_parallel=1). The only delta is the rev-4 F prefix text under BEST_AGENT_INSTRUCTION_PREFIX=F; it carries no task content and no verifier information.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": 4,
+    "fh_offset": 0,
+    "fh_max_parallel": 1,
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_prefix": "F",
+    "fh_batch": "prompt-prefix-F-rev4-37004410693"
+  },
+  "gainDefinition": {
+    "primary": "db-wal-recovery delivers WAL-correct values (rows 1=150, 2=250 and the tail rows) without the network route, or gcode-to-text reaches passed, or expr-try-catch-errors reaches 79/79.",
+    "partial": "db-wal-recovery preserves its input past the first probe (observable in the evidence: a copy exists before the first command that opens main.db), or leaves a structure-complete deliverable whose WAL rows are the true values.",
+    "noRegression": "The guard cell (sqlite-db-truncate) still passes and every predeclared cell keeps a real verdict with the acceptance block intact.",
+    "note": "The clause is a habit, not task content: it names no file and no tool, and a db-wal pass that came from the network is recorded as the network route again, not as this clause's effect."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of run 37004410693 or of any earlier run is replaced, refilled or reinterpreted; this arm exists only as a same-composition measurement with a single prompt-prefix delta.",
+    "The result is never merged into any pass@1; run 37004410693 keeps its own frozen verdicts and passAt1=0.6.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest lives on fh/usage-accounting-proof."
+  ],
+  "readingBoundary": "The comparison of interest is F against the control and against every prior arm on this cell's first probe and on whether a copy of the input existed before it. A pass here is only a gain if the deliverable's WAL rows are right and the evidence shows no upstream fetch; otherwise it is the network route repeating.",
+  "plannedChecks": "After the report artifact is downloaded: whether a copy of the input existed before the first probing command; what the first probe did (did the ciphertext survive); whether the network was used (raw.githubusercontent / urllib / api.github.com); the deliverable's WAL rows against 150/250; the guard cell; the acceptance block.",
+  "dispatched": false
+}
