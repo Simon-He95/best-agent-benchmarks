@@ -58,5 +58,76 @@
   "runId": 37109588624,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109588624",
   "dispatchedAt": "2026-10-03T08:26:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 5,
+    "passed": 3,
+    "failed": 2,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.6,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T08:24:23Z -> 2026-10-03T09:49:20Z (about 85m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "passed",
+        "durationMs": 490518,
+        "rewards": { "reward": 1 },
+        "terminalCause": "completed",
+        "vsControl": "failed -> passed",
+        "vsRev2A": "failed -> passed",
+        "reading": "Same mechanism as rev-1 A, not a wording effect: the input was destroyed by the first sqlite3 probe (t~9s, observed 0 bytes by t~12s, no backup taken), then at t~227s the model probed the network with python3 urllib, at t~285s it pulled the upstream task definition, at t~323s the public archive's solution/solve.sh and real tests/test_outputs.py (giving the XOR key 0x42 and the expected rows), and at t~335s the real main.db-wal.encrypted and main.db (byte-identical to this cell's own inputs). It wrote the correct recovered.json at t~377s. 13 successful network execs; the model's own final report says it 'found the archived task in the public harbor-framework/terminal-bench repo'. The network hole is a composition fact, not a prefix effect."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 871019,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run ended run-deadline)",
+        "vsControl": "failed -> failed",
+        "vsRev2A": "rev-2 A wrote a placeholder at t=6.8s and submitted it; this arm wrote nothing at all",
+        "reading": "Zero writes to /app/out.txt in 54 tool calls (11 writes, all *.py); verifier: 'File /app/out.txt does not exist'. No flag{ substring anywhere in the evidence. The arm did follow the 'use the standard tool' clause: it installed and ran tesseract at t=205s and t=629s, but the OCR returned noise ('Me, | A: | LE | 2@y | ...'), and the run was cancelled at the reserved boundary (t~715s) still tuning the renderer."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "passed",
+        "durationMs": 548388,
+        "rewards": { "reward": 1 },
+        "terminalCause": "completed",
+        "vsControl": "passed -> passed",
+        "reading": "The only one of the three rev-3 arms that delivered: it wrote /app/eigen.py at t=458.9s with a real speed margin (2x2 ref 0.000025 vs cand 0.000007; 10x10 ref 0.000052 vs cand 0.000031) and stopped at t~505s. See the shared guard note below."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 614738,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationMs": 2245929,
+        "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 78, "f2p": 0.98734, "p2p_total": 66265, "p2p_passed": 66265 },
+        "terminalCause": "completed",
+        "vsControl": "77/79 -> 78/79",
+        "vsHistory": "78/79 -> 78/79: identical to the previous best (rev-1 B, rev-2 B), failing exactly TestTryCatch_ErrtypeTypeError (expected 'type', actual 'custom'), message byte-identical",
+        "reading": "The rev-3 A text reproduced the best recorded expr result on its own (the five render-family checks that only the B layer had closed are closed here too), but did not close the survivor."
+      }
+    ],
+    "sharedNotes": {
+      "guardValidity": "largest-eigenval is not a valid regression detector as constituted: when the model leaves /app/eigen.py at its shipped stub (which is the same implementation the verifier times against), the verdict is decided by microsecond timing noise on `dt < ref_dt`. The no-prefix control ALSO never wrote eigen.py (it only wrote /app/bench.py) and still passed 27/27 with reward 1; B and C failed on 1.2%-1.7% margins (B test_speedup[2]: 9.1885e-06 vs 9.0385e-06; C test_speedup[2] and [4]). The B/C 'guard regression' is therefore not attributable to prefix semantics.",
+      "budgetAccounting": "Every arm was cut at the attempt's reserved boundary (about t=720s of the 900s budget) with no in-run warning; the resulting NonZeroAgentExitCodeError is not matched by isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112), so the reports disclose 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Each run rebuilds the CLI from the pinned source da88e7a, so the frozen binary hash differs per run (this arm f36702f83ba5; rev-1/rev-2 arms 36020ae89801; B-rev3 8168e1dc4fc4; C-rev3 e66e6fe10541). Cross-arm comparisons therefore span different binary builds of the same source commit; acceptance 'candidate.single' is per-run."
+    },
+    "gainVerdict": "No new gain. Primary (gcode passed, or expr 79/79): not reached. Partial (a real candidate string on gcode, an expr failing set below one check, or a WAL-complete deliverable without the network): not reached - gcode wrote nothing at all, expr closed at exactly the previous best of one check, and the db-wal pass came from the same network route as rev-1 A. No regression attributable to this prefix: both guards kept their control verdicts, and the one this arm also delivered (largest-eigenval) passed with a real margin.",
+    "reading": "The rev-3 A text is the first arm whose self-contained behaviour (no B layer) reached the best expr result, and its 'use the standard tool instead of hand-rolling' clause did change behaviour on gcode (tesseract was installed and run, which no earlier arm did) - but installing the tool at t=205s did not convert into a candidate string, let alone a deliverable. The delivery clause still fired only when the model had a real answer; on gcode it never had one, so nothing was written."
+  }
 }

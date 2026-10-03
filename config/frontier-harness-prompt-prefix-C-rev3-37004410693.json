@@ -58,5 +58,74 @@
   "runId": 37109592900,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109592900",
   "dispatchedAt": "2026-10-03T08:26:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 5,
+    "passed": 1,
+    "failed": 4,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.2,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T08:24:28Z -> 2026-10-03T10:00:29Z (about 96m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "durationMs": 797321,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run ended model-failure)",
+        "vsControl": "failed -> failed",
+        "reading": "32 model outcomes; the primary Run was cancelled at the reserved boundary and the adopted delivery run then died on a model failure, so the verdict stayed reward 0. The input-copy clause this arm carried did not convert into a WAL-complete deliverable."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 758371,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run ended model-failure)",
+        "vsControl": "failed -> failed",
+        "reading": "Zero writes to /app/out.txt in 53 tool calls; verifier: 'File /app/out.txt does not exist'. Tesseract was never installed on this arm, so the 'use the standard tool' clause did not fire here even though it is present in the C text."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "durationMs": 773000,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run ended model-failure)",
+        "vsControl": "passed -> failed (see the guard note: the control also never delivered)",
+        "reading": "/app/eigen.py was never written (27 tool calls, none touching it); at t=706.6s the model was parsing the ELF dynamic symbol table ('Let me parse the ELF dynamic symbol table directly to see the actual exported names') when the Run was cancelled. Two speedup checks failed by 1.2% and 1.7% (test_speedup[2] 8.718e-06 vs 8.618e-06; test_speedup[4] 1.11015e-05 vs 1.10065e-05)."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 372686,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationMs": 2772898,
+        "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 72, "f2p": 0.91139, "p2p_total": 66265, "p2p_passed": 66265 },
+        "terminalCause": "completed",
+        "vsControl": "77/79 -> 72/79 (regression)",
+        "vsHistory": "72/79 reproduces the frozen full run's set exactly: the same seven checks, including the five render-family checks (BlockFormWithErrorVariable, FinallyWithErrorVariable, ErrorFilterWithVariable, ThrowWithNonStringArg, FinallyBodyThrows) whose actual values are byte-identical to rev-1 A's, plus ErrtypeNilError which the A and B arms pass",
+        "reading": "The union text (the longest of the three, 1273 characters) lost the five checks the B layer had closed and re-failed the nil check. This is the first arm in the whole series to fall below the no-prefix control's expr score."
+      }
+    ],
+    "sharedNotes": {
+      "guardValidity": "See A-rev3's note: largest-eigenval decides pass/fail on microsecond timing noise when the shipped stub is left in place; the no-prefix control left the same stub and still passed.",
+      "budgetAccounting": "The reserved-boundary cancellation (about t=720s of 900s) surfaces as NonZeroAgentExitCodeError, which isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112) does not match, so the report discloses 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Frozen binary hash for this arm: e66e6fe10541."
+    },
+    "gainVerdict": "No new gain, and one measured cost. Primary and partial criteria: not reached. The union text also lost expr ground against both the control (77/79) and the A and B arms (78/79), so a longer combined prefix cannot be assumed to be the sum of its parts - which is why the next revision's adoption candidate is deliberately bounded in length.",
+    "reading": "C was the adoption candidate and the longest text. Its measured effects are negative where the evidence is clearest: expr fell from 78/79 to 72/79, reproducing the frozen full run's exact seven-check set, and on gcode the 'use the standard tool' clause did not even fire (tesseract never installed). The rule it added over A, copying the task's input before any writing command, has no observed effect on the db-wal cell either."
+  }
 }

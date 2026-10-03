@@ -64,5 +64,74 @@
   "runId": 37109590762,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37109590762",
   "dispatchedAt": "2026-10-03T08:26:00Z",
-  "outcome": {}
+  "outcome": {
+    "present": 5,
+    "passed": 1,
+    "failed": 4,
+    "error": 0,
+    "notEvaluated": 0,
+    "passRate": 0.2,
+    "scoreable": false,
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 predeclared, expected for a diagnostic batch)",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-03T08:24:25Z -> 2026-10-03T10:06:23Z (about 102m), serial, all jobs green",
+    "cells": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "failed",
+        "durationMs": 777332,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run completed)",
+        "vsControl": "failed -> failed",
+        "reading": "40 model outcomes; the primary Run was cancelled at the reserved boundary and the adopted delivery run completed, but the verdict stayed reward 0."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "durationMs": 765584,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run completed)",
+        "vsControl": "failed -> failed",
+        "reading": "Zero writes to /app/out.txt in 46 tool calls; verifier: 'File /app/out.txt does not exist'. No flag{ substring anywhere. It installed tesseract only at t=659.7s and was cancelled before ever running OCR."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "durationMs": 755269,
+        "rewards": { "reward": 0 },
+        "terminalCause": "stopped (delivery run ended model-failure)",
+        "vsControl": "passed -> failed (see the guard note: the control also never delivered)",
+        "reading": "/app/eigen.py was never written - the only read of it is at t~0.3s and no write path for it exists among the 19 tool calls (12 exec, 4 write, 2 read, 1 edit, all scripts). At t=692s it was still running a numba prototype (stdout '@numba: True / n=3 s=10 fail rate: 0.7336') when the Run was cancelled at the reserved boundary. The graded file was therefore the shipped stub, and the verdict came from the speedup race: 'E assert 9.188500030177238e-06 < 9.03850002487161e-06' (test_speedup[2], 1.2%)."
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "passed",
+        "durationMs": 378790,
+        "rewards": { "reward": 1 },
+        "vsControl": "passed -> passed"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "durationMs": 3139555,
+        "rewards": { "reward": 0, "f2p_total": 79, "f2p_passed": 78, "f2p": 0.98734, "p2p_total": 66265, "p2p_passed": 66265 },
+        "terminalCause": "completed",
+        "vsControl": "77/79 -> 78/79",
+        "vsHistory": "78/79 -> 78/79; failure set and message identical to rev-1 B and rev-2 B (only TestTryCatch_ErrtypeTypeError, expected 'type', actual 'custom')",
+        "reading": "The rev-3 B text reproduced the best recorded expr result exactly; it did not close the survivor."
+      }
+    ],
+    "sharedNotes": {
+      "guardValidity": "See A-rev3's note: largest-eigenval decides pass/fail on microsecond timing noise whenever the model leaves the shipped stub in place, so this arm's guard failure carries no prefix signal - the no-prefix control left the same stub and passed. The stable guard in this composition is sqlite-db-truncate (passed in the control and in all three rev-3 arms).",
+      "budgetAccounting": "The reserved-boundary cancellation (about t=720s of 900s) surfaces as NonZeroAgentExitCodeError, which isAgentBudgetExhaustion (scripts/frontier-harness-failures.mjs:112) does not match, so the report discloses 'budget-exhausted attempts 0'.",
+      "candidateDrift": "Frozen binary hash for this arm: 8168e1dc4fc4; each run rebuilds the CLI from the pinned source da88e7a and hashes its own build."
+    },
+    "gainVerdict": "No new gain. Primary and partial criteria: not reached (gcode wrote nothing; expr held at exactly one failing check; db-wal produced no WAL-complete deliverable). This arm is the weakest of the three rev-3 arms: it delivered neither of the two terminal-bench cells it was supposed to move.",
+    "reading": "The rev-3 B text is a self-check layer only, and its measured effect is confined to expr, where it reproduces the best known result. Outside expr it changed little that the evidence can attribute to it: the model spent longer per call (longest single call 321s / 77,952 characters of reasoning, against 130s / 35,285 in A) and never landed the deliverable on either terminal-bench cell."
+  }
 }
