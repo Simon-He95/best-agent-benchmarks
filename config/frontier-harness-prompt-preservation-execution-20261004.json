@@ -170,5 +170,144 @@
     },
     "note": "The candidate arm therefore carries the 2.17.0 instruction: the packaging gate ran the repository's own typecheck and smoke on the same source commit, so the measured binary is the reviewed text, not a stale build."
   },
-  "status": "dispatched"
+  "status": "dispatched",
+  "outcome": {
+    "measuredAt": "2026-10-04T16:20:00Z",
+    "verdict": "no gain",
+    "pr212Decision": "PR Simon-He95/best-agent#212 stays Draft and is not merged: the predeclared primary gain is unmet and the predeclared partial gain is unmet. The loop is not closed, so acceptance is withheld.",
+    "predeclaredConditionThatFailed": "Primary gain, first half: `terminal-bench/db-wal-recovery` on the candidate arm did not leave `/app/recovered.json` at grading (verifier: `recovered.json file does not exist`, 0/7 checks). The second half (no retrieval of the task's own upstream material) held for the candidate arm. Partial gain also failed: no deliverable exists at the graded path, and although the copy mechanism fired the attempt was truncation-bounded at the reserved boundary, which the partial clause requires not to be the case.",
+    "cells": {
+      "control": {
+        "runId": 37208521326,
+        "db-wal-recovery": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/7 passed; all seven failed (exists, is_valid, structure, sorted, completeness, no_duplicate_ids, wal_was_decrypted)",
+          "deliverable": "absent — verifier: `AssertionError: recovered.json file does not exist`",
+          "durationMs": 802138,
+          "primaryCalls": 21,
+          "maxCallMs": 140364,
+          "sumCallMs": 730092,
+          "terminal": "primary cancelled/stopped at cycle 21; delivery child completed",
+          "censoredSpans": [{ "seq": 44, "durationMs": 24092 }],
+          "copyOfInput": "never — first probe of the original at t=9817 ms",
+          "upstreamRoute": "attempted: GitHub API queries (api.github.com, github.com) while hunting /logs for task material; no raw.githubusercontent fetch; the cell failed anyway"
+        },
+        "expr-try-catch-errors": {
+          "disposition": "failed",
+          "rewards": { "f2p_passed": 78, "f2p_total": 79, "p2p_passed": 66265, "p2p_total": 66265 },
+          "failingChecks": ["TestTryCatch_ErrtypeTypeError"],
+          "durationMs": 3824113,
+          "primaryCalls": 244,
+          "maxCallMs": 304567,
+          "terminal": "completed",
+          "observation": "raw.githubusercontent appears in this cell's evidence (upstream project/issue material); it supplies no gain claim"
+        },
+        "gcode-to-text": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/2 passed (test_hello_file_exists, test_hello_file_content)",
+          "deliverable": "absent — verifier: `AssertionError: File /app/out.txt does not exist`",
+          "durationMs": 779371,
+          "primaryCalls": 28,
+          "maxCallMs": 76629,
+          "terminal": "primary cancelled/stopped at cycle 27; delivery child completed",
+          "censoredSpans": []
+        },
+        "sqlite-db-truncate": { "disposition": "passed", "reward": 1, "checks": "1/1 passed (test_json_data)", "durationMs": 570504, "primaryCalls": 13, "maxCallMs": 238207, "terminal": "completed" }
+      },
+      "preservation": {
+        "runId": 37208531768,
+        "db-wal-recovery": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/7 passed",
+          "deliverable": "absent — verifier: `recovered.json file does not exist`",
+          "mechanism": "copied the input aside at t=4312 ms (to /tmp/probe) before probing; at t≈694 s it had decoded the WAL in place with XOR 0x42, confirmed `PRAGMA integrity_check` = ok and read all 11 rows (`1|apple|150`, `2|banana|250`, …, `11|mango|1100`), then wrote only the writer script /tmp/probe/make_json.py and was stopped at the reserved boundary before running it; the delivery child (zero tools, 120 s) reported `recovered.json` as not confirmed created. The answer was in hand about 25 s before the boundary and was still not delivered.",
+          "durationMs": 779489,
+          "primaryCalls": 33,
+          "maxCallMs": 198791,
+          "sumCallMs": 727088,
+          "terminal": "primary cancelled/stopped at cycle 33; delivery child completed",
+          "censoredSpans": [{ "seq": 68, "durationMs": 9608 }]
+        },
+        "expr-try-catch-errors": {
+          "disposition": "failed",
+          "rewards": { "f2p_passed": 71, "f2p_total": 79, "p2p_passed": 66265, "p2p_total": 66265 },
+          "failingChecks": ["TestTryCatch_BuiltinChainedTryWithDifferentFallbacks", "TestTryCatch_BlockFormWithErrorVariable", "TestTryCatch_FinallyWithErrorVariable", "TestTryCatch_ErrorFilterWithVariable", "TestTryCatch_ErrtypeTypeError", "TestTryCatch_ErrtypeNilError", "TestTryCatch_ThrowWithNonStringArg", "TestTryCatch_FinallyBodyThrows"],
+          "durationMs": 3503527,
+          "primaryCalls": 190,
+          "maxCallMs": 166657,
+          "terminal": "completed"
+        },
+        "gcode-to-text": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/2 passed",
+          "deliverable": "absent — `/app/out.txt` does not exist",
+          "durationMs": 802892,
+          "primaryCalls": 29,
+          "maxCallMs": 107958,
+          "terminal": "primary cancelled/stopped at cycle 29; delivery child completed",
+          "censoredSpans": [{ "seq": 60, "durationMs": 18905 }]
+        },
+        "sqlite-db-truncate": { "disposition": "passed", "reward": 1, "checks": "1/1 passed (test_json_data)", "durationMs": 330607, "primaryCalls": 14, "maxCallMs": 190215, "terminal": "completed" }
+      },
+      "candidate": {
+        "runId": 37208537119,
+        "db-wal-recovery": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/7 passed",
+          "deliverable": "absent — verifier: `AssertionError: recovered.json file does not exist`",
+          "mechanism": "copied the input aside at t=14843 ms into /app/work and every later probe used the copies (the original was never opened by a writing tool); it confirmed the XOR-0x42 page-1 decode at t≈272 s but then spent t≈582–694 s downloading the SQLite amalgamation source from sqlite.org to validate the checksum algorithm and was cut off while reading sqlite3.c. It never wrote the graded path and never extracted the row values at all.",
+          "durationMs": 779593,
+          "primaryCalls": 33,
+          "maxCallMs": 196496,
+          "sumCallMs": 704536,
+          "terminal": "primary cancelled/stopped at cycle 34; delivery child failed with model-failure",
+          "censoredSpans": [{ "seq": 70, "durationMs": 13498 }, { "seq": 71, "durationMs": 19679 }],
+          "upstreamRoute": "downloaded sqlite.org's own amalgamation source (a generic tool source, not the task's material); no retrieval of the task's own upstream files"
+        },
+        "expr-try-catch-errors": {
+          "disposition": "failed",
+          "rewards": { "f2p_passed": 78, "f2p_total": 79, "p2p_passed": 66265, "p2p_total": 66265 },
+          "failingChecks": ["TestTryCatch_ErrtypeTypeError"],
+          "durationMs": 4100896,
+          "primaryCalls": 237,
+          "maxCallMs": 281584,
+          "terminal": "completed",
+          "observation": "raw.githubusercontent appears in this cell's evidence; it supplies no gain claim"
+        },
+        "gcode-to-text": {
+          "disposition": "failed",
+          "reward": 0,
+          "checks": "0/2 passed",
+          "deliverable": "absent — `AssertionError: File /app/out.txt does not exist`",
+          "durationMs": 801874,
+          "primaryCalls": 32,
+          "maxCallMs": 74092,
+          "terminal": "primary cancelled/stopped at cycle 32; delivery child completed",
+          "censoredSpans": [{ "seq": 66, "durationMs": 1887 }]
+        },
+        "sqlite-db-truncate": { "disposition": "passed", "reward": 1, "checks": "1/1 passed (test_json_data)", "durationMs": 345167, "primaryCalls": 14, "maxCallMs": 218466, "terminal": "completed" }
+      }
+    },
+    "predeclaredReading": {
+      "primary": "NOT MET — the candidate arm's db-wal cell delivered nothing at the graded path.",
+      "partial": "NOT MET — no deliverable at the graded path, and the one clause that partially held (copy fired) is paired with a truncation-bounded attempt, which the clause excludes.",
+      "noRegression": "MET — the sqlite guard passed in all three arms, every predeclared cell kept a real verdict with an intact acceptance block (verdicts.complete passed, 0 error, 0 not-evaluated, candidate.single / provider.single / instructions.frozen passed), and the candidate's expr failing set {TestTryCatch_ErrtypeTypeError} is not larger than the contemporaneous control's identical set.",
+      "cost": "The preservation arm's expr failing set grew to eight checks against the control's one in the same window; recorded as cost on that arm. The candidate arm showed no expr cost.",
+      "censoring": "All three db-wal cells and all three gcode cells are stop-bounded at the reserved delivery boundary and are recorded as right-censored observations with their spans; none was excluded and none counts as a gain."
+    },
+    "bindingCheck": "All twelve cells' first-request Skill instruction bytes match their frozen arm hash exactly: control 6,014 bytes / cc23fe7a…, preservation 6,165 bytes / e85b985e…, candidate 6,478 bytes / 2690f344…. No gain or loss is attributable to instruction drift, and no cell is reported as a binding failure.",
+    "crossWindowNotes": [
+      "The unchanged control's own db-wal cell moved between windows: 5/7 with a structure-complete file of guessed values on 2026-10-04 (run 37172363077) versus 0/7 with no file at all here (run 37208521326). Deliverable existence on this cell is not stable without any prompt change.",
+      "The harness's own `budgetExhausted` stayed 0 in all three arms even though all three db-wal cells were stopped at the reserved boundary, because the metric compares durationMs (779,489–802,138 ms) with the declared 900,000 ms budget and the boundary sits earlier. Reserve-boundary stops are therefore invisible to that field.",
+      "The copy clause fired in both arms that carry it (preservation at t=4,312 ms, candidate at t=14,843 ms, each before the first opening probe), so the 2.15.0 mechanism reproduced in this window; it did not produce a deliverable in either arm.",
+      "The candidate arm, which carries the added sentence about writing a supported answer to the required destination, did not write it: it confirmed the page decode at t≈272 s and then spent t≈582–694 s validating the WAL checksum algorithm against downloaded SQLite source. The arm without that sentence reached and verified the correct rows at t≈694 s but wrote only the writer script. Each is n=1; no causal reading is made from either.",
+      "Neither arm fetched the task's own upstream answer material in this window; the control arm attempted GitHub API queries for it and still failed."
+    ],
+    "notClaimed": "One attempt per cell, three arms, one window: this is a diagnostic mechanism observation, not a causal effect estimate, not holdout evidence and not a capability measurement. Every canonical verdict stands as measured and nothing is replaced. Diagnostic passAt1 stays null; the frozen full-run 0.6 is unchanged."
+  }
 }
