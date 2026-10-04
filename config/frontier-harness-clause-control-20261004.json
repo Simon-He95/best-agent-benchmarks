@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-single-clause-arm",
+  "studyId": "prompt-clause-ablation-20261004",
+  "designCommit": "1278ca8b3e14ae2c902eaed7cc782b890fe2eb7e",
+  "label": "control",
+  "arm": {
+    "candidate": {
+      "packageName": "@best-agent/cli-linux-x64-gnu",
+      "cliVersion": "0.0.4-beta.1",
+      "sourceRepository": "Simon-He95/best-agent",
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "target": "linux-x64-gnu"
+    },
+    "codingVersion": "2.11.0",
+    "instructionBytes": 6014,
+    "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+    "attemptsPerCell": 1,
+    "maxParallel": 1,
+    "status": "frozen-not-dispatched",
+    "admissionClass": "declared-variance-remeasurement",
+    "batchLabel": "clause-ablation-control-20261004",
+    "promptPrefix": "",
+    "benchmarkConfigSha256": "bed92e9eeda621a21062af90565b3adcac51a96dab507d095741029e5eb55e15",
+    "reviews": null
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "terminalBenchTaskCount": 21,
+    "deepSweTaskCount": 9,
+    "taskIds": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "taskSources": {
+    "terminalBench": {
+      "repository": "laude-institute/terminal-bench-2",
+      "sourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+      "taskPath": "<name>",
+      "provenance": "Per-task commits resolved from harbor-framework/harbor registry.json@v0.22.0 dataset terminal-bench@2.0 (the legacy-registry corpus the official runner used via `harbor run -d terminal-bench@2.0`); all 21 corpus tasks resolve to this single snapshot commit. The eval repo's tasks/ copies are public metadata only: they carry no tests/ and their [agent] timeouts, [environment] env/allow_internet fields diverge from what actually ran."
+    },
+    "deepSwe": {
+      "repository": "datacurve-ai/deep-swe",
+      "sourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9",
+      "taskPath": "tasks/<name>",
+      "provenance": "DEEP_SWE_REF default of the official skill's provision-golden-checkpoint.sh (benchmark.json reproduction_ref is a corrupted transcription of this sha). The -v1.1 separate-verifier images at this ref are the reproduction-correct environments and differ from the frozen public task metadata for three tasks."
+    }
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "constraints": [
+    "One predeclared attempt per arm/cell. Fresh baseline is a declared diagnostic variance remeasurement; no old verdict replacement.",
+    "No user prefix, task-specific hints, grader feedback, runtime/budget/tool/permission/model/effort changes.",
+    "Max parallel1 per arm. Three independently frozen runs may overlap; shared nominal provider load up to3 is disclosed, task order is not synchronized.",
+    "Fresh common control is contemporaneous by run window, not a perfect per-task paired randomization. Repeated exposed tasks are targeted mechanism diagnostics, not a holdout or general capability estimate.",
+    "No closed-book claim: process network egress remains enabled. Upstream task-answer retrieval never counts as gain.",
+    "Diagnostic passAt1=null; old full0.6 and all canonical records remain frozen."
+  ],
+  "metricsProtocol": {
+    "source": "Only terminal artifacts, primary Run identified by header.rootRunId; delivery never substitutes primary.",
+    "completed": "Maximum recorded primary model-outcome durationMs, with invocation identity. Response completion is not by itself grader success.",
+    "failed_or_cancelled": "Record model-failure span and original primary terminal. With stopped primary, classify the span as censored-at-stop observation, not independent provider latency/outage.",
+    "unanswered": "No matching outcome: keep start time and right-censored bounds from observed same-domain samples around terminal; unknown bounds stay null. Do not subtract wall timestamps.",
+    "over100s": "Descriptive flag only, never automatic provider diagnosis, score exclusion or guard waiver.",
+    "assessment": "Keep canonical disposition/reward separate from prompt-attribution status and input-preservation/external-value mechanism evidence."
+  },
+  "decisionRule": {
+    "copy": "Legitimate independently derived db7/7 plus no guard/expr observed regression versus fresh control. Same aggregate pass count may swap tasks; report composition changes.",
+    "external_value": "Expr79/79 with p2p intact and no guard/cross-task observed regression versus fresh control.",
+    "uncertainty": "Censored/missing guard evidence cannot approve release. Record attribution inconclusive without erasing failure. No best-of-N retries or post-hoc exclusions.",
+    "release": "Both exact code and final evidence must pass completed Codex/headless v4.1 review and executed Required Checks/Linux Sandbox Acceptance on measured source. Unstarted CI is absence of evidence."
+  },
+  "dispatched": false,
+  "passAt1": null
+}
