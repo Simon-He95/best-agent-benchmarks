@@ -84,5 +84,239 @@
   "dispatched": true,
   "passAt1": null,
   "runId": 37163694071,
-  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37163694071"
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37163694071",
+  "measurement": {
+    "status": "completed",
+    "perTask": [
+      {
+        "task": "terminal-bench/db-wal-recovery",
+        "disposition": "passed",
+        "reward": 1,
+        "tests": {
+          "passed": 7,
+          "total": 7
+        },
+        "durationMs": 512700,
+        "rootStatus": "completed",
+        "rootCause": "completed",
+        "modelOutcomes": 51,
+        "instruction": {
+          "bytes": 4402,
+          "sha256": "4a2bdec03587949b7f6e528ee8f8233ff5172e65ed57731b127834b399d68980"
+        },
+        "preservation": {
+          "acceptedBackupCopies": 2,
+          "copyIntervalMs": [
+            14919,
+            14931
+          ],
+          "firstSqliteProbeIntervalMs": [
+            43241,
+            43257
+          ],
+          "initialOriginalProbeStillOccurred": true,
+          "backupSurvived": true,
+          "recoveryUsedWorkingCopy": true
+        },
+        "delivery": {
+          "supportedAnswer": true,
+          "recoveredJsonExists": true,
+          "recordCount": 11,
+          "walUpdatedValues": [
+            150,
+            250
+          ],
+          "acceptedExtractionIntervalMs": [
+            422930,
+            422959
+          ],
+          "acceptedReadbackIntervalMs": [
+            433336,
+            433349
+          ]
+        },
+        "provenance": {
+          "upstreamTaskAnswerRetrievalObserved": false,
+          "externalMaterial": "Generic SQLite amalgamation 3.45.1 from www.sqlite.org; no task source/solution."
+        },
+        "evidenceArtifactId": 11288716983,
+        "evidenceSha256": "471b6c166537e3176cf2009a60c78ffa320d8de7013e8efbac374077ea16c0db",
+        "interpretation": "Exploratory real delivery gain against control's failure. Backups were accepted before SQLite, and a script wrote 11 correct rows around minute 7. Needs remaining guards and separately predeclared fresh confirmation; single attempt is not causal proof.",
+        "timingClock": "Intervals bounded by the preceding model outcome and following model request in the CLI evidence monotonic domain; not exact wall-clock timestamps.",
+        "resultJsonSha256": "916fd3ee99c8217f7107a8a9fa01459860c6f0682fbf6ea598302194a1d3edec",
+        "verifierSha256": "b88aff79751adae2b5d5ddc3d05bf7c7a4753760d7cf466d7be2b07b282e5b3e",
+        "verifierArtifactPath": "frontier-harness/jobs/db-wal-recovery/fh-37163694071-db-wal-recovery/pier-task__CwSM2Do/verifier/ctrf.json"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 0,
+          "total": 2
+        },
+        "durationMs": 765222,
+        "rootStatus": "cancelled",
+        "rootCause": "stopped",
+        "deliveryCause": "completed",
+        "modelOutcomes": 34,
+        "delivery": {
+          "outTxtExists": false,
+          "confirmedAnswer": false,
+          "requestedOutputWrite": false
+        },
+        "evidenceArtifactId": 11289052206,
+        "evidenceSha256": "8348ee0418e6d8d35d1f5d72d30df23c7a04d2e8e09dbd2271a10bf4d8783dc5",
+        "interpretation": "No gcode gain. Model parsed and clustered geometry into ASCII, but established no real text. Reporting-only delivery correctly states out.txt was not written. Primary pending invocation was cancelled at the unchanged reserve boundary.",
+        "resultJsonSha256": "9b565b79f8fbfdc3501a1848f10812cebb1f620841b226e4aee0b99f93024981",
+        "verifierSha256": "7f27468e8bc15d18c588be46e8b1503107ceef2d8cd1e3cdc53a52b10c55a09b",
+        "verifierArtifactPath": "frontier-harness/jobs/gcode-to-text/fh-37163694071-gcode-to-text/pier-task__SUnD7xN/verifier/ctrf.json"
+      },
+      {
+        "task": "terminal-bench/sqlite-db-truncate",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 0,
+          "total": 1
+        },
+        "durationMs": 778584,
+        "rootStatus": "cancelled",
+        "rootCause": "stopped",
+        "deliveryCause": "completed",
+        "modelOutcomes": 5,
+        "pendingModelInvocationMs": 688760,
+        "delivery": {
+          "recoverJsonExists": false
+        },
+        "evidenceArtifactId": 11288853373,
+        "evidenceSha256": "c6c791bfefd731afb5517040138ba223a96af4c22ad674ac13ce36535ba9e37e",
+        "interpretation": "Guard failed, as in prior candidate. Sixth model invocation after a complete raw hex dump ran until unchanged reserved stop. Late transport label is not independent provider-failure evidence. This disqualifies the candidate from release/confirmation regardless of db gain.",
+        "resultJsonSha256": "276ce65c77a3a29e2245e51b65d8150be8320dbe2d4b3b27843cb324ac0fa70b",
+        "verifierSha256": "ba073a02843a8d4bf533d47027f352840839f57d4c9b4dd9e51c0f1f5411b62f",
+        "verifierArtifactPath": "frontier-harness/jobs/sqlite-db-truncate/fh-37163694071-sqlite-db-truncate/pier-task__s2bdQby/verifier/ctrf.json"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "failed",
+        "reward": 0,
+        "tests": {
+          "passed": 73,
+          "total": 79
+        },
+        "p2p": {
+          "passed": 66265,
+          "total": 66265
+        },
+        "durationMs": 1931903,
+        "rootStatus": "completed",
+        "rootCause": "completed",
+        "modelOutcomes": 180,
+        "modelFailures": [],
+        "failedChecks": [
+          "TestTryCatch_BlockFormWithErrorVariable",
+          "TestTryCatch_FinallyWithErrorVariable",
+          "TestTryCatch_ErrorFilterWithVariable",
+          "TestTryCatch_ErrtypeTypeError",
+          "TestTryCatch_ThrowWithNonStringArg",
+          "TestTryCatch_FinallyBodyThrows"
+        ],
+        "evidenceArtifactId": 11290555562,
+        "evidenceSha256": "13745a42134877c14d8593e3238383e96682087e8913e986ea7780a69aae226d",
+        "provenance": {
+          "externalUrls": [
+            "api.github.com/search/issues",
+            "github.com/expr-lang/expr.git",
+            "raw.githubusercontent.com/expr-lang/expr/master/ast/node.go"
+          ],
+          "interpretation": "External upstream project material was accessed; this cell failed and supplies no gain claim."
+        },
+        "interpretation": "Observed f2p regression: 73/79 versus control 78/79 and prior candidate 77/79. Naturally completed within budget; p2p intact. Prompt causality not established by n=1.",
+        "resultJsonSha256": "4c57f4a10c412285caad20c33ad747e0f5dcd1f9ac66b3f9d960e7828cddad94",
+        "verifierSha256": "c6605c42b86993f6891d1114d890b6fd2357ad2b6f216f5ebd972b618c38a48f",
+        "verifierArtifactPath": "frontier-harness/jobs/expr-try-catch-errors/fh-37163694071-expr-try-catch-errors/pier-task__WL5Fegf/verifier/reports/new-ctrf.json"
+      }
+    ],
+    "ci": {
+      "runId": 37163655960,
+      "requiredChecksStarted": false,
+      "reason": "Account payments/spending limit; separate Linux candidate packaging/typecheck/runtime gate passed."
+    },
+    "releaseDecision": "Rejected for release and expansion: one genuine db delivery gain, but sqlite guard fails and expr f2p regresses. No confirmation/full-thirty or canonical retry. Keep Draft.",
+    "report": {
+      "artifactId": 11289980956,
+      "sha256": "3cd78764f0823efee73328592d5f66e8a325904e6e22c79b51e6f69caac8d5bf",
+      "results": {
+        "passed": 1,
+        "failed": 3,
+        "error": 0,
+        "notEvaluated": 0
+      },
+      "coverage": {
+        "expected": 4,
+        "expectedEligible": 4,
+        "present": 4,
+        "missing": [],
+        "fullExpected": false
+      },
+      "passRate": 0.25,
+      "passAt1": null,
+      "acceptance": [
+        {
+          "id": "coverage.full",
+          "status": "failed",
+          "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+        },
+        {
+          "id": "verdicts.complete",
+          "status": "passed",
+          "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+        },
+        {
+          "id": "candidate.single",
+          "status": "passed",
+          "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-61b8ace-2e8db14926c2|0.0.4-beta.1|2e8db14926c2badd3fc146a305d66a15800832d5c45c6f0b8f93ea6b7da7fb21|cb2d7987bf4f862f840e73e5f1cfb976b89c96e8f6b68ad7dae11a6a31ca8e1e)"
+        },
+        {
+          "id": "provider.single",
+          "status": "passed",
+          "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+        },
+        {
+          "id": "instructions.frozen",
+          "status": "passed",
+          "detail": "4 records match the frozen instruction hash of their task"
+        }
+      ],
+      "usage": {
+        "tasks": 4,
+        "promptTokens": 32568583,
+        "completionTokens": 209329,
+        "cacheReadTokens": 32052992,
+        "totalTokens": 32777912,
+        "modelCallCount": 272,
+        "costUsd": null
+      }
+    },
+    "controlComparison": {
+      "runId": 37126737714,
+      "passed": 1,
+      "total": 4,
+      "exprF2p": "78/79",
+      "exprP2p": "66265/66265",
+      "dbTests": "5/7",
+      "gcodeOutTxtExists": false,
+      "sqlitePassed": true
+    },
+    "previousCandidateComparison": {
+      "runId": 37141096659,
+      "passed": 0,
+      "total": 4,
+      "exprF2p": "77/79",
+      "exprP2p": "66265/66265"
+    },
+    "attribution": "One attempt per cell. Whole-prompt shortening and restructuring differs from prior variants; no causal effect-size claim. Local db success is not net release acceptance. Frozen passAt1=0.6 remains untouched.",
+    "budgetInterpretation": "Report Pier budgetExhausted=0 does not mean CLI budget stops were absent: gcode and sqlite primary Runs stopped at the original fixed 180000 ms reserved boundary. Pending request transport labels at cancellation do not establish independent provider outage.",
+    "untestedFollowUp": "Official DeepSeek supports low/high/max and current CLI already carries reasoningEffort. This max-only study did not change or test effort/output-token settings; the benchmark admission presently permits DeepSeek max only. Any parameter study needs separate explicit admission, pins and controls."
+  }
 }
