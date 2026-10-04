@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-batch",
+  "batchLabel": "prompt-incremental-delivery-20261004",
+  "requestedBy": "Simon explicitly requested primary-source research on Claude/OpenCode/Codex, a new adjustment and another benchmark attempt on 2026-10-04.",
+  "candidate": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.4-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "61b8acec6f53ef8b233534c6152f8ba944aa2186",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "controlRunId": 37126737714,
+  "previousFailedCandidateRunId": 37141096659,
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "promptPrefix": "",
+  "instructionOwner": "Only existing coding:instruction, Skill 2.14.0. Base remains excluded.",
+  "instructionBytes": 4402,
+  "instructionSha256": "4a2bdec03587949b7f6e528ee8f8233ff5172e65ed57731b127834b399d68980",
+  "baselineInstructionBytes": 6014,
+  "scope": "Concise static instruction, executable small steps, foreground preserved input and evidence-supported deliverable writes; existing engineering disciplines retained. No PR 205 runtime changes, no timers/limits/bindings/grants/model-selection/orchestration changes.",
+  "peerSources": [
+    {
+      "kind": "Claude Code official guidance",
+      "url": "https://code.claude.com/docs/en/best-practices"
+    },
+    {
+      "kind": "Anthropic incremental implementation",
+      "url": "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents"
+    },
+    {
+      "kind": "Codex source",
+      "commit": "550eb50545a78468a09ce86b82426338640ef22d",
+      "path": "codex-rs/core/gpt_5_2_prompt.md"
+    },
+    {
+      "kind": "OpenCode limit prompt",
+      "commit": "907b3bc518fa48e90e8ec24dd327d13eee71c36c",
+      "path": "packages/core/src/session/runner/max-steps.ts"
+    }
+  ],
+  "hypothesis": "A concise instruction and executable probes may help the model reach and write supported results earlier. Peer practices and prompt length are not efficacy evidence.",
+  "constraints": [
+    "One predeclared attempt per cell, with no canonical-verdict replacement or retry.",
+    "Same dataset/Pier/provider deepseek-v4-flash/max, budgets/multiplier=1/max_parallel=1/verifier.",
+    "No experimental user prefix, hidden grader feedback or task-specific hints.",
+    "Existing process egress remains disclosed; upstream task-answer retrieval never counts as reasoning gain.",
+    "Diagnostic passAt1=null; frozen run 37004410693 and passAt1=0.6 unchanged."
+  ],
+  "gainDefinition": {
+    "target": "At least one newly accepted target (db-wal, gcode or expr), using real supported answers, with sqlite guard passing and expr p2p intact.",
+    "delivery": "Correct WAL data or correctly formatted real gcode text in required path, accepted by the original verifier; file existence, placeholders or guesses alone do not count.",
+    "timing": "Trace primary Run and accepted tool results within the original budget; earlier model requests alone do not prove earlier writes.",
+    "confirmation": "Only if this exploratory candidate meets the gate, predeclare a separate fresh control/candidate pair on all four cells before release/full-thirty expansion. Preserve both reports; no best-of-N scoring. If this candidate fails, stop it and record the failure."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+    "fh_limit": "4",
+    "fh_max_parallel": "1",
+    "fh_reasoning_effort": "max",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_batch": "prompt-incremental-delivery-20261004",
+    "fh_prefix": ""
+  },
+  "dispatched": false,
+  "passAt1": null
+}
