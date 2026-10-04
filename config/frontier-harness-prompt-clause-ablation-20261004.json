@@ -137,7 +137,7 @@
       "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "dispatched",
+      "status": "completed",
       "admissionClass": "declared-variance-remeasurement",
       "batchLabel": "clause-ablation-control-20261004",
       "promptPrefix": "",
@@ -146,7 +146,45 @@
       "benchmarkBranch": "codex/clause-control",
       "benchmarkDesignCommit": "c673f76",
       "runId": 37172363077,
-      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172363077"
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172363077",
+      "report": {
+        "results": {
+          "passed": 1,
+          "failed": 3,
+          "error": 0,
+          "notEvaluated": 0
+        },
+        "artifactId": 11292937838,
+        "sha256": "6b0a3a93162b61a7aa28e1d7e2609db3ed982fc967e281c1249b2b741d2c265b",
+        "passAt1": null,
+        "acceptance": [
+          {
+            "id": "coverage.full",
+            "status": "failed",
+            "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+          },
+          {
+            "id": "verdicts.complete",
+            "status": "passed",
+            "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+          },
+          {
+            "id": "candidate.single",
+            "status": "passed",
+            "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-8698d01-c7b59e9d10dd|0.0.4-beta.1|c7b59e9d10dd2a898f75d5d8808773e56b1c134d1a339d44dde89cf808633a7e|df02c4a3ba3cb3751a4d06c8246864305a7b34f2a75af69b68e96d496f541fbf)"
+          },
+          {
+            "id": "provider.single",
+            "status": "passed",
+            "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+          },
+          {
+            "id": "instructions.frozen",
+            "status": "passed",
+            "detail": "4 records match the frozen instruction hash of their task"
+          }
+        ]
+      }
     },
     "copy": {
       "candidate": {
@@ -161,7 +199,7 @@
       "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "dispatched",
+      "status": "completed",
       "admissionClass": "new-single-clause-candidate",
       "batchLabel": "clause-ablation-copy-20261004",
       "promptPrefix": "",
@@ -213,7 +251,45 @@
       "benchmarkBranch": "codex/clause-copy",
       "benchmarkDesignCommit": "de4f9f9",
       "runId": 37172365073,
-      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172365073"
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172365073",
+      "report": {
+        "results": {
+          "passed": 1,
+          "failed": 3,
+          "error": 0,
+          "notEvaluated": 0
+        },
+        "artifactId": 11293672179,
+        "sha256": "e83f7575f1bfcc1a31d08c419a4800f81b7c7d7b9f6eb6be5b67701b21b5531b",
+        "passAt1": null,
+        "acceptance": [
+          {
+            "id": "coverage.full",
+            "status": "failed",
+            "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+          },
+          {
+            "id": "verdicts.complete",
+            "status": "passed",
+            "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+          },
+          {
+            "id": "candidate.single",
+            "status": "passed",
+            "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-4341bae-041d88a952eb|0.0.4-beta.1|041d88a952eb21f7f125c76597c5893df39cf33cfbc0c8985b18912ed3c2b4b8|c50f1db8b20c2d6ff582d2a5c32bbdd2b4e8f213266cb1de8dcdb9491fe36063)"
+          },
+          {
+            "id": "provider.single",
+            "status": "passed",
+            "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+          },
+          {
+            "id": "instructions.frozen",
+            "status": "passed",
+            "detail": "4 records match the frozen instruction hash of their task"
+          }
+        ]
+      }
     },
     "external_value": {
       "candidate": {
@@ -228,7 +304,7 @@
       "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "dispatched",
+      "status": "completed",
       "admissionClass": "new-single-clause-candidate",
       "batchLabel": "clause-ablation-external-value-20261004",
       "promptPrefix": "",
@@ -299,14 +375,851 @@
       "benchmarkBranch": "codex/clause-external-value",
       "benchmarkDesignCommit": "ca5754b",
       "runId": 37172366912,
-      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172366912"
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172366912",
+      "report": {
+        "results": {
+          "passed": 1,
+          "failed": 3,
+          "error": 0,
+          "notEvaluated": 0
+        },
+        "artifactId": 11293961060,
+        "sha256": "bbc04e2d5b0712de5cd891eb022d97b6b515ece6c9f3a615b8bee2b7a51c75dd",
+        "passAt1": null,
+        "acceptance": [
+          {
+            "id": "coverage.full",
+            "status": "failed",
+            "detail": "4 of 30 Docker-eligible corpus tasks were predeclared"
+          },
+          {
+            "id": "verdicts.complete",
+            "status": "passed",
+            "detail": "4 present, 0 missing, 0 error, 0 not-evaluated"
+          },
+          {
+            "id": "candidate.single",
+            "status": "passed",
+            "detail": "4 records agree on one frozen candidate (cli-0.0.4-beta.1-0150931-80ffec5a2579|0.0.4-beta.1|80ffec5a2579530663f46829d8738488dc92cad87e9b19d35488899e543a38d4|3a2a62b5ac15efa285498ad3bd79ef54fc0059d890a923c086ef733304cc734e)"
+          },
+          {
+            "id": "provider.single",
+            "status": "passed",
+            "detail": "model(s) deepseek-v4-flash at reasoning effort max; the frozen profile is deepseek-v4-flash"
+          },
+          {
+            "id": "instructions.frozen",
+            "status": "passed",
+            "detail": "4 records match the frozen instruction hash of their task"
+          }
+        ]
+      }
     }
   },
-  "status": "running",
+  "status": "completed",
   "passAt1": null,
   "artifactFreeze": "Each hosted run builds exactly its pinned source into one Linux candidate; packaging/typecheck/runtime receipt with binary/tarball/manifest hashes freezes before model entry. Those receipts remain attached to canonical task records.",
   "sourcePRs": {
     "copy": "https://github.com/Simon-He95/best-agent/pull/209",
     "external_value": "https://github.com/Simon-He95/best-agent/pull/211"
+  },
+  "observations": [
+    {
+      "arm": "control",
+      "task": "terminal-bench/db-wal-recovery",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 7,
+        "passed": 5,
+        "failed": 2,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791082953.4885426,
+        "stop": 1791082953.5757315
+      },
+      "failedChecks": [
+        "test_outputs.py::test_recovered_data_completeness",
+        "test_outputs.py::test_wal_was_decrypted"
+      ],
+      "durationMs": 489593,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 61
+      },
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",14]",
+          "durationMs": 70584,
+          "sequence": 28
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": false,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "dcba7b9c01b358adfda9f00c48931891f88313c00dcaf0e0fb4f101fea060ef3",
+        "verifier": "60402aeb74fe96201496095925449e360e7115d171503ef8539362f9e56d277d",
+        "result": "b7ef57e033ed153814c438a74875ea869c2e5e5b9c3cd553b76f6a9c7ba0b627"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-db/frontier-harness/jobs/db-wal-recovery/fh-37172363077-db-wal-recovery/pier-task__5Sgt5NG/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-db/frontier-harness/jobs/db-wal-recovery/fh-37172363077-db-wal-recovery/pier-task__5Sgt5NG/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-report/results/frontier-harness-results.db-wal-recovery.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "control",
+      "task": "terminal-bench/gcode-to-text",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 2,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791083768.4838345,
+        "stop": 1791083768.5656376
+      },
+      "failedChecks": [
+        "test_outputs.py::test_hello_file_exists",
+        "test_outputs.py::test_hello_file_content"
+      ],
+      "durationMs": 778407,
+      "primaryTerminal": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "sequence": 30
+      },
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",11]",
+          "durationMs": 233227,
+          "sequence": 22
+        },
+        "maxFailureObservation": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",15]",
+          "durationMs": 106170,
+          "sequence": 32,
+          "failure": {
+            "kind": "failure",
+            "reason": "transport"
+          }
+        },
+        "failureObservations": [
+          {
+            "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",15]",
+            "durationMs": 106170,
+            "sequence": 32,
+            "failure": {
+              "kind": "failure",
+              "reason": "transport"
+            }
+          }
+        ],
+        "unansweredRequests": [],
+        "primaryStopped": true,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "448a29aa2cbc120007eedaaa6470b01b20365109027a12bb4fc5bb54dd859168",
+        "verifier": "cf95a81b7c9729bea52cd9f303f553cd34126aab917d2f4ac231e80f7e5c0f34",
+        "result": "d626665c8f7d60937ca3b4cda6e048d501fcb31b6c0098e4afa1d6d8d319c52b"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-gcode/frontier-harness/jobs/gcode-to-text/fh-37172363077-gcode-to-text/pier-task__BwRZQ26/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-gcode/frontier-harness/jobs/gcode-to-text/fh-37172363077-gcode-to-text/pier-task__BwRZQ26/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-report/results/frontier-harness-results.gcode-to-text.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "control",
+      "task": "terminal-bench/sqlite-db-truncate",
+      "canonicalDisposition": "passed",
+      "canonicalRewards": {
+        "reward": 1
+      },
+      "checks": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791084221.8098655,
+        "stop": 1791084221.8734348
+      },
+      "failedChecks": [],
+      "durationMs": 422470,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 59
+      },
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",5]",
+          "durationMs": 102415,
+          "sequence": 10
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "78badbd4a872afa96a813e31fc39baf94316f33e343a119b522f3745f124e1e1",
+        "verifier": "d55ae4e82fa1769f42845ad9f9447014dd3046e7f65bb1bebd2e5fca22e02aa1",
+        "result": "8641a5568a5734a004dd9433e0073e057ced464c2d87c57c683d3cb12bff11ed"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172363077-sqlite-db-truncate/pier-task__Q2hAyG2/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172363077-sqlite-db-truncate/pier-task__Q2hAyG2/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-report/results/frontier-harness-results.sqlite-db-truncate.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "control",
+      "task": "datacurve/expr-try-catch-errors",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 75,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0.9493670886075949,
+        "p2p": 1,
+        "partial": 0.9999397081876281
+      },
+      "checks": {
+        "tests": 79,
+        "passed": 75,
+        "failed": 4,
+        "pending": 0,
+        "skipped": 0,
+        "other": 0,
+        "start": 1791087306445,
+        "stop": 1791087306824
+      },
+      "failedChecks": [
+        "TestTryCatch_BuiltinWithNilCoalescing",
+        "TestTryCatch_BuiltinWithConditional",
+        "TestTryCatch_BuiltinChainedTryWithDifferentFallbacks",
+        "TestTryCatch_ErrtypeTypeError"
+      ],
+      "durationMs": 3051189,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 563
+      },
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",57]",
+          "durationMs": 263443,
+          "sequence": 114
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "0cb83e5e9bf628812279b3516b023483d51a898966dde1659a880afede13cc30",
+        "verifier": "5bedcbc4b982ecd31774f506a33d30b91b2b15086ed5a17ba61adfffbc7324a5",
+        "result": "9379008ca8b98a344c0114977d5c00a988228fae426e0310a7db7644eba55a85"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172363077-expr-try-catch-errors/pier-task__uCurAf6/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172363077-expr-try-catch-errors/pier-task__uCurAf6/verifier/reports/new-ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-control-report/results/frontier-harness-results.expr-try-catch-errors.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "copy",
+      "task": "terminal-bench/db-wal-recovery",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 7,
+        "passed": 0,
+        "failed": 7,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791083227.8292851,
+        "stop": 1791083227.9145997
+      },
+      "failedChecks": [
+        "test_outputs.py::test_recovered_json_exists",
+        "test_outputs.py::test_recovered_json_is_valid",
+        "test_outputs.py::test_recovered_data_structure",
+        "test_outputs.py::test_recovered_data_sorted",
+        "test_outputs.py::test_recovered_data_completeness",
+        "test_outputs.py::test_no_duplicate_ids",
+        "test_outputs.py::test_wal_was_decrypted"
+      ],
+      "durationMs": 783430,
+      "primaryTerminal": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "sequence": 12
+      },
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",5]",
+          "durationMs": 256767,
+          "sequence": 10
+        },
+        "maxFailureObservation": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",6]",
+          "durationMs": 451622,
+          "sequence": 14,
+          "failure": {
+            "kind": "failure",
+            "reason": "transport"
+          }
+        },
+        "failureObservations": [
+          {
+            "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",6]",
+            "durationMs": 451622,
+            "sequence": 14,
+            "failure": {
+              "kind": "failure",
+              "reason": "transport"
+            }
+          }
+        ],
+        "unansweredRequests": [],
+        "primaryStopped": true,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "7395864a251d23e01f4bbadf0a029a0cbe1105a5de24d03b60b9c42a7989613e",
+        "verifier": "c0b59c6e225a30e2f71ab74a4145eddbbe60bd25698b74e3db63bd7797694aa5",
+        "result": "7cc63aa9cb076eff9f2771a7cf992fb5f128c63c08e26047e893cd5d996a2a14"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-db/frontier-harness/jobs/db-wal-recovery/fh-37172365073-db-wal-recovery/pier-task__SSHcTrC/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-db/frontier-harness/jobs/db-wal-recovery/fh-37172365073-db-wal-recovery/pier-task__SSHcTrC/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-report/results/frontier-harness-results.db-wal-recovery.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "copy",
+      "task": "terminal-bench/gcode-to-text",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 2,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791084129.3862762,
+        "stop": 1791084129.4959984
+      },
+      "failedChecks": [
+        "test_outputs.py::test_hello_file_exists",
+        "test_outputs.py::test_hello_file_content"
+      ],
+      "durationMs": 872626,
+      "primaryTerminal": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "sequence": 68
+      },
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",26]",
+          "durationMs": 88983,
+          "sequence": 52
+        },
+        "maxFailureObservation": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",34]",
+          "durationMs": 33145,
+          "sequence": 70,
+          "failure": {
+            "kind": "failure",
+            "reason": "transport"
+          }
+        },
+        "failureObservations": [
+          {
+            "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",34]",
+            "durationMs": 33145,
+            "sequence": 70,
+            "failure": {
+              "kind": "failure",
+              "reason": "transport"
+            }
+          }
+        ],
+        "unansweredRequests": [],
+        "primaryStopped": true,
+        "over100sObserved": false,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "bad0e8a4620cc554f39e931c602bc09f2ca14b3274849d3f6bcb9dbcb9bd940e",
+        "verifier": "858ff24245e01f95e2e6dda8a02ebee27fe0b71476f82232bcc9752ea4b9c2f0",
+        "result": "48e6579fac539fe40d50c5e101f67fc1de5b586364169692f8b793e7df9dba31"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-gcode/frontier-harness/jobs/gcode-to-text/fh-37172365073-gcode-to-text/pier-task__q76Z4ft/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-gcode/frontier-harness/jobs/gcode-to-text/fh-37172365073-gcode-to-text/pier-task__q76Z4ft/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-report/results/frontier-harness-results.gcode-to-text.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "copy",
+      "task": "terminal-bench/sqlite-db-truncate",
+      "canonicalDisposition": "passed",
+      "canonicalRewards": {
+        "reward": 1
+      },
+      "checks": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791084748.3837774,
+        "stop": 1791084748.4502642
+      },
+      "failedChecks": [],
+      "durationMs": 588189,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 51
+      },
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",7]",
+          "durationMs": 218555,
+          "sequence": 14
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "2cebc681ab23952340573a6e7a23e572852dd05a0acff3342fa4446d34085b6b",
+        "verifier": "2e85fa193e552bb34d9b3f3e486c94ba3277426d0a2b7e9464a8978b42ff5825",
+        "result": "394e5992ad0efc1d2301c4bbb7f790f6bc21734e38268206f57d9db2f95c238d"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172365073-sqlite-db-truncate/pier-task__GnFcukd/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172365073-sqlite-db-truncate/pier-task__GnFcukd/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-report/results/frontier-harness-results.sqlite-db-truncate.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "copy",
+      "task": "datacurve/expr-try-catch-errors",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 77,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0.9746835443037974,
+        "p2p": 1,
+        "partial": 0.9999698540938141
+      },
+      "checks": {
+        "tests": 79,
+        "passed": 77,
+        "failed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "other": 0,
+        "start": 1791087387178,
+        "stop": 1791087387550
+      },
+      "failedChecks": [
+        "TestTryCatch_ErrtypeTypeError",
+        "TestTryCatch_ErrtypeNilError"
+      ],
+      "durationMs": 2610139,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 467
+      },
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",49]",
+          "durationMs": 277778,
+          "sequence": 98
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "180b23ef6ab54ed139929bb4effde6358c1d37b06a1f89a76f33b64e577ad79d",
+        "verifier": "418967ec120537211aeb89d549496cd15deb52dc298c9ee4c0460bf504fc8956",
+        "result": "6ddfb9fdcceb27540da397e1ab2d391ebd68fc973b03fbf3dff296f7b72a9894"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172365073-expr-try-catch-errors/pier-task__ZcYjasX/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172365073-expr-try-catch-errors/pier-task__ZcYjasX/verifier/reports/new-ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-copy-report/results/frontier-harness-results.expr-try-catch-errors.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "external_value",
+      "task": "terminal-bench/db-wal-recovery",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 7,
+        "passed": 5,
+        "failed": 2,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791083359.8767896,
+        "stop": 1791083359.9654834
+      },
+      "failedChecks": [
+        "test_outputs.py::test_recovered_data_completeness",
+        "test_outputs.py::test_wal_was_decrypted"
+      ],
+      "durationMs": 881785,
+      "primaryTerminal": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "sequence": 74
+      },
+      "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",20]",
+          "durationMs": 71944,
+          "sequence": 40
+        },
+        "maxFailureObservation": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",37]",
+          "durationMs": 27008,
+          "sequence": 76,
+          "failure": {
+            "kind": "failure",
+            "reason": "transport"
+          }
+        },
+        "failureObservations": [
+          {
+            "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",37]",
+            "durationMs": 27008,
+            "sequence": 76,
+            "failure": {
+              "kind": "failure",
+              "reason": "transport"
+            }
+          }
+        ],
+        "unansweredRequests": [],
+        "primaryStopped": true,
+        "over100sObserved": false,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "a0e249560b72000ba560a64b5d6a574983c387961bf1d16c1b6ee624341d098a",
+        "verifier": "ff305954af2da7c1dc82a6e882335c0e8f6b1b9f518ad5ba7e417e4e0d98a5c0",
+        "result": "fbcc1857eeb8000e937ce3007546f0873d2e7c027423d71fdcb81f3260592591"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-db/frontier-harness/jobs/db-wal-recovery/fh-37172366912-db-wal-recovery/pier-task__zotYcdk/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-db/frontier-harness/jobs/db-wal-recovery/fh-37172366912-db-wal-recovery/pier-task__zotYcdk/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-report/results/frontier-harness-results.db-wal-recovery.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "external_value",
+      "task": "terminal-bench/gcode-to-text",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0
+      },
+      "checks": {
+        "tests": 2,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791084177.284864,
+        "stop": 1791084177.3960357
+      },
+      "failedChecks": [
+        "test_outputs.py::test_hello_file_exists",
+        "test_outputs.py::test_hello_file_content"
+      ],
+      "durationMs": 775151,
+      "primaryTerminal": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "sequence": 78
+      },
+      "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",29]",
+          "durationMs": 76953,
+          "sequence": 58
+        },
+        "maxFailureObservation": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",39]",
+          "durationMs": 9881,
+          "sequence": 80,
+          "failure": {
+            "kind": "failure",
+            "reason": "transport"
+          }
+        },
+        "failureObservations": [
+          {
+            "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",39]",
+            "durationMs": 9881,
+            "sequence": 80,
+            "failure": {
+              "kind": "failure",
+              "reason": "transport"
+            }
+          }
+        ],
+        "unansweredRequests": [],
+        "primaryStopped": true,
+        "over100sObserved": false,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "62002d2a918789f90a9ff54db9c2a7cace2f0867d82e90532946ad4c0c4e49c4",
+        "verifier": "fa2db236c44b8be8c0e4c8fb07408e0431db51cbb3eaca852e122a9eafa1bec6",
+        "result": "86195967ff99076626316fa84f4bf2b74b3343092440d5e3e84380155af3bbb5"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-gcode/frontier-harness/jobs/gcode-to-text/fh-37172366912-gcode-to-text/pier-task__6YZZ9D6/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-gcode/frontier-harness/jobs/gcode-to-text/fh-37172366912-gcode-to-text/pier-task__6YZZ9D6/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-report/results/frontier-harness-results.gcode-to-text.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "external_value",
+      "task": "terminal-bench/sqlite-db-truncate",
+      "canonicalDisposition": "passed",
+      "canonicalRewards": {
+        "reward": 1
+      },
+      "checks": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "pending": 0,
+        "other": 0,
+        "start": 1791084561.8538377,
+        "stop": 1791084561.8981752
+      },
+      "failedChecks": [],
+      "durationMs": 354577,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 43
+      },
+      "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",4]",
+          "durationMs": 190541,
+          "sequence": 8
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "14ba045e9762cab1bf01096f8085f1fbc63efc2c0c6ac16358d4d14f3fe2aed1",
+        "verifier": "4c57ed0271f96489d2bcbe5ee2c571d21e467cd1b5761fce478e0c136a9cb3e9",
+        "result": "92321f86522b6e488fafb96cc96243f5617df6503c89068f70d64962a7507070"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172366912-sqlite-db-truncate/pier-task__Pa9RWXL/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-sqlite/frontier-harness/jobs/sqlite-db-truncate/fh-37172366912-sqlite-db-truncate/pier-task__Pa9RWXL/verifier/ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-report/results/frontier-harness-results.sqlite-db-truncate.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    },
+    {
+      "arm": "external_value",
+      "task": "datacurve/expr-try-catch-errors",
+      "canonicalDisposition": "failed",
+      "canonicalRewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 73,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0.9240506329113924,
+        "p2p": 1,
+        "partial": 0.9999095622814422
+      },
+      "checks": {
+        "tests": 79,
+        "passed": 73,
+        "failed": 6,
+        "pending": 0,
+        "skipped": 0,
+        "other": 0,
+        "start": 1791087297426,
+        "stop": 1791087297799
+      },
+      "failedChecks": [
+        "TestTryCatch_BlockFormWithErrorVariable",
+        "TestTryCatch_FinallyWithErrorVariable",
+        "TestTryCatch_ErrorFilterWithVariable",
+        "TestTryCatch_ErrtypeTypeError",
+        "TestTryCatch_ThrowWithNonStringArg",
+        "TestTryCatch_FinallyBodyThrows"
+      ],
+      "durationMs": 2705664,
+      "primaryTerminal": {
+        "status": "completed",
+        "cause": "completed",
+        "sequence": 513
+      },
+      "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+      "spans": {
+        "maxCompletedResponse": {
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",51]",
+          "durationMs": 185956,
+          "sequence": 102
+        },
+        "maxFailureObservation": null,
+        "failureObservations": [],
+        "unansweredRequests": [],
+        "primaryStopped": false,
+        "over100sObserved": true,
+        "sourceClock": "CLI/harness monotonic domain; duration includes external waiting/processing, not identified provider latency. Stop-censored failure observation is not an outage proof."
+      },
+      "hashes": {
+        "evidence": "740e09973676f1c15d78ca8f1507cfa6b4a07a36fc4e35af974d43aeed04f650",
+        "verifier": "788b764f6c9e38d49f4f799de81301509a745e6883e033c018c32379aebafdee",
+        "result": "d21f99f80c3e7c15c96d38039d7e01125bceb9d6b8462978886831b5321e121f"
+      },
+      "artifacts": {
+        "evidenceLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172366912-expr-try-catch-errors/pier-task__xTYBcmU/agent/best-agent-evidence.jsonl",
+        "verifierLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-expr/frontier-harness/jobs/expr-try-catch-errors/fh-37172366912-expr-try-catch-errors/pier-task__xTYBcmU/verifier/reports/new-ctrf.json",
+        "resultLocalPath": "/Users/Simon/Github/best-agent-benchmarks/.tmp/clause-external-value-report/results/frontier-harness-results.expr-try-catch-errors.json"
+      },
+      "promptAttribution": "unestablished; single diagnostic attempt; canonical result retained"
+    }
+  ],
+  "releaseDecision": "Neither arm meets its predeclared target. Copy preserved inputs but db recovery delivery failed; E failed to reproduce79/79. All guards pass; per-run variance and censored waits remain disclosed. No score exclusions, historical replacements, release or merge.",
+  "finalHeadlessReview": {
+    "requestedModel": "deepseek-v4.1-flash",
+    "requestedEffort": "max",
+    "entry": "best-agent run",
+    "exitCode": 0,
+    "reviewSha256": "aa29dfb2dd618027b8d52fdcb6eb2cc957785c82f208815028edd04ce0ae39ef",
+    "evidenceSha256": "4d850d7e818e547188e10a612bd7edd29bdaad2bce5b311c4795960a06958e49",
+    "followupExitCode": 0,
+    "followupReviewSha256": "0b65a47154d0132f0f092c5257ba75c7f94ae3632fc6060970164d2ee92659f3",
+    "followupEvidenceSha256": "94b452efbc4f28a19429adb535928b8ee7514fe7ce2b34b28130674b9ed73907",
+    "actualFirstRequestProofSha256": "e4fb0ec19470d53c3da416ce5e140a40c471e7a9c337f0c5a501298eedbd43c8",
+    "confirmed": [
+      "All12 canonical verifier counts and failed names independently checked.",
+      "Exact baseline/copy/E text bytes and hashes recomputed in scratch.",
+      "All12 actual first request instruction strings verified separately from standard task instructions.frozen check.",
+      "Copy protection mechanism observed; no completed db target.",
+      "Primary stop counts control1/4 copy2/4 E2/4, not canonical failed count3/4."
+    ],
+    "limitations": [
+      "Cannot stream/re-hash entire raw evidence in reviewer process sandbox; large read capped.",
+      "Full raw hashes/spans independently recomputed by main agent; reviewer spot-read/reconstructed evidence.",
+      "No statistical independence/efficacy/CI approval."
+    ],
+    "decision": "Keep both Draft; no claim that copy is useless or E caused regression; no exclusions or release."
+  },
+  "summary": {
+    "controlPassed": 1,
+    "copyPassed": 1,
+    "externalValuePassed": 1,
+    "controlExpr": 75,
+    "copyExpr": 77,
+    "externalValueExpr": 73,
+    "exprTotal": 79,
+    "p2p": "66265/66265 all arms",
+    "preservationMechanismTriggered": true,
+    "copyDbDelivered": false,
+    "stoppedPrimaryCounts": {
+      "control": 1,
+      "copy": 2,
+      "external_value": 2
+    },
+    "maxCompletedSqliteMs": {
+      "control": 102415,
+      "copy": 218555,
+      "external_value": 190541
+    }
   }
 }
