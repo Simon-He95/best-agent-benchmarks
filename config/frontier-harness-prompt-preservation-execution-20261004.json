@@ -117,5 +117,33 @@
     }
   },
   "prerequisite": "The candidate arm requires best-agent commit 7b8a8df9ad3ddb2aa8194bed017477a6f504b207 reachable on GitHub: published on codex/prompt-supported-delivery with draft PR Simon-He95/best-agent#212 before dispatch. The control and preservation arms need only 8698d016 and 4341bae, which were already published.",
-  "status": "frozen-not-dispatched"
+  "dispatch": {
+    "control": {
+      "runId": 37208521326,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37208521326",
+      "ref": "codex/preservation-exec-control",
+      "headSha": "ec8637c8d48903990674e89379823577a81e5ffa",
+      "batch": "preservation-execution-control-20261004",
+      "dispatchedAt": "2026-10-04T14:14:24Z"
+    },
+    "preservation": {
+      "runId": 37208531768,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37208531768",
+      "ref": "codex/preservation-exec-preservation",
+      "headSha": "8711ce91c6c613ec25a0a7a703aede94e414d0e8",
+      "batch": "preservation-execution-preservation-20261004",
+      "dispatchedAt": "2026-10-04T14:14:36Z"
+    },
+    "candidate": {
+      "runId": 37208537119,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37208537119",
+      "ref": "codex/preservation-exec-candidate",
+      "headSha": "948cb25306a21e4a488b07bf039a3974551fcc00",
+      "batch": "preservation-execution-candidate-20261004",
+      "dispatchedAt": "2026-10-04T14:14:42Z"
+    },
+    "method": "Three dispatches from three stable arm refs, in the predeclared order control → preservation → candidate; every run's headSha was re-read from the API and equals its arm commit, and each arm ref was verified before dispatch to carry that arm's sourceCommit pin, the manifest and the workflow file. The arm refs are not moved after dispatch; this record is committed on the cohort branch only, so no queued job can resolve a different pin.",
+    "notClaimed": "No verdict, gain or causal reading is claimed here. The measurements exist only after all three runs finish; per-arm outcomes, censored spans and the predeclared reading are recorded then."
+  },
+  "status": "dispatched"
 }
