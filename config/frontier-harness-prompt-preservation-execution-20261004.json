@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-single-clause-ablation-continuation",
+  "studyId": "prompt-preservation-execution-20261004",
+  "requestedBy": "Simon, 2026-10-04: keep improving the preservation candidate and accept the PR only if a real improvement produces a measured gain. The three-arm dispatch was authorized explicitly in the same conversation.",
+  "reason": "The 2026-10-04 isolated cohort separated the preservation sentence and the external-value clause; neither arm met its predeclared target, and the preservation arm's mechanism fired (a copy of main.db and main.db-wal existed before the first probe and every later probe used /app/work/*) while the run then spent 256,767 ms in one reasoning call and 451,622 ms in a truncated call with 71 ms of total tool execution and never wrote /app/recovered.json. The same cell's two failing checks in the control and E arms are the WAL-updated values, i.e. the deliverable's rows were not derived from the input's bytes. This cohort measures the one addition that addresses exactly that: the exact PR 207 execution line, which no arm has ever measured alone and which is the only recorded in-product arm whose db-wal cell produced WAL-correct values in-sandbox.",
+  "model": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "arms": {
+    "control": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "attemptsPerCell": 1,
+      "maxParallel": 1
+    },
+    "preservation": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.15.0",
+      "instructionBytes": 6165,
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "note": "Re-measured in this window because the candidate is exactly this arm plus one line. The 2026-10-04 measurements of this arm stay canonical for their own run; nothing here replaces them."
+    },
+    "candidate": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "7b8a8df9ad3ddb2aa8194bed017477a6f504b207",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.17.0",
+      "instructionBytes": 6478,
+      "instructionSha256": "2690f344023f3af557827069029d2237b73c1e134a93214db99ea33244bc10e1",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "note": "Preservation arm plus the exact PR 207 execution sentence (312 bytes). Removing that line restores 6,165 bytes / e85b985e… and removing the preservation line restores 6,014 bytes / cc23fe7a…; both identities are pinned by the repository's own test, and the sentence is present in the packaged artifact bytes."
+    }
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b, 21 Terminal-Bench + 9 DeepSWE), per-suite task sources, pier pin (0.3.1), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, serial execution (fh_max_parallel=1), every declared task budget, the official verifiers and the per-call ceiling. No user prefix, no task-specific hint, no grader feedback, no runtime/budget/tool/permission/model/effort change.",
+  "gainDefinition": {
+    "primary": "On terminal-bench/db-wal-recovery the candidate arm leaves /app/recovered.json at grading with the WAL-updated values correct (the WAL-updated rows, e.g. Apple 150) and the evidence shows no retrieval of the task's own upstream material (no raw.githubusercontent fetch of the task files, no upstream archive of solve.sh/test_outputs.py/main.db-wal.encrypted). Either half missing, the cell is recorded as no gain.",
+    "partial": "The deliverable exists at the graded path with a structure-complete answer (any values), or the evidence shows the copy mechanism plus a maximum single-call span materially below this arm's own 256.8 s / 451.6 s pattern with the attempt not truncation-bounded.",
+    "noRegression": "The sqlite guard still passes, every predeclared cell keeps a real verdict with an intact acceptance block, and the candidate's expr failing set is not larger than the contemporaneous control's.",
+    "cost": "Any arm whose expr failing set grows, or whose guard cell stops passing, is recorded as cost even if the target cell moves.",
+    "censoring": "An attempt bounded by the reserved delivery boundary or a declared stop is a right-censored observation of that request: it is reported with its span, never excluded from the record and never counted as a gain. A call over 100 seconds is telemetry, never an automatic outage diagnosis or exclusion rule."
+  },
+  "readingPlan": [
+    "Before anything else, confirm the actual first-request instruction bytes of every cell equal the arm's frozen hash (recorded per cell in the evidence and cross-checked against these hashes).",
+    "db-wal-recovery: whether a copy of main.db/main.db-wal existed before the first opening command; what the first probe did to the original; whether the network route was used; the delivered rows against the WAL-updated values; the deliverable's presence at /app/recovered.json.",
+    "Delivery: whether /app/out.txt exists on gcode-to-text and what it contains; the maximum single-call duration and the number of truncation-bounded calls per cell.",
+    "expr-try-catch-errors: the failing check set of all three arms against each other and against the recorded sets (75/79 control, 77/79 preservation, 73/79 E in the 2026-10-04 window; 78/79 historical control).",
+    "Guard: sqlite-db-truncate disposition and its single check.",
+    "Acceptance block of every report (coverage, verdicts, candidate, provider, instructions)."
+  ],
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed arm/cell, nothing else.",
+    "No verdict of any earlier run is replaced, refilled or reinterpreted; this cohort is a same-composition measurement of three frozen candidates.",
+    "The result is never merged into any pass@1; diagnostic passAt1 stays null and the frozen full-run 0.6 is unchanged.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Nothing is published to main; the manifest and the arm refs live on this branch.",
+    "Dispatch was explicitly authorized by the human before the first dispatch of this cohort."
+  ],
+  "dispatchPlan": {
+    "order": [
+      "control",
+      "preservation",
+      "candidate"
+    ],
+    "refs": {
+      "control": "codex/preservation-exec-control",
+      "preservation": "codex/preservation-exec-preservation",
+      "candidate": "codex/preservation-exec-candidate"
+    },
+    "note": "Each arm is dispatched from its own frozen ref, whose commit pins that arm's best-agent sourceCommit in config/frontier-harness.json#cli. Three stable refs are used instead of one moving branch head so that no queued job can resolve a pin other than the one this manifest declares; after dispatch the arm refs are never moved, and the post-dispatch record is committed here, not on an arm ref.",
+    "commandTemplate": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref <arm ref> -f fh_run=true -f fh_run_full=false -f fh_tasks=\"terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors\" -f fh_limit=4 -f fh_offset=0 -f fh_max_parallel=1 -f fh_agent_timeout_multiplier=1 -f fh_reasoning_effort=max -f fh_batch=<arm batch label>",
+    "batchLabels": {
+      "control": "preservation-execution-control-20261004",
+      "preservation": "preservation-execution-preservation-20261004",
+      "candidate": "preservation-execution-candidate-20261004"
+    }
+  },
+  "prerequisite": "The candidate arm requires best-agent commit 7b8a8df9ad3ddb2aa8194bed017477a6f504b207 reachable on GitHub: published on codex/prompt-supported-delivery with draft PR Simon-He95/best-agent#212 before dispatch. The control and preservation arms need only 8698d016 and 4341bae, which were already published.",
+  "status": "frozen-not-dispatched"
+}
