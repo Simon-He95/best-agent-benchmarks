@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-single-clause-ablation",
+  "studyId": "prompt-clause-ablation-20261004",
+  "requestedBy": "Simon requested isolation of PR207 copy wording and original E, fresh verification, and headless deepseek-v4.1-flash review/discussion.",
+  "model": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "terminalBenchTaskCount": 21,
+    "deepSweTaskCount": 9,
+    "taskIds": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "taskSources": {
+    "terminalBench": {
+      "repository": "laude-institute/terminal-bench-2",
+      "sourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+      "taskPath": "<name>",
+      "provenance": "Per-task commits resolved from harbor-framework/harbor registry.json@v0.22.0 dataset terminal-bench@2.0 (the legacy-registry corpus the official runner used via `harbor run -d terminal-bench@2.0`); all 21 corpus tasks resolve to this single snapshot commit. The eval repo's tasks/ copies are public metadata only: they carry no tests/ and their [agent] timeouts, [environment] env/allow_internet fields diverge from what actually ran."
+    },
+    "deepSwe": {
+      "repository": "datacurve-ai/deep-swe",
+      "sourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9",
+      "taskPath": "tasks/<name>",
+      "provenance": "DEEP_SWE_REF default of the official skill's provision-golden-checkpoint.sh (benchmark.json reproduction_ref is a corrupted transcription of this sha). The -v1.1 separate-verifier images at this ref are the reproduction-correct environments and differ from the frozen public task metadata for three tasks."
+    }
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "armDesign": {
+    "control": "2.11.0 source8698d016, 6014 bytes, untouched",
+    "copy": "2.11.0 plus PR207 exact150-byte copy sentence and newline; 2.15.0",
+    "external_value": "2.11.0 plus original411-byte E and separator space at Verify; 2.16.0; no copy or shortening"
+  },
+  "controlBaselineSource": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+  "baselineInstructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+  "historicalReferences": {
+    "control": 37126737714,
+    "rewrite": 37163694071,
+    "originalE": 37117282899,
+    "originalESha256": "69e3f6e22471cd614e49cb3a875d71f0121e145c5aeb814e0b712be0a2185b07"
+  },
+  "inferenceConstraints": [
+    "One predeclared attempt per arm/cell. Fresh baseline is a declared diagnostic variance remeasurement; no old verdict replacement.",
+    "No user prefix, task-specific hints, grader feedback, runtime/budget/tool/permission/model/effort changes.",
+    "Max parallel1 per arm. Three independently frozen runs may overlap; shared nominal provider load up to3 is disclosed, task order is not synchronized.",
+    "Fresh common control is contemporaneous by run window, not a perfect per-task paired randomization. Repeated exposed tasks are targeted mechanism diagnostics, not a holdout or general capability estimate.",
+    "No closed-book claim: process network egress remains enabled. Upstream task-answer retrieval never counts as gain.",
+    "Diagnostic passAt1=null; old full0.6 and all canonical records remain frozen."
+  ],
+  "metricsProtocol": {
+    "source": "Only terminal artifacts, primary Run identified by header.rootRunId; delivery never substitutes primary.",
+    "completed": "Maximum recorded primary model-outcome durationMs, with invocation identity. Response completion is not by itself grader success.",
+    "failed_or_cancelled": "Record model-failure span and original primary terminal. With stopped primary, classify the span as censored-at-stop observation, not independent provider latency/outage.",
+    "unanswered": "No matching outcome: keep start time and right-censored bounds from observed same-domain samples around terminal; unknown bounds stay null. Do not subtract wall timestamps.",
+    "over100s": "Descriptive flag only, never automatic provider diagnosis, score exclusion or guard waiver.",
+    "assessment": "Keep canonical disposition/reward separate from prompt-attribution status and input-preservation/external-value mechanism evidence."
+  },
+  "decisionRule": {
+    "copy": "Legitimate independently derived db7/7 plus no guard/expr observed regression versus fresh control. Same aggregate pass count may swap tasks; report composition changes.",
+    "external_value": "Expr79/79 with p2p intact and no guard/cross-task observed regression versus fresh control.",
+    "uncertainty": "Censored/missing guard evidence cannot approve release. Record attribution inconclusive without erasing failure. No best-of-N retries or post-hoc exclusions.",
+    "release": "Both exact code and final evidence must pass completed Codex/headless v4.1 review and executed Required Checks/Linux Sandbox Acceptance on measured source. Unstarted CI is absence of evidence."
+  },
+  "arms": {
+    "control": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "status": "frozen-not-dispatched",
+      "admissionClass": "declared-variance-remeasurement",
+      "batchLabel": "clause-ablation-control-20261004",
+      "promptPrefix": "",
+      "benchmarkConfigSha256": null,
+      "reviews": null
+    },
+    "copy": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.15.0",
+      "instructionBytes": 6165,
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "status": "frozen-not-dispatched",
+      "admissionClass": "new-single-clause-candidate",
+      "batchLabel": "clause-ablation-copy-20261004",
+      "promptPrefix": "",
+      "benchmarkConfigSha256": null,
+      "reviews": {
+        "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+        "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+        "byteIsolationSha256": "a0b6835e2ccbea38fca0fcacfcdf1ccdac523f88c10e1acb398bfdf0a8075811",
+        "reviewedArtifact": {
+          "diffSha256": "0d1bccc284d116de5e6d07626eadb8161d4ceff183626c3bb8dc672e7c86841c",
+          "specSha256": "3660182b716044a23bb5dd058b3f0771ce83eba1e9b55f1b635d2e72f979ef14"
+        },
+        "reviews": [
+          {
+            "phase": "proposal",
+            "entry": "/Users/Simon/.npm-global/bin/best-agent run",
+            "cliVersion": "0.0.4-beta.1",
+            "requestedModel": "deepseek-v4.1-flash",
+            "requestedEffort": "max",
+            "exitCode": 0,
+            "taskRef": "task_dc263094f37c7b23b33e437834e341e4",
+            "generationRef": "generation-c36f41a2-607d-4706-8bbc-c2f5192f9b37",
+            "reviewSha256": "844c75a3155fe73b5608c733f46403497ed73bc6f204869551b159df2bfff7fd",
+            "evidenceSha256": "246c85311711ebad867ff0d54d71cff1c11734b64efe270862ddf746669a107a",
+            "limitations": [
+              "Read-only sandbox denies exec/git; machine byte/source verification is separate.",
+              "Fresh context and model-ID difference do not prove statistical independence."
+            ]
+          },
+          {
+            "phase": "implementation",
+            "entry": "/Users/Simon/.npm-global/bin/best-agent run",
+            "cliVersion": "0.0.4-beta.1",
+            "requestedModel": "deepseek-v4.1-flash",
+            "requestedEffort": "max",
+            "exitCode": 0,
+            "taskRef": "task_089e116c45ab3730c52eeecf3d8ff7f1",
+            "generationRef": "generation-c02568e7-c2f4-4833-84ed-e853f0fe9187",
+            "reviewSha256": "ea4ee20cf8b62589eacfeac49b3cf4b247b82bab194b0ac3a4dc319229364ddb",
+            "evidenceSha256": "abc29b438d33bfaef1474b764f8ea1894a04fc74c316688e7eb2ac4595afefb5",
+            "limitations": [
+              "Read-only sandbox denies exec/git; machine byte/source verification is separate.",
+              "Fresh context and model-ID difference do not prove statistical independence."
+            ]
+          }
+        ],
+        "postReviewDelta": "Spec metadata/traceability closure only; code/text/test/Product bytes unchanged."
+      }
+    },
+    "external_value": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "015093129e02d1dda7332fe0bf6ebb9f75415191",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.16.0",
+      "instructionBytes": 6426,
+      "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "status": "frozen-not-dispatched",
+      "admissionClass": "new-single-clause-candidate",
+      "batchLabel": "clause-ablation-external-value-20261004",
+      "promptPrefix": "",
+      "benchmarkConfigSha256": null,
+      "reviews": {
+        "sourceCommit": "015093129e02d1dda7332fe0bf6ebb9f75415191",
+        "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+        "byteIsolationSha256": "662ba145c4d1be6101739be3a714919735d6a3f777e76045995c341c7d323197",
+        "mutationEvidenceSha256": "3c897d416ec4c361723d18b81d1df126f36074faa07f24fcfe2032d828a02008",
+        "reviewedArtifact": {
+          "diffSha256": "0c0adb991db311a6e4995ffb9ae008a9d42ffca18f9a37436f83aaf9db4ed422",
+          "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
+          "byteIsolationSha256": "662ba145c4d1be6101739be3a714919735d6a3f777e76045995c341c7d323197",
+          "specSha256": "6eb2ee2b0c3dfcea38304931282f78dfab35ebfa1776ad21f42908f731bb8bda"
+        },
+        "reviews": [
+          {
+            "phase": "proposal",
+            "entry": "/Users/Simon/.npm-global/bin/best-agent run",
+            "cliVersion": "0.0.4-beta.1",
+            "requestedModel": "deepseek-v4.1-flash",
+            "requestedEffort": "max",
+            "exitCode": 0,
+            "taskRef": "task_2d02f25006c5677c232104e5c5d174bc",
+            "generationRef": "generation-26cc047e-e1cd-4fc2-b25c-60598b14170e",
+            "reviewSha256": "333eda77aa1000ffa9d7bc2033f4f27a8bee771d6e6be18ed62339fb097ef86b",
+            "evidenceSha256": "05ef38c82795e1371842173e351442a1ef608e6e9017e7de48d4be20059ab5d8",
+            "limitations": [
+              "Read-only sandbox denies exec/git; machine verification separate.",
+              "Distinct model IDs/contexts do not guarantee statistical independence."
+            ]
+          },
+          {
+            "phase": "followup",
+            "entry": "/Users/Simon/.npm-global/bin/best-agent run",
+            "cliVersion": "0.0.4-beta.1",
+            "requestedModel": "deepseek-v4.1-flash",
+            "requestedEffort": "max",
+            "exitCode": 0,
+            "taskRef": "task_f2846f3d5fd1f4f28e56bddbc021562a",
+            "generationRef": "generation-25c347f0-0863-4d48-ad21-979d8ad8046d",
+            "reviewSha256": "ac63990c17e9ac8160d2589e401264cff87f359d56f4ed6ff07692224740d529",
+            "evidenceSha256": "004a05e65118b9fa8a54b5b66b648db9916e0b831b9dd0135b21632329966083",
+            "limitations": [
+              "Read-only sandbox denies exec/git; machine verification separate.",
+              "Distinct model IDs/contexts do not guarantee statistical independence."
+            ]
+          },
+          {
+            "phase": "implementation",
+            "entry": "/Users/Simon/.npm-global/bin/best-agent run",
+            "cliVersion": "0.0.4-beta.1",
+            "requestedModel": "deepseek-v4.1-flash",
+            "requestedEffort": "max",
+            "exitCode": 0,
+            "taskRef": "task_bd773c81e67fd9ef92033ade1f25b555",
+            "generationRef": "generation-f0661920-115c-45ce-b08d-3360b55950f8",
+            "reviewSha256": "f06f984b9659d520e1d485e13a3ddd1491257031659bc39cff9122a6e18ffff6",
+            "evidenceSha256": "d7684eb7feba85fc212603b017a16af6f5336b99cb8536fc9fe8c06b3ebc32cf",
+            "limitations": [
+              "Read-only sandbox denies exec/git; machine verification separate.",
+              "Distinct model IDs/contexts do not guarantee statistical independence."
+            ]
+          }
+        ],
+        "postReviewDelta": "Spec evidence/checklist records only; reviewed instruction/code/test/Product bytes unchanged."
+      }
+    }
+  },
+  "status": "design-frozen-before-dispatch",
+  "passAt1": null,
+  "artifactFreeze": "Each hosted run builds exactly its pinned source into one Linux candidate; packaging/typecheck/runtime receipt with binary/tarball/manifest hashes freezes before model entry. Those receipts remain attached to canonical task records."
+}
