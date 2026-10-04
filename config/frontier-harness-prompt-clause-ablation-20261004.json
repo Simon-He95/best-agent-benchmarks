@@ -137,14 +137,16 @@
       "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "frozen-not-dispatched",
+      "status": "dispatched",
       "admissionClass": "declared-variance-remeasurement",
       "batchLabel": "clause-ablation-control-20261004",
       "promptPrefix": "",
       "benchmarkConfigSha256": "bed92e9eeda621a21062af90565b3adcac51a96dab507d095741029e5eb55e15",
       "reviews": null,
       "benchmarkBranch": "codex/clause-control",
-      "benchmarkDesignCommit": "c673f76"
+      "benchmarkDesignCommit": "c673f76",
+      "runId": 37172363077,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172363077"
     },
     "copy": {
       "candidate": {
@@ -159,7 +161,7 @@
       "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "frozen-not-dispatched",
+      "status": "dispatched",
       "admissionClass": "new-single-clause-candidate",
       "batchLabel": "clause-ablation-copy-20261004",
       "promptPrefix": "",
@@ -209,7 +211,9 @@
         "postReviewDelta": "Spec metadata/traceability closure only; code/text/test/Product bytes unchanged."
       },
       "benchmarkBranch": "codex/clause-copy",
-      "benchmarkDesignCommit": "de4f9f9"
+      "benchmarkDesignCommit": "de4f9f9",
+      "runId": 37172365073,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172365073"
     },
     "external_value": {
       "candidate": {
@@ -224,7 +228,7 @@
       "instructionSha256": "11dd742206993f983a817857a94276e33f1c60b629fc9cdd70d8c84e64c6a6d8",
       "attemptsPerCell": 1,
       "maxParallel": 1,
-      "status": "frozen-not-dispatched",
+      "status": "dispatched",
       "admissionClass": "new-single-clause-candidate",
       "batchLabel": "clause-ablation-external-value-20261004",
       "promptPrefix": "",
@@ -293,10 +297,12 @@
         "postReviewDelta": "Spec evidence/checklist records only; reviewed instruction/code/test/Product bytes unchanged."
       },
       "benchmarkBranch": "codex/clause-external-value",
-      "benchmarkDesignCommit": "ca5754b"
+      "benchmarkDesignCommit": "ca5754b",
+      "runId": 37172366912,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37172366912"
     }
   },
-  "status": "fully-frozen-not-dispatched",
+  "status": "running",
   "passAt1": null,
   "artifactFreeze": "Each hosted run builds exactly its pinned source into one Linux candidate; packaging/typecheck/runtime receipt with binary/tarball/manifest hashes freezes before model entry. Those receipts remain attached to canonical task records.",
   "sourcePRs": {
