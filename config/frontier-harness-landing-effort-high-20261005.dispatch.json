@@ -11,7 +11,10 @@
     "instructionBytes": 6531,
     "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
     "effort": "high",
-    "declaredOptions": ["max", "high"],
+    "declaredOptions": [
+      "max",
+      "high"
+    ],
     "profileDefault": "max"
   },
   "dispatch": {
@@ -50,6 +53,54 @@
       }
     }
   },
-  "status": "dispatched",
-  "notClaimed": "No result of this arm exists yet. Nothing about effort effects is claimed before its own report is read against the frozen manifest; the max-arm figures above are disclosed as the pairing partner, not as a conclusion."
+  "status": "measured",
+  "notClaimed": "No result of this arm exists yet. Nothing about effort effects is claimed before its own report is read against the frozen manifest; the max-arm figures above are disclosed as the pairing partner, not as a conclusion.",
+  "outcome": {
+    "measuredAt": "2026-10-05T03:50:00Z",
+    "verdict": "gain (delivery cell flipped to pass) + secondary effect",
+    "headline": "With the same 2.18.0 candidate and the same four cells, lowering the declared reasoning effort from max to high flipped terminal-bench/db-wal-recovery from failed to PASSED (7/7, reward=1, in 354.6 s) — the first db-wal pass in this program, and it is an in-sandbox delivery: the input was copied at t=44,225 ms, the original was never opened by a probing tool, the WAL was XOR-decoded on the copy, the values were read back (`banana`, `apple 150`), /app/recovered.json was written at t=283,056 ms and re-read at t=299 s, and no upstream material was fetched. The run finished at cycle 28 with terminalCause=completed, well inside its 900 s budget and without reaching the reserved boundary.",
+    "bindingCheck": "All four cells' first-request Skill instruction is 6,531 bytes / 19bb20a3… (frozen 2.18.0 hash). The run's own candidate artifact was read: sourceCommit 06feeb23 matches the pin; the report records provider.reasoningEffort=high, so the run really ran at the declared effort. No binding failure.",
+    "pairedComparison": {
+      "note": "Same candidate (06feeb23 / coding 2.18.0), same four cells, one attempt each; the only delta is the declared effort. The max arm ran in the immediately preceding window on the same composition. Unpaired single attempts: this is a paired diagnostic observation, not a causal effect size.",
+      "db-wal-recovery": {
+        "max": "failed 5/7, deliverable written at t=580,945 ms with non-WAL values, stopped at the reserved boundary (782,040 ms, 37 calls, max call 111,773 ms)",
+        "high": "PASSED 7/7 (reward 1), copy at t=44,225 ms, original never probed, landing at t=283,056 ms, re-read at t=299 s, completed in 354,600 ms with 28 calls, max call 85,848 ms",
+        "delta": "flip failed → passed; deliverable now correct, attempt no longer boundary-bounded"
+      },
+      "gcode-to-text": {
+        "max": "failed 0/2, no /app/out.txt, stopped at the boundary (790,628 ms, 33 calls, max 102,900 ms)",
+        "high": "failed 0/2, no /app/out.txt, stopped at the boundary (828,251 ms, 32 calls, max 91,483 ms); every write was a *.py helper",
+        "delta": "unchanged"
+      },
+      "sqlite-db-truncate": {
+        "max": "passed 1/1 (609,453 ms, 21 calls, max 364,497 ms)",
+        "high": "passed 1/1 (266,648 ms, 17 calls, max 158,921 ms)",
+        "delta": "guard holds; also the fastest of the four this arm"
+      },
+      "expr-try-catch-errors": {
+        "max": "failed 77/79, failing {ErrtypeTypeError, ErrtypeNilError}, 275 calls, max call 261,357 ms, 3,788,728 ms",
+        "high": "failed 77/79, the same two checks, 283 calls, 2,863,638 ms",
+        "delta": "failing set identical; duration −24%"
+      }
+    },
+    "predeclaredReading": {
+      "primary": "MET on its own terms for this arm's comparison: one of the two delivery cells changed from no-deliverable (max: deliverable present but wrong values; the earlier windows: no deliverable) to a pass, with no cell regressing in disposition and the guard still passing. Recorded as a gain of this arm, not of the prompt.",
+      "primaryCaveat": "This is a profile-delta gain: the arm changes the declared effort, not the instruction text. PR #212's own acceptance still requires the primary condition under the frozen profile (max), which the landing arm met only partially.",
+      "secondary": "The long-call tail fell sharply: db-wal max call 111,773 → 85,848 ms and the attempt completed in 354.6 s instead of being boundary-stopped at ~782 s; sqlite max call 364,497 → 158,921 ms; expr duration −24%. Boundary-stop rate fell from 2 of 4 cells (max) to 1 of 4 (high: gcode only).",
+      "cost": "None observed against the max arm: no cell regressed, expr failing set identical (2 checks), guard passed. The gcode cell remains the unsolved one in both arms.",
+      "censoring": "gcode-to-text is stop-bounded at the reserved delivery boundary in this arm and is recorded as a right-censored observation with its span; it is neither excluded nor counted as a gain."
+    },
+    "whatThisDoesNotEstablish": [
+      "Not a causal effect size: one attempt per cell, two arms, one window each, and the arms ran in different windows against a composition whose own variance is documented (the same unchanged control cell moved 5/7 → 0/7 between windows).",
+      "Not a release decision and not a prompt gain: the profile change (reasoningEffortOptions [max, high]) is a diagnostic-arm change and is not merged to master.",
+      "No capability claim: diagnostic passAt1 stays null; the frozen full-run 0.6 is unchanged.",
+      "The db-wal pass is a real in-sandbox delivery and is recorded as such; it does not by itself explain why the max arm's preservation clause failed to fire."
+    ],
+    "pr212Effect": "PR #212 stays Draft. Its acceptance criterion is the primary gain under the frozen max profile on a frozen source, and that is still unmet at max (landing arm: deliverable present, values wrong). What this arm adds is a second, independent lever that reaches the missing half of that criterion at high effort — evidence that the remaining gap at max is the long-call tail plus the non-deterministic firing of the preservation clause, not the instruction text alone.",
+    "followUps": [
+      "The obvious next single-variable test: the same 2.18.0 candidate at high effort is already the arm that passed; to attribute the pass to effort rather than to window variance, a repeat of this arm (same ref, second attempt) or a max repeat in the same window is the discriminating experiment. Not dispatched: it needs a fresh predeclaration.",
+      "The preservation clause fired in three of four arms that carry it (2.15.0 @4.3 s, 2.17.0 @14.8 s, high @44.2 s) and not in the landing arm at max; on the pass it fired early and everything downstream was a short call. Making the copy unconditional (or moving it to the CLI boundary, issue #213) is the lever that would remove the remaining non-determinism.",
+      "best-agent issue #213 remains orthogonal and still real: gcode was boundary-stopped in both arms."
+    ]
+  }
 }
