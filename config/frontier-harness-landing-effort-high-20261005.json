@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-effort-contrast",
+  "studyId": "landing-effort-high-20261005",
+  "requestedBy": "Simon, 2026-10-05: ranked second in the queue — run the effort=high contrast after the 2.18.0 landing cohort's result is in.",
+  "reason": "Every measured arm so far ran deepseek-v4-flash at reasoning effort max, and the only formal effort contrast on record (2026-09-27, glm-5.3, full corpus) went the other way: max produced 14 passed / 5 error / 10 budget-exhausted attempts against high's 19 passed / 0 error / 3 budget-exhausted, with two max calls hitting the CLI's own 840-second per-call ceiling. On the four cells used here, max has repeatedly produced single calls of 196-304 seconds inside a 900-second attempt whose usable model budget is about 720 seconds (reserved delivery boundary, see best-agent issue #213), and the 2.15.0 arm lost a cell whose answer was already in hand. This experiment asks whether lowering the declared effort to high reduces the long-call tail and the boundary-stop rate enough to change delivery, with the same candidate and the same cells.",
+  "model": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "arms": {
+    "max": {
+      "disclosed": true,
+      "ref": "codex/preservation-exec-landing",
+      "runId": 37247045143,
+      "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+      "codingVersion": "2.18.0",
+      "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
+      "effort": "max",
+      "note": "Measured in the immediately preceding window on the same composition. If that run is not complete when this arm is dispatched, this reference is recorded as unavailable and the contrast is read against the 2.15.0/2.11.0 references instead, with that limitation stated."
+    },
+    "high": {
+      "ref": "codex/preservation-exec-effort-high",
+      "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+      "codingVersion": "2.18.0",
+      "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
+      "effort": "high",
+      "batch": "landing-effort-high-20261005",
+      "attemptsPerCell": 1,
+      "maxParallel": 1
+    }
+  },
+  "profileDelta": {
+    "why": "The frozen profile declared only max, and the materializer's sanctioned-pair list is the only place a (model, effort) pair is admitted. Lowering the effort therefore requires a declared profile change, which this branch carries and which must not be mistaken for the candidate's own text delta.",
+    "files": [
+      "config/frontier-harness.json: reasoningEffortOptions [\"max\"] -> [\"max\", \"high\"], reasoningEffort stays \"max\" so an edit alone cannot move a run's effort",
+      "scripts/materialize-frontier-provider.mjs: deepseek-v4-flash sanctioned efforts [\"max\"] -> [\"max\", \"high\"]",
+      "test/frontier-harness.test.mjs: declared-options assertion; the undeclared-effort cases move to efforts this model is still not admitted at; a positive case proves the second declared effort materializes; the non-frozen-profile fixture now uses two combos that stay invalid whatever the sanctioned pairs are; the mixed-effort report case asserts the disagreement refusal"
+    ],
+    "verified": "node --test test/frontier-harness.test.mjs: 26/26 passed on this branch.",
+    "restore": "This is a diagnostic profile change on an arm branch only. It is never merged to master and never used for a release run; a release run needs the profile decision recorded separately."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), candidate source commit (06feeb23, identical to the max arm), fh_agent_timeout_multiplier=1, serial execution (fh_max_parallel=1), every declared task budget, the official verifiers and the per-call ceiling. The only delta against the max arm is the declared effort.",
+  "metricsProtocol": {
+    "perCell": "disposition, rewards, deliverable presence at the graded path, terminal cause, model-call count, maximum single-call span, truncation-bounded call count, and whether the reserved boundary was reached.",
+    "comparison": "Paired per cell against the max arm in the same window. Report the pair, never a pooled rate.",
+    "censoring": "Boundary-bounded or stopped attempts are right-censored observations reported with their spans; never excluded and never counted as gains, in either arm.",
+    "noThresholdPlay": "No call-duration threshold may exclude a cell: the same composition has passed cells with completed calls over 100 seconds (102/219/191 ms-free seconds on record). Duration is reported as telemetry only."
+  },
+  "gainDefinition": {
+    "primary": "At least one of the two delivery cells (terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text) changes from no-deliverable to a deliverable at the graded path, or to a pass, with no cell regressing in disposition and the sqlite guard still passing.",
+    "secondary": "The long-call tail and the boundary-stop rate both fall without any cell regressing (e.g. fewer truncation-bounded calls, no attempt stopped at the boundary).",
+    "cost": "Any cell whose disposition regresses, or whose expr failing set grows against the max arm, is recorded as cost even if a delivery cell moves.",
+    "escalation": "Whatever the outcome, this arm answers only whether lowering the declared effort changes this failure mode. A positive result is a profile-change candidate, not a prompt gain, and does not convert PR #212 to a merge by itself."
+  },
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of any earlier run is replaced, refilled or reinterpreted.",
+    "The result is never merged into any pass@1; diagnostic passAt1 stays null and the frozen full-run 0.6 is unchanged.",
+    "Dispatch is authorized by Simon's 2026-10-05 queue instruction (\"run the effort=high contrast after 2.18.0's result\"); this manifest is frozen before it and the arm ref is not moved after it.",
+    "Nothing from this arm is merged to master without a separate decision: the candidate source commit and the dry profile change are separate matters."
+  ],
+  "dispatchPlan": {
+    "order": "Only after the max arm (run 37247045143) reports as completed.",
+    "ref": "codex/preservation-exec-effort-high",
+    "commandTemplate": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-effort-high -f fh_run=true -f fh_run_full=false -f fh_tasks=\"terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors\" -f fh_limit=4 -f fh_offset=0 -f fh_max_parallel=1 -f fh_agent_timeout_multiplier=1 -f fh_reasoning_effort=high -f fh_batch=landing-effort-high-20261005"
+  },
+  "status": "frozen-not-dispatched"
+}

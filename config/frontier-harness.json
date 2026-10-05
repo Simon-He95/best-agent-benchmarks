@@ -77,7 +77,8 @@
     "compatibilityMode": "compatible",
     "reasoningEffort": "max",
     "reasoningEffortOptions": [
-      "max"
+      "max",
+      "high"
     ],
     "transportProfile": "dim-oauth"
   },

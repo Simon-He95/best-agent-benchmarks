@@ -79,15 +79,16 @@ test("frontier-harness pins the runner and a current Linux x64 source candidate"
   assert.equal(config.cli.target, "linux-x64-gnu");
 });
 
-test("frontier-harness freezes the deepseek-v4-flash max-effort provider profile", () => {
+test("frontier-harness freezes the deepseek-v4-flash declared-effort provider profile", () => {
   assert.equal(config.provider.kind, "openai");
   assert.equal(config.provider.model, "deepseek-v4-flash");
   assert.equal(config.provider.compatibilityMode, "compatible");
   assert.equal(config.provider.reasoningEffort, "max");
   // The profile declares the efforts a run may select, and its default is one of
   // them: an attempt can never run at an effort the frozen record never named.
-  // This model's sanctioned pair is max, so max is the only declared effort.
-  assert.deepEqual(config.provider.reasoningEffortOptions, ["max"]);
+  // This model's sanctioned pairs are max and high (the effort-lowering diagnostic
+  // arm); max stays the default so an edit alone cannot move a run's effort.
+  assert.deepEqual(config.provider.reasoningEffortOptions, ["max", "high"]);
   assert.ok(config.provider.reasoningEffortOptions.includes(config.provider.reasoningEffort));
   assert.equal(config.provider.transportProfile, "dim-oauth");
   assert.equal(config.provider.baseURL, "https://dimagent.cn/v1");
@@ -322,7 +323,7 @@ test("the harness freezes the materialized reasoning effort and refuses an undec
     // An effort the frozen profile never declared fails closed instead of being
     // recorded as an attempt that ran at it — including the effort the previous
     // profile declared and this one does not.
-    for (const undeclared of ["high", "low"]) {
+    for (const undeclared of ["low", "medium"]) {
       writeProvider(undeclared);
       assert.throws(
         () => verifyFrozenIdentity(),
@@ -816,36 +817,44 @@ test("projectAgentUsage reads the plugin's usage facts and keeps missing ones mi
 
 test("provider materialization rejects a non-frozen provider profile", () => {
   const root = mkdtempSync(join(tmpdir(), "fh-provider-"));
-  const wrongProfile = mkdtempSync(join(tmpdir(), "fh-provider-config-"));
-  writeFileSync(
-    join(wrongProfile, "config.json"),
-    JSON.stringify({
-      provider: {
-        kind: "openai",
-        model: "deepseek-v4-flash",
-        baseURL: config.provider.baseURL,
-        compatibilityMode: "compatible",
-        reasoningEffort: "high",
-        reasoningEffortOptions: ["high"],
-        transportProfile: "dim-oauth",
-      },
-    }),
-  );
-  const result = spawnSync(
-    process.execPath,
-    [
-      resolve(repoRoot, "scripts/materialize-frontier-provider.mjs"),
-      root,
-      join(root, "github.env"),
+  // Both fixtures stay invalid whatever the sanctioned pairs are: one names an
+  // effort this model is not admitted at, the other declares an effort its own
+  // options do not contain. Neither may reach the credential files.
+  for (const wrongReasoning of [
+    { reasoningEffort: "medium", reasoningEffortOptions: ["medium"] },
+    { reasoningEffort: "max", reasoningEffortOptions: ["high"] },
+  ]) {
+    const wrongProfile = mkdtempSync(join(tmpdir(), "fh-provider-config-"));
+    writeFileSync(
       join(wrongProfile, "config.json"),
-    ],
-    {
-      encoding: "utf8",
-      env: { ...process.env, BENCHMARK_PROVIDER_API_KEY: "synthetic-key" },
-    },
-  );
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /frozen frontier-harness provider profile is invalid/u);
+      JSON.stringify({
+        provider: {
+          kind: "openai",
+          model: "deepseek-v4-flash",
+          baseURL: config.provider.baseURL,
+          compatibilityMode: "compatible",
+          ...wrongReasoning,
+          transportProfile: "dim-oauth",
+        },
+      }),
+    );
+    const result = spawnSync(
+      process.execPath,
+      [
+        resolve(repoRoot, "scripts/materialize-frontier-provider.mjs"),
+        root,
+        join(root, "github.env"),
+        join(wrongProfile, "config.json"),
+      ],
+      {
+        encoding: "utf8",
+        env: { ...process.env, BENCHMARK_PROVIDER_API_KEY: "synthetic-key" },
+      },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /frozen frontier-harness provider profile is invalid/u);
+    assert.ok(!existsSync(join(root, "provider.json")));
+  }
 });
 
 test("provider materialization selects a declared effort and refuses an undeclared one", () => {
@@ -896,18 +905,26 @@ test("provider materialization selects a declared effort and refuses an undeclar
     config.provider.reasoningEffort,
   );
 
-  // An effort outside the declared options never reaches the credential files —
-  // including the previous profile's own alternative, which this model never
-  // declared and the harness's admitted list does not name for it.
+  // An effort outside the declared options never reaches the credential files.
   const refused = materialize("low");
   assert.notEqual(refused.result.status, 0);
   assert.match(refused.result.stderr, /is not a declared option/u);
   assert.ok(!existsSync(refused.providerPath));
 
-  const refusedEffort = materialize("high");
+  const refusedEffort = materialize("medium");
   assert.notEqual(refusedEffort.result.status, 0);
   assert.match(refusedEffort.result.stderr, /is not a declared option/u);
   assert.ok(!existsSync(refusedEffort.providerPath));
+
+  // The second declared effort materializes verbatim, so the diagnostic arm can
+  // actually run at the effort it names.
+  const lowered = materialize("high");
+  assert.equal(lowered.result.status, 0, lowered.result.stderr);
+  assert.equal(
+    JSON.parse(readFileSync(lowered.providerPath, "utf8")).reasoningEffort,
+    "high",
+  );
+  assert.equal(JSON.parse(lowered.result.stdout).reasoningEffort, "high");
 });
 
 test("classifyTrialOutcome grades a run whose fatal failure was its own budget", async () => {
@@ -1215,12 +1232,19 @@ test("frontier report refuses records whose reasoning effort is not declared", (
   // single-effort profile every other effort is rejected here before any two
   // records could disagree among themselves.
   writeRecord(tasks[0], "max");
-  for (const undeclared of ["high", "low"]) {
+  for (const undeclared of ["low", "medium"]) {
     writeRecord(tasks[1], undeclared);
     const refused = report();
     assert.notEqual(refused.status, 0);
     assert.match(refused.stderr, /carries no declared reasoning effort/u);
   }
+
+  // Two declared efforts still cannot disagree inside one report: one run is one
+  // effort, so a record at the other declared effort is refused here too.
+  writeRecord(tasks[1], "high");
+  const mixed = report();
+  assert.notEqual(mixed.status, 0);
+  assert.match(mixed.stderr, /disagree on the reasoning effort/u);
 
   // The same records under one declared effort report normally.
   writeRecord(tasks[1], "max");
