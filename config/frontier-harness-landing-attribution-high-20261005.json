@@ -77,7 +77,32 @@
     "Apply predeclaredReading exactly; write the outcome into this file's outcome section; commit and push to codex/prompt-preservation-execution.",
     "Flip PR #212 only on primaryGain + noRegression; otherwise leave Draft and name the failing condition."
   ],
-  "status": "partially-measured",
+  "status": "dispatched",
+  "dispatch": {
+    "base": {
+      "runId": 37303771385,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37303771385",
+      "ref": "codex/preservation-exec-base-high",
+      "headSha": "325b427e855cc6310238da4d83224199374d425b",
+      "batch": "landing-attribution-base-high-20261005",
+      "dispatchedAt": "2026-10-05T11:34:09Z"
+    },
+    "preservation": {
+      "runId": 37303784463,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37303784463",
+      "ref": "codex/preservation-exec-preservation-high",
+      "headSha": "6cd1b3292450d3b8067d711bb482eb7ffb9dbb08",
+      "batch": "landing-attribution-preservation-high-20261005",
+      "dispatchedAt": "2026-10-05T11:34:15Z"
+    },
+    "method": "Both before arms dispatched at reasoning effort high from their own frozen refs; each ref's headSha was re-read from the API and equals its arm commit, and no arm ref is moved after dispatch. The adjusted arm was measured earlier (run 37255314596) and is not re-run."
+  },
+  "gates": {
+    "promptAttribution": "The predeclaredReading in this file must read met; otherwise PR #212 stays Draft.",
+    "independentReview": "thread_c3a4808dc4f960cbb0c08fed131e896b (architecture compliance and benchmark fairness); a REJECT or unsettled review blocks the transition.",
+    "requiredCi": "Required Checks / Linux Sandbox Acceptance must execute on the measured source; they are outside this cohort.",
+    "merge": "Never automatic; the human owns the merge decision."
+  },
   "notes": [
     "The two before arms were dispatched on 2026-10-05 (runs 37303771385, 37303784463) from their own frozen refs at reasoning effort high; the arm refs are never moved after dispatch.",
     "The adjusted arm's measurement (run 37255314596) exists and was independently re-verified from its raw artifacts before this cohort was frozen."
