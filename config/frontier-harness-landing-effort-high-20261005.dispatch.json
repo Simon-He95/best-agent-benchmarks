@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-effort-contrast-dispatch-record",
+  "studyId": "landing-effort-high-20261005",
+  "whyThisFileExists": "The effort manifest (config/frontier-harness-landing-effort-high-20261005.json) is frozen on the arm ref codex/preservation-exec-effort-high, which is the ref this run was dispatched from. Writing the dispatch record into that file would move the arm ref after dispatch and could change what the queued jobs resolve, so the arm ref is left untouched at its dispatched commit and every post-dispatch record lives here on the study branch instead. The manifest's own gainDefinition, metricsProtocol and constraints remain the reading authority; this file records identity and dispatch facts only.",
+  "arm": {
+    "ref": "codex/preservation-exec-effort-high",
+    "headSha": "1fe00d6510993a4a7a76109738d3156484406368",
+    "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+    "codingVersion": "2.18.0",
+    "instructionBytes": 6531,
+    "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
+    "effort": "high",
+    "declaredOptions": ["max", "high"],
+    "profileDefault": "max"
+  },
+  "dispatch": {
+    "runId": 37255314596,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37255314596",
+    "batch": "landing-effort-high-20261005",
+    "dispatchedAt": "2026-10-05T02:35:00Z",
+    "inputs": {
+      "fh_run": true,
+      "fh_run_full": false,
+      "fh_tasks": "terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors",
+      "fh_limit": 4,
+      "fh_offset": 0,
+      "fh_max_parallel": 1,
+      "fh_agent_timeout_multiplier": 1,
+      "fh_reasoning_effort": "high"
+    },
+    "headShaCheck": "verified: the run's headSha equals 1fe00d6510993a4a7a76109738d3156484406368, the arm commit",
+    "maxArmReference": {
+      "note": "Paired comparison partner, measured in the immediately preceding window on the same composition and the same candidate source commit.",
+      "runId": 37247045143,
+      "ref": "codex/preservation-exec-landing",
+      "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6",
+      "effort": "max",
+      "cells": {
+        "db-wal-recovery": "failed 5/7, deliverable present (472 B written at t=580,945 ms) with non-WAL values, primary unmet, partial met",
+        "gcode-to-text": "failed 0/2, no /app/out.txt",
+        "sqlite-db-truncate": "passed 1/1",
+        "expr-try-catch-errors": "failed 77/79, failing {ErrtypeTypeError, ErrtypeNilError}, 275 calls, max call 261,357 ms"
+      },
+      "callShape": {
+        "db-wal-recovery": "37 calls, max 111,773 ms, sum 734,528 ms, stopped at the reserved boundary",
+        "gcode-to-text": "33 calls, max 102,900 ms, sum 742,406 ms, stopped at the reserved boundary",
+        "sqlite-db-truncate": "21 calls, max 364,497 ms, sum 576,655 ms, completed",
+        "expr-try-catch-errors": "275 calls, max 261,357 ms, sum 3,427,272 ms, completed"
+      }
+    }
+  },
+  "status": "dispatched",
+  "notClaimed": "No result of this arm exists yet. Nothing about effort effects is claimed before its own report is read against the frozen manifest; the max-arm figures above are disclosed as the pairing partner, not as a conclusion."
+}
