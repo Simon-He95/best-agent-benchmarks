@@ -106,5 +106,215 @@
   "notes": [
     "The two before arms were dispatched on 2026-10-05 (runs 37303771385, 37303784463) from their own frozen refs at reasoning effort high; the arm refs are never moved after dispatch.",
     "The adjusted arm's measurement (run 37255314596) exists and was independently re-verified from its raw artifacts before this cohort was frozen."
-  ]
+  ],
+  "outcome": {
+    "measuredAt": "2026-10-05T13:38:32Z",
+    "verdict": "no gain and no regression on graded delivery; the predeclared reading fails",
+    "statusNote": "The predeclaration above is left byte-identical (the top-level `status` stays `dispatched` and the arms' `measured` flags stay as frozen); the readout lives only in this section, as instructed. No arm ref was moved and nothing was merged.",
+    "headline": "Both before arms PASSED terminal-bench/db-wal-recovery (7/7, reward 1, graded /app/recovered.json present, no upstream route), so the adjusted arm's db-wal pass of run 37255314596 is not a distinguishing delivery in this cohort: all three arms pass that cell. On gcode-to-text no arm, the adjusted one included, delivered /app/out.txt. The predeclared primary gain therefore cannot hold, and the reading does not reach its own bar.",
+    "bindingCheck": {
+      "method": "Both before-arm reports downloaded from their own runs (artifacts frontier-harness-report-37303771385 / -37303784463) and read with .tmp/verify-one-run.mjs; the adjusted arm re-read from .tmp/verify-simon-run-efforthigh/report.",
+      "runs": {
+        "adjusted": {
+          "runId": 37255314596,
+          "ref": "codex/preservation-exec-effort-high",
+          "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+          "candidateId": "cli-0.0.4-beta.1-06feeb2-63b5ac6b3546",
+          "firstRequestInstruction": "6,531 bytes / 19bb20a3… on all four cells: MATCH"
+        },
+        "base": {
+          "runId": 37303771385,
+          "ref": "codex/preservation-exec-base-high",
+          "headSha": "325b427e855cc6310238da4d83224199374d425b",
+          "headShaEqualsFrozenPin": true,
+          "conclusion": "success",
+          "candidateId": "cli-0.0.4-beta.1-8698d01-0b2add15006e",
+          "firstRequestInstruction": "6,014 bytes / cc23fe7a… on all four cells: MATCH"
+        },
+        "preservation": {
+          "runId": 37303784463,
+          "ref": "codex/preservation-exec-preservation-high",
+          "headSha": "6cd1b3292450d3b8067d711bb482eb7ffb9dbb08",
+          "headShaEqualsFrozenPin": true,
+          "conclusion": "success",
+          "candidateId": "cli-0.0.4-beta.1-4341bae-9fc6528729d5",
+          "firstRequestInstruction": "6,165 bytes / e85b985e… on all four cells: MATCH"
+        }
+      },
+      "provider": "deepseek-v4-flash at reasoning effort high in all three arms (report field provider.reasoningEffort=high; the provider-side honouring of that effort is not independently verifiable here).",
+      "acceptance": {
+        "adjusted": "candidate.single / provider.single / instructions.frozen / verdicts.complete = passed; coverage.full = failed (4 of 30 corpus tasks predeclared).",
+        "base": "candidate.single / provider.single / instructions.frozen = passed; verdicts.complete = FAILED (4 present, 1 error); coverage.full = failed.",
+        "preservation": "candidate.single / provider.single / instructions.frozen = passed; verdicts.complete = FAILED (4 present, 1 error); coverage.full = failed.",
+        "reading": "The four gates the reading plan names are intact in the adjusted arm only. In both before arms verdicts.complete is broken by the expr cell's error disposition, which the manifest's own fairness disclosure requires to be intact for every arm used in the comparison."
+      }
+    },
+    "cells": {
+      "terminal-bench/db-wal-recovery": {
+        "budgetMs": 900000,
+        "adjusted": {
+          "disposition": "passed",
+          "rewards": { "reward": 1 },
+          "checks": "7/7 passed (recovered_json exists/is_valid/structure/sorted/completeness, no_duplicate_ids, wal_was_decrypted)",
+          "durationMs": 354600,
+          "calls": 28,
+          "maxCallMs": 85848,
+          "terminal": "completed",
+          "deliverable": "present: /app/recovered.json, written and re-read before the run closed",
+          "upstreamRoute": "none"
+        },
+        "base": {
+          "disposition": "passed",
+          "rewards": { "reward": 1 },
+          "checks": "7/7 passed (same seven checks, incl. wal_was_decrypted)",
+          "durationMs": 264205,
+          "calls": 19,
+          "maxCallMs": 73618,
+          "terminal": "completed",
+          "deliverable": "present: graded /app/recovered.json with the WAL-correct values",
+          "inputHandling": "copied the supplied input aside before probing it",
+          "upstreamRoute": "none"
+        },
+        "preservation": {
+          "disposition": "passed",
+          "rewards": { "reward": 1 },
+          "checks": "7/7 passed (same seven checks, incl. wal_was_decrypted)",
+          "durationMs": 524084,
+          "calls": 27,
+          "maxCallMs": 254111,
+          "terminal": "completed",
+          "deliverable": "present: graded /app/recovered.json with the WAL-correct values",
+          "inputHandling": "copied the input aside first, and also probed the original /app/main.db once (recorded observation; the graded artifact still carried the WAL-correct values)",
+          "upstreamRoute": "none"
+        },
+        "reading": "All three arms pass this graded-delivery cell with reward 1 and the artifact present. The primary-gain half that requires BOTH before arms to fail it, without a graded artifact, is false."
+      },
+      "terminal-bench/gcode-to-text": {
+        "budgetMs": 900000,
+        "adjusted": {
+          "disposition": "failed",
+          "rewards": { "reward": 0 },
+          "checks": "0/2 (test_hello_file_exists, test_hello_file_content); `AssertionError: File /app/out.txt does not exist`",
+          "durationMs": 828251,
+          "calls": 32,
+          "maxCallMs": 91483,
+          "terminal": "stopped at the reserved delivery boundary (right-censored)",
+          "upstreamRoute": "none"
+        },
+        "base": {
+          "disposition": "failed",
+          "rewards": { "reward": 0 },
+          "checks": "0/2 (same two names); `AssertionError: File /app/out.txt does not exist`",
+          "durationMs": 873410,
+          "calls": 51,
+          "maxCallMs": 55987,
+          "terminal": "stopped at the reserved delivery boundary (right-censored); two transport-failed calls observed (988 ms, 120,005 ms)",
+          "upstreamRoute": "none"
+        },
+        "preservation": {
+          "disposition": "failed",
+          "rewards": { "reward": 0 },
+          "checks": "0/2 (same two names); `AssertionError: File /app/out.txt does not exist`",
+          "durationMs": 873676,
+          "calls": 43,
+          "maxCallMs": 73290,
+          "terminal": "stopped at the reserved delivery boundary (right-censored); two transport-failed calls observed (2,266 ms, 120,005 ms)",
+          "upstreamRoute": "none"
+        },
+        "reading": "No arm delivered the graded path; the adjusted arm did not deliver where the before arms did not either, so the gcode alternative of the primary gain is false as well. All three spans are boundary-bounded and recorded as right-censored, never as a gain."
+      },
+      "terminal-bench/sqlite-db-truncate": {
+        "budgetMs": 900000,
+        "adjusted": { "disposition": "passed", "rewards": { "reward": 1 }, "checks": "1/1", "durationMs": 266648, "calls": 17, "maxCallMs": 158921, "terminal": "completed" },
+        "base": { "disposition": "passed", "rewards": { "reward": 1 }, "checks": "1/1", "durationMs": 212053, "calls": 10, "maxCallMs": 121733, "terminal": "completed" },
+        "preservation": { "disposition": "passed", "rewards": { "reward": 1 }, "checks": "1/1", "durationMs": 505676, "calls": 31, "maxCallMs": 187448, "terminal": "completed" },
+        "reading": "Passes in all three arms: this no-regression clause holds."
+      },
+      "datacurve/expr-try-catch-errors": {
+        "budgetMs": 5400000,
+        "adjusted": {
+          "disposition": "failed",
+          "rewards": { "reward": 0, "f2p_passed": 77, "f2p_total": 79, "p2p_passed": 66265, "p2p_total": 66265 },
+          "failingSet": ["TestTryCatch_ErrtypeNilError", "TestTryCatch_ErrtypeTypeError"],
+          "checks": "66,342/66,344 passed (2 failing)",
+          "durationMs": 2863638,
+          "calls": 283,
+          "maxCallMs": 157214,
+          "terminal": "completed",
+          "upstreamRoute": "USED — the cell fetched the task's own upstream material (go module download of the real github.com/expr-lang/expr, curl raw.githubusercontent.com/expr-lang/expr/master/{vm,ast}/*.go and api.github.com); the model's own reasoning records working internet access. Recorded, not credited; expr is not a graded-delivery cell, so no delivery claim is involved."
+        },
+        "base": {
+          "disposition": "error",
+          "rewards": {},
+          "failingSet": "79 f2p names (set sha256 16958c0fdb7890ce…), no graded verdict",
+          "checks": "66,265/66,344 passed",
+          "durationMs": 2533366,
+          "calls": 254,
+          "maxCallMs": 137958,
+          "terminal": "model-failure (run ended on a provider transport failure; no verdict was produced)",
+          "upstreamRoute": "none"
+        },
+        "preservation": {
+          "disposition": "error",
+          "rewards": {},
+          "failingSet": "79 f2p names (set sha256 16958c0fdb7890ce… — identical to the base arm's), no graded verdict",
+          "checks": "66,265/66,344 passed",
+          "durationMs": 1859331,
+          "calls": 136,
+          "maxCallMs": 82568,
+          "terminal": "model-failure (provider transport failure; no verdict was produced)",
+          "upstreamRoute": "USED — curl to api.github.com / raw.githubusercontent.com with the model's own note 'Network access works'. Recorded, not credited."
+        },
+        "reading": "Only the adjusted arm produced a graded verdict here, and it is the smaller failing set (2 failures, a subset of the before arms' 79-name set, which is why the 'not larger' clause reads satisfied on the numbers). Both before arms end as errors with no verdict and no rewards, so this cell is a binding failure in those two arms rather than a comparable loss."
+      }
+    },
+    "primaryGain": {
+      "status": "NOT met",
+      "dbWalHalf": "FALSE — the clause requires the adjusted arm to pass db-wal with a WAL-correct deliverable while BOTH before arms fail it without one. base passed 7/7 (reward 1, 264.2 s, 19 calls) and preservation passed 7/7 (reward 1, 524.1 s, 27 calls), both with the graded artifact and no upstream route. Two of three arms pass, so the adjusted arm's pass is not a gain in this cohort.",
+      "gcodeHalf": "FALSE — the alternative requires the adjusted arm to deliver /app/out.txt where both before arms do not. No arm delivered it (0/2 in all three, boundary-stopped)."
+    },
+    "noRegression": {
+      "status": "NOT met",
+      "sqliteClause": "MET — sqlite-db-truncate passes in all three arms (1/1, reward 1).",
+      "realVerdictAndAcceptanceClause": "NOT MET — 'every cell keeps a real verdict with an intact acceptance block' fails in both before arms: their expr cells terminate as disposition=error / cause=model-failure with rewards {} and no graded verdict, and both before-arm reports carry verdicts.complete=failed. The manifest's own fairness disclosure requires the harness acceptance block (candidate.single / provider.single / instructions.frozen / verdicts.complete) to be intact for every arm used in the comparison; it is intact only in the adjusted arm.",
+      "exprFailingSetClause": "MET on the recorded numbers — the adjusted arm's failing set (TestTryCatch_ErrtypeNilError, TestTryCatch_ErrtypeTypeError) has zero names outside either before arm's recorded 79-name set, so it is not larger. Stated with the caveat that the before arms have no verdict and their 79-name set is an ungraded error artifact, not a graded loss."
+    },
+    "secondary": {
+      "status": "NOT met as written",
+      "longCallTail": "On the delivery cells the adjusted arm's single longest call exceeds the base arm's on both (db-wal 85.8 s vs 73.6 s; gcode 91.5 s vs 56.0 s) and exceeds both before arms' on gcode; against preservation it is lower on db-wal (85.8 s vs 254.1 s) and higher on gcode (91.5 s vs 73.3 s).",
+      "boundaryStopCount": "EQUAL — db-wal 0/0/0 and gcode 1/1/1 (adjusted/base/preservation)."
+    },
+    "cost": [
+      "No graded-delivery cell regresses in disposition against either before arm: db-wal pass/pass/pass, gcode stopped/stopped/stopped, sqlite pass/pass/pass.",
+      "Recorded cost of evidence quality (not of the cell's delivery): both before arms' expr cells are unusable as verdicts (error dispositions), which breaks verdicts.complete in those reports; recorded as a binding failure, never as a loss.",
+      "Recorded route event (not credited): the adjusted arm's expr cell and the preservation arm's expr cell both reached the task's own upstream material over the network; the base arm's expr cell did not. No graded-delivery cell shows an upstream route in any arm."
+    ],
+    "censoring": [
+      "All three gcode-to-text cells are right-censored at the reserved delivery boundary with their spans recorded: 828.3 s (adjusted), 873.4 s (base), 873.7 s (preservation) of the 900 s budget. Never excluded, never counted as a gain.",
+      "The two before-arm expr cells are stop/error observations (2,533.4 s and 1,859.3 s of the 5,400 s budget) recorded as binding failures rather than verdicts; the adjusted arm's expr cell ran 2,863.6 s of 5,400 s to a graded verdict.",
+      "No cell was dropped, threshold-filtered or re-run in any arm."
+    ],
+    "uncertainty": "One attempt per cell per arm, three windows (adjusted 2026-10-05T02:25Z; both before arms 11:34Z), shared provider load, comparison order confounded (the treatment arm was measured before this cohort was frozen, as disclosed above). Nothing here is an effect size: the reading is about observed delivery only, and n=1 per cell cannot isolate wording from run variance.",
+    "independentReview": {
+      "thread": "thread_c3a4808dc4f960cbb0c08fed131e896b",
+      "topic": "architecture compliance and benchmark fairness",
+      "state": "settled",
+      "conclusion": "REJECT — cannot be accepted as ready now.",
+      "blockers": [
+        "F1 (High): the Product enumeration and spec 294 assert the discipline 'a guess or placeholder never substitutes for an answer' while the shipped instruction contains no such clause (the 2.17.0 sentence that carried it was replaced wholesale at 06feeb23) — a contract-level doc/instruction divergence that also removes the counterweight to 'land it while rough, before verification'. Evidence cited: the max-profile landing arm wrote a reconstruction of wrong values into the graded path (5/7).",
+        "F2 (High): the readiness readout was not established at review time; flipping on a profile-only gain would bypass the cohort's own predeclared procedure.",
+        "F3 (Medium): the evidence standard regressed against the older manifest — no per-arm report artifactId/sha256 is frozen in the newer records, and the harness declares process network egress enabled, so the 'no upstream fetch' half rests on operator inspection.",
+        "F4 (Medium): spec 294's predeclared design (re-measure the 2.15.0 arm in the candidate's own window) differs from what was executed (references disclosed, not re-dispatched) and the in-repo record was not updated; spec 293/294 checklists remain pending."
+      ],
+      "note": "The review's F1/F2/F4 remain open. This cohort's readout does not cure F2 — it fails it."
+    },
+    "pr212Decision": "PR Simon-He95/best-agent#212 stays Draft and is not merged. Two of the three gate conditions fail: (1) the predeclared primaryGain is NOT met, (2) the predeclared noRegression is NOT met on the real-verdict / intact-acceptance clause. The independent review is settled as REJECT, so the third condition would block the transition independently. Nothing was merged, no arm ref was moved and the PR was not flipped (no `gh pr ready` was run).",
+    "gateConditions": {
+      "primaryGain": "NOT met — both before arms pass db-wal; no arm delivers gcode's /app/out.txt.",
+      "noRegression": "NOT met — verdicts.complete failed in both before arms (expr error dispositions); the sqlite clause and the expr failing-set clause do hold.",
+      "independentReview": "NOT passed — settled REJECT.",
+      "requiredCi": "Outside this cohort; untouched."
+    },
+    "whatWouldChangeTheReading": "A later cohort in which the before arms are measured the same way but fail db-wal without a graded artifact (or in which the adjusted arm delivers gcode's /app/out.txt where the before arms do not), with every cell keeping a real verdict and an intact acceptance block, and with the review's F1/F4 closed, is what the predeclared criterion asks for. Until then the candidate has no measured prompt gain under this cohort's frozen composition."
+  }
 }
