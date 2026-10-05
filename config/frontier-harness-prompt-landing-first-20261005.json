@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-single-clause-ablation-continuation",
+  "studyId": "prompt-landing-first-20261005",
+  "requestedBy": "Simon, 2026-10-05: continue the exploration instead of stopping at the first no-gain verdict.",
+  "reason": "The 2026-10-04/05 three-arm cohort produced no gain, and its mechanism evidence says the remaining failure on terminal-bench/db-wal-recovery is a landing failure, not a solving failure: the 2.15.0 preservation arm read the decoded WAL back in full at t=636 s (`1|apple|150` … `11|mango|1100`, exactly the graded values) and wrote only an unrun writer script at t=694 s before the reserved boundary cut the invocation that would have run it; the 2.17.0 arm copied correctly but spent t=582-694 s inside a downloaded SQLite amalgamation re-deriving the checksum algorithm and never extracted the rows. This cohort measures the one clause written against that shape: land the supported value in the destination the task reads back, in the very next action, even while rough, never through a script that has not been run and before any further verification/decoding/cleanup.",
+  "model": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "arms": {
+    "candidate": {
+      "candidate": {
+        "packageName": "@best-agent/cli-linux-x64-gnu",
+        "cliVersion": "0.0.4-beta.1",
+        "sourceRepository": "Simon-He95/best-agent",
+        "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+        "target": "linux-x64-gnu"
+      },
+      "codingVersion": "2.18.0",
+      "instructionBytes": 6531,
+      "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
+      "attemptsPerCell": 1,
+      "maxParallel": 1,
+      "note": "The measured 2.15.0 preservation arm plus one landing clause (365 bytes). Removing that line restores 6,165 bytes / e85b985e… and removing the preservation line restores 6,014 bytes / cc23fe7a…; both pinned by the repository's own test. Published on best-agent branch codex/prompt-supported-delivery, draft PR #212."
+    }
+  },
+  "references": {
+    "method": "Disclosed, not re-dispatched: both references were measured on the same composition in the immediately preceding window (2026-10-04T14:14Z dispatch, same provider/budgets/graders, one attempt per cell). They are the comparison, not part of this dispatch.",
+    "control": {
+      "runId": 37208521326,
+      "headSha": "ec8637c8d48903990674e89379823577a81e5ffa",
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "codingVersion": "2.11.0",
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "dbWalRecovery": "failed 0/7, no deliverable, never copied the input, first probe of the original at t≈9.8 s",
+      "expr": "failed 78/79, failing set {TestTryCatch_ErrtypeTypeError}",
+      "sqlite": "passed 1/1"
+    },
+    "preservation": {
+      "runId": 37208531768,
+      "headSha": "8711ce91c6c613ec25a0a7a703aede94e414d0e8",
+      "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+      "codingVersion": "2.15.0",
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "dbWalRecovery": "failed 0/7, copied at t=4,312 ms then read the decoded rows at t=636 s and wrote only an unrun writer script at t=694 s; stopped at the reserved boundary",
+      "expr": "failed 71/79, failing set of eight checks (recorded as cost on that arm)",
+      "sqlite": "passed 1/1"
+    },
+    "note": "The candidate is the preservation arm plus one line, so the preservation reference is the primary comparison and the control the no-mechanism comparison. Neither reference is replaced or re-interpreted by this cohort."
+  },
+  "everythingElse": "Unchanged: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), provider (deepseek-v4-flash, dim-oauth, reasoning effort max), fh_agent_timeout_multiplier=1, serial execution (fh_max_parallel=1), every declared task budget, the official verifiers and the per-call ceiling. No user prefix, no task-specific hint, no grader feedback, no runtime/budget/tool/permission/model/effort change.",
+  "gainDefinition": {
+    "primary": "On terminal-bench/db-wal-recovery the candidate leaves /app/recovered.json at grading with the WAL-updated values correct (e.g. Apple 150) and the evidence shows no retrieval of the task's own upstream material (no raw.githubusercontent fetch of the task files, no upstream archive of solve.sh/test_outputs.py/main.db-wal.encrypted). Either half missing, the cell is recorded as no gain.",
+    "partial": "The graded path holds any structure-complete answer, or the landing is observed before the reserved boundary while the attempt is not truncation-bounded (e.g. the value is written and then refined).",
+    "noRegression": "The sqlite guard still passes, every cell keeps a real verdict with an intact acceptance block, and the candidate's expr failing set is not larger than the preservation reference's eight-check set or the control's one-check set.",
+    "cost": "Any arm whose expr failing set grows beyond the contemporaneous references, or whose guard cell stops passing, is recorded as cost even if the target cell moves.",
+    "censoring": "An attempt bounded by the reserved delivery boundary or a declared stop is a right-censored observation reported with its span; never excluded and never counted as a gain. A call over 100 seconds is telemetry, never an outage diagnosis or exclusion rule.",
+    "escalation": "If the candidate again shows a supported answer in hand without a landing at the graded path, the wording lever is recorded as exhausted for this failure mode and the next step is the CLI mechanism in best-agent issue #213 (reserved-boundary notice or a delivery child that can write), not another wording."
+  },
+  "readingPlan": [
+    "Confirm the first-request instruction bytes of every cell equal 19bb20a3… (6,531 bytes); anything else is a binding failure, not a gain.",
+    "db-wal-recovery: the first copy command and the first probe of the original; when the values appear in the transcript; whether and when the graded path is written; whether any writer script was left unrun; the delivered rows against the WAL-updated values; any upstream fetch.",
+    "Delivery: whether /app/out.txt exists on gcode-to-text and what it contains.",
+    "expr-try-catch-errors: the failing check set against the two references.",
+    "Guard: sqlite-db-truncate disposition and its single check.",
+    "Every cell: maximum single-call span, truncation-bounded calls, terminal cause, and the acceptance block."
+  ],
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell, nothing else.",
+    "No verdict of any earlier run is replaced, refilled or reinterpreted; the two references are disclosed as the immediately preceding window's measurements.",
+    "The result is never merged into any pass@1; diagnostic passAt1 stays null and the frozen full-run 0.6 is unchanged.",
+    "Budgets, effort, grader, execution profile and per-call ceiling are exactly the frozen composition's.",
+    "Dispatch requires explicit user authorization (AGENTS.md); this manifest is frozen before it and the arm ref is not moved after it."
+  ],
+  "dispatchPlan": {
+    "ref": "codex/preservation-exec-landing",
+    "batch": "preservation-execution-landing-20261005",
+    "commandTemplate": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-landing -f fh_run=true -f fh_run_full=false -f fh_tasks=\"terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors\" -f fh_limit=4 -f fh_offset=0 -f fh_max_parallel=1 -f fh_agent_timeout_multiplier=1 -f fh_reasoning_effort=max -f fh_batch=preservation-execution-landing-20261005"
+  },
+  "status": "frozen-not-dispatched"
+}
