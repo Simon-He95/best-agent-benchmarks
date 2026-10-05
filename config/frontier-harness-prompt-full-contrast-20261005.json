@@ -127,7 +127,10 @@
         "fh_agent_timeout_multiplier": "1",
         "fh_max_parallel": "3"
       },
-      "dispatchedAt": "pending"
+      "dispatchedAt": "2026-10-05T15:10:52Z",
+      "runId": 37330709279,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37330709279",
+      "headSha": "ec8637c8d48903990674e89379823577a81e5ffa"
     },
     "landing": {
       "ref": "codex/preservation-exec-landing",
@@ -140,10 +143,13 @@
         "fh_agent_timeout_multiplier": "1",
         "fh_max_parallel": "3"
       },
-      "dispatchedAt": "pending"
+      "dispatchedAt": "2026-10-05T15:10:55Z",
+      "runId": 37330717206,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37330717206",
+      "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6"
     },
     "method": "Both arms are dispatched by workflow_dispatch from their own frozen refs with distinct fh_batch labels (the workflow's concurrency group is per batch label, so the two runs proceed concurrently in one window). The smoke gate that the earlier full-run manifest required is already satisfied for both candidates: each arm has already built its Linux SEA in CI and completed four-cell runs at this exact profile with frozen evidence (runs 37208521326 and 37247045143).",
-    "runIds": "recorded after dispatch"
+    "runIds": "control 37330709279 (headSha ec8637c8…), landing 37330717206 (headSha 4ad5531a…). Both dispatched 2026-10-05T15:10Z and read from the API right after dispatch; the arm refs are not moved."
   },
   "status": "frozen",
   "gates": {
