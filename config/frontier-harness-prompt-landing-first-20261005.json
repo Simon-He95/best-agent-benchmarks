@@ -97,5 +97,23 @@
     "batch": "preservation-execution-landing-20261005",
     "commandTemplate": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-landing -f fh_run=true -f fh_run_full=false -f fh_tasks=\"terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors\" -f fh_limit=4 -f fh_offset=0 -f fh_max_parallel=1 -f fh_agent_timeout_multiplier=1 -f fh_reasoning_effort=max -f fh_batch=preservation-execution-landing-20261005"
   },
-  "status": "frozen-not-dispatched"
+  "dispatch": {
+    "runId": 37247045143,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37247045143",
+    "ref": "codex/preservation-exec-landing",
+    "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6",
+    "batch": "preservation-execution-landing-20261005",
+    "dispatchedAt": "2026-10-05T00:31:00Z",
+    "method": "Dispatched from its own frozen arm ref with fh_reasoning_effort=max, fh_max_parallel=1 and the four predeclared cells; the run's headSha was re-read from the API and equals the arm commit, and the arm ref is not moved after dispatch. The post-dispatch record lives on codex/prompt-preservation-execution only."
+  },
+  "candidateBinding": {
+    "method": "Downloaded the run's own frontier-harness-candidate-37247045143 artifact and read candidate.json plus delivery-verification.json, before any model entry.",
+    "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+    "matchesFrozenPin": true,
+    "binarySha256Prefix": "b663886103e3",
+    "deliveryVerification": "verified=true, 7/7 checks passed",
+    "receipt": "@best-agent/cli-linux-x64-gnu@0.0.4-beta.1 linux-x64-gnu 06feeb2",
+    "note": "The measured binary is the reviewed 2.18.0 text on the pinned source commit; the per-cell first-request instruction hash (19bb20a3…) is re-verified at readout."
+  },
+  "status": "dispatched"
 }
