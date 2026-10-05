@@ -206,5 +206,155 @@
     "This study exists because the four-cell cohorts saturated (both before arms pass db-wal at high effort) and because the user's criterion is completion and score, not perfection: the question is whether the adjusted instruction runs further before the budget closes.",
     "The measured text is frozen at 06feeb23 for clean attribution: the delta against the control is exactly the PR's two sentences, and no further prompt edit enters these runs.",
     "A doc-side contract fix for the review's F1 finding is recorded in config/frontier-harness-landing-attribution-high-20261005.json#outcome.promptClauseDecision; it does not touch the measured instruction."
-  ]
+  ],
+  "outcome": {
+    "measuredAt": "2026-10-06T02:5x+08:00 (read from the two runs' own downloaded report artifacts)",
+    "verdict": "READING NOT MET — the adjusted arm (2.18.0) is WORSE than control (2.11.0) on the predeclared bar: 18 passes against 21, i.e. three cells fewer at the same completion and with no verdict-less cell on either side. PR #212 is NOT merged and stays Draft.",
+    "headline": "Both arms ran the frozen 30-task corpus at one frozen profile with a clean binding (30/30 cells carry their arm's exact Skill-instruction hash, all five acceptance items passed, coverage.full passed, one candidate per arm). Control 2.11.0 passes 21/30 (0.700); landing 2.18.0 passes 18/30 (0.600). Seven cells flip, five in control's favour and two in landing's. Landing is ahead on the terminal-bench half (17 vs 16) and far behind on the datacurve half (1 vs 5). Neither arm wrote either graded read-back path this window.",
+    "bindingCheck": {
+      "mutualDeliverable": "Both runs: fh_run_full=true, reasoning effort max, agent timeout multiplier 1, max parallel 3, same corpus pin and batch plan, 34/34 jobs green, coverage 30/30 present with no missing and no not-evaluated cell.",
+      "profileDelta": "A field-by-field comparison of the two frozen profiles finds exactly one differing leaf: cli.sourceCommit (8698d01601b65a30c6c0e4a4e76b408eada74185 = main's 2.11.0 text vs 06feeb23e81e8d10b48411df6b06d2f5f8feb199 = PR #212's 2.18.0 text). Provider (deepseek-v4-flash, effort max, options [\"max\"], dim-oauth), pier 0.3.1 (df89f994…), dataset e837a70b…, task sources, budgets and batches are identical.",
+      "control": {
+        "runId": 37332662525,
+        "headSha": "ec8637c8d48903990674e89379823577a81e5ffa",
+        "candidateId": "cli-0.0.4-beta.1-8698d01-9a3ff58ad8bd",
+        "firstRequestSkillInstruction": "6,014 bytes / cc23fe7a… on 30/30 cells: MATCH",
+        "reportArtifact": "frontier-harness-report-37332662525, artifact id 11364212701, sha256 859e20f2717bdd8c7996e179906952675a1b898b997ec0587f2e862e964ec79f"
+      },
+      "landing": {
+        "runId": 37332669480,
+        "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6",
+        "candidateId": "cli-0.0.4-beta.1-06feeb2-8e783b730644",
+        "firstRequestSkillInstruction": "6,531 bytes / 19bb20a3… on 30/30 cells: MATCH",
+        "reportArtifact": "frontier-harness-report-37332669480, artifact id 11364043979, sha256 7288af0de074871050746ff8864df0be7b2b00e94d202bdf415c0edc3856f637"
+      },
+      "artifactStandardNote": "Both report artifacts are frozen here by id and sha256, which is the per-arm anchoring the independent review's F3 asked for and which the four-cell attribution manifest lacked.",
+      "acceptance": "coverage.full, verdicts.complete, candidate.single, provider.single and instructions.frozen are all passed in BOTH arms (the four-cell high cohort could not say that: its before arms failed verdicts.complete).",
+      "providerEffort": "deepseek-v4-flash at reasoning effort max in both arms; the provider-side honouring of the effort is not independently verifiable here."
+    },
+    "totals": {
+      "control": {
+        "passed": 21,
+        "failed": 9,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0.7,
+        "terminalBench": "16 passed / 5 failed (21 cells)",
+        "datacurve": "5 passed / 4 failed (9 cells)",
+        "datacurveFailToPassFraction": "604/618 = 0.9773",
+        "modelCalls": 2252,
+        "stoppedCells": 7
+      },
+      "landing": {
+        "passed": 18,
+        "failed": 12,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0.6,
+        "terminalBench": "17 passed / 4 failed (21 cells)",
+        "datacurve": "1 passed / 8 failed (9 cells)",
+        "datacurveFailToPassFraction": "529/618 = 0.8560",
+        "modelCalls": 2220,
+        "stoppedCells": 5
+      },
+      "completion": "Equal: both arms carry a real graded verdict in all 30 cells, neither has an error or not-evaluated cell, so the completion half of the bar cannot break the tie in landing's favour.",
+      "scoreCaveat": "The predeclaration's literal score reading (passed cells plus the recorded datacurve `partial`) reads 24.994 for control and 25.886 for landing, i.e. marginally in landing's favour — but that field is dominated by the 66,265 pass-to-pass tests, so a FAILED datacurve cell still contributes ≈1.0 and the metric barely discriminates. It is recorded for completeness and must NOT be read as a gain; the discriminating readings are the pass count (21 vs 18) and the datacurve fail-to-pass fraction (0.9773 vs 0.8560), both of which favour control. This study's own 'score' definition was too coarse to serve as a bar and is a lesson for the next manifest."
+    },
+    "perCell": [
+      "datacurve/anko-typed-variable-bindings: passed -> failed",
+      "datacurve/arktype-json-schema-refs-dependencies: failed -> passed",
+      "datacurve/expr-try-catch-errors: failed -> failed",
+      "datacurve/fastapi-deprecation-response-headers: passed -> failed (declared specification-gap task)",
+      "datacurve/httpx-multipart-response-parsing: passed -> failed (declared specification-gap task)",
+      "datacurve/katex-multicolumn-array-spans: passed -> failed",
+      "datacurve/meriyah-explicit-resource-declarations: failed -> failed (declared specification-gap task)",
+      "datacurve/python-statemachine-state-data-scoping: failed -> failed",
+      "datacurve/scc-bounded-memory-spilling: passed -> failed",
+      "terminal-bench/build-cython-ext: passed -> passed",
+      "terminal-bench/chess-best-move: failed -> failed",
+      "terminal-bench/code-from-image: passed -> passed",
+      "terminal-bench/constraints-scheduling: passed -> passed",
+      "terminal-bench/db-wal-recovery: failed -> failed",
+      "terminal-bench/dna-insert: passed -> passed",
+      "terminal-bench/extract-elf: passed -> passed",
+      "terminal-bench/gcode-to-text: failed -> failed",
+      "terminal-bench/git-leak-recovery: passed -> passed",
+      "terminal-bench/kv-store-grpc: passed -> passed",
+      "terminal-bench/largest-eigenval: failed -> failed",
+      "terminal-bench/log-summary-date-ranges: passed -> passed",
+      "terminal-bench/merge-diff-arc-agi-task: passed -> passed",
+      "terminal-bench/modernize-scientific-stack: passed -> passed",
+      "terminal-bench/multi-source-data-merger: passed -> passed",
+      "terminal-bench/openssl-selfsigned-cert: passed -> passed",
+      "terminal-bench/polyglot-c-py: failed -> passed",
+      "terminal-bench/regex-log: passed -> passed",
+      "terminal-bench/sanitize-git-repo: passed -> passed",
+      "terminal-bench/sqlite-db-truncate: passed -> passed",
+      "terminal-bench/vulnerable-secret: passed -> passed"
+    ],
+    "flips": {
+      "count": 7,
+      "landingWon": [
+        "datacurve/arktype-json-schema-refs-dependencies (control 23/25 f2p, landing 25/25) — this cell also carries upstream-fetch signatures in the landing arm's evidence, so per the frozen rule the pass is recorded, never credited as a delivery mechanism",
+        "terminal-bench/polyglot-c-py (control stopped/failed, landing completed/passed)"
+      ],
+      "controlWon": [
+        "datacurve/anko-typed-variable-bindings (control 9/9 f2p vs landing 1/9)",
+        "datacurve/fastapi-deprecation-response-headers (137/137 vs 127/137; specification-gap task)",
+        "datacurve/httpx-multipart-response-parsing (122/122 vs 121/122; specification-gap task)",
+        "datacurve/katex-multicolumn-array-spans (94/94 vs 80/94)",
+        "datacurve/scc-bounded-memory-spilling (31/31 vs 28/31)"
+      ],
+      "net": "−3 for landing",
+      "specificationGapExclusion": "Two of the five cells control won are declared specification-gap tasks whose verdicts the frozen profile says cannot be read as capability. Excluding all three specification-gap tasks the count is control 19/27 against landing 18/27: landing is still not better."
+    },
+    "reMeasurementOutcome": {
+      "class": "declared-variance-remeasurement",
+      "rule": "Each of the four cells is reported with BOTH its earlier verdict and this window's verdict; the earlier verdict is never replaced.",
+      "cells": {
+        "terminal-bench/db-wal-recovery": "control: earlier max window failed 0/7 (run 37208521326) / this window failed 0/7 — same verdict. landing: earlier max window failed 5/7 (run 37247045143) / this window failed 0/7 — same verdict (both failed), score differs.",
+        "terminal-bench/gcode-to-text": "control: failed 0/2 earlier / failed 0/2 now. landing: failed 0/2 earlier / failed 0/2 now. Same verdicts.",
+        "terminal-bench/sqlite-db-truncate": "control: passed earlier / passed now. landing: passed earlier / passed now. Same verdicts.",
+        "datacurve/expr-try-catch-errors": "control: failed 78/79 earlier / failed 78/79 now. landing: failed 77/79 earlier / failed 77/79 now. Same verdicts."
+      },
+      "repairedPassRate": "Because every re-measured cell repeats its earlier verdict, the repaired pass rate equals this window's own pass count: control 21/30 = 0.700, landing 18/30 = 0.600. The strict passAt1 is not claimed for these runs (the manifests count more attempts than one per task across windows); the harness's own report fields (0.7 / 0.6, scoreable true) are recorded but not adopted as this study's official figure."
+    },
+    "deliveryOnGradedPaths": {
+      "note": "This is the mechanism the study exists to test: whether the adjusted instruction lands the graded answer before the budget closes.",
+      "terminal-bench/db-wal-recovery (/app/recovered.json)": "NEITHER arm wrote it. control: 13 model calls, the only tool call naming the path is a todowrite at t≈78.0 s, no write of any kind; verifier 0/7 with test_recovered_json_exists failing (file absent). landing: 33 model calls, no tool call ever names the path at all; verifier 0/7 with test_recovered_json_exists failing. The 580.9 s first-write seen in the earlier max window did NOT reproduce.",
+      "terminal-bench/gcode-to-text (/app/out.txt)": "NEITHER arm wrote it. control: 30 calls, path never named; landing: 35 calls, one todowrite mention at t≈25.8 s; both verify 0/2 with test_hello_file_exists failing.",
+      "reading": "In this window the landing clause produced no graded deliverable on either read-back cell, so the delivery mechanism claim has no support here — recorded as an observation, n=1 per cell, never as an effect."
+    },
+    "upstreamRoute": {
+      "rule": "Recorded, never credited as a delivery or pass mechanism.",
+      "control": "4 cells carry upstream signatures: httpx-multipart-response-parsing (91), katex-multicolumn-array-spans (225), meriyah-explicit-resource-declarations (65), python-statemachine-state-data-scoping (258).",
+      "landing": "5 cells: anko-typed-variable-bindings (105), arktype-json-schema-refs-dependencies (115), httpx-multipart-response-parsing (92), python-statemachine-state-data-scoping (280), terminal-bench/sanitize-git-repo (8).",
+      "gradedCells": "No graded-delivery cell (db-wal, gcode) shows an upstream route in either arm."
+    },
+    "censoring": [
+      "Seven control cells and five landing cells ended `stopped` at the reserved delivery boundary with their spans recorded; both arms' db-wal and gcode cells are among them. Never excluded, never counted as a gain.",
+      "A `stopped` cell can still pass when its delivery child completes (e.g. build-cython-ext and extract-elf passed in the control arm), so `stopped` is recorded as a boundary fact, not as a failure class.",
+      "No cell was dropped, threshold-filtered or re-run in either arm; no best-of-N."
+    ],
+    "reading": {
+      "status": "NOT met",
+      "why": "The predeclared bar requires landing to be strictly better: more passes, or the same passes with strictly more verdict-carrying cells and no increase in verdict-less cells. Landing has 18 passes against control's 21 (three fewer), the same 30/30 real verdicts, and no verdict-less cell on either side. Two of the seven flips favour landing and five favour control; excluding the three declared specification-gap tasks the count is still 18 against 19.",
+      "uncertainty": "One attempt per cell per arm, two arms in the same window sharing provider load and runner capacity; a within-window difference of three cells is a diagnostic observation and is not decomposed into wording versus run variance. Nothing here is an effect size."
+    },
+    "infrastructureNoise": {
+      "providerTransportFailures": "control 9 model-failure events across 7 cells (2 of them long: ~475.9 s in db-wal-recovery, 120 s in gcode-to-text); landing 5 events across 4 cells (2 long, both in chess-best-move). The control arm absorbed MORE provider transport noise and still passed three more cells, so the gap is not explained by infrastructure favouring control.",
+      "environmentFailures": "None: no cell in either arm failed before its model attempt, and no job failed at the provider-materialization gate."
+    },
+    "decision": {
+      "merge": "NOT merged. PR Simon-He95/best-agent#212 stays Draft (head bca0e2e0, MERGEABLE, unchanged by this readout).",
+      "failingCondition": "The benefit condition: the adjusted instruction did not beat the instruction on main — it lost three passes on the full corpus. The independent review had passed (ACCEPT) and its three renumbering nits were fixed, so of the two conditions only the measured one was available to decide, and it reads against the change.",
+      "prUntouched": "No `gh pr ready`, no `gh pr merge`, no branch or ref change, nothing merged anywhere.",
+      "reviewStanding": "The review's ACCEPT remains valid for the text as written (architecture, fairness, hardcoding, pins); it does not claim a benefit, and this readout supplies the benefit measurement the review explicitly left unverified.",
+      "whatWouldChangeTheReading": "A new predeclared cohort in which the adjusted text passes strictly more of the 30 tasks than main's text — with the same binding discipline, the same window for both arms, and the graded-delivery cells actually delivering — is what would reopen the merge decision. A repeat of this contrast would also be the only way to tell whether the three-cell gap is stable or is run variance, since deliverable existence and pass sets on this corpus have already flipped between windows without any prompt change.",
+      "alternativePathsRecorded": [
+        "The anti-fabrication tail that 2.18.0 does not carry (spec 305's 'Not carried' record) remains an untested candidate; it is the one clause with direct evidence of a failure it addresses (the max window's structure-complete 5/7 file of wrong values). Its own predeclared cohort would measure it against the frozen 2.18.0 text.",
+        "The CLI-side reserved-boundary mechanism is tracked as best-agent issue #213; this readout adds no evidence for or against it."
+      ]
+    }
+  }
 }
