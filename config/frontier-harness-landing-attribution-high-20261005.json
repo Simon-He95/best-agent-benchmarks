@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-prompt-attribution-cohort",
+  "studyId": "landing-attribution-high-20261005",
+  "requestedBy": "Simon, 2026-10-05: \"不要跑max，就跑high就可以了\" and: the prompt adjustment must show better work-delivery results on the bench/harness than before the adjustment before PR Simon-He95/best-agent#212 may be marked ready for review instead of Draft.",
+  "question": "At one fixed declared effort (high) and one fixed composition, does the adjusted coding instruction (2.18.0) deliver better work than the instruction it replaces (2.11.0 as on main, and 2.15.0 as the PR-209-only intermediate)?",
+  "effort": "high for every arm in this cohort; the profile change that admits high (reasoningEffortOptions [\"max\",\"high\"], default still max, deepseek-v4-flash sanctioned at high) is identical on all three arm refs and is recorded as a profile delta, never as a prompt claim.",
+  "arms": {
+    "adjusted": {
+      "role": "after (candidate)",
+      "ref": "codex/preservation-exec-effort-high",
+      "headSha": "1fe00d6510993a4a7a76109738d3156484406368",
+      "runId": 37255314596,
+      "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+      "codingVersion": "2.18.0",
+      "instructionBytes": 6531,
+      "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6",
+      "measured": true,
+      "measuredResult": "terminal-bench/db-wal-recovery PASSED 7/7 (reward 1), 354.6 s, 28 calls, max call 85.8 s, never boundary-stopped, /app/recovered.json present and re-read, no upstream fetch; sqlite-db-truncate PASSED 1/1 (266.6 s); gcode-to-text failed 0/2 (boundary-stopped); expr failed 77/79 (ErrtypeNilError, ErrtypeTypeError). All four cells' first-request instruction hash verified = 19bb20a3…"
+    },
+    "base": {
+      "role": "before (pre-adjustment baseline, exactly what main carries)",
+      "ref": "codex/preservation-exec-base-high",
+      "headSha": "325b427e855cc6310238da4d83224199374d425b",
+      "runId": 37303771385,
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "measured": false
+    },
+    "preservation": {
+      "role": "before (intermediate, PR 209 sentence only)",
+      "ref": "codex/preservation-exec-preservation-high",
+      "headSha": "6cd1b3292450d3b8067d711bb482eb7ffb9dbb08",
+      "runId": 37303784463,
+      "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+      "codingVersion": "2.15.0",
+      "instructionBytes": 6165,
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "measured": false
+    }
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "predeclaredReading": {
+    "workDeliveryCells": "terminal-bench/db-wal-recovery and terminal-bench/gcode-to-text are the graded-delivery cells; the comparison is per cell, paired, never pooled.",
+    "primaryGain": "The adjusted arm passes db-wal-recovery with the graded artifact present and WAL-correct values, while BOTH before arms fail that same cell without a graded artifact (or, for gcode-to-text, the adjusted arm delivers /app/out.txt where both before arms do not). Both halves are required: strictly better delivery on a graded-delivery cell, and the before arms not showing it.",
+    "secondary": "The adjusted arm's long-call tail and boundary-stop count on the delivery cells do not exceed the before arms'.",
+    "noRegression": "sqlite-db-truncate passes in all three arms; every cell keeps a real verdict with an intact acceptance block; the adjusted arm's expr failing set is not larger than either before arm's.",
+    "cost": "Any cell whose disposition or failing set regresses against either before arm is recorded as cost, even if a delivery cell moves.",
+    "censoring": "A cell bounded by the reserved delivery boundary or a declared stop is a right-censored observation reported with its span; never excluded, never counted as a gain, in any arm.",
+    "uncertainty": "One attempt per cell per arm, arms in three different windows, shared provider load up to three runs. A pass/fail flip with this design is a diagnostic observation and cannot isolate wording from run variance; it can, however, meet or fail the predeclared criterion because the criterion is about observed delivery, not about an effect size.",
+    "decisionOnPr212": "If primaryGain and noRegression hold, PR #212 is marked ready for review (its purpose is to deliver the measured gain) and this record states the evidence; the human still owns the merge decision and required CI must run. If either fails, PR #212 stays Draft and this record names the failing condition."
+  },
+  "fairnessDisclosures": [
+    "No user prefix, no task-specific hint, no grader output or evaluator feedback reaches any arm; the only text delta between arms is the coding Skill instruction.",
+    "One attempt per cell; no best-of-N, no retry-until-pass, no cell exclusion, no latency threshold.",
+    "The adjusted arm was measured in an earlier window than the two before arms; all three windows and their shared provider load are disclosed.",
+    "The effort profile change is disclosed and separated: it cannot by itself convert the PR to ready, and it is never merged to master as part of the prompt candidate.",
+    "Upstream-fetch signatures in any arm's evidence void a delivery claim for that arm (the network route is recorded, not credited).",
+    "The harness's own report acceptance block (candidate.single / provider.single / instructions.frozen / verdicts.complete) must be intact for every arm used in the comparison."
+  ],
+  "readingPlan": [
+    "Bind every arm: candidate artifact sourceCommit equals its pin, and every cell's first-request instruction hash equals its arm hash (cc23fe7a… / e85b985e… / 19bb20a3…).",
+    "Record per arm and cell: disposition, rewards, deliverable presence, terminal cause, call count, max call span, truncation-bounded calls, boundary-stop flag, upstream-fetch signature.",
+    "Apply predeclaredReading exactly; write the outcome into this file's outcome section; commit and push to codex/prompt-preservation-execution.",
+    "Flip PR #212 only on primaryGain + noRegression; otherwise leave Draft and name the failing condition."
+  ],
+  "status": "partially-measured",
+  "notes": [
+    "The two before arms were dispatched on 2026-10-05 (runs 37303771385, 37303784463) from their own frozen refs at reasoning effort high; the arm refs are never moved after dispatch.",
+    "The adjusted arm's measurement (run 37255314596) exists and was independently re-verified from its raw artifacts before this cohort was frozen."
+  ]
+}
