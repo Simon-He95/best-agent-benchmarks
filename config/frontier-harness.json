@@ -67,7 +67,7 @@
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.4-beta.1",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+    "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
     "target": "linux-x64-gnu"
   },
   "provider": {
