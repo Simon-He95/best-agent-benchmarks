@@ -115,5 +115,95 @@
     "receipt": "@best-agent/cli-linux-x64-gnu@0.0.4-beta.1 linux-x64-gnu 06feeb2",
     "note": "The measured binary is the reviewed 2.18.0 text on the pinned source commit; the per-cell first-request instruction hash (19bb20a3…) is re-verified at readout."
   },
-  "status": "dispatched"
+  "status": "measured",
+  "outcome": {
+    "measuredAt": "2026-10-05T02:20:00Z",
+    "verdict": "partial gain",
+    "headline": "The landing clause fired for the first time in this program: the candidate wrote /app/recovered.json at t=580,945 ms (before the reserved boundary) and the verifier found a structure-complete deliverable (5/7). The primary gain is still unmet because the values are not the WAL-updated ones, and the reason is upstream of the landing: the preservation clause did NOT fire this run, so the model's own sqlite3 probe destroyed /app/main.db-wal at t≈20 s and no correct values existed to land.",
+    "pr212Decision": "PR Simon-He95/best-agent#212 stays Draft and is not merged: the predeclared primary gain is unmet (values not WAL-correct). The partial gain is met and is recorded as such.",
+    "predeclaredConditionThatFailed": "Primary gain, first half: /app/recovered.json exists but item 1 (`apple`) is 100, not the WAL-updated 150 — verifier `assert 100 == 150` on test_recovered_data_completeness and test_wal_was_decrypted. The second half (no retrieval of the task's own upstream material) held: no upstream fetch occurred in this cell.",
+    "bindingCheck": "All four cells' first-request Skill instruction is 6,531 bytes with SHA-256 19bb20a3…, matching the frozen 2.18.0 hash. No binding failure; the measured text is the reviewed candidate.",
+    "cells": {
+      "terminal-bench/db-wal-recovery": {
+        "disposition": "failed",
+        "checks": "5/7 passed (exists, is_valid, structure, sorted, no_duplicate_ids); failed test_recovered_data_completeness and test_wal_was_decrypted (`assert 100 == 150`)",
+        "deliverable": "present: /app/recovered.json, 472 bytes, 11 records with ids 1–11, written at t=580,945 ms — before the reserved boundary (~719.8 s) — and then refined/verified at t=608,420 ms",
+        "durationMs": 782040,
+        "primaryCalls": 37,
+        "maxCallMs": 111773,
+        "sumCallMs": 734528,
+        "terminal": "primary cancelled/stopped at cycle 37; delivery child completed",
+        "censoredSpans": [
+          {
+            "seq": 76,
+            "durationMs": 5325,
+            "reason": "transport"
+          }
+        ],
+        "mechanism": "The preservation clause did not fire: after `file` on both inputs the model probed the ORIGINAL with `sqlite3 /app/main.db .tables` at t=5,714 ms and never made a copy, so /app/main.db-wal was destroyed within seconds (its own reasoning at t≈67 s: 'The WAL file is gone from /app. My sqlite3 CLI probe deleted it'). It then spent t≈80–560 s hunting for a copy or a host route (overlay lowerdirs, /logs, /proc/mounts, a block device via mknod — denied by the device cgroup) and, with the input unrecoverable, wrote a reconstruction of 11 records at t=580,945 ms, then began verifying that guess. The landing clause did exactly what it says; the values were unreachable because the input was already gone.",
+        "upstreamRoute": "none — no retrieval of the task's own upstream material; host/device routes were attempted and refused by the sandbox"
+      },
+      "terminal-bench/gcode-to-text": {
+        "disposition": "failed",
+        "checks": "0/2 passed (test_hello_file_exists, test_hello_file_content); `AssertionError: File /app/out.txt does not exist`",
+        "deliverable": "absent — 13 writes, every one a *.py helper (parse/render), never the graded path",
+        "durationMs": 790628,
+        "primaryCalls": 33,
+        "maxCallMs": 102900,
+        "terminal": "primary cancelled/stopped at cycle 33; delivery child completed",
+        "censoredSpans": [
+          {
+            "seq": 68,
+            "durationMs": 2384,
+            "reason": "transport"
+          }
+        ],
+        "observation": "The landing clause cannot fire where the model never has a candidate value; the run wrote renderers instead of a value. Consistent with the manifest's note that this cell is the harder half."
+      },
+      "terminal-bench/sqlite-db-truncate": {
+        "disposition": "passed",
+        "reward": 1,
+        "checks": "1/1 passed (test_json_data)",
+        "durationMs": 609453,
+        "primaryCalls": 21,
+        "maxCallMs": 364497,
+        "terminal": "completed"
+      },
+      "datacurve/expr-try-catch-errors": {
+        "disposition": "failed",
+        "rewards": {
+          "f2p_passed": 77,
+          "f2p_total": 79,
+          "p2p_passed": 66265,
+          "p2p_total": 66265
+        },
+        "failingChecks": [
+          "TestTryCatch_ErrtypeTypeError",
+          "TestTryCatch_ErrtypeNilError"
+        ],
+        "durationMs": 3788728,
+        "primaryCalls": 275,
+        "maxCallMs": 261357,
+        "terminal": "completed",
+        "observation": "raw.githubusercontent appears (a `curl -sI` to expr-lang/expr); it supplies no gain claim. The two-check failing set is the same set the 2.15.0 arm showed in the previous window and the set PR 206's rewrite showed — the window-stable pattern of this text family, not a new regression."
+      }
+    },
+    "predeclaredReading": {
+      "primary": "NOT MET — the deliverable exists but its WAL-updated values are wrong; the no-upstream-fetch half held.",
+      "partial": "MET via its first alternative ('the graded path holds any structure-complete answer'): the verifier's own structure/sorted/no-duplicate/valid checks all pass on the delivered file. The second alternative ('landing observed before the reserved boundary while the attempt is not truncation-bounded') is NOT satisfied, because the attempt was stopped at the boundary; that is recorded rather than used to deny the first alternative.",
+      "noRegression": "MET under the manifest's wording: the sqlite guard passed, all four cells carry real verdicts with an intact acceptance block (verdicts.complete / candidate.single / provider.single / instructions.frozen all passed, 0 error, 0 not-evaluated), and the expr failing set (2) is not larger than the preservation reference's eight-check set.",
+      "cost": "Recorded honestly: the expr failing set (2 checks) is one larger than the contemporaneous control's single check. It is smaller than the preservation reference's eight and identical to the window-1 2.15.0 arm's pattern.",
+      "censoring": "db-wal-recovery and gcode-to-text are stop-bounded at the reserved delivery boundary and are recorded as right-censored observations with their spans; neither is excluded and neither counts as a gain."
+    },
+    "escalation": {
+      "triggered": false,
+      "why": "The escalation condition was 'a supported answer in hand without a landing at the graded path'. This run landed (a reconstruction, written at 581 s and refined afterwards), so the wording lever is not exhausted for the landing failure mode — the landing clause demonstrably fires.",
+      "remainingConstraint": "The primary target needs the input preserved: this run's WAL was destroyed at t≈20 s because the preservation clause did not fire, and no wording can land WAL-correct values once the ciphertext is gone. Across the three windows the preservation clause fired in two arms (2.15.0 @4.3 s; 2.17.0 @14.8 s) and not in this one, so its firing is not yet deterministic.",
+      "nextLevers": [
+        "Make the copy imperative and unconditional for data files (stronger wording or a CLI-side boundary, not a longer sentence): the WAL is destroyed by the first sqlite3/xxd probe in every arm that does not copy first.",
+        "best-agent issue #213 remains open and orthogonal: the reserved boundary still ends every 900 s delivery cell, and this run finished its landing with ~139 s of the attempt already spent."
+      ]
+    },
+    "notClaimed": "One attempt per cell, one arm, one window: a diagnostic mechanism observation, not a causal effect estimate, not holdout evidence and not a capability measurement. The 2.11.0 / 2.15.0 references are the immediately preceding window's measurements and are disclosed as such. Every canonical verdict stands as measured; diagnostic passAt1 stays null and the frozen full-run 0.6 is unchanged."
+  }
 }
