@@ -183,7 +183,23 @@
       "reviewThread": "thread_bf7bc6a77d8ef3bc383c1ed0846e10e1 (commandRef 4d223e49-d406-438c-b529-d61f72c01ea5), topic: PR212 final-state review — architecture compliance, fairness, hardcoding and mergeability.",
       "benefitBar": "Landing must be strictly better than control on the predeclared reading (more passes, or the same passes with strictly more cells carrying a real verdict and no increase in verdict-less cells); a tie is not a benefit, and a loss is a loss. The earlier mobility reading (first graded deliverable on db-wal, 580.9 s of 900 s) is mechanism evidence, not a benefit by itself.",
       "hardcodingCheck": "coding.ts was grepped for task-specific material (sqlite, gcode, wal as a word, recovered.json, out.txt, /app, apple/banana, expr-lang, terminal-bench, datacurve): no match other than the substring inside 'walk'; the two added sentences state generic engineering discipline only.",
-      "prState": "Head 60626d6d is MERGEABLE (it merged origin/main and renumbered this branch's specs to 303/304/305 because main took 288-302); pnpm check:docs passes and pnpm test:capability-skill is 27/27, with the measured instruction still 6,531 B / 19bb20a3…."
+      "prState": "Head bca0e2e0 is MERGEABLE. It merged origin/main (this branch's specs had to move to 303/304/305 because main took 288-302) and then finished three prose references the merge missed (coding.test.ts:99, specs/304:122, specs/305:122); pnpm check:docs passes and pnpm test:capability-skill is 27/27, with the measured instruction still 6,531 B / 19bb20a3….",
+      "reviewOutcome": {
+        "thread": "thread_bf7bc6a77d8ef3bc383c1ed0846e10e1",
+        "verdict": "ACCEPT on the text, the architecture boundary, fairness/hardcoding, the admission records and the pin strategy. The previous review's F1 is closed: the guard half-sentence was introduced into the Product enumeration by this PR itself (commit 7b8a8df9), survived one commit after the instruction dropped it (06feeb23), and was removed by ea70dfa0 with a \"Not carried\" record and a separate predeclared-cohort candidate for restoring it — main never carried it, so no existing discipline is removed.",
+        "guardNotABlocker": "The missing anti-fabrication tail does not block: adding it back now would change the measured text and break the 19bb20a3 anchoring of the in-flight landing arm; the record must keep the gap and the evidence (the max landing arm's structure-complete 5/7 file of wrong values) and must not claim any guard in force until that candidate has its own cohort.",
+        "conditionsForMerge": [
+          "The full-corpus contrast must show the adjusted arm strictly better than control on the predeclared reading (this is the standing bar; a tie is not a benefit).",
+          "The three stale renumbering references found by the review (its F3) had to be fixed first — done in bca0e2e0."
+        ],
+        "riskNotesToKeep": [
+          "The benefit is a mechanism hypothesis, not a demonstrated effect: the only cell where the landing arm wrote its graded file scored 5/7 with wrong values, and n=1 cannot separate wording from run variance.",
+          "The landing clause licenses a rough first write with no anti-fabrication counterweight in the shipped text, so an attempt cut right after landing can leave a wrong-but-present deliverable (recorded, not hidden).",
+          "Attribution is declarative for the max window: those four arms carry no per-arm report artifactId/sha256 (the review's F4, self-declared in the attribution outcome).",
+          "Never describe the timing differences on gcode or the 2.17.0 arm as an effect."
+        ],
+        "unverifiedByReview": "The full-contrast result (not produced yet); actual CI runs (not triggered; the reviewer ran check-docs and oxfmt --check locally and recomputed the pins instead); whether the Product-contract prose edit falls inside the gate's already-approved scope; the byte identity of the benchmark arms' built artifacts against this tip (the records anchor the instruction text hash only)."
+      }
     }
   },
   "notes": [
