@@ -176,8 +176,15 @@
   "status": "frozen",
   "gates": {
     "thisStudy": "The reading decides whether the adjusted instruction is a net improvement over main on the full corpus; it is read as met / partially met / not met exactly by predeclaredReading, and it is never merged with the four-cell cohorts.",
-    "pr212": "PR Simon-He95/best-agent#212 stays Draft for now: its prompt-attribution gate, the F1 contract fix and the independent review are separate and none of them is satisfied by this dispatch.",
-    "merge": "Never automatic; the human owns the merge decision."
+    "pr212": "PR Simon-He95/best-agent#212 stays Draft until the merge authorization below is satisfied.",
+    "merge": "Never automatic; the human owns the merge decision unless the merge authorization below is satisfied.",
+    "mergeAuthorization": {
+      "givenBy": "Simon, 2026-10-05: merge it myself if this reading shows a benefit and a NEW independent review thread passes (the change is reasonable, architecture-compliant, helps the harness execute and deliver better), and there must be no hardcoded, unfair or strange task-specific prompt text.",
+      "reviewThread": "thread_bf7bc6a77d8ef3bc383c1ed0846e10e1 (commandRef 4d223e49-d406-438c-b529-d61f72c01ea5), topic: PR212 final-state review — architecture compliance, fairness, hardcoding and mergeability.",
+      "benefitBar": "Landing must be strictly better than control on the predeclared reading (more passes, or the same passes with strictly more cells carrying a real verdict and no increase in verdict-less cells); a tie is not a benefit, and a loss is a loss. The earlier mobility reading (first graded deliverable on db-wal, 580.9 s of 900 s) is mechanism evidence, not a benefit by itself.",
+      "hardcodingCheck": "coding.ts was grepped for task-specific material (sqlite, gcode, wal as a word, recovered.json, out.txt, /app, apple/banana, expr-lang, terminal-bench, datacurve): no match other than the substring inside 'walk'; the two added sentences state generic engineering discipline only.",
+      "prState": "Head 60626d6d is MERGEABLE (it merged origin/main and renumbered this branch's specs to 303/304/305 because main took 288-302); pnpm check:docs passes and pnpm test:capability-skill is 27/27, with the measured instruction still 6,531 B / 19bb20a3…."
+    }
   },
   "notes": [
     "This study exists because the four-cell cohorts saturated (both before arms pass db-wal at high effort) and because the user's criterion is completion and score, not perfection: the question is whether the adjusted instruction runs further before the budget closes.",
