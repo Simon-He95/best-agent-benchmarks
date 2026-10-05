@@ -151,6 +151,28 @@
     "method": "Both arms are dispatched by workflow_dispatch from their own frozen refs with distinct fh_batch labels (the workflow's concurrency group is per batch label, so the two runs proceed concurrently in one window). The smoke gate that the earlier full-run manifest required is already satisfied for both candidates: each arm has already built its Linux SEA in CI and completed four-cell runs at this exact profile with frozen evidence (runs 37208521326 and 37247045143).",
     "runIds": "control 37330709279 (headSha ec8637c8…), landing 37330717206 (headSha 4ad5531a…). Both dispatched 2026-10-05T15:10Z and read from the API right after dispatch; the arm refs are not moved."
   },
+  "dispatchLog": [
+    {
+      "attempt": 1,
+      "at": "2026-10-05T15:10:52Z / 15:10:55Z",
+      "control": { "runId": 37330709279, "batch": "prompt-full-contrast-control-20261005", "headSha": "ec8637c8d48903990674e89379823577a81e5ffa" },
+      "landing": { "runId": 37330717206, "batch": "prompt-full-contrast-landing-20261005", "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6" },
+      "result": "FAILED before any model attempt — pre-model credential gate.",
+      "evidence": "Every one of the 30 Generate jobs in both runs failed at the step `Materialize the frozen provider identity`, and the aggregate job failed with it (run conclusion failure at 15:20:44Z / 15:22:58Z). The step's own log (job 111834273116, db-wal-recovery, control) reads: `Error: Benchmark OAuth access token is expired.` thrown at scripts/materialize-frontier-provider.mjs:69.",
+      "scope": "30 of 30 cells per arm produced no attempt and no verdict; the candidates built fine (fh-candidate succeeded in both runs) and the corpus/batch freezes succeeded, so nothing about the candidates or the instruction text is implicated.",
+      "attemptsConsumed": 0,
+      "verdictsProduced": 0,
+      "consequence": "No canonical record exists for these runs, so no cell of this study has consumed its one predeclared attempt; the earlier verdicts of the four declared re-measurement cells stand untouched."
+    },
+    {
+      "attempt": 2,
+      "at": "2026-10-05T15:25:07Z / 15:25:10Z",
+      "control": { "runId": 37332662525, "batch": "prompt-full-contrast-control-20261005-r2", "headSha": "ec8637c8d48903990674e89379823577a81e5ffa" },
+      "landing": { "runId": 37332669480, "batch": "prompt-full-contrast-landing-20261005-r2", "headSha": "4ad5531ad322e019ecaf00a28c694067096740e6" },
+      "why": "The refresh is mechanical and external to the study: the repo secret BENCHMARK_PROVIDER_API_KEY had gone stale while the local dimcode OAuth login had been renewed (issued 2026-10-05T13:33Z, expires 2026-10-12T13:33Z). The repo's own documented maintenance step pushed the fresh login (scripts/sync-secrets.mjs) — the same sync the earlier successful runs of today used. Only BENCHMARK_PROVIDER_API_KEY is consumed by any workflow in the tree; the other four secrets the script sets are read by nothing.",
+      "unchanged": "Same frozen manifest, same two arm refs (never moved), same inputs (fh_run_full=true, max, multiplier 1, width 3), new batch labels only so each dispatch stays distinguishable in its records. No cell gained an extra attempt: attempt 1 consumed none."
+    }
+  ],
   "status": "frozen",
   "gates": {
     "thisStudy": "The reading decides whether the adjusted instruction is a net improvement over main on the full corpus; it is read as met / partially met / not met exactly by predeclaredReading, and it is never merged with the four-cell cohorts.",
