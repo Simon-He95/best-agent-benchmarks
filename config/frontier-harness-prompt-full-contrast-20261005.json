@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-full-corpus-prompt-contrast",
+  "studyId": "prompt-full-contrast-20261005",
+  "requestedBy": "Simon, 2026-10-05: \"我们的目标不是说一定要通过，但是要解决 token 预算前交付的问题，要保证 bench 比之前跑到更后面，结果更好，通过率更高，不是目标一定要全部成功，至少比改造前的完成率和得分更高\" — and, asked which run to dispatch, chose option A: the 30-task full contrast (control 2.11.0 vs landing 2.18.0) read for passAt1/completion/score.",
+  "question": "Over the frozen 30-task frontier-harness corpus at one frozen profile (deepseek-v4-flash, reasoning effort max), does main's coding instruction (2.11.0, 6,014 B) deliver more completed cells, a higher pass rate and a higher score than the adjusted instruction of PR Simon-He95/best-agent#212 (2.18.0 = 2.11.0 + preservation sentence + landing sentence, 6,531 B)? The goal is not that every cell passes: it is whether the adjusted instruction runs further, completes more and scores higher than before the adjustment.",
+  "arms": {
+    "control": {
+      "role": "before (exactly what main carries)",
+      "ref": "codex/preservation-exec-control",
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76"
+    },
+    "landing": {
+      "role": "after (PR #212 head, the reviewed 2.18.0 text)",
+      "ref": "codex/preservation-exec-landing",
+      "sourceCommit": "06feeb23e81e8d10b48411df6b06d2f5f8feb199",
+      "codingVersion": "2.18.0",
+      "instructionBytes": 6531,
+      "instructionSha256": "19bb20a32f7c55a9867d953446e3b8126183a2f79f812c09e8e6b5fa67ac79b6"
+    }
+  },
+  "identityCheck": "`git diff --stat` between the two arm refs reports 3 files: each ref's own record manifests (config/frontier-harness-prompt-landing-first-20261005.json added on the landing ref, config/frontier-harness-prompt-preservation-execution-20261004.json absent there) and config/frontier-harness.json. A leaf-by-leaf comparison of the two frozen configs finds exactly ONE differing leaf: cli.sourceCommit (8698d016… vs 06feeb23…). Provider, effort option set, tool exclusion, task sources, budgets, pier pin, batches and the provider materializer are byte-identical, so the only behavioural delta between the arms is the coding Skill instruction text.",
+  "corpus": {
+    "pin": "config/frontier-harness.json#taskSources, datasetCommit e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63 (identical on both arm refs)",
+    "batches": "config/frontier-harness-batches.json (identical on both arm refs): profileId frontier-harness-v1.0-e837a70b, taskCount 30, maxBatchSize 10, 3 tracked batches",
+    "tasks": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "profile": {
+    "model": "deepseek-v4-flash",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "toolExclude": [
+      "network"
+    ],
+    "agentTimeoutMultiplier": 1,
+    "maxParallel": 3,
+    "budgets": "The per-task agent and verifier budgets stay exactly as the frozen composition declares them (terminal-bench 900 s, datacurve 5,400 s); nothing is extended, and no condition is relaxed to make a cell scoreable.",
+    "maxParallelNote": "3 is the width at which the two previous full runs of this profile recorded zero ECR throttles; the same width is used for both arms so the two runs share one execution profile.",
+    "effortNote": "max is the only effort this profile declares; the high-effort runs of 2026-10-05 belong to a separate profile delta that is recorded elsewhere and is never merged."
+  },
+  "attempts": "One frozen headless attempt per task per arm, all 30 corpus tasks, fh_run_full=true (the tracked batches of 10 are drained in corpus order). No cell is retried inside a run, no best-of-N, no evaluator output re-enters an attempt, and the task's own verifier is the only grader.",
+  "reMeasurement": {
+    "declared": true,
+    "class": "declared-variance-remeasurement",
+    "cells": [
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/sqlite-db-truncate",
+      "datacurve/expr-try-catch-errors"
+    ],
+    "why": "These four cells are the only corpus tasks already graded for BOTH candidates at this exact profile (control at max: run 37208521326; landing at max: run 37247045143; both re-measured at high effort in runs 37303771385 and 37255314596). A full-corpus run measures every task, so these four are admitted here as declared re-measurements: same candidate, same budgets, same grader, at most one extra attempt each, and never a second chance at that attempt.",
+    "priorVerdictsKept": "Every earlier verdict of these cells stays published and is never replaced or reinterpreted; the earlier records stay canonical for their own windows.",
+    "officialMetric": "Because four cells carry an extra attempt, the official figure of these two runs is the repaired pass rate over the run's 30 predeclared tasks (scripts/frontier-harness-repaired-reading.mjs --official), with both verdicts of every repaired cell, the class and the extra-attempt count disclosed. The strict passAt1 (exactly one attempt per task) is NOT claimed for these runs and is reported as null.",
+    "otherCells": "The remaining 26 tasks carry no prior verdict for either candidate at this profile; their reading is a single first attempt."
+  },
+  "predeclaredReading": {
+    "betterIs": "The adjusted arm is read as better than the control arm when it passes strictly more of the 30 predeclared tasks (repaired pass count) — or, failing a strict pass gain, when it keeps the same pass count while completing strictly more cells with a real verdict and no increase in cells without a verdict.",
+    "completion": "Completion is read per arm as: cells with a real graded verdict (passed + failed, i.e. a reward or an f2p/p2p verdict) vs cells left without one (error / not-evaluated / pre-model environment failure / provider transport failure). A cell whose attempt dies without reaching a verdict is a binding failure and is never counted as a loss of capability.",
+    "score": "Score is read per arm as the number of passed cells plus, for the datacurve cells, the recorded partial f2p fraction; pass/fail per cell is never inferred from anything but the task's own verifier record.",
+    "delivery": "Delivery is read per cell on the graded-delivery paths (/app/recovered.json, /app/out.txt): whether the graded path exists at the end of the attempt, and at what time before the budget it was first written. Presence and earlier delivery are the mechanism this study is about (landing the answer before the budget runs out); a cell that still fails after delivering is a delivery with no pass, and is recorded as such.",
+    "notRequired": "Passing every cell is explicitly not required and is never the bar: a loss on one cell does not refute the change, and a win on one cell does not prove it.",
+    "uncertainty": "One attempt per cell per arm; the two arms run concurrently in the same window and share provider load and runner capacity. A cell flip with this design is a diagnostic observation, not an effect size.",
+    "cost": "Every cell whose disposition or failing set regresses against the control arm is recorded as cost even if the reading is met overall.",
+    "censoring": "A cell bounded by its declared budget or a declared stop is a right-censored observation, reported with its span: never excluded, never counted as a gain."
+  },
+  "fairnessDisclosures": [
+    "No user prefix, no task-specific hint, no grader output and no evaluator feedback reaches any arm; the only text delta is the coding Skill instruction (verified above as the only differing config leaf).",
+    "One attempt per cell; no best-of-N, no retry-until-pass, no cell exclusion, no latency threshold, no cell dropped for being slow.",
+    "Both arms run at the same declared effort, the same width, the same budgets and the same grader, in the same window, so shared provider load and runner contention fall on both arms.",
+    "The four overlap cells are disclosed as declared re-measurements above; their earlier verdicts stay published beside the new ones.",
+    "Task environments are internet-connected as frozen (the harness makes no closed-book claim), so upstream retrieval is not mechanically excluded: any cell with an upstream-fetch signature is recorded, never credited as a delivery or pass mechanism.",
+    "The arm refs are never moved after dispatch; nothing is merged, and this study never publishes pass@1."
+  ],
+  "readingPlan": [
+    "Bind both arms: headSha of each run equals its frozen arm ref commit, the per-cell first-request Skill instruction hash equals the arm's hash (cc23fe7a… / 19bb20a3…), and every record agrees on one candidate id per arm.",
+    "Tabulate per arm and cell: disposition, reward, f2p/p2p, terminal cause, call count, duration against the budget, max call span, deliverable presence on the graded paths, first-delivery time, upstream-fetch signature.",
+    "Compute per arm the pass count over the 30 predeclared tasks and, because four cells are declared re-measurements, state the repaired pass rate with both verdicts of each repaired cell disclosed (strict passAt1 stays null).",
+    "Read the completion and score halves of the predeclaration, then the delivery half cell by cell.",
+    "Write the outcome into this file's outcome section, commit and push to codex/prompt-preservation-execution.",
+    "Never flip PR #212 on this reading alone: the PR's own gate also requires the F1 contract defect and the review's blockers to be closed."
+  ],
+  "dispatch": {
+    "control": {
+      "ref": "codex/preservation-exec-control",
+      "batch": "prompt-full-contrast-control-20261005",
+      "inputs": {
+        "fh_run": true,
+        "fh_run_full": true,
+        "fh_smoke": false,
+        "fh_reasoning_effort": "max",
+        "fh_agent_timeout_multiplier": "1",
+        "fh_max_parallel": "3"
+      },
+      "dispatchedAt": "pending"
+    },
+    "landing": {
+      "ref": "codex/preservation-exec-landing",
+      "batch": "prompt-full-contrast-landing-20261005",
+      "inputs": {
+        "fh_run": true,
+        "fh_run_full": true,
+        "fh_smoke": false,
+        "fh_reasoning_effort": "max",
+        "fh_agent_timeout_multiplier": "1",
+        "fh_max_parallel": "3"
+      },
+      "dispatchedAt": "pending"
+    },
+    "method": "Both arms are dispatched by workflow_dispatch from their own frozen refs with distinct fh_batch labels (the workflow's concurrency group is per batch label, so the two runs proceed concurrently in one window). The smoke gate that the earlier full-run manifest required is already satisfied for both candidates: each arm has already built its Linux SEA in CI and completed four-cell runs at this exact profile with frozen evidence (runs 37208521326 and 37247045143).",
+    "runIds": "recorded after dispatch"
+  },
+  "status": "frozen",
+  "gates": {
+    "thisStudy": "The reading decides whether the adjusted instruction is a net improvement over main on the full corpus; it is read as met / partially met / not met exactly by predeclaredReading, and it is never merged with the four-cell cohorts.",
+    "pr212": "PR Simon-He95/best-agent#212 stays Draft for now: its prompt-attribution gate, the F1 contract fix and the independent review are separate and none of them is satisfied by this dispatch.",
+    "merge": "Never automatic; the human owns the merge decision."
+  },
+  "notes": [
+    "This study exists because the four-cell cohorts saturated (both before arms pass db-wal at high effort) and because the user's criterion is completion and score, not perfection: the question is whether the adjusted instruction runs further before the budget closes.",
+    "The measured text is frozen at 06feeb23 for clean attribution: the delta against the control is exactly the PR's two sentences, and no further prompt edit enters these runs.",
+    "A doc-side contract fix for the review's F1 finding is recorded in config/frontier-harness-landing-attribution-high-20261005.json#outcome.promptClauseDecision; it does not touch the measured instruction."
+  ]
+}
