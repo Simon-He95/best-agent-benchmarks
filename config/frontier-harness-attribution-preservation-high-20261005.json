@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-attribution-arm",
+  "studyId": "landing-attribution-high-20261005",
+  "arm": "preservation",
+  "requestedBy": "Simon, 2026-10-05: the prompt adjustment must show better work-delivery results on the bench/harness than before the adjustment before PR #212 may leave Draft.",
+  "reason": "The adjusted text (coding 2.18.0) at effort high passed terminal-bench/db-wal-recovery 7/7 with an in-sandbox deliverable (run 37255314596), the first db-wal pass in the program. Alongside the pre-adjustment baseline (2.11.0), this arm isolates the PR 209 preservation line at the same effort: it is the same 2.11.0 text plus the preservation sentence, i.e. the arm whose only recorded db-wal behaviour was \"answer reached but never landed\" at max. It therefore separates \"the preservation line\" from \"the landing line\" in the adjustment.",
+  "model": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "cells": [
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/sqlite-db-truncate",
+    "datacurve/expr-try-catch-errors"
+  ],
+  "budgetMs": {
+    "terminal-bench/db-wal-recovery": 900000,
+    "terminal-bench/gcode-to-text": 900000,
+    "terminal-bench/sqlite-db-truncate": 900000,
+    "datacurve/expr-try-catch-errors": 5400000
+  },
+  "armSpec": {
+    "role": "before (intermediate: preservation line only, no landing line)",
+    "candidate": {
+      "packageName": "@best-agent/cli-linux-x64-gnu",
+      "cliVersion": "0.0.4-beta.1",
+      "sourceRepository": "Simon-He95/best-agent",
+      "sourceCommit": "4341baec1f986433261c6f57036920da4a4a4090",
+      "target": "linux-x64-gnu"
+    },
+    "codingVersion": "2.15.0",
+    "instructionBytes": 6165,
+    "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+    "effort": "high",
+    "attemptsPerCell": 1,
+    "maxParallel": 1
+  },
+  "profileDelta": {
+    "note": "Same deliberate profile change as the other effort=high arms (reasoningEffortOptions [\"max\",\"high\"], deepseek-v4-flash sanctioned at high, contract tests updated); reasoningEffort default stays \"max\". Never merged to master as part of the prompt candidate.",
+    "default": "reasoningEffort stays \"max\" in the profile, so an edit alone cannot move a run's effort."
+  },
+  "everythingElse": "Unchanged against the max-profile arms: corpus pin (frontier-harness-eval/eval e837a70b), per-suite task sources, pier pin (0.3.1), provider base/model/transport, fh_agent_timeout_multiplier=1, serial execution, every declared task budget, the official verifiers and the per-call ceiling. No user prefix, no task-specific hint, no grader feedback.",
+  "readingPlan": [
+    "Confirm every cell's first-request instruction bytes equal e85b985e… (6,165 bytes); anything else is a binding failure, not a comparison point.",
+    "Record per cell: disposition, rewards, deliverable presence at the graded path, terminal cause, call count, maximum single-call span, truncation-bounded calls, whether the reserved boundary was reached, and any upstream-fetch signature.",
+    "The comparison of interest is this arm against the adjusted text at the same effort (run 37255314596) and against the pre-adjustment baseline at the same effort; report the pair, never a pooled rate.",
+    "Boundary-bounded or stopped cells are right-censored observations reported with their spans; never excluded, never counted as gains."
+  ],
+  "fairnessDisclosures": [
+    "One attempt per cell; arms measured in different windows; no causal effect size is claimed.",
+    "The adjusted-text arm at this effort is not re-run for this comparison.",
+    "Shared provider load up to three runs in this window; disclosed in the outcome record.",
+    "No cell is excluded for latency and no call-duration threshold is used to score."
+  ],
+  "status": "frozen-not-dispatched",
+  "dispatchPlan": {
+    "ref": "codex/preservation-exec-preservation-high",
+    "batch": "landing-attribution-preservation-high-20261005",
+    "commandTemplate": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-preservation-high -f fh_run=true -f fh_run_full=false -f fh_tasks=\"terminal-bench/db-wal-recovery,terminal-bench/gcode-to-text,terminal-bench/sqlite-db-truncate,datacurve/expr-try-catch-errors\" -f fh_limit=4 -f fh_offset=0 -f fh_max_parallel=1 -f fh_agent_timeout_multiplier=1 -f fh_reasoning_effort=high -f fh_batch=landing-attribution-preservation-high-20261005"
+  },
+  "sharedAttributionManifest": "config/frontier-harness-landing-attribution-high-20261005.json (cohort branch codex/prompt-preservation-execution) holds the combined reading and the acceptance decision."
+}
