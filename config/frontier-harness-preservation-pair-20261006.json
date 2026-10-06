@@ -193,5 +193,91 @@
     "This study exists because every landing clause measured at 30 cells cost cells (18, 20, 17 against 21) while the preservation sentence it sits beside has never been priced at 30 cells at all.",
     "It is also the recorded escalation's own next step: three consecutive variants fell short, and a one-to-four cell spread is the same order as this program's window-to-window flips for one unchanged text, so the control is re-measured in the same window instead of the window being assumed.",
     "The candidate's text is the 2.15.0 arm's own bytes; that arm's 2026-10-04 four-cell verdicts (db-wal 0/7 with no deliverable, sqlite passed, expr 71/79, gcode 0/2) stand unchanged and are never replaced by this reading. Choosing it as the fourth variant is a disclosed family selection made after three failing landing variants."
-  ]
+  ],
+  "outcome": {
+    "readAtLocal": "2026-10-07T01:35+08:00",
+    "source": "Both arms' own reports, read from their report artifacts (candidate 11431370880, 255,902,210 bytes; control 11430483198, 286,298,760 bytes). The aggregate and every per-cell disposition, reward and duration come from each run's own report.json, fetched as single zip members rather than by downloading the 250-340 MB archives; the instruction binding and the two graded read-back paths were then read from those cells' own evidence files.",
+    "binding": {
+      "candidate": "run 37479455544, headSha d0d573c4a3695720a7ec2449fc64e925c64f730f = the arm commit; one candidate id across all 30 records (cli-0.0.4-beta.1-48e8aa6-8e946ebee212, i.e. built from 48e8aa64); acceptance coverage.full passed, candidate.single passed, provider.single passed (deepseek-v4-flash, effort max), instructions.frozen passed; verdicts.complete FAILED on one error cell. Spot-checked from the cells' own evidence: db-wal-recovery and gcode-to-text both carried the frozen 6,165-byte / e85b985e… instruction as the first request.",
+      "control": "run 37479465131, headSha ddd4c1d73342af3cb3b3e988e276ff6ac3fbb977 = the arm commit; one candidate id (cli-0.0.4-beta.1-8698d01-3496d35ee2db); same acceptance shape with verdicts.complete FAILED. Spot-checked: gcode-to-text carried the frozen 6,014-byte / cc23fe7a… instruction.",
+      "runs": "Both runs were dispatched three seconds apart in one window and neither arm ref was moved afterwards."
+    },
+    "totals": {
+      "frozenReference": "run 37332662525: 21 passed / 9 failed / 0 error / 0 not-evaluated (21 valid cells)",
+      "candidate_2_21_0": "19 passed / 10 failed / 1 error / 0 not-evaluated (29 valid cells; the run's own report marks itself unscoreable and publishes no passAt1)",
+      "sameWindowControl": "18 passed / 9 failed / 1 error / 2 not-evaluated (27 valid cells; also unscoreable)",
+      "datacurveFailToPass": "candidate 534/546 over the eight scored datacurve cells; control 517/524 over its eight"
+    },
+    "theWindowEffect": {
+      "sameText": "The control arm is byte-identical to the frozen reference's text (6,014 B / cc23fe7a…), and it read 18 in this window against the reference's 21 — a three-cell swing for one unchanged text.",
+      "whereThoseCellsWent": "terminal-bench/git-leak-recovery (passed -> not-evaluated: the runner had no Docker daemon) and datacurve/katex-multicolumn-array-spans (passed -> error: model-failure) account for two of the three; terminal-bench/db-wal-recovery moved from failed to not-evaluated and changes no pass count. Most of the gap between the frozen bar and this window is therefore infrastructure plus one provider death, not text.",
+      "consequence": "The predeclared bar of 21 was calibrated in the 2026-10-05 window. In this window the same baseline text reaches 18, so a candidate at 19 cannot clear it and no text measured so far in this window can."
+    },
+    "perCell": [
+      "datacurve/anko-typed-variable-bindings ref passed | cand passed | ctrl passed",
+      "datacurve/arktype-json-schema-refs-dependencies ref failed | cand passed | ctrl failed (cand f2p 25/25, ctrl 23/25)",
+      "datacurve/expr-try-catch-errors ref failed | cand failed | ctrl failed (cand f2p 72/79, ctrl 78/79)",
+      "datacurve/fastapi-deprecation-response-headers ref passed | cand passed | ctrl passed",
+      "datacurve/httpx-multipart-response-parsing ref passed | cand passed | ctrl passed",
+      "datacurve/katex-multicolumn-array-spans ref passed | cand passed | ctrl ERROR (model-failure, 1359.3 s)",
+      "datacurve/meriyah-explicit-resource-declarations ref failed | cand failed | ctrl failed (cand f2p 47/49, ctrl 45/49)",
+      "datacurve/python-statemachine-state-data-scoping ref failed | cand ERROR | ctrl passed (candidate model-failure at 766.8 s, 72 calls)",
+      "datacurve/scc-bounded-memory-spilling ref passed | cand failed | ctrl passed (cand f2p 28/31, ctrl 31/31)",
+      "terminal-bench/build-cython-ext ref passed | cand passed | ctrl passed",
+      "terminal-bench/chess-best-move ref failed | cand failed | ctrl failed",
+      "terminal-bench/code-from-image ref passed | cand failed | ctrl failed",
+      "terminal-bench/constraints-scheduling ref passed | cand passed | ctrl passed",
+      "terminal-bench/db-wal-recovery ref failed | cand failed (stopped, 890.4 s, 21 calls) | ctrl NOT-EVALUATED (14.6 s, Docker daemon not running)",
+      "terminal-bench/dna-insert ref passed | cand failed | ctrl passed",
+      "terminal-bench/extract-elf ref passed | cand passed | ctrl failed (283.0 s)",
+      "terminal-bench/gcode-to-text ref failed | cand failed | ctrl failed",
+      "terminal-bench/git-leak-recovery ref passed | cand passed | ctrl NOT-EVALUATED (13.3 s, Docker daemon not running)",
+      "terminal-bench/kv-store-grpc ref passed | cand passed | ctrl passed",
+      "terminal-bench/largest-eigenval ref failed | cand passed | ctrl failed",
+      "terminal-bench/log-summary-date-ranges ref passed | cand failed | ctrl passed",
+      "terminal-bench/merge-diff-arc-agi-task ref passed | cand passed | ctrl passed",
+      "terminal-bench/modernize-scientific-stack ref passed | cand passed | ctrl passed",
+      "terminal-bench/multi-source-data-merger ref passed | cand passed | ctrl passed",
+      "terminal-bench/openssl-selfsigned-cert ref passed | cand passed | ctrl passed",
+      "terminal-bench/polyglot-c-py ref failed | cand passed | ctrl passed",
+      "terminal-bench/regex-log ref passed | cand passed | ctrl passed",
+      "terminal-bench/sanitize-git-repo ref passed | cand failed | ctrl failed",
+      "terminal-bench/sqlite-db-truncate ref passed | cand passed | ctrl passed",
+      "terminal-bench/vulnerable-secret ref passed | cand passed | ctrl passed"
+    ],
+    "perCellHeader": "one row per task, order = frozen reference (run 37332662525) | candidate 2.21.0 (37479455544) | same-window control (37479465131)",
+    "flips": {
+      "vsSameWindowControl": "10 flips. Candidate won: arktype (failed -> passed, 23/25 -> 25/25), extract-elf (failed -> passed), largest-eigenval (failed -> passed), plus two infrastructure flips it did not earn as text (katex error -> passed, git-leak not-evaluated -> passed). Candidate lost: scc (passed -> failed, 31/31 -> 28/31), dna-insert (passed -> failed), log-summary-date-ranges (passed -> failed), plus two it did not lose as text (python-statemachine passed -> error, db-wal not-evaluated -> failed). On real verdicts the pair trades three cells for three; the +1 in the pass count comes from the two infrastructure flips.",
+      "vsFrozenReference": "9 flips: gained arktype, largest-eigenval, polyglot-c-py; lost python-statemachine (error), scc, code-from-image, dna-insert, log-summary-date-ranges, sanitize-git-repo."
+    },
+    "delivery": {
+      "dbWalRecovery": "The candidate never wrote /app/recovered.json: 21 calls, span 614.5 s of the 900 s budget, first mention at 209.8 s inside a todo list, terminal snapshot cancelled/stopped at cycle 22; the graded file was never written. The control arm never reached a model request at all (the runner had no Docker daemon).",
+      "gcodeToText": "/app/out.txt was not written by either arm (candidate 55 calls, span 776.9 s; control 60 calls, span 711.9 s; neither ever touched the path). No arm in this program has ever written that file.",
+      "reading": "Neither graded read-back path was delivered by either arm in this window."
+    },
+    "infrastructureNoise": {
+      "candidate": "1 verdict-less cell: datacurve/python-statemachine-state-data-scoping ended in error with cause model-failure at 766.8 s after 72 calls.",
+      "control": "3 verdict-less cells: datacurve/katex-multicolumn-array-spans error (model-failure, 1359.3 s) and two cells that never reached a model request because the runner reported 'Docker daemon is not running' (terminal-bench/db-wal-recovery 14.6 s, terminal-bench/git-leak-recovery 13.3 s).",
+      "consequence": "Both arms' reports mark themselves unscoreable (verdicts.complete failed) and publish no passAt1. Verdict-less cells are binding failures, never capability losses; they stay in the raw pass counts because the predeclaration counts passes and verdicts, never a cleaned-up subset."
+    },
+    "reading": {
+      "status": "NOT met",
+      "why": "The predeclared bar requires strictly more than 21 passes. The candidate passed 19, so condition (a) fails. The same-window veto was NOT triggered: the candidate (19) read higher than its own same-window control (18). Completion cannot decide either way: both arms carry verdict-less cells.",
+      "sameWindowComparison": "Under the paired comparison the candidate is the strongest arm measured in this window, one clear cell ahead of a byte-identical copy of main's text (19 vs 18), but the predeclaration says the frozen bar is primary and the paired control is only a veto, so this is not read as a gain.",
+      "uncertainty": "One attempt per cell per arm. This pair's internal difference still carries single-attempt variance, and the two runs were three seconds apart in the same window, so their shared environment was as close as this program can make it."
+    },
+    "escalation": {
+      "why": "Four prompt variants have now been measured at 30 cells (2.18.0 = 18, 2.19.0 = 20, 2.20.0 = 17, 2.21.0 = 19) and none cleared a frozen bar of 21. This pair was designed to price the window, and it did: the same 6,014-byte text that read 21 on 2026-10-05 read 18 in this window, with two of the three missing cells lost to a runner without Docker and one to a provider death. The window swing for one unchanged text (3 cells) is larger than any candidate-versus-control difference this program has measured (2.21.0 is +1 over its paired control).",
+      "consequence": "A gap of one to three cells on this corpus is not a property of the text. Continuing to iterate against the frozen 21 in later windows is likely to keep failing for window and infrastructure reasons rather than for text reasons, and no number of further variants can fix that by itself.",
+      "decisionRequested": "Whether to (i) keep the frozen absolute bar of 21 and keep iterating, (ii) accept the paired same-window criterion for this program (candidate strictly better than a byte-identical control measured in the same window, with the frozen bar always reported alongside and never hidden), or (iii) stop the prompt line. The escalation is recorded here; the iteration itself is not stopped by this record.",
+      "notStopped": "The schedule continues; no arm ref was moved and no candidate was re-run."
+    },
+    "decision": {
+      "merge": "NOT merged. PR Simon-He95/best-agent#212 stays Draft, head 40ce0035…, MERGEABLE, untouched by this readout.",
+      "failingConditions": [
+        "(a) The benefit condition: 19 passes against the required strictly-more-than-21. Conditions (b), (c) and (d) held: the same-window veto was not triggered, the independent review returned ACCEPT after its one record-only fix, and the shipped instruction names no task, file, value, tool alias, evaluator or grader."
+      ],
+      "nothingDone": "No gh pr ready, no gh pr merge, no arm ref moved after dispatch, nothing merged anywhere."
+    }
+  }
 }
