@@ -144,5 +144,116 @@
     "This study exists because the guarded-scope readout read 20 against 21 while converting the program's flagship failure (db-wal delivered at 138.6 s and passed 7/7) and restoring datacurve parity, and its four losses were premature endings rather than delivery failures.",
     "The measured text is frozen at 40ce0035 for clean attribution: against 2.19.0 the delta is exactly the rewritten landing line; no further prompt edit enters this run.",
     "2.20.0's landing line reads: when the task reads back a value or a file you produce, land your answer the moment your reasoning supports it, even while it is still rough: write it straight to the required destination - never through a script you have not run, and before any further verification, decoding, cleanup or exploration, and never leave that destination empty while you keep analysing - and only then keep improving it there; a landed answer is a checkpoint, not a finish, and landing early never licenses a guess or a placeholder or finalizing a source change before its verification."
-  ]
+  ],
+  "outcome": {
+    "readAtLocal": "2026-10-06T22:21+08:00",
+    "source": "the run's own report artifact frontier-harness-report-37412632387 (artifact id 11395995403, 340,160,114 bytes, digest sha256:df8d79509700f04692772a9f65facbbdd2bcdbd8ddd9c72ddb781f89e28b9331), read from .tmp/verify-simon-run-checkpoint/report after three truncated direct transfers; the download needed a resuming fetch and the extracted report is the only source used here.",
+    "binding": {
+      "runHeadSha": "145eb07bfb860f89c12bd7891420ebbd63608bde",
+      "armCommit": "145eb07bfb860f89c12bd7891420ebbd63608bde",
+      "headShaEqualsArmCommit": true,
+      "candidateIds": "one: cli-0.0.4-beta.1-40ce003-81ed03fc0a19",
+      "acceptance": "coverage.full passed; candidate.single passed; provider.single passed (deepseek-v4-flash at reasoning effort max); instructions.frozen passed (30 records match the frozen task-level instruction hash of their task); verdicts.complete FAILED (30 present, 0 missing, 0 error, 1 not-evaluated).",
+      "skillInstructionPerCell": "Independently recomputed from every cell's first model-request: 29 of 29 cells that reached a request carry 6,732 bytes / 995e7c53…, and the 30th (db-wal-recovery) never reached a request. The two reference arms were re-verified the same way in this readout: control 30/30 = 6,014 bytes / cc23fe7a…, guarded 30/30 = 6,642 bytes / 0c588320….",
+      "runScoreable": "false; passAt1 is null because one cell carries no verdict, so the run's own report refuses to publish a capability number."
+    },
+    "totals": {
+      "control_2_11_0": "21 passed / 9 failed / 0 error / 0 not-evaluated; terminal-bench 16, datacurve 5; datacurve fail-to-pass 604/618",
+      "guarded_2_19_0": "20 passed / 10 failed / 0 error / 0 not-evaluated; terminal-bench 15, datacurve 5; datacurve fail-to-pass 608/618",
+      "checkpoint_2_20_0": "17 passed / 12 failed / 0 error / 1 not-evaluated; terminal-bench 13, datacurve 4; datacurve fail-to-pass 601/618"
+    },
+    "perCell": [
+      "datacurve/anko-typed-variable-bindings passed|passed|failed (checks 100/103, fail-to-pass 6/9)",
+      "datacurve/arktype-json-schema-refs-dependencies failed|passed|passed (25/25)",
+      "datacurve/expr-try-catch-errors failed|failed|failed (66338/66344, fail-to-pass 73/79)",
+      "datacurve/fastapi-deprecation-response-headers passed|passed|passed",
+      "datacurve/httpx-multipart-response-parsing passed|passed|failed (1393/1394, fail-to-pass 121/122)",
+      "datacurve/katex-multicolumn-array-spans passed|passed|passed",
+      "datacurve/meriyah-explicit-resource-declarations failed|failed|failed",
+      "datacurve/python-statemachine-state-data-scoping failed|failed|failed",
+      "datacurve/scc-bounded-memory-spilling passed|failed|passed (317/317)",
+      "terminal-bench/build-cython-ext passed|passed|passed",
+      "terminal-bench/chess-best-move failed|failed|failed",
+      "terminal-bench/code-from-image passed|failed|passed",
+      "terminal-bench/constraints-scheduling passed|passed|passed",
+      "terminal-bench/db-wal-recovery failed|passed|not-evaluated (infrastructure: no request, no evidence)",
+      "terminal-bench/dna-insert passed|failed|passed",
+      "terminal-bench/extract-elf passed|failed|failed (0/2)",
+      "terminal-bench/gcode-to-text failed|failed|failed (0/2)",
+      "terminal-bench/git-leak-recovery passed|passed|passed",
+      "terminal-bench/kv-store-grpc passed|passed|passed",
+      "terminal-bench/largest-eigenval failed|failed|failed",
+      "terminal-bench/log-summary-date-ranges passed|passed|failed (1/2)",
+      "terminal-bench/merge-diff-arc-agi-task passed|passed|passed",
+      "terminal-bench/modernize-scientific-stack passed|passed|passed",
+      "terminal-bench/multi-source-data-merger passed|passed|passed",
+      "terminal-bench/openssl-selfsigned-cert passed|passed|passed",
+      "terminal-bench/polyglot-c-py failed|passed|failed (0/1)",
+      "terminal-bench/regex-log passed|passed|passed",
+      "terminal-bench/sanitize-git-repo passed|passed|failed (2/3)",
+      "terminal-bench/sqlite-db-truncate passed|passed|passed",
+      "terminal-bench/vulnerable-secret passed|passed|passed"
+    ],
+    "perCellHeader": "one row per task, order = control 2.11.0 | guarded 2.19.0 | checkpoint 2.20.0",
+    "flips": {
+      "vsControl": "7 flips. Won: datacurve/arktype-json-schema-refs-dependencies (failed -> passed, 25/25). Lost: datacurve/anko-typed-variable-bindings (passed -> failed, 9/9 -> 6/9), datacurve/httpx-multipart-response-parsing (passed -> failed, 122/122 -> 121/122), terminal-bench/extract-elf (passed -> failed), terminal-bench/log-summary-date-ranges (passed -> failed), terminal-bench/sanitize-git-repo (passed -> failed), and terminal-bench/db-wal-recovery (passed -> not-evaluated, but that one is the infrastructure cell, not a text loss).",
+      "vsGuarded2_19_0": "9 flips. Won: datacurve/scc-bounded-memory-spilling (failed -> passed, 28/31 -> 31/31), terminal-bench/code-from-image (failed -> passed), terminal-bench/dna-insert (failed -> passed). Lost: datacurve/anko-typed-variable-bindings, datacurve/httpx-multipart-response-parsing,  terminal-bench/log-summary-date-ranges, terminal-bench/polyglot-c-py, terminal-bench/sanitize-git-repo, plus db-wal-recovery (passed -> not-evaluated, infrastructure).",
+      "readingOfTheFlips": "The rewrite did recover the three cells the guarded arm had lost to premature endings (scc, code-from-image, dna-insert), but it lost five cells both reference arms passed, four of them on near-miss verification (100/103, 1393/1394, 1/2, 2/3) rather than on missing deliverables."
+    },
+    "delivery": {
+      "dbWalRecovery": "never reached a model request. The cell died 13,659 ms after start with pierExitCode 1 and the harness record's stderr reading: Docker daemon is not running. Please start Docker and try again. Zero model calls, no evidence file, no deliverable question to answer. Under the predeclared completion rule this is a binding failure, never a capability loss.",
+      "gcodeToText": "/app/out.txt was not written by this arm either: 52 calls, span 712.5 s of the 900 s budget, stopped at the reserved delivery boundary, checks 0/2. No arm in this program has ever written that file.",
+      "firstWrites": "No graded read-back path was written by the checkpoint arm in this run."
+    },
+    "cost": [
+      "Five cells both reference arms passed regressed to failed, four of them on a small failing set rather than a missing deliverable.",
+      "Churn rose: 2,366 model calls against the control's 2,252 over 29 cells that ran, and upstream-fetch signatures appeared in 8 cells against the control's 4 and the guarded arm's 5.",
+      "datacurve fail-to-pass fell to 601/618 from the guarded arm's 608/618 and the control's 604/618."
+    ],
+    "censoring": [
+      "Six cells ended stopped at the reserved delivery boundary with their spans recorded (gcode-to-text 874.0 s; extract-elf 787.3 s; chess-best-move 798.7 s; largest-eigenval 783.0 s; polyglot-c-py 817.8 s; build-cython-ext 663.7 s); never excluded, never counted as a gain.",
+      "datacurve cells ran to their own 5,400 s budgets without a stop (anko 1,566.3 s, arktype 4,553.2 s, httpx 1,460.0 s, scc 1,940.0 s)."
+    ],
+    "infrastructureNoise": {
+      "cellsLostToInfrastructure": "1: terminal-bench/db-wal-recovery (Docker daemon not running on the runner; pre-model failure).",
+      "providerTransportFailures": "gcode-to-text recorded two long transport failures (7,326 ms and 120,005 ms); no cell ended in a provider-death verdict class.",
+      "consequence": "The run is not a complete 30-verdict reading; its own report marks it unscoreable and withholds passAt1. The verdict-less cell cannot be read as a loss, and it cannot be counted as a gain either."
+    },
+    "reading": {
+      "status": "NOT met",
+      "why": "The predeclared bar is strictly more than 21 passes. This arm passed 17 of the 29 cells that were graded, and even if the infrastructure-broken cell is counted as a pass - which the predeclaration forbids - the count is 18, still below the bar and below both reference arms. Completion cannot break the tie: the arm carried one verdict-less cell, so the reading is strictly weaker than the reference's 30/30.",
+      "secondReadingOfTheSameRun": "On the report's own valid-cell convention (verdict-less cells dropped from the denominator) the rate is 17/29 = 0.586 against the reference's 21/30 = 0.700."
+    },
+    "reviewRecord": {
+      "thread": "thread_779cfd477922813fe77f3405346eea35",
+      "state": "settled",
+      "verdict": "ACCEPT-with-fixes on head 40ce0035.",
+      "whatHolds": "The text increment is exactly the landing clause plus the opaque version (against 2.19.0) and the preservation sentence plus that clause (against main); all four byte identities were independently recomputed and agree (6,732 B / 995e7c53…, clause 566 B / 555771e9…, minus clause 6,165 B / e85b985e…, minus both 6,014 B / cc23fe7a…); the architecture boundary holds with Gate A/B/C N/A; the fairness/hardcoding check is clean (ASCII-only clause, no task/file/value/tool-alias/grader names, the six forbidden host-mechanism names still pinned negative); repository gates are green (capability-skill 27/27, cli prompt-composition 13/13, typecheck, check:docs, check:boundaries, lint, format on changed files); F1, F2, F3 and F5 are closed, F6 and F7 are partially closed.",
+      "blockingItems": [
+        "P1 (human authority only): the Product enumeration delta the clause needs was admitted as directed by the human instruction and disclosed as such, but no separate architecture-authority acceptance of that enumeration delta is recorded, and admission.md requires it before the delta. A model reviewer cannot grant it; it needs one recorded line of acceptance by the human.",
+        "P2 (record-only, no instruction bytes): coding.test.ts's comment says the new clause is 89 bytes longer than the 2.19.0 one where the arithmetic is 90; spec 306 still says exactly three deltas where the corrected sentence above it says two; spec 306 still writes the datacurve family as 5/5 where the record is 5 passed / 4 failed against the control's 5 / 4."
+      ],
+      "notRequired": "No text rollback, no architecture change, and no measurement change is required by the review."
+    },
+    "decision": {
+      "merge": "NOT merged. PR Simon-He95/best-agent#212 stays Draft, head 40ce0035…, MERGEABLE, untouched by this readout.",
+      "failingConditions": [
+        "(a) The benefit condition: 17 passes (or 18 under the most generous, forbidden treatment) against the required strictly-more-than-21.",
+        "(b) The review's own gate: its verdict carries an open P1 that only the human authority can close, plus three record-only P2 items.",
+        "(c) The reading's own completeness: one cell carries no verdict, so the run's own report marks it unscoreable and publishes no passAt1."
+      ],
+      "nothingDone": "No gh pr ready, no gh pr merge, no branch or ref moved after dispatch, no arm ref moved, nothing merged anywhere."
+    },
+    "escalation": {
+      "why": "Three consecutive prompt variants have now been measured on the full corpus at this profile - 2.18.0 read 18, 2.19.0 read 20, 2.20.0 read 17 - and none cleared the reference's 21. The spreads are of the same order as the window-to-window flips this program has already recorded for a single text (db-wal-recovery itself read 0/7 and 5/7 for one arm in different windows, and scc-bounded-memory-spilling read passed, failed and passed again across these three arms).",
+      "consequence": "A one-to-four cell difference on this corpus is not separable from run variance with one attempt per cell, so the next dispatch must price the window instead of assuming it: the control text is re-measured in the same window as the next candidate, and a candidate that clears the frozen bar but is worse than its own same-window control is not read as a gain.",
+      "notStopped": "This is a recorded escalation, not a stop: the iteration continues below."
+    },
+    "nextIteration": {
+      "candidate": "The preservation sentence alone (main's 6,014-byte text plus the 2.15.0 preservation sentence, 6,165 bytes / e85b985e…), which is the PR's own core delta and the only configuration in this family that has never been measured on the full corpus; its 2026-10-04 four-cell cohort verdicts stand unchanged and are never replaced by the new reading.",
+      "whyThisText": "Every full-corpus arm measured so far carries a landing clause, and every landing clause measured so far has cost cells; the preservation sentence has never been priced at 30 cells on its own. If it beats the reference, the PR can be merged in its simplest form; if it does not, the whole prompt line has no full-corpus support and the human decides what to do with it.",
+      "design": "Two arms in one window: the candidate above and a same-window re-measurement of the control text (main's 6,014 bytes / cc23fe7a…). The frozen bar stays primary and unchanged; the same-window control is a veto, never a substitute for the bar.",
+      "disclosure": "Choosing the fourth variant after three failed landing variants is a family selection, disclosed here before dispatch: the reading is a reading about these cells on this corpus, never a general capability claim."
+    }
+  }
 }
