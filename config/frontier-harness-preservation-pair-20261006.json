@@ -129,7 +129,12 @@
         "fh_max_parallel": "3"
       },
       "method": "Dispatched by workflow_dispatch from the study's own frozen arm ref with fh_run_full=true; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the arm ref is not moved afterwards.",
-      "status": "pending"
+      "status": "dispatched",
+      "runId": 37479455544,
+      "armCommit": "d0d573c4a3695720a7ec2449fc64e925c64f730f",
+      "boundHeadSha": "d0d573c4a3695720a7ec2449fc64e925c64f730f",
+      "dispatchedAt": "2026-10-06T14:29:55Z",
+      "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-preservation-b -f fh_run=true -f fh_run_full=true -f fh_smoke=false -f fh_reasoning_effort=max -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=3 -f fh_batch=prompt-preservation-only-20261006"
     },
     "control": {
       "ref": "codex/preservation-exec-control-b",
@@ -143,9 +148,15 @@
         "fh_max_parallel": "3"
       },
       "method": "Same method, dispatched in the same window as the candidate; the only config difference between the two arm refs is cli.sourceCommit.",
-      "status": "pending"
+      "status": "dispatched",
+      "runId": 37479465131,
+      "armCommit": "ddd4c1d73342af3cb3b3e988e276ff6ac3fbb977",
+      "boundHeadSha": "ddd4c1d73342af3cb3b3e988e276ff6ac3fbb977",
+      "dispatchedAt": "2026-10-06T14:29:58Z",
+      "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-control-b -f fh_run=true -f fh_run_full=true -f fh_smoke=false -f fh_reasoning_effort=max -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=3 -f fh_batch=prompt-preservation-only-control-20261006"
     }
   },
+  "pairWindow": "The candidate was dispatched at 2026-10-06T14:29:55Z and its control at 2026-10-06T14:29:58Z - three seconds apart, so the two 30-cell arms share one window, and each run's headSha was re-read from the API right after dispatch and equals its own arm commit.",
   "status": "frozen",
   "gates": {
     "thisStudy": "The reading decides whether the preservation sentence alone beats main's text on the full corpus, and whether the whole prompt line should be reduced to it; it is read exactly by predeclaredReading and is never merged with the earlier studies.",
