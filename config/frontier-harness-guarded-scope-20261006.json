@@ -139,5 +139,161 @@
     "This study exists because the 2026-10-05 contrast found the unconditional landing clause costly on source-change tasks (datacurve 1 vs 5, fail-to-pass 0.8560 vs 0.9773) and because 2.18.0 carried no anti-fabrication guard.",
     "The measured text is frozen at 348746e6 for clean attribution: against main the delta is exactly the preservation sentence plus the rewritten landing line; no further prompt edit enters this run.",
     "2.19.0's rewritten landing line reads: land the answer the moment reasoning supports it, scoped to what the task reads back (a value or a produced output file), never through a script that has not been run and before any further verification, with the explicit guards that landing early never licenses a guess or placeholder and never licenses finalizing a source change before its verification."
-  ]
+  ],
+  "outcome": {
+    "measuredAt": "2026-10-06 (read from run 37394780651's own downloaded report artifact)",
+    "verdict": "READING NOT MET — the guarded arm (2.19.0) passed 20 of 30 against the reference's 21: one cell short of the predeclared bar, which required strictly more than 21. PR Simon-He95/best-agent#212 is NOT merged and stays Draft.",
+    "headline": "The rewrite did what it was written to do on the class it targeted — datacurve parity came back (5 passed, matching control's 5, against 2.18.0's 1) and the graded read-back cell delivered and PASSED for the first time at this profile: terminal-bench/db-wal-recovery wrote /app/recovered.json at 138.6 s and verified 7/7 in a 203.2 s span of a 900 s budget, where control never wrote the file at all in this window. It was still one pass short of main's text on the frozen corpus: 20 against 21, with seven cells flipping and a net of minus one.",
+    "bindingCheck": {
+      "run": {
+        "runId": 37394780651,
+        "ref": "codex/preservation-exec-guarded",
+        "headSha": "04a4161357cf2d3d31bc705634a8790c8f49ef49",
+        "headShaEqualsFrozenPin": true,
+        "status": "completed/success, 34/34 jobs green, no environment or credential failure"
+      },
+      "candidate": "cli-0.0.4-beta.1-348746e-9ef6e1854551 (one candidate across all 30 records; source commit 348746e6… equals the arm's pin)",
+      "firstRequestSkillInstruction": "6,642 bytes / 0c588320d06bcf29bf59dfe1e111af9c12db2f70ef7ac727a422a03c6ae4b211 on 30/30 cells: MATCH",
+      "acceptance": "coverage.full, verdicts.complete, candidate.single, provider.single and instructions.frozen all passed (30 of 30 tasks predeclared and present, no missing, no not-evaluated).",
+      "provider": "deepseek-v4-flash at reasoning effort max, options [\"max\"], dim-oauth; the provider-side honouring of the effort is not independently verifiable here.",
+      "reportArtifact": "frontier-harness-report-37394780651, artifact id 11389032311, sha256 0f78ff75badff33addc5842b445c524f720f52db5125179e98d755563c8ebfd0",
+      "coverage": "{\"expected\":30,\"expectedEligible\":30,\"present\":30,\"missing\":[],\"fullExpected\":true}"
+    },
+    "totals": {
+      "guarded": {
+        "passed": 20,
+        "failed": 10,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0.667,
+        "terminalBench": "15 passed / 6 failed (21 cells)",
+        "datacurve": "5 passed / 4 failed (9 cells)",
+        "datacurveFailToPassFraction": "608/618 = 0.9838",
+        "stoppedCells": 4,
+        "modelCalls": 2541
+      },
+      "reference": {
+        "passed": 21,
+        "failed": 9,
+        "error": 0,
+        "notEvaluated": 0,
+        "passRate": 0.7,
+        "terminalBench": "16 passed / 5 failed (21 cells)",
+        "datacurve": "5 passed / 4 failed (9 cells)",
+        "datacurveFailToPassFraction": "604/618 = 0.9773",
+        "stoppedCells": 7,
+        "modelCalls": 2252
+      },
+      "completion": "Equal: both arms carry a real graded verdict in all 30 cells with zero error and zero not-evaluated, so the completion half of the bar cannot break the tie — exactly as the predeclaration's whyStrict anticipated. Only the pass count decides, and it is one short.",
+      "subset26": {
+        "note": "The 26 cells that carry no earlier verdict from any other text, i.e. the corpus minus the four overlap cells (db-wal-recovery, gcode-to-text, sqlite-db-truncate, expr-try-catch-errors).",
+        "guarded": "18 passed / 8 failed",
+        "reference": "20 passed / 6 failed",
+        "overlapFour": "guarded 2 passed (sqlite-db-truncate, db-wal-recovery) against the reference's 1 (sqlite-db-truncate): the guarded arm won the overlap set 2:1 and lost the clean subset 18:20."
+      },
+      "datacurveFailToPass": "Guarded is marginally ahead on this fraction (608/618 = 0.9838 against 604/618 = 0.9773), which is the reading the previous contrast used to diagnose the datacurve collapse; the collapse did not recur."
+    },
+    "perCell": [
+      "datacurve/anko-typed-variable-bindings: passed -> passed",
+      "datacurve/arktype-json-schema-refs-dependencies: failed -> passed",
+      "datacurve/expr-try-catch-errors: failed -> failed (overlap cell; earlier verdicts kept)",
+      "datacurve/fastapi-deprecation-response-headers: passed -> passed (declared specification-gap task)",
+      "datacurve/httpx-multipart-response-parsing: passed -> passed (declared specification-gap task)",
+      "datacurve/katex-multicolumn-array-spans: passed -> passed",
+      "datacurve/meriyah-explicit-resource-declarations: failed -> failed (declared specification-gap task)",
+      "datacurve/python-statemachine-state-data-scoping: failed -> failed",
+      "datacurve/scc-bounded-memory-spilling: passed -> failed",
+      "terminal-bench/build-cython-ext: passed -> passed",
+      "terminal-bench/chess-best-move: failed -> failed",
+      "terminal-bench/code-from-image: passed -> failed",
+      "terminal-bench/constraints-scheduling: passed -> passed",
+      "terminal-bench/db-wal-recovery: failed -> passed (overlap cell; earlier verdicts kept)",
+      "terminal-bench/dna-insert: passed -> failed",
+      "terminal-bench/extract-elf: passed -> failed",
+      "terminal-bench/gcode-to-text: failed -> failed (overlap cell; earlier verdicts kept)",
+      "terminal-bench/git-leak-recovery: passed -> passed",
+      "terminal-bench/kv-store-grpc: passed -> passed",
+      "terminal-bench/largest-eigenval: failed -> failed",
+      "terminal-bench/log-summary-date-ranges: passed -> passed",
+      "terminal-bench/merge-diff-arc-agi-task: passed -> passed",
+      "terminal-bench/modernize-scientific-stack: passed -> passed",
+      "terminal-bench/multi-source-data-merger: passed -> passed",
+      "terminal-bench/openssl-selfsigned-cert: passed -> passed",
+      "terminal-bench/polyglot-c-py: failed -> passed",
+      "terminal-bench/regex-log: passed -> passed",
+      "terminal-bench/sanitize-git-repo: passed -> passed",
+      "terminal-bench/sqlite-db-truncate: passed -> passed (overlap cell; earlier verdicts kept)",
+      "terminal-bench/vulnerable-secret: passed -> passed"
+    ],
+    "flips": {
+      "count": 7,
+      "guardedWon": [
+        "datacurve/arktype-json-schema-refs-dependencies (control 23/25 f2p, guarded 25/25) — no upstream-fetch signature in this arm's evidence for this cell",
+        "terminal-bench/polyglot-c-py (control stopped/failed, guarded completed/passed)",
+        "terminal-bench/db-wal-recovery (overlap cell; control failed 0/7 with no deliverable, guarded passed 7/7 with the deliverable written at 138.6 s)"
+      ],
+      "controlWon": [
+        "datacurve/scc-bounded-memory-spilling (31/31 against 28/31)",
+        "terminal-bench/code-from-image",
+        "terminal-bench/dna-insert",
+        "terminal-bench/extract-elf"
+      ],
+      "net": "−1 for the guarded arm",
+      "nonOverlapFlips": "Six of the seven flips are outside the overlap set: guarded won arktype and polyglot-c-py, control won scc, code-from-image, dna-insert and extract-elf."
+    },
+    "deliveryOnGradedPaths": {
+      "note": "The mechanism this clause exists for: landing the graded answer before the budget closes. Read as an observation, never as an effect.",
+      "terminal-bench/db-wal-recovery (/app/recovered.json)": "GUARDED DELIVERED AND PASSED. First write of the graded path at 138.6 s (its first touch of the path), verifier 7/7 with reward 1, whole span 203.2 s of the 900 s budget; the write is a single python3 -c that reads the database and writes the JSON. The reference arm never wrote the path in its window (first touch 78.0 s, no write, 0/7, 740.6 s span). For context across windows: 2.11.0, 2.15.0 and 2.17.0 never wrote it; 2.18.0 wrote it at 580.9 s with wrong values (5/7); this is the program's first max-profile pass on that cell.",
+      "terminal-bench/gcode-to-text (/app/out.txt)": "NEITHER arm wrote it: guarded 0/2 over a 712.4 s span, reference 0/2 over 708.0 s. Still undelivered by any arm measured so far.",
+      "reading": "One of the two graded read-back cells now delivers and passes under the guarded text; the other still produces nothing. n=1 per cell; the delivery timing and the pass are recorded as observations."
+    },
+    "upstreamRoute": {
+      "rule": "Recorded, never credited as a delivery or pass mechanism.",
+      "guarded": "5 cells carry upstream signatures: datacurve/expr-try-catch-errors (274), datacurve/httpx-multipart-response-parsing (75), datacurve/katex-multicolumn-array-spans (245), datacurve/meriyah-explicit-resource-declarations (225), terminal-bench/chess-best-move (24).",
+      "reference": "4 cells: datacurve/httpx-multipart-response-parsing (91), datacurve/katex-multicolumn-array-spans (225), datacurve/meriyah-explicit-resource-declarations (65), datacurve/python-statemachine-state-data-scoping (258).",
+      "gradedCells": "Neither graded-delivery cell shows an upstream route in either arm, and none of the guarded arm's three won cells carries one."
+    },
+    "censoring": [
+      "Four guarded cells and seven reference cells ended `stopped` at the reserved delivery boundary with their spans recorded; never excluded, never counted as a gain. A stopped cell can still pass when its delivery child completes (build-cython-ext and extract-elf passed under `stopped` in the reference arm), so `stopped` is recorded as a boundary fact, not a failure class.",
+      "No cell was dropped, threshold-filtered or re-run in either arm; no best-of-N."
+    ],
+    "infrastructureNoise": {
+      "providerTransportFailures": "guarded 5 model-failure events across 3 cells (2 long, both in code-from-image); reference 9 events across 7 cells (2 long). Both arms absorbed transport noise; the reference absorbed more and still passed one more cell.",
+      "environmentFailures": "None: every one of the 30 guarded cells reached a model attempt and a graded verdict, and no job failed at the provider-materialization gate."
+    },
+    "reading": {
+      "status": "NOT met",
+      "why": "The predeclared bar requires strictly more than 21 passes. The guarded arm passed 20, one fewer than the reference. Completion is equal (30/30 real verdicts on both sides) so it cannot break the tie, exactly as the predeclaration said it would not. Seven cells flipped: three to the guarded arm (one of them an overlap cell that had never passed at this profile) and four to the reference, for a net of minus one.",
+      "comparedTo2_18_0": "For the record of the rewrite's own direction: 2.18.0 passed 18 in the previous window with datacurve at 1 of 5; the guarded rewrite passed 20 with datacurve at 5 of 5 and delivered db-wal for the first time. The rewrite improved on its predecessor by two cells and repaired the datacurve class it was written against, but did not reach main's 21.",
+      "uncertainty": "One attempt per cell per arm; the guarded arm ran in a later window than the reference, so the comparison carries window difference (provider load, runner capacity, time of day) in addition to the text delta. A one-cell difference on this corpus has already been shown unstable across windows without any prompt change. Nothing here is an effect size."
+    },
+    "reviewRecord": {
+      "thread": "thread_63de92b21c56ce425d3157f482fd3a99",
+      "state": "settled",
+      "headline": "Text, architecture boundary, fairness/hardcoding and the existing pins all hold and the text does not need to be withdrawn; but the verdict was not an unconditional ACCEPT — it listed a minimal fix set and stated that a reading of 21 or fewer is a REJECT regardless.",
+      "openFixes": [
+        "F1 (high, merge-readiness): the PR description/title still describe 2.18.0 and do not record this 20-vs-21 reading or the earlier 18-vs-21 one.",
+        "F3 (medium): the 2.19.0 commit message asserts a causal claim (\"i.e. the landing clause pushed source-change work into a write-first pattern\") where every other record hedges it as plausible and explicitly not an effect size.",
+        "F4 (medium): spec 306 does not record the Product enumeration delta having been accepted first, which the admission rules require and the 303 precedent records verbatim.",
+        "F5 (medium-low, text-neutral): the landing clause itself carries no byte identity — both hashes are taken after removing it, so an equal-length rewrite of that clause plus the test literal passes every assertion (reproduced). Pin the full-text or clause sha256.",
+        "F2/F6/F7 (low): claim-versus-text wording (the clause's head is unconditional while the enumeration claims it is scoped), 306's delta counting, and one inherited unbacked enumeration half-sentence."
+      ],
+      "note": "None of these fixes was applied in this run: the reading failed, and the standing rule is that a failed reading ends the attempt without further edits."
+    },
+    "decision": {
+      "merge": "NOT merged. PR Simon-He95/best-agent#212 stays Draft, head 348746e6…, MERGEABLE, untouched by this readout.",
+      "failingConditions": [
+        "(a) The benefit condition: 20 passes against the required strictly-more-than-21. A one-cell loss is a loss.",
+        "(b) The independent review's own decision rule: its verdict was a conditional accept whose stated rule is that a reading of 21 or fewer is a REJECT regardless; its five-item fix list is also still open."
+      ],
+      "conditionThatHolds": "(c) No hardcoded or task-specific text: the shipped 2.19.0 text names no task, file, value, tool alias, evaluator or grader, and the pinned negative loop for the six forbidden host-mechanism names passes.",
+      "nothingDone": "No `gh pr ready`, no `gh pr merge`, no branch or ref change, no arm ref moved, nothing merged anywhere.",
+      "whatWouldChangeTheReading": "A new predeclared cohort in which the shipped text passes strictly more than 21 of the 30 tasks, with the same binding discipline and the graded-delivery cells actually delivering. Because a one-cell gap on this corpus has already flipped across windows with no prompt change, a repeat of the same contrast would be the honest way to tell a stable gap from run variance.",
+      "alternativePathsRecorded": [
+        "The review's text-neutral fixes (F1/F3/F4/F5 and the F2/F6/F7 wording) remain available for any future attempt; they do not change the measured text.",
+        "The guarded clause's mechanism now has one supporting observation at this profile (db-wal delivered at 138.6 s and passed) and one still-unsolved cell (gcode never delivered by any arm). The CLI-side reserved-boundary work is tracked as best-agent issue #213.",
+        "2.18.0 vs 2.19.0 vs 2.11.0 at this one profile now reads 18 / 20 / 21; the ordering that matters for shipping is still the last two."
+      ]
+    }
+  }
 }
