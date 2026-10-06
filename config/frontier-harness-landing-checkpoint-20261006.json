@@ -125,7 +125,13 @@
       "fh_max_parallel": "3"
     },
     "method": "Dispatched by workflow_dispatch from the study's own frozen arm ref with fh_run_full=true; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the arm ref is not moved afterwards. The smoke gate is already satisfied: the same profile and build path produced three green 30-task runs in the preceding 24 hours.",
-    "status": "pending"
+    "status": "dispatched",
+    "runId": 37412632387,
+    "runRef": "codex/preservation-exec-checkpoint",
+    "armCommit": "145eb07bfb860f89c12bd7891420ebbd63608bde",
+    "boundHeadSha": "145eb07bfb860f89c12bd7891420ebbd63608bde",
+    "dispatchedAt": "2026-10-06T04:12:51Z",
+    "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-checkpoint -f fh_run=true -f fh_run_full=true -f fh_smoke=false -f fh_reasoning_effort=max -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=3 -f fh_batch=prompt-landing-checkpoint-20261006"
   },
   "status": "frozen",
   "gates": {
