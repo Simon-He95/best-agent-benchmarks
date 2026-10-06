@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-full-corpus-prompt-contrast",
+  "studyId": "landing-checkpoint-20261006",
+  "requestedBy": "Simon, 2026-10-06: keep pushing the prompt line myself until it beats main's text on the frozen corpus, then merge; this is iteration 3 of that program (2.18.0 read 18, 2.19.0 read 20, main's text read 21).",
+  "iterationDisclosure": "This is one more measured candidate in a bounded sequence of prompt revisions on the same exposed 30-task corpus (2.18.0 → 2.19.0 → 2.20.0). The corpus is a diagnostic set here, not a holdout: earlier verdicts of every cell stay published, and a pass-count win on this corpus is a reading about these cells, never a general capability claim. Each candidate got exactly one attempt per cell and no candidate was re-run after falling short.",
+  "question": "At one frozen profile (deepseek-v4-flash, reasoning effort max) over the frozen 30-task frontier-harness corpus, does 2.20.0 — the landing clause rewritten so its scope is in its own head, the destination may not stay empty while analysis continues, and a landed answer is a checkpoint rather than a finish, with both guards kept — pass strictly more than 21 of the 30 predeclared tasks, the count main's 2.11.0 text read in the immediately preceding comparison window?",
+  "arms": {
+    "checkpoint": {
+      "role": "after (the measured candidate)",
+      "ref": "codex/preservation-exec-checkpoint",
+      "sourceCommit": "40ce00353f2a6885a0eafd3ed2daef2f6189943b",
+      "codingVersion": "2.20.0",
+      "instructionBytes": 6732,
+      "instructionSha256": "995e7c5300c787acf1206d43171505c8865a92718fe5a4e25cd2b38c06289036",
+      "landingLineBytes": 566,
+      "landingLineSha256": "555771e901807e78a89b6c6e0c6b5408e75e4cf4bb293afaff464291538cb747",
+      "measured": false
+    },
+    "reference": {
+      "role": "before (main's text, measured in the preceding window; NOT re-dispatched by this study)",
+      "ref": "codex/preservation-exec-control",
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "runId": 37332662525,
+      "measured": true,
+      "measuredResult": "21 passed / 9 failed / 0 error / 0 not-evaluated (report passRate 0.700, scoreable true); both graded read-back paths absent; report artifact id 11364212701, sha256 859e20f2717bdd8c7996e179906952675a1b898b997ec0587f2e862e964ec79f"
+    }
+  },
+  "identityCheck": "The checkpoint ref is this study's own arm ref, created from codex/preservation-exec-guarded (the 2.19.0 arm). The only config leaf changed on it is cli.sourceCommit (348746e6… → 40ce0035…); provider, effort, tool exclusion, task sources, budgets, pier pin and batches are byte-identical to the control ref, whose leaf-by-leaf comparison was verified in the 2026-10-05 study. Text identities: reference 6,014 B / cc23fe7a…, guarded 6,642 B / 0c588320… (the previous candidate, not measured here), checkpoint 6,732 B / 995e7c53… (this candidate; the landing line alone is 566 B / 555771e9…, now pinned by test).",
+  "corpus": {
+    "pin": "config/frontier-harness.json#taskSources, datasetCommit e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63 (identical on both refs)",
+    "batches": "config/frontier-harness-batches.json (identical on both refs): profileId frontier-harness-v1.0-e837a70b, taskCount 30, maxBatchSize 10, 3 tracked batches",
+    "tasks": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "profile": {
+    "model": "deepseek-v4-flash",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "toolExclude": [
+      "network"
+    ],
+    "agentTimeoutMultiplier": 1,
+    "maxParallel": 3,
+    "budgets": "The frozen per-task agent and verifier budgets stay exactly as the profile declares them (terminal-bench 900 s, datacurve 5,400 s); nothing is extended and no condition is relaxed to make a cell scoreable.",
+    "widthNote": "3 is the width both 2026-10-05 full runs used and the width at which the profile's earlier full runs recorded zero ECR throttles."
+  },
+  "attempts": "One frozen headless attempt per task, all 30 corpus tasks, fh_run_full=true. No cell is retried inside the run, no best-of-N, no evaluator output re-enters an attempt, and the task's own verifier is the only grader.",
+  "overlapDisclosure": {
+    "what": "Four of the 30 tasks (terminal-bench/db-wal-recovery, terminal-bench/gcode-to-text, terminal-bench/sqlite-db-truncate, datacurve/expr-try-catch-errors) carry earlier verdicts from other texts at this profile.",
+    "whyNotAReMeasurement": "This study's candidate 2.20.0 has never been measured on any of the 30 tasks, so every measurement here is that composition's first attempt: nothing is a second chance for 2.20.0, and no earlier attempt is being retried. The four cells overlap earlier candidates' cells, not this one's.",
+    "earlierVerdictsKept": "Every earlier verdict of those four cells stays published and is never replaced: control max 0/7 db-wal (37208521326), landing max 5/7 (37247045143), the 2026-10-05 contrast (37332662525 control: db-wal 0/7, gcode 0/2, sqlite passed, expr 78/79; 37332669480 landing: db-wal 0/7, gcode 0/2, sqlite passed, expr 77/79), and the guarded study (37394780651: db-wal PASSED 7/7 with the file written at 138.6 s, gcode 0/2, sqlite passed, expr 78/79).",
+    "officialMetric": "This arm's own frozen report is the only source for its verdicts; its pass count over the 30 predeclared tasks is read both in full and on the 26 cells that have no earlier verdict from any text."
+  },
+  "predeclaredReading": {
+    "betterIs": "The checkpoint arm is read as better only if it passes STRICTLY MORE than 21 of the 30 predeclared tasks (the reference's count). A tie is not a gain and a loss is a loss; the reference is never re-measured to manufacture a fairer comparison.",
+    "whyStrict": "Every arm of this program has carried a real verdict in all 30 cells, so the completion tie-break cannot decide anything: only the pass count and the per-cell flips can.",
+    "affectedCells": "The clause can only act on work that ends in a value or a file the task reads back. The project's own records name terminal-bench/db-wal-recovery and gcode-to-text as the graded read-back cells, and both sit in the disclosed overlap set, so a pass-count win here would be a reading about such cells on this corpus, never a general capability claim. The other cells remain in the reading because a prompt edit can also cost them — the 2.19.0 reading lost four cells that the control passed.",
+    "completion": "Completion is read per arm as cells with a real graded verdict versus cells left without one (error / not-evaluated / pre-model environment failure / provider transport failure); a verdict-less cell is a binding failure, never a capability loss.",
+    "score": "Score is not used as a bar (retired as uninformative in the 2026-10-05 study); the discriminating readings are the pass count, the datacurve fail-to-pass fraction and the per-cell flips.",
+    "delivery": "On the two graded read-back cells presence and first-write time are read exactly as before. In the 2.19.0 study the db-wal destination was delivered and passed for the first time (138.6 s of 900 s); gcode's destination has still never been written by any arm.",
+    "cost": "Any cell whose disposition or failing set regresses against the reference is recorded as cost even if the count moves forward.",
+    "censoring": "A cell bounded by its budget or a declared stop is a right-censored observation reported with its span: never excluded, never counted as a gain.",
+    "uncertainty": "One attempt per cell; the checkpoint arm runs in a later window than the reference, so the comparison carries window difference exactly as every earlier study in this program did. Cells of this corpus have flipped between windows with no prompt change (db-wal itself read 0/7 and 5/7 for the same control text), so a one-cell net difference is not separable from run variance. Nothing here is an effect size."
+  },
+  "fairnessDisclosures": [
+    "No user prefix, no task-specific hint, no grader output and no evaluator feedback reaches the arm; against 2.19.0 the delta is the rewritten landing line, and against main it is the preservation sentence plus that line.",
+    "The added text names no task, file, path, value, tool alias, evaluator or grader; it is ASCII-only and states generic discipline; the six forbidden host-mechanism names are absent and enforced by the pinned negative loop.",
+    "One attempt per cell; no best-of-N, no retry-until-pass, no cell exclusion, no latency threshold, no cell dropped for being slow.",
+    "The reference arm is NOT re-dispatched: its number comes from its own earlier run, and that window difference is disclosed rather than hidden.",
+    "Task environments are internet-connected as frozen (no closed-book claim); any cell with an upstream-fetch signature is recorded, never credited as a delivery or pass mechanism.",
+    "The arm refs are never moved after dispatch; nothing is merged by this study alone, and no verdict of any earlier study is reinterpreted."
+  ],
+  "readingPlan": [
+    "Bind the arm: run headSha equals the checkpoint ref commit; every cell's first-request Skill instruction is 6,732 bytes with SHA-256 995e7c53…; every record agrees on one candidate id; candidate.single / provider.single / instructions.frozen intact, provider.reasoningEffort=max, coverage.full passed.",
+    "Tabulate per cell: disposition, reward, f2p/p2p, terminal cause, duration against budget, call count, max call span, deliverable presence on the two graded paths with first-write time, upstream-fetch signature.",
+    "Read the pass count against the predeclared bar (strictly more than 21), the flips against the reference, and the datacurve fail-to-pass fraction.",
+    "Write the outcome into this file's outcome section, commit and push to codex/prompt-preservation-execution.",
+    "Merge PR #212 only if this reading is met AND an independent review of the 2.20.0 diff returns ACCEPT AND the hardcoding check holds."
+  ],
+  "dispatch": {
+    "ref": "codex/preservation-exec-checkpoint",
+    "batch": "prompt-landing-checkpoint-20261006",
+    "inputs": {
+      "fh_run": true,
+      "fh_run_full": true,
+      "fh_smoke": false,
+      "fh_reasoning_effort": "max",
+      "fh_agent_timeout_multiplier": "1",
+      "fh_max_parallel": "3"
+    },
+    "method": "Dispatched by workflow_dispatch from the study's own frozen arm ref with fh_run_full=true; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the arm ref is not moved afterwards. The smoke gate is already satisfied: the same profile and build path produced three green 30-task runs in the preceding 24 hours.",
+    "status": "pending"
+  },
+  "status": "frozen",
+  "gates": {
+    "thisStudy": "The reading decides whether 2.20.0 beats main's text on the full corpus; it is read exactly by predeclaredReading and is never merged with the earlier studies.",
+    "independentReview": "A new review of the 2.20.0 diff must pass (text, architecture boundary, fairness/hardcoding, admission record, pins) before PR #212 is flipped or merged; the guarded-scope review's conditional accept covers 2.19.0.",
+    "merge": "PR #212 is merged only if this reading is met AND that review passes AND the hardcoding check holds; otherwise it stays Draft with the failing condition named.",
+    "openReviewItems": "The guarded-scope review's five fix items are being closed in this change: F5 (full-content hash pin) is done; F1/F3 (PR description and the causal sentence) and F4 (Product-delta acceptance record) are addressed in the PR record; F2/F6/F7 (scoping claim, delta count, enumeration wording) are corrected in spec 306/307 and the enumeration."
+  },
+  "notes": [
+    "This study exists because the guarded-scope readout read 20 against 21 while converting the program's flagship failure (db-wal delivered at 138.6 s and passed 7/7) and restoring datacurve parity, and its four losses were premature endings rather than delivery failures.",
+    "The measured text is frozen at 40ce0035 for clean attribution: against 2.19.0 the delta is exactly the rewritten landing line; no further prompt edit enters this run.",
+    "2.20.0's landing line reads: when the task reads back a value or a file you produce, land your answer the moment your reasoning supports it, even while it is still rough: write it straight to the required destination - never through a script you have not run, and before any further verification, decoding, cleanup or exploration, and never leave that destination empty while you keep analysing - and only then keep improving it there; a landed answer is a checkpoint, not a finish, and landing early never licenses a guess or a placeholder or finalizing a source change before its verification."
+  ]
+}
