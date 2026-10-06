@@ -122,7 +122,11 @@
       "fh_max_parallel": "3"
     },
     "method": "Dispatched by workflow_dispatch from the study's own frozen arm ref with fh_run_full=true; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the arm ref is not moved afterwards. The smoke gate is already satisfied: the same profile and build path produced two green 30-task runs on 2026-10-05, and the only change is one instruction line.",
-    "status": "pending"
+    "status": "dispatched",
+    "dispatchedAt": "2026-10-06T00:35:10Z",
+    "runId": 37394780651,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37394780651",
+    "headSha": "04a4161357cf2d3d31bc705634a8790c8f49ef49"
   },
   "status": "frozen",
   "gates": {
