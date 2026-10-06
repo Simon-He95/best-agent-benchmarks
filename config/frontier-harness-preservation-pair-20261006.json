@@ -157,6 +157,30 @@
     }
   },
   "pairWindow": "The candidate was dispatched at 2026-10-06T14:29:55Z and its control at 2026-10-06T14:29:58Z - three seconds apart, so the two 30-cell arms share one window, and each run's headSha was re-read from the API right after dispatch and equals its own arm commit.",
+  "reviewRecord": {
+    "thread": "thread_fdd1527b66c4a389a65fef34ca5785b8",
+    "state": "settled",
+    "verdict": "ACCEPT-with-fixes on head 48e8aa64, with no rollback of the instruction text.",
+    "whatHolds": "The increment is exactly the landing clause's removal plus the opaque coordinate (against 2.20.0) and the preservation sentence's enumeration revert (against main); the reviewer recomputed all identities with its own parser and they agree (6,165 B / e85b985e…, minus the preservation sentence 6,014 B / cc23fe7a…, sentence present exactly once, zero landing wording); the Product enumeration is byte-identical to the 2.15.0 change (same blob) and matches the instruction; the architecture boundary holds with Gate A/B/C N/A; fairness is clean with zero added prompt bytes (the diff is removal-only) and the six forbidden host-mechanism names still pinned negative; `git merge-tree --write-tree` against current main exits 0, so the branch merges cleanly; repository gates run green in the reviewer's own throwaway worktree (build/typecheck, capability-skill 27/27, CLI prompt-composition 13/13, check:docs, check:boundaries, lint, format).",
+    "previousP1": "Structurally closed: the Product enumeration delta the 2026-10-06 review's P1 named belonged to the landing sentence, which this candidate deletes; the enumeration returns to the text spec 303 records as reviewed and accepted first, so no outstanding Product-contract acceptance remains.",
+    "blockingItems": [
+      "P2 (record-only): spec 308's evidence basis attributed 71/79 to the 2026-10-04 four-cell cohort, whose canonical reading is 77/79 (control 75/79, preservation run 37172365073); 71/79 is the same text re-measured on those cells in the 2026-10-05 max-window attribution cohort."
+    ],
+    "nonBlockingItems": [
+      "P3: the classification sentence described the deleted sentence as a delta spec 303 admitted.",
+      "P3: section 9 was one prose sentence where the template and spec 303 use per-surface entries.",
+      "P3: an uncounted \"five studies\".",
+      "P3: a cross-repo citation written without its repository."
+    ],
+    "closure": "All five items are record-only and were corrected in best-agent commit 6539e256 on codex/prompt-preservation-only without touching a single instruction byte: coding.ts, the test pins and the Product enumeration are byte-identical to 48e8aa64, the extracted instruction is still 6,165 bytes / e85b985e…, and check:docs, capability-skill 27/27 and the CLI prompt-composition suite 13/13 were re-run green. The review's fix therefore cannot invalidate the reading: both dispatched arms remain bound to the reviewed text.",
+    "notCovered": "The reviewer explicitly did not cover the benefit reading or the same-window veto (both were in flight), and recorded that the PR's title/body must switch to the measured content and that required CI must execute on the measured head before any merge."
+  },
+  "recordCorrection": {
+    "where": "this manifest's notes[2], a field frozen before dispatch",
+    "what": "It read the 2026-10-04 four-cell cohort's expr verdict as 71/79.",
+    "correction": "That cohort's canonical reading is 77/79 (control 75/79, preservation run 37172365073); 71/79 is the same text re-measured on those cells in the 2026-10-05 max-window attribution cohort.",
+    "discipline": "The frozen predeclaration, dispatch and gates fields are not edited; the correction is recorded here as a new field so the record stays honest without rewriting what was predeclared, and it does not touch the candidate's own reading."
+  },
   "status": "frozen",
   "gates": {
     "thisStudy": "The reading decides whether the preservation sentence alone beats main's text on the full corpus, and whether the whole prompt line should be reduced to it; it is read exactly by predeclaredReading and is never merged with the earlier studies.",
