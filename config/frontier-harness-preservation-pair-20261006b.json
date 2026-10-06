@@ -150,5 +150,16 @@
     "Why a second sample exists at all: sample 1 measured the same 6,014-byte text at 21 (2026-10-05 window) and 18 (2026-10-06 window) while the candidate read 19 - so the window term (3 cells) was larger than the candidate-minus-control difference (1 cell), and one attempt per cell cannot say whether either number is stable.",
     "What this sample can and cannot do: it can give the window term and the paired difference a second observation each; it cannot manufacture a win, and a favourable reading here would not be read as a gain because the bar and the veto rules are unchanged and are reported alongside.",
     "Both texts were frozen before sample 1 was dispatched and neither was edited since; this sample re-dispatches exactly those bytes, which is why the sample needs no new candidate, no new spec and no new test pin."
-  ]
+  ],
+  "criterionDecision": {
+    "decidedBy": "the agent itself, on Simon's 2026-10-07 instruction that the agent decide both the threshold criterion and, if a merge happens, which commit to merge",
+    "decidedAt": "2026-10-07T06:15+08:00",
+    "criterionKept": "The frozen absolute bar stays the merge criterion: strictly more than 21 passes of the 30 predeclared tasks. The same-window paired criterion is NOT adopted as a substitute for it; the paired control keeps exactly the role it was predeclared with, a veto, and this sample is read only under the predeclared rules plus the disclosure below.",
+    "whyNotThePairedCriterion": "Sample 1's raw +1 (19 against the same-window control's 18) is not a text effect. On cells where both arms carry a real verdict the pair trades three cells for three, and the whole +1 comes from cells without a real verdict on one side (katex and git-leak-recovery for the candidate against python-statemachine against it). Adopting a criterion at the moment it would convert infrastructure luck into a merge is the exact failure this program's discipline exists to prevent.",
+    "addedDisclosure": "Declared before this sample's data exists, and binding on it and on every later reading: a reading is read as a gain only if its win is supported by real verdicts. A candidate that clears the bar only through cells where either arm carries no real verdict (error / not-evaluated / pre-model environment failure) is recorded as an infrastructure-driven reading and is not read as a gain. This is a stricter, disclosed reading of the predeclared bar; the bar and the veto themselves are unchanged.",
+    "mergeTarget": "6539e256 (2.21.0 = main's 6,014-byte text plus the 2.15.0 preservation sentence): its instruction bytes are identical to the measured 48e8aa64, so the merged bytes would equal the measured bytes. It is never merged unless the bar is met.",
+    "ifThisSampleMeetsTheBar": "The reading is checked against the unchanged gate (bar met AND same-window veto not triggered AND review ACCEPT AND no hardcoded text) together with this disclosure; if it holds, PR #212's content is replaced by 6539e256 and merged, and the merge record names the reading and the head sha.",
+    "ifThisSampleDoesNotMeetTheBar": "The prompt line ends without a merge: PR #212 stays Draft, no further prompt variants are dispatched, and the recorded recommendation is to close the PR rather than merge a text with no measured gain.",
+    "noClaim": "No release or efficacy claim is made by this record; it records the agent's own decision under Simon's delegation and does not modify any frozen predeclaration."
+  }
 }
