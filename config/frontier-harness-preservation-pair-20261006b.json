@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-full-corpus-prompt-contrast-pair",
+  "studyId": "preservation-pair-20261006b",
+  "requestedBy": "Simon's standing 2026-10-06 instruction to keep pushing the prompt line until it beats main's text on the frozen corpus, and the recorded escalation in config/frontier-harness-preservation-pair-20261006.json#outcome.escalation, which asked for a second paired sample so the window term can be estimated with n=2 before any criterion decision is taken.",
+  "whatThisIs": "The second same-window paired sample of two already-frozen texts. It measures nothing new about any candidate: both texts were measured in the first pair (candidate 2.21.0 read 19, control 2.11.0 read 18) and the control text also read 21 in the 2026-10-05 window. Its only purpose is to give the pending criterion decision a second estimate of (a) the window term - the same text measured in two windows - and (b) the candidate-minus-control difference in a fresh window. It is not a retry of a failed reading and it is not expected or permitted to produce a win: no cell is re-run to change an existing verdict, and no earlier reading or decision is replaced, revised or reinterpreted by anything measured here.",
+  "iterationDisclosure": "This is sample 2 of the same pair, not a fifth prompt variant. The candidate text is byte-for-byte the text measured in sample 1 (6,165 bytes / e85b985e…, best-agent 48e8aa64) and the control text is byte-for-byte main's (6,014 bytes / cc23fe7a…). The corpus is a diagnostic set here, not a holdout: every earlier verdict of every cell stays published and nothing measured here replaces it. The texts are re-dispatched only because one attempt per cell cannot separate a one-to-three-cell difference from window and infrastructure variance, which is exactly the question the escalation left to the human.",
+  "question": "At one frozen profile (deepseek-v4-flash, reasoning effort max) over the frozen 30-task frontier-harness corpus, how many of the 30 predeclared tasks do the two frozen texts pass when both are measured in one fresh window - the candidate 2.21.0 (main's 6,014-byte instruction plus the 2.15.0 preservation sentence) and main's 2.11.0 text itself - so that the window term and the candidate-minus-control difference each have a second observation?",
+  "arms": {
+    "candidate": {
+      "role": "the same candidate text as sample 1 (not a new variant)",
+      "ref": "codex/preservation-exec-preservation-b2",
+      "sourceCommit": "48e8aa6464839b8132410aee917efbe10ad8bfbc",
+      "codingVersion": "2.21.0",
+      "instructionBytes": 6165,
+      "instructionSha256": "e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a",
+      "measured": true,
+      "measuredResult": "sample 1 (run 37479455544, 2026-10-06 window): 19 passed / 10 failed / 1 error / 0 not-evaluated over 30 (29 valid cells); unscoreable in its own report; datacurve fail-to-pass 534/546. That reading stays canonical for its own window and is never replaced by this sample."
+    },
+    "control": {
+      "role": "the same control text as sample 1 (main's own text)",
+      "ref": "codex/preservation-exec-control-b2",
+      "sourceCommit": "8698d01601b65a30c6c0e4a4e76b408eada74185",
+      "codingVersion": "2.11.0",
+      "instructionBytes": 6014,
+      "instructionSha256": "cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76",
+      "measured": true,
+      "measuredResult": "Two readings stand: run 37332662525 (2026-10-05 window) read 21 passed / 9 failed / 0 error / 0 not-evaluated with a scoreable report; run 37479465131 (2026-10-06 window, sample 1) read 18 passed / 9 failed / 1 error / 2 not-evaluated and was unscoreable. This sample adds a third reading of the same text in a fresh window; neither earlier reading is replaced."
+    },
+    "reference": {
+      "role": "the frozen bar's reference (never re-dispatched to satisfy this study, never replaced)",
+      "runId": 37332662525,
+      "passCount": 21
+    }
+  },
+  "identityCheck": "Both refs are derived from the sample-1 arm refs (codex/preservation-exec-preservation-b @ d0d573c4, codex/preservation-exec-control-b @ ddd4c1d7). No cli.sourceCommit leaf is changed on either: the candidate keeps 48e8aa64… and the control keeps 8698d016…, so the two arms' configs still differ only in that leaf. The only change on each ref is the manifest swap, and provider, effort option set, tool exclusion, task sources, budgets, pier pin and batches stay byte-identical across both refs and identical to sample 1's. Text identities: control 6,014 B / cc23fe7a…, candidate 6,165 B / e85b985e….",
+  "corpus": {
+    "pin": "config/frontier-harness.json#taskSources, datasetCommit e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63 (identical on both refs)",
+    "batches": "config/frontier-harness-batches.json (identical on both refs): profileId frontier-harness-v1.0-e837a70b, taskCount 30, maxBatchSize 10, 3 tracked batches",
+    "tasks": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/expr-try-catch-errors",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "datacurve/python-statemachine-state-data-scoping",
+      "datacurve/scc-bounded-memory-spilling",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/constraints-scheduling",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/git-leak-recovery",
+      "terminal-bench/kv-store-grpc",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/log-summary-date-ranges",
+      "terminal-bench/merge-diff-arc-agi-task",
+      "terminal-bench/modernize-scientific-stack",
+      "terminal-bench/multi-source-data-merger",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/regex-log",
+      "terminal-bench/sanitize-git-repo",
+      "terminal-bench/sqlite-db-truncate",
+      "terminal-bench/vulnerable-secret"
+    ]
+  },
+  "profile": {
+    "model": "deepseek-v4-flash",
+    "reasoningEffort": "max",
+    "reasoningEffortOptions": [
+      "max"
+    ],
+    "toolExclude": [
+      "network"
+    ],
+    "agentTimeoutMultiplier": 1,
+    "maxParallel": 3,
+    "budgets": "The frozen per-task agent and verifier budgets stay exactly as the profile declares them (terminal-bench 900 s, datacurve 5,400 s); nothing is extended and no condition is relaxed to make a cell scoreable.",
+    "widthNote": "3 per arm is the width sample 1 used; the two arms carry different batch labels so they run in separate concurrency groups."
+  },
+  "attempts": "One frozen headless attempt per task per arm, all 30 corpus tasks each, fh_run_full=true. No cell is retried inside a run, no best-of-N, no evaluator output re-enters an attempt, and the task's own verifier is the only grader.",
+  "readingPlan": [
+    "Bind each arm: run headSha equals its own ref commit; every cell's first-request Skill instruction matches the arm's frozen bytes and SHA-256 (candidate 6,165 / e85b985e…, control 6,014 / cc23fe7a…); every record agrees on one candidate id; candidate.single / provider.single / instructions.frozen intact, provider.reasoningEffort=max, coverage.full passed.",
+    "Tabulate per cell per arm: disposition, reward, f2p/p2p, terminal cause, duration against budget, call count, deliverable presence on the two graded paths, upstream-fetch signature.",
+    "Report each arm's pass count beside the frozen reference (21) and beside sample 1, and report the window term as the control text's three readings (21 / 18 / this sample) rather than choosing among them.",
+    "Write the outcome into this file's outcome section, commit and push to codex/prompt-preservation-execution.",
+    "This sample never merges anything by itself and never satisfies or fails the merge gate on its own: the gate and the criterion remain exactly as the first pair predeclared them until the human decides.",
+    "Do not take a third sample after this one: n=2 is the predeclared depth of the window-variance estimate."
+  ],
+  "fairnessDisclosures": [
+    "No user prefix, no task-specific hint, no grader output and no evaluator feedback reaches either arm; the texts are byte-identical to sample 1's.",
+    "One attempt per cell per arm; no best-of-N, no retry-until-pass, no cell exclusion, no latency threshold, no cell dropped for being slow.",
+    "Both arms are dispatched from their own frozen refs; neither ref is moved after dispatch.",
+    "Nothing measured here replaces any earlier verdict, and the sample is not used to select the more favourable of the two windows.",
+    "Task environments are internet-connected as frozen; any cell with an upstream-fetch signature is recorded, never credited as a delivery or pass mechanism."
+  ],
+  "dispatch": {
+    "candidate": {
+      "ref": "codex/preservation-exec-preservation-b2",
+      "batch": "prompt-preservation-only-20261006b",
+      "inputs": {
+        "fh_run": true,
+        "fh_run_full": true,
+        "fh_smoke": false,
+        "fh_reasoning_effort": "max",
+        "fh_agent_timeout_multiplier": "1",
+        "fh_max_parallel": "3"
+      },
+      "method": "Dispatched by workflow_dispatch from this study's own frozen arm ref with fh_run_full=true, in the same window as the control arm below; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the ref is not moved afterwards.",
+      "status": "pending"
+    },
+    "control": {
+      "ref": "codex/preservation-exec-control-b2",
+      "batch": "prompt-preservation-only-control-20261006b",
+      "inputs": {
+        "fh_run": true,
+        "fh_run_full": true,
+        "fh_smoke": false,
+        "fh_reasoning_effort": "max",
+        "fh_agent_timeout_multiplier": "1",
+        "fh_max_parallel": "3"
+      },
+      "method": "Same method, dispatched seconds apart from the candidate so both arms share one window.",
+      "status": "pending"
+    }
+  },
+  "status": "frozen",
+  "gates": {
+    "thisStudy": "This sample answers a variance question, not a benefit question. It cannot merge anything, cannot satisfy the merge gate, and cannot change the predeclared reading or the criterion of the first pair.",
+    "merge": "PR #212 stays Draft until Simon answers the criterion question recorded in the first pair's outcome.escalation; nothing in this sample decides that question.",
+    "hardcodingCheck": "The shipped 2.21.0 text is scanned for task-specific material and for the six forbidden host-mechanism names; the pinned test's negative loop enforces the latter."
+  },
+  "notes": [
+    "Why a second sample exists at all: sample 1 measured the same 6,014-byte text at 21 (2026-10-05 window) and 18 (2026-10-06 window) while the candidate read 19 - so the window term (3 cells) was larger than the candidate-minus-control difference (1 cell), and one attempt per cell cannot say whether either number is stable.",
+    "What this sample can and cannot do: it can give the window term and the paired difference a second observation each; it cannot manufacture a win, and a favourable reading here would not be read as a gain because the bar and the veto rules are unchanged and are reported alongside.",
+    "Both texts were frozen before sample 1 was dispatched and neither was edited since; this sample re-dispatches exactly those bytes, which is why the sample needs no new candidate, no new spec and no new test pin."
+  ]
+}
