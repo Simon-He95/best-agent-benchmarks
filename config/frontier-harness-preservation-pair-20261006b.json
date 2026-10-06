@@ -113,7 +113,12 @@
         "fh_max_parallel": "3"
       },
       "method": "Dispatched by workflow_dispatch from this study's own frozen arm ref with fh_run_full=true, in the same window as the control arm below; the run's headSha is re-read from the API right after dispatch and equals the arm commit, and the ref is not moved afterwards.",
-      "status": "pending"
+      "status": "dispatched",
+      "runId": 37529269271,
+      "armCommit": "70c675e87a2a893292ee29775e8444eda4a4c420",
+      "boundHeadSha": "70c675e87a2a893292ee29775e8444eda4a4c420",
+      "dispatchedAt": "2026-10-06T20:48:46Z",
+      "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-preservation-b2 -f fh_run=true -f fh_run_full=true -f fh_smoke=false -f fh_reasoning_effort=max -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=3 -f fh_batch=prompt-preservation-only-20261006b"
     },
     "control": {
       "ref": "codex/preservation-exec-control-b2",
@@ -127,7 +132,12 @@
         "fh_max_parallel": "3"
       },
       "method": "Same method, dispatched seconds apart from the candidate so both arms share one window.",
-      "status": "pending"
+      "status": "dispatched",
+      "runId": 37529283445,
+      "armCommit": "f31565fa60db19aa852d8beca88a86f7558d9de5",
+      "boundHeadSha": "f31565fa60db19aa852d8beca88a86f7558d9de5",
+      "dispatchedAt": "2026-10-06T20:48:53Z",
+      "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref codex/preservation-exec-control-b2 -f fh_run=true -f fh_run_full=true -f fh_smoke=false -f fh_reasoning_effort=max -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=3 -f fh_batch=prompt-preservation-only-control-20261006b"
     }
   },
   "status": "frozen",
