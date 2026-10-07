@@ -30,7 +30,10 @@
     "baseURL": "https://dimagent.cn/v1",
     "compatibilityMode": "compatible",
     "reasoningEffort": "high",
-    "reasoningEffortOptions": ["max", "high"],
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
     "transportProfile": "dim-oauth",
     "note": "high is the effort this run declares, and it is one of the two efforts the frozen profile itself names for glm-5.3; the materializer accepts exactly the profile's declared options and refuses anything else, so the profile and the declared option set cannot drift apart. The run pins high through the workflow's own fh_reasoning_effort input, and every per-task record transcribes the effort it actually materialized."
   },
@@ -123,5 +126,130 @@
   "runId": 37610731220,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37610731220",
   "dispatchedAt": "2026-10-07T10:56:39Z",
-  "dispatchHeadSha": "1ddbcc7225fc7404189021bab0b9b1ad85ba7209"
+  "dispatchHeadSha": "1ddbcc7225fc7404189021bab0b9b1ad85ba7209",
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261007T145347Z--37610731220.json",
+  "frozenRecordSha256": "5f255cab02fda1e421df9c968c12b8be914350a9109cb1bed3c2da7fe10489dd",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 30,
+    "passRate": 0.6,
+    "scoreable": true,
+    "capabilityMeasurement": true,
+    "passAt1": 0.6,
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-07T10:56:39Z -> 2026-10-07T14:16:20Z (3h19m41s); 34 of 34 jobs green at the workflow level (3 freeze + 30 Generate + 1 Aggregate), no cancelled or failed job, no throttled image pull and no verdict-less cell.",
+    "candidateId": "cli-0.0.4-beta.1-b5760d0-d540ab3d5cfa",
+    "candidateNote": "30 records agree on one candidate; the acceptance detail also carries the receipt's second hash 62780d7c62e5e3e8f8ab401d84ab7ac948d56181075a51e430ffd86b1130608d. The binary is not byte-reproducible across builds, so this hash belongs to this run alone.",
+    "specificationGapTasks": [
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/meriyah-explicit-resource-declarations"
+    ],
+    "budgetExhausted": "The report's own budget-exhausted count is 0: Pier's AgentTimeoutError never fired. Four cells nevertheless ended with terminalCause=stopped - the candidate stops the primary Run inside its own attempt-budget window (budget minus the 180s delivery reserve) and then runs a tool-free delivery Run whose terminalCause is completed. Three of those four also carry a provider transport failure (see failureStages.provider); the fourth is code-from-image. This is the attempt-budget shape this candidate introduced and is disclosed rather than counted as a Pier timeout.",
+    "failedCells": [
+      "datacurve/arktype-json-schema-refs-dependencies",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/db-wal-recovery",
+      "terminal-bench/dna-insert",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/openssl-selfsigned-cert",
+      "terminal-bench/sanitize-git-repo"
+    ],
+    "failureStages": {
+      "source": "failures.json#byStage of this run's own report artifact; the per-cell attribution below was read from each cell's own evidence file.",
+      "model": {
+        "count": 5,
+        "tasks": [
+          "datacurve/arktype-json-schema-refs-dependencies",
+          "terminal-bench/db-wal-recovery",
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "reading": "The harness completed each attempt (terminalCause=completed), the task verifier graded the delivered state reward 0, and no model-failure entry exists in any of the five. These are real capability verdicts."
+      },
+      "specification-gap": {
+        "count": 3,
+        "tasks": [
+          "datacurve/fastapi-deprecation-response-headers",
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/meriyah-explicit-resource-declarations"
+        ],
+        "reading": "Declared in config/frontier-harness.json#specificationGaps: the pinned instruction omits a rule the hidden tests require. Their canonical verdicts stand and capability comparisons must exclude them."
+      },
+      "provider": {
+        "count": 3,
+        "tasks": [
+          "terminal-bench/chess-best-move",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval"
+        ],
+        "reading": "Each of the three cells' evidence contains exactly one model-failure entry whose reason is 'transport' (durations 17.9s, 6.4s and 514.6s); the primary Run's terminalCause is stopped, the candidate's delivery Run completed, and the task verifier graded the delivered state reward 0. The verdicts are canonical and were not retried, but their reward 0 is not clean capability evidence."
+      },
+      "inconclusive": {
+        "count": 1,
+        "tasks": [
+          "terminal-bench/code-from-image"
+        ],
+        "reading": "No model-failure entry. The primary Run was cancelled inside the candidate's own budget window (attemptBudgetMs 1,200,000; stopped at about 1019s; status=cancelled, terminalCause=stopped) and its delivery Run reported 'INCOMPLETE'. The failure analyzer cannot mechanically prove a single cause, so it records inconclusive. The reward-0 verdict stands and is not clean capability evidence."
+      }
+    },
+    "comparisonToHighBaseline36092882496": {
+      "baseline": "run 36092882496 (2026-09-25): the same model glm-5.3 at the same reasoning effort high, candidate 0.0.3-beta.34 / 6ce38f17, 19 passed / 11 failed / 0 error / 0 not-evaluated, passAt1 63.3%.",
+      "flips": 7,
+      "candidateLost": [
+        "datacurve/arktype-json-schema-refs-dependencies (passed -> failed, model; f2p 25/25 -> 23/25)",
+        "datacurve/fastapi-deprecation-response-headers (passed -> failed, specification-gap; f2p 137/137 -> 136/137)",
+        "datacurve/httpx-multipart-response-parsing (passed -> failed, specification-gap; f2p 122/122 -> 121/122)",
+        "terminal-bench/code-from-image (passed -> failed, inconclusive; the primary Run was cut off inside the candidate's own budget window)"
+      ],
+      "candidateWon": [
+        "datacurve/expr-try-catch-errors (failed -> passed; f2p 78/79 -> 79/79)",
+        "datacurve/katex-multicolumn-array-spans (failed -> passed; f2p 0/94 -> 94/94)",
+        "datacurve/scc-bounded-memory-spilling (failed -> passed; f2p 28/31 -> 31/31)"
+      ],
+      "reading": "3 gains against 4 losses, net -1 (19 -> 18). The comparison is a composite by construction: the candidate moved 63 commits (the coding skill's 151-byte preservation sentence, rewritten write/edit tool descriptions, a non-empty default child-model set, tiered compact v2), and the two runs are 12 days and two windows apart. It is not a single-variable capability reading and no capability claim is made from it."
+    },
+    "comparisonToV4Flash37004410693": {
+      "baseline": "run 37004410693 (2026-10-02): the same corpus on candidate 0.0.3-beta.41 / da88e7a2 with deepseek-v4-flash at reasoning effort max, 18 passed / 12 failed / 0 error / 0 not-evaluated, passAt1 0.6.",
+      "flips": 8,
+      "candidateWon": [
+        "datacurve/expr-try-catch-errors (failed -> passed; f2p 72/79 -> 79/79)",
+        "datacurve/katex-multicolumn-array-spans (failed -> passed; f2p 0/94 -> 94/94)",
+        "datacurve/python-statemachine-state-data-scoping (failed -> passed; f2p 58/72 -> 72/72)",
+        "terminal-bench/sqlite-db-truncate (failed -> passed)"
+      ],
+      "candidateLost": [
+        "datacurve/httpx-multipart-response-parsing (passed -> failed, specification-gap)",
+        "terminal-bench/chess-best-move (passed -> failed, provider transport)",
+        "terminal-bench/code-from-image (passed -> failed, inconclusive)",
+        "terminal-bench/openssl-selfsigned-cert (passed -> failed, model)"
+      ],
+      "reading": "4 gains against 4 losses, net 0 (18 -> 18). Model, reasoning effort and candidate all change at once, so this is a three-way composite and is never read as a model-quality statement."
+    },
+    "speedReading": "Median wall-clock per PASSED cell: 228.0s (3m48s) for this run, against 434.0s (7m14s) for run 36092882496 and 320.8s (5m21s) for run 37004410693. Mean per passed cell 898.8s against 857.7s and 445.3s; total agent wall clock 559.1 min against 537.1 min and 589.9 min; modelCallCount 1,833 against 1,734 and 2,006; totalTokens 238,199,675 against 201,977,015 and 337,617,715. The median fell mostly because of which cells passed (13 of the 18 passes are short terminal-bench cells, 84s-884s) while the mean stayed high on the two long datacurve passes (python-statemachine 3,965s, expr 2,619s).",
+    "datacurveFailToPass": "610/618 over the nine scored datacurve cells (arktype 23/25, expr 79/79, fastapi 136/137, httpx 121/122, katex 94/94, meriyah 45/49, python-statemachine 72/72, scc 31/31, anko 9/9).",
+    "evidence": "Artifact frontier-harness-report-37610731220 (report.json, report.json.md, failures.json/.md, expected-tasks.txt, the thirty frozen per-task records and their raw evidence under jobs/; 220,127,044 bytes) plus the per-task artifacts frontier-harness-task-37610731220-<task>. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261007T145347Z--37610731220.json (sha256 5f255cab02fda1e421df9c968c12b8be914350a9109cb1bed3c2da7fe10489dd, byte-identical to the artifact's report.json) with the Chinese record beside it (20261007T145347Z--37610731220.md).",
+    "boundaries": [
+      "Diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard.",
+      "Every cell carries a real graded verdict and the run is scoreable, but four of the twelve failures (3 provider transport, 1 inconclusive) were cut off before the model finished and are not read as clean capability evidence.",
+      "No verdict of any earlier run is replaced, merged or reinterpreted; this run's passAt1 comes only from its own frozen report.",
+      "No condition was changed to make the run scoreable and no cell was retried: the budgets, the per-call ceiling (1,800,000 ms) and the effort stay exactly as the frozen composition declares them."
+    ]
+  }
 }
