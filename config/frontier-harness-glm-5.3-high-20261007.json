@@ -101,5 +101,23 @@
     "terminal-bench/vulnerable-secret"
   ],
   "plannedChecks": "After the report artifact is downloaded: the acceptance block; the disposition table against run 36092882496 cell by cell (the candidate delta) and against run 37004410693 (the model delta); mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate.",
+  "smoke": {
+    "runId": 37609617765,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/37609617765",
+    "headSha": "240b1ad",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "glm-5.3-high-smoke-20261007"
+    },
+    "window": "2026-10-07T10:46:30Z -> 2026-10-07T10:55:18Z (8m48s); all five jobs green: corpus 16s, candidate build + delivery verification 2m0s, plan 9s, the single Generate job 6m8s, aggregate report 20s",
+    "result": "The task PASSED (disposition passed, 328s, 264,810 in / 237,824 cache / 16,395 out tokens, reward 1), and the acceptance block reads candidate.single passed (cli-0.0.4-beta.1-b5760d0-6d02fa1fc7be), provider.single passed (model(s) glm-5.3 at reasoning effort high), verdicts.complete passed (1 present, 0 error), instructions.frozen passed, coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "The two things this smoke existed to prove are mechanically proven: the new candidate (0.0.4-beta.1 / b5760d0f) builds, delivery-verifies and runs on the Docker runner, and glm-5.3 serves real task attempts at reasoning effort high through the dim-oauth credential, with frozen evidence and accounted tokens. The attempt alone took 328s at this effort (against 115.5s for the same cell under deepseek-v4-flash), which is the ratio to expect in the full run's wall clock. It says nothing about the 30-task corpus and is never merged anywhere."
+  },
   "dispatched": false
 }
