@@ -310,5 +310,53 @@
       "schedule": "This study's own recurring schedule was deleted in the same turn."
     },
     "noClaim": "No release or efficacy claim is made. Nothing measured in either sample replaces any earlier verdict, and no frozen predeclaration, dispatch record, gate, reading plan or criterion decision is modified by this closure."
+  },
+  "criterionUpdate": {
+    "decidedBy": "Simon, 2026-10-07 (in-thread instruction), superseding this line's absolute-bar criterion",
+    "recordedAt": "2026-10-07T10:50+08:00",
+    "newCriterion": "The candidate may be merged if it is demonstrably better than the pre-change text (main's own instruction) on the frozen corpus; there is no hard requirement to exceed 21. The >21 absolute bar is retired as the merge condition for this line.",
+    "whatStays": "Everything else stays as predeclared: the same-window control keeps its veto role (a candidate at or below its own same-window control is still not read as a gain), the real-verdict disclosure still forbids reading infrastructure-driven wins as gains, and no earlier verdict or frozen field is rewritten.",
+    "effectOnTheGate": "The merge gate becomes: (a) better than the byte-identical control in same-window pairing, supported by real verdicts; (b) same-window veto not triggered; (c) review ACCEPT; (d) no hardcoded or task-specific text. (a) now replaces the retired absolute bar; (b), (c), (d) are unchanged from the predeclaration.",
+    "evidenceSource": "Computed by .tmp/write-s2-criterion-override.mjs directly from the four arm reports (candidate/control of both samples) with the frozen reference report as context; the numbers below are produced by that computation, not transcribed by hand.",
+    "evidence": {
+      "operativeQuestion": "Is 2.21.0 (6,165 B / e85b985e…) demonstrably better than the pre-change text it replaces (main's own 6,014 B / cc23fe7a…), on this frozen 30-task corpus at the frozen profile?",
+      "whyPairingIsTheOnlyUsableComparison": "The same control bytes read 21, then 18, then 13 across three windows (an eight-cell spread), so no two absolute counts from different windows can be compared. Both samples measured the candidate and the byte-identical control in one window, so the paired difference is the window-controlled reading - and Simon's criterion is a comparison, so it is read exactly that way.",
+      "sample1": {
+        "window": "2026-10-06 (candidate run 37479455544, control run 37479465131)",
+        "absolute": "candidate 19 / control 18 (both reports unscoreable: 1 and 3 verdict-less cells)",
+        "realVerdicts": "placed cells=26 (differing 6); candidate won 3 (arktype-json-schema-refs-dependencies, extract-elf, largest-eigenval); lost 3 (scc-bounded-memory-spilling, dna-insert, log-summary-date-ranges); excluded for lacking a real verdict on one side: katex-multicolumn-array-spans, python-statemachine-state-data-scoping, db-wal-recovery, git-leak-recovery",
+        "reading": "The raw +1 is not a text effect: the pair trades three cells for three on real verdicts, and the whole +1 comes from cells without a real verdict on one side. Sample 1 therefore supports 'not worse' but does not by itself support 'better'."
+      },
+      "sample2": {
+        "window": "2026-10-06 (candidate run 37529269271, control run 37529283445)",
+        "absolute": "candidate 20 / control 13 (both reports scoreable, 30/30 real verdicts each)",
+        "realVerdicts": "placed cells=30 (differing 9); candidate won 8 (arktype-json-schema-refs-dependencies, katex-multicolumn-array-spans, scc-bounded-memory-spilling, build-cython-ext, db-wal-recovery, extract-elf, kv-store-grpc, sanitize-git-repo); lost 1 (fastapi-deprecation-response-headers); none excluded - every flip is between two real verdicts",
+        "disclosedDiscount": "terminal-bench/db-wal-recovery is recorded but not credited (the arm fetched the task's own upstream material); discounted: 7 won / 1 lost, and 19 vs 13 absolute",
+        "reading": "The +7 is the largest and cleanest paired difference this program has measured, and it survives the disclosed db-wal discount at +6."
+      },
+      "pooled": {
+        "tally": "11 candidate wins / 4 candidate losses, out of the 15 comparisons that differed among 56 real-verdict paired cell comparisons (41 ties; 10 wins after the disclosed discount)",
+        "caveat": "The same 30 tasks appear in both samples, so these cells are not independent observations and the pooled tally is a descriptive summary, not a test statistic. One attempt per cell, no retries.",
+        "stability": "cells the candidate won in BOTH windows: arktype-json-schema-refs-dependencies, extract-elf; cells it lost in BOTH windows: none"
+      },
+      "adverseFactsKept": [
+        "Sample 1's win margin is infrastructure-driven and is not counted as text support.",
+        "The one cell the preservation sentence was written for (db-wal-recovery) passed in sample 2 only via the task's own upstream material, so it is discounted.",
+        "The control's own absolute readings move by eight cells across windows, so the paired margin (+1, +7) is itself subject to per-cell single-attempt randomness even though the window is shared.",
+        "No arm of this program has ever written /app/out.txt, and no absolute count of this line ever exceeded the control's own best reading (21)."
+      ],
+      "determination": {
+        "verdict": "BETTER, on the criterion that was set",
+        "why": "In both same-window pairs the candidate passed strictly more cells than the byte-identical pre-change text (19>18 and 20>13), it never lost a cell in both windows, it won two cells (arktype, extract-elf) in both windows, and the second sample's margin is real-verdict-supported on a complete 30/30 verdict set (7 wins / 1 loss after the disclosed db-wal discount). Under Simon's stated criterion - better than before, with no hard requirement to exceed 21 - that is sufficient to merge; under the retired absolute bar it would not have been.",
+        "honesty": "This is a bounded claim about these cells on this corpus at this profile: one attempt per cell, two windows, one discounted cell. It is not a general capability or effect-size claim."
+      }
+    },
+    "decision": {
+      "outcome": "MERGE",
+      "mergeTarget": "6539e256 (2.21.0 = main's 6,014-byte text plus the preservation sentence; instruction bytes identical to the measured 48e8aa64, and its own pinned test recomputes 6,165 B / e85b985e… plus the 6,014 B / cc23fe7a… baseline).",
+      "reason": "Condition (a) is met by both samples with real-verdict support in the second; (b) was not triggered in either sample (19>18, 20>13); (c) the 2.21.0 review returned ACCEPT with five record-only items, all closed in 6539e256 without touching an instruction byte; (d) the shipped text names no task, file, value, tool alias, evaluator or grader and the forbidden host-mechanism names stay pinned negative.",
+      "recordedBeforeTheMerge": true
+    },
+    "noClaim": "No release or efficacy claim beyond the paired reading on these 30 cells; no frozen predeclaration, dispatch record or earlier outcome is modified by this field."
   }
 }
