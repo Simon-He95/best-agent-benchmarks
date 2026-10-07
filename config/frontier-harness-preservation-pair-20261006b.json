@@ -308,5 +308,67 @@
       "recordedBeforeTheMerge": true
     },
     "noClaim": "No release or efficacy claim beyond the paired reading on these 30 cells; no frozen predeclaration, dispatch record or earlier outcome is modified by this field."
+  },
+  "mergeRecord": {
+    "decidedBy": "the agent itself, on Simon's 2026-10-07 criterion (merge if demonstrably better than the pre-change text; no >21 requirement)",
+    "decidedAt": "2026-10-07T10:52+08:00",
+    "action": "PR Simon-He95/best-agent#212 was flipped from Draft to ready and merged (merge commit, not squash) into main.",
+    "merge": {
+      "pullRequest": "Simon-He95/best-agent#212",
+      "method": "merge commit (gh pr merge --merge)",
+      "mergedAt": "2026-10-07T02:52:00Z",
+      "mergeCommit": "b5760d0f9cc145cb3a74426fdfab7fc07ac832de",
+      "mergeCommitParents": [
+        "884433b206750468ab8ba990a321c104776ab717",
+        "6539e25677c06b74e67c3eb6f0e695cd2bed8689"
+      ],
+      "mainBeforeMerge": "884433b206750468ab8ba990a321c104776ab717",
+      "mainAfterMerge": "b5760d0f9cc145cb3a74426fdfab7fc07ac832de",
+      "measuredHead": "6539e25677c06b74e67c3eb6f0e695cd2bed8689",
+      "mergedTree": "4de27e8efbea0493116565e27327ac1ed4276200",
+      "mergedTreePredictedBeforeMerging": "4de27e8efbea0493116565e27327ac1ed4276200 (git merge-tree --write-tree against 884433b2 exited 0)"
+    },
+    "mergedBytesEqualMeasuredBytes": {
+      "how": "The PR branch was fast-forwarded from 40ce0035 to the measured commit 6539e256 before the merge, so the merge brings exactly the measured content; after the merge the instruction-bearing paths are compared by blob hash between the measured head and the merge commit.",
+      "instructionBearingPaths": {
+        "packages/capability-skill/src/coding.ts": {
+          "measured": "73fc44d8fb",
+          "merged": "73fc44d8fb",
+          "equal": true
+        },
+        "packages/capability-skill/tests/coding.test.ts": {
+          "measured": "6453199a6c",
+          "merged": "6453199a6c",
+          "equal": true
+        },
+        "apps/cli/src/v3-prompt-composition.ts": {
+          "measured": "38e3437436",
+          "merged": "38e3437436",
+          "equal": true
+        },
+        "specs/308-v3-preservation-only.md": {
+          "measured": "504ed73385",
+          "merged": "504ed73385",
+          "equal": true
+        }
+      },
+      "caveat": "10 of the 20 paths the branch touched differ between the measured head and the merge commit, because main had moved on them while the branch waited; the merge keeps main's newer content for those paths and none of them carries the instruction. They are: apps/cli/src/product-slices/compact.test.ts, apps/cli/src/v3-subagent-continuation.ts, apps/cli/test/subagent-operation-service-durable.test.ts, apps/cli/test/v3-subagent-continuation.test.ts, compact-recovery-plan.md, docs/product-v3/subagent.md, docs/proposals/subagent-child-compact-scope.md, docs/proposals/thread-wait-report-retention.md, specs/124-v3-child-history-capacity.md, specs/300-v3-child-window-compact.md."
+    },
+    "verification": {
+      "pinnedIdentityTestOnMeasuredHead": "At 6539e256: pnpm test:capability-skill -> 5 files, 27/27 passed; packages/capability-skill/tests/coding.test.ts recomputes the identity itself (6,165 bytes / e85b985e…, and 6,014 bytes / cc23fe7a… with the sentence removed).",
+      "builtArtifactCheckOnMeasuredHead": "After pnpm build at 6539e256, the content was re-imported from the built package artifact (packages/capability-skill/dist, exports['.'].default): byteLength 6,165, sha256 e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a; removing the sentence plus its newline: byteLength 6,014, sha256 cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76. Both match the measured bytes, so the shipped artifact - not just the source - carries the measured text.",
+      "otherGatesOnMeasuredHead": {
+        "cliPromptComposition": "pnpm vitest run apps/cli/test/v3-prompt-composition.test.ts -> 13/13 passed",
+        "build": "pnpm build -> passed (check:cli-product, check:provider-catalogs, clean, typecheck + typecheck:tui, bundle scripts)",
+        "docs": "pnpm check:docs -> passed",
+        "boundaries": "pnpm check:boundaries -> passed (1505 modules, 7132 dependencies, 0 violations)",
+        "lint": "pnpm lint -> passed (check:type-casts exit 0; oxlint 0 warnings, 0 errors on 1457 files)",
+        "format": "pnpm format:check -> exit 0 but it reported 'No changed code files to format.'; it therefore proves an empty changed-file set, NOT format coverage, and is not counted as a format pass."
+      },
+      "ciIsUnusableAtBaseline": "The repository's CI fails on every commit: on this head (run 37563817830, sha 6539e256) and, identically, on main's own push (run 37399710867, sha 884433b2) both jobs - Required Checks (macos-latest) and Linux Sandbox Acceptance (ubuntu-24.04) - conclude failure with ZERO steps, i.e. the jobs never start. The same shape appears on every other recent branch. Because the baseline main fails the same two jobs the same way, CI cannot be the acceptance gate for this merge; the acceptance evidence recorded above is the repository's own local gates plus the artifact-level identity check."
+    },
+    "review": "The independent review of the 2.21.0 diff returned ACCEPT-with-fixes on 48e8aa64; all five items were record-only and were closed in 6539e256 (whose entire diff is specs/308-v3-preservation-only.md, no instruction byte touched) - so the reviewed text and the measured text are the same bytes.",
+    "disclosures": "Every disclosure recorded in this file's outcome stays attached: sample 1's +1 is infrastructure-driven and is not counted as text support; sample 2's db-wal win came from the task's own upstream material and is discounted (7 wins / 1 loss, 19 against 13); the control text's own readings span eight cells across three windows; one attempt per cell. The merged bytes never exceeded the control's own best absolute reading (21).",
+    "noClaim": "No release or efficacy claim beyond the paired reading on these 30 cells at the frozen profile. No frozen predeclaration, dispatch record, gate, reading plan or earlier outcome is modified by this field; only Simon's 2026-10-07 criterion update (recorded separately) changed what the merge was judged against."
   }
 }
