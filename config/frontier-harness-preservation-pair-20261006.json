@@ -415,7 +415,19 @@
         "lint": "pnpm lint -> passed (check:type-casts exit 0; oxlint 0 warnings, 0 errors on 1457 files)",
         "format": "pnpm format:check -> exit 0 but it reported 'No changed code files to format.'; it therefore proves an empty changed-file set, NOT format coverage, and is not counted as a format pass."
       },
-      "ciIsUnusableAtBaseline": "The repository's CI fails on every commit: on this head (run 37563817830, sha 6539e256) and, identically, on main's own push (run 37399710867, sha 884433b2) both jobs - Required Checks (macos-latest) and Linux Sandbox Acceptance (ubuntu-24.04) - conclude failure with ZERO steps, i.e. the jobs never start. The same shape appears on every other recent branch. Because the baseline main fails the same two jobs the same way, CI cannot be the acceptance gate for this merge; the acceptance evidence recorded above is the repository's own local gates plus the artifact-level identity check."
+      "ciIsUnusableAtBaseline": "The repository's CI fails on every commit: on this head (run 37563817830, sha 6539e256) and, identically, on main's own push (run 37399710867, sha 884433b2) both jobs - Required Checks (macos-latest) and Linux Sandbox Acceptance (ubuntu-24.04) - conclude failure with ZERO steps, i.e. the jobs never start. The same shape appears on every other recent branch. Because the baseline main fails the same two jobs the same way, CI cannot be the acceptance gate for this merge; the acceptance evidence recorded above is the repository's own local gates plus the artifact-level identity check.",
+      "reRunOnMergedMain": {
+        "commit": "b5760d0f9cc145cb3a74426fdfab7fc07ac832de (main after the merge)",
+        "how": "A throwaway detached worktree at the merge commit (/private/tmp/ba-merge-verify), created from the repository itself and removed afterwards; the repository's own build step (pnpm build - the first step of its own test script) was run before the tests because the checked-out tree has no build output.",
+        "results": "pnpm build -> passed; pnpm vitest run packages/capability-skill -> 5 files, 27/27 passed; pnpm vitest run apps/cli/test/v3-prompt-composition.test.ts -> 13/13 passed.",
+        "independentArtifactMeasurement": "Separately re-imported from the freshly built package artifact at the merge commit: version 2.21.0, sentence appears exactly once, byteLength 6,165 with sha256 e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a, and byteLength 6,014 with sha256 cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76 once the sentence and its newline are removed.",
+        "blobsAtMergeCommit": {
+          "packages/capability-skill/src/coding.ts": "73fc44d8fb6b0d4766ef1bd259d24ddcd9527bfc",
+          "packages/capability-skill/tests/coding.test.ts": "6453199a6c0a23756edc70be01714198d1589f25"
+        },
+        "reading": "The merged main produces exactly the measured bytes, so the shipped text after the merge is the text that was measured.",
+        "cleanup": "The temporary worktree was removed; no other worktree, branch or ref was touched, and nothing was committed or pushed by that verification."
+      }
     },
     "review": "The independent review of the 2.21.0 diff returned ACCEPT-with-fixes on 48e8aa64; all five items were record-only and were closed in 6539e256 (whose entire diff is specs/308-v3-preservation-only.md, no instruction byte touched) - so the reviewed text and the measured text are the same bytes.",
     "disclosures": "Every disclosure recorded in this file's outcome stays attached: sample 1's +1 is infrastructure-driven and is not counted as text support; sample 2's db-wal win came from the task's own upstream material and is discounted (7 wins / 1 loss, 19 against 13); the control text's own readings span eight cells across three windows; one attempt per cell. The merged bytes never exceeded the control's own best absolute reading (21).",
