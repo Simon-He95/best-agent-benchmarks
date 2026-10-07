@@ -161,5 +161,104 @@
     "ifThisSampleMeetsTheBar": "The reading is checked against the unchanged gate (bar met AND same-window veto not triggered AND review ACCEPT AND no hardcoded text) together with this disclosure; if it holds, PR #212's content is replaced by 6539e256 and merged, and the merge record names the reading and the head sha.",
     "ifThisSampleDoesNotMeetTheBar": "The prompt line ends without a merge: PR #212 stays Draft, no further prompt variants are dispatched, and the recorded recommendation is to close the PR rather than merge a text with no measured gain.",
     "noClaim": "No release or efficacy claim is made by this record; it records the agent's own decision under Simon's delegation and does not modify any frozen predeclaration."
+  },
+  "outcome": {
+    "readAtLocal": "2026-10-07T08:41+08:00",
+    "source": "Both arms' own reports, read from their report artifacts (candidate artifact 11452372222, 346,634,837 bytes, sha256:4e6db738adedaec72c0fd1bd06e51fafaea698012c043867b67d340e4e56eb4f; control artifact 11451691898, 331,199,389 bytes, sha256:3db6fb54a2072e79daaeeb53537405591dfd9413132d12eaf9ff3ef54fb51f1e), fetched as single zip members (report.json / failures.json / expected-tasks.txt) by range request rather than by downloading the 330-347 MB archives; the per-cell instruction binding and the two graded read-back paths were then read from the cells' own evidence files.",
+    "binding": {
+      "candidate": "run 37529269271, headSha 70c675e87a2a893292ee29775e8444eda4a4c420 = the arm commit; every one of the 30 cells' first model request carried the arm's frozen instruction (30/30 MATCH at 6,165 bytes / e85b985e3dcb4cbff66864b5218658399cf44cd0605014bd244cc30bc2acaf9a, 0 mismatch, 0 cells without a model request); one candidate id across all 30 records (cli-0.0.4-beta.1-48e8aa6-64d405478e60); acceptance coverage.full passed, verdicts.complete passed, candidate.single passed, provider.single passed (deepseek-v4-flash, effort max), instructions.frozen passed; run conclusion success.",
+      "control": "run 37529283445, headSha f31565fa60db19aa852d8beca88a86f7558d9de5 = the arm commit; 30/30 MATCH at 6,014 bytes / cc23fe7a1870a6d5e8e5d1efebd67faf0f73decb23aa377dd58f923cac9cec76; one candidate id across all 30 records (cli-0.0.4-beta.1-8698d01-d48dddc2ddc7); the same five acceptance entries all passed; run conclusion success.",
+      "runs": "Both arms were dispatched seven seconds apart (2026-10-06T20:48:46Z / 20:48:53Z, per this file's frozen dispatch records) into one window, and neither arm ref was moved after dispatch."
+    },
+    "totals": {
+      "frozenReference": "run 37332662525 (2026-10-05 window): 21 passed / 9 failed / 0 error / 0 not-evaluated (30 valid cells, scoreable) - the bar's reference, unchanged.",
+      "candidateReadings_all": "sample 1 (run 37479455544): 19 passed / 10 failed / 1 error / 0 not-evaluated (29 valid cells, unscoreable). sample 2 (run 37529269271): 20 passed / 10 failed / 0 error / 0 not-evaluated (30 valid cells, scoreable, passAt1 0.6667).",
+      "controlReadings_all": "2026-10-05 (run 37332662525): 21 passed / 9 failed / 0 error / 0 not-evaluated. sample 1 (run 37479465131): 18 passed / 9 failed / 1 error / 2 not-evaluated (27 valid cells, unscoreable). sample 2 (run 37529283445): 13 passed / 17 failed / 0 error / 0 not-evaluated (30 valid cells, scoreable, passAt1 0.4333). All three readings are of byte-identical text.",
+      "sameWindowControl_sample2": "run 37529283445: 13 passed / 17 failed / 0 error / 0 not-evaluated - a lower same-window control than sample 1's 18.",
+      "datacurveFailToPass": "candidate 552/618 over the nine scored datacurve cells (sample 1: 534/546 over eight); control 601/618 over its nine (sample 1: 517/524 over eight). The control keeps the higher fail-to-pass fraction while passing six fewer cells.",
+      "windowTerm": "The control text (6,014 B / cc23fe7a…) read 21, then 18, then 13 - an eight-cell spread for one unchanged text across three windows. The candidate text (6,165 B / e85b985e…) read 19 then 20. The window/infrastructure term is larger than every difference between any two texts this program has measured."
+    },
+    "reading_key": "per-cell columns: ref = frozen reference (37332662525) | s1c = candidate sample 1 (37479455544) | s1b = control sample 1 (37479465131) | s2c = candidate sample 2 (37529269271) | s2b = control sample 2 (37529283445). Codes: P passed, F failed, E error, N not-evaluated.",
+    "perCell": [
+      "datacurve/anko-typed-variable-bindings ref P | s1c P | s1b P | s2c P | s2b P",
+      "datacurve/arktype-json-schema-refs-dependencies ref F | s1c P | s1b F | s2c P | s2b F",
+      "datacurve/expr-try-catch-errors ref F | s1c F | s1b F | s2c F | s2b F",
+      "datacurve/fastapi-deprecation-response-headers ref P | s1c P | s1b P | s2c F | s2b P",
+      "datacurve/httpx-multipart-response-parsing ref P | s1c P | s1b P | s2c F | s2b F",
+      "datacurve/katex-multicolumn-array-spans ref P | s1c P | s1b E | s2c P | s2b F",
+      "datacurve/meriyah-explicit-resource-declarations ref F | s1c F | s1b F | s2c F | s2b F",
+      "datacurve/python-statemachine-state-data-scoping ref F | s1c E | s1b P | s2c F | s2b F",
+      "datacurve/scc-bounded-memory-spilling ref P | s1c F | s1b P | s2c P | s2b F",
+      "terminal-bench/build-cython-ext ref P | s1c P | s1b P | s2c P | s2b F",
+      "terminal-bench/chess-best-move ref F | s1c F | s1b F | s2c F | s2b F",
+      "terminal-bench/code-from-image ref P | s1c F | s1b F | s2c F | s2b F",
+      "terminal-bench/constraints-scheduling ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/db-wal-recovery ref F | s1c F | s1b N | s2c P | s2b F",
+      "terminal-bench/dna-insert ref P | s1c F | s1b P | s2c F | s2b F",
+      "terminal-bench/extract-elf ref P | s1c P | s1b F | s2c P | s2b F",
+      "terminal-bench/gcode-to-text ref F | s1c F | s1b F | s2c F | s2b F",
+      "terminal-bench/git-leak-recovery ref P | s1c P | s1b N | s2c P | s2b P",
+      "terminal-bench/kv-store-grpc ref P | s1c P | s1b P | s2c P | s2b F",
+      "terminal-bench/largest-eigenval ref F | s1c P | s1b F | s2c F | s2b F",
+      "terminal-bench/log-summary-date-ranges ref P | s1c F | s1b P | s2c P | s2b P",
+      "terminal-bench/merge-diff-arc-agi-task ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/modernize-scientific-stack ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/multi-source-data-merger ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/openssl-selfsigned-cert ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/polyglot-c-py ref F | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/regex-log ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/sanitize-git-repo ref P | s1c F | s1b F | s2c P | s2b F",
+      "terminal-bench/sqlite-db-truncate ref P | s1c P | s1b P | s2c P | s2b P",
+      "terminal-bench/vulnerable-secret ref P | s1c P | s1b P | s2c P | s2b P"
+    ],
+    "flips": {
+      "vsSameWindowControl_sample2": "9 flips, all between real verdicts. Candidate gained: arktype (failed -> passed, f2p 23/25 -> 25/25), katex (failed -> passed, 92/94 -> 94/94), scc-bounded-memory-spilling (failed -> passed, 28/31 -> 31/31), build-cython-ext, db-wal-recovery, extract-elf, kv-store-grpc, sanitize-git-repo. Candidate lost: fastapi-deprecation-response-headers (passed -> failed, 137/137 -> 127/137).",
+      "vsFrozenReference_sample2": "7 flips: gained arktype, db-wal-recovery, polyglot-c-py; lost fastapi, httpx-multipart-response-parsing, code-from-image, dna-insert.",
+      "vsSample1_sameCandidateText": "The candidate's own two readings differ by five gains and three losses on identical bytes: gained katex (error -> passed), scc (failed -> passed), db-wal (failed -> passed), log-summary-date-ranges (failed -> passed), sanitize-git-repo (failed -> passed); lost largest-eigenval (passed -> failed), fastapi (passed -> failed), httpx (passed -> failed); python-statemachine moved error -> failed. 19 -> 20 is a one-cell net move over eight verdict changes, which is the window term again, this time for the candidate text."
+    },
+    "realVerdictComparison": {
+      "sample2": "Both arms carry a real graded verdict in all 30 cells (0 error, 0 not-evaluated on either side), so every flip is between real verdicts: 8 cells candidate-passed / control-failed and 1 cell candidate-failed / control-passed. Indeed sample 2's raw +7 is entirely real-verdict supported and is not an infrastructure-driven reading.",
+      "sample2DisclosedDiscount": "One of the eight wins, terminal-bench/db-wal-recovery, was produced from the task's own upstream material: the arm fetched the eval repository's own task directory (raw.githubusercontent.com/frontier-harness-eval/eval/main/tasks/db-wal-recovery/instruction.md and task.toml, seq 54-56), then the task's public archive under harbor-framework/terminal-bench/main/archive/db-wal-recovery/ (environment/main.db, environment/main.db-wal.encrypted, environment/Dockerfile, solution/solve.sh, tests/test.sh, tests/test_outputs.py, instruction.md, task.toml; seq 60-62), checked the downloaded main.db against the task's own /app/main.db by sha256, read solution/solve.sh and tests/test_outputs.py, XOR-0x42-decrypted main.db-wal.encrypted, copied the archive's main.db and its decrypted WAL into /app and wrote /app/recovered.json from them (seq 64-76, first write of the graded path at 365.1 s). Per this file's frozen fairness disclosure that cell is recorded and never credited as a delivery or pass mechanism: discounted, the sample reads 7 wins / 1 loss and 19 passes - still below the bar.",
+      "sample1": "In sample 1 only 26 cells carried a real verdict on both sides: the pair traded three cells for three (won arktype, extract-elf, largest-eigenval; lost scc-bounded-memory-spilling, dna-insert, log-summary-date-ranges) and the whole +1 came from cells without a real verdict on one side (katex and git-leak-recovery toward the candidate, python-statemachine against it) - which is why the criterion decision reads sample 1 as not a text effect.",
+      "conclusion": "The discriminating statement differs between the two samples and neither clears the bar: sample 1's +1 was infrastructure-driven, sample 2's +7 is real-verdict supported (7 with the disclosed db-wal discount). What does not change is the absolute threshold: 19 and 20 are not strictly more than 21."
+    },
+    "completion": "No verdict-less cell in either arm of sample 2: verdicts.complete passed on both reports (30/30 real verdicts each), so the sample-1 completion caveat does not carry over.",
+    "censoring": "Budget-bounded observations, reported with their spans and never excluded (no latency threshold, no cell dropped): candidate - meriyah datacurve 5,396.2 s of datacurve's 5,400 s (f2p 0/49), code-from-image 1,079.6 s, gcode-to-text 872.2 s, sanitize-git-repo 811.7 s, chess-best-move 787.1 s, largest-eigenval 765.4 s, dna-insert 747.8 s, build-cython-ext 700.4 s; control - code-from-image 1,063.8 s, build-cython-ext 798.6 s, chess-best-move 799.0 s, db-wal-recovery 795.6 s, largest-eigenval 776.0 s, gcode-to-text 769.8 s. All of these ended in a real verdict; none is a verdict-less cell.",
+    "delivery": {
+      "dbWalRecovery": "candidate: /app/recovered.json first touched and first written at 365.1 s inside a 426.6 s model span (41 calls, 482.6 s cell duration) - materialised from the downloaded archive's main.db plus its XOR-decrypted WAL, so this pass is recorded but not credited. control: first touched /app/recovered.json at 147.2 s and never wrote it (26 calls, 795.6 s) - failed.",
+      "gcodeToText": "/app/out.txt was never written by either arm (candidate 53 calls / 872.2 s; control 38 calls / 769.8 s), matching every earlier arm of this program."
+    },
+    "upstreamFetchSignatures": {
+      "candidate": "12 of 30 cells carry an upstream-fetch signature (task-self material in 1): anko 4, arktype 12, build-cython-ext 1, db-wal-recovery 11, expr 1, fastapi 11, httpx 9, katex 16, meriyah 12, python-statemachine 2, sanitize-git-repo 2 (the task's planted fake token), scc 1.",
+      "control": "9 of 30 cells, no task-self material: anko 1, build-cython-ext 2, expr 1, httpx 9, katex 1, meriyah 1, python-statemachine 12, sanitize-git-repo 2, scc 1.",
+      "discipline": "Every fetch-bearing cell is recorded and never credited as a delivery or pass mechanism; the graded read-back paths are read separately above."
+    },
+    "reading": {
+      "status": "NOT met",
+      "why": "The frozen bar requires strictly more than 21 passes. The candidate read 20 in this sample and 19 in sample 1, so it misses in both. The same-window veto was NOT triggered (20 > 13) and completion holds (30/30 real verdicts on both sides); the disclosed db-wal discount would put the candidate at 19 and changes nothing about the outcome.",
+      "windowInterpretation": "This window was the hardest one yet for the control text - 13, its lowest reading, with a complete and scoreable set of real verdicts - while the candidate read 20, its highest so far; the paired difference in this window (+7) is the largest, cleanest difference this program has measured. The bar, however, is an unpaired absolute threshold calibrated in the 2026-10-05 window where the same control bytes read 21; the eight-cell spread of one unchanged text across three windows is larger than every text-versus-text difference measured here, so no text on this corpus can be shown to clear a frozen absolute bar by one or two cells. That is recorded as the reason the line ends here, not as an argument to move the bar: the criterion decision of 2026-10-07 keeps the bar, and this sample is read under it.",
+      "noSelection": "All five readings are listed above - control 21 / 18 / 13 and candidate 19 / 20 - and none is chosen over another; no earlier verdict is replaced, revised or reinterpreted.",
+      "gateNote": "This study's own gates say a variance sample cannot satisfy or fail the merge gate on its own and cannot change the first pair's predeclared reading or criterion. The closure recorded below rests on the criterionDecision above it (bar kept, 20 misses) and on Simon's delegation - not on any reinterpretation of a frozen predeclaration."
+    }
+  },
+  "lineClosure": {
+    "decidedBy": "the agent itself, on Simon's standing 2026-10-06/07 delegation, under this file's criterionDecision",
+    "decidedAt": "2026-10-07T08:45+08:00",
+    "decision": "The prompt line ends without a merge. PR Simon-He95/best-agent#212 stays Draft; it is not made ready, not merged and not closed by this record; the recorded recommendation is to close the PR rather than merge a text with no measured gain.",
+    "basis": {
+      "bar": "Frozen absolute bar (strictly more than 21 of 30): NOT met - candidate 20 (sample 2) and 19 (sample 1).",
+      "veto": "Not triggered - candidate 20 against its same-window control's 13 (sample 1: 19 against 18).",
+      "review": "ACCEPT-with-fixes on head 48e8aa64, five record-only items, all corrected in best-agent 6539e256 without touching an instruction byte (recorded in config/frontier-harness-preservation-pair-20261006.json#reviewRecord).",
+      "hardcoding": "The shipped 2.21.0 text names no task, file, path, value, tool alias, evaluator or grader, and the pinned negative loop for the six forbidden host-mechanism names is unchanged.",
+      "disclosure": "Real-verdict-supported wins only: sample 2's wins are real-verdict supported except the disclosed discount of terminal-bench/db-wal-recovery (task-self upstream material, recorded, not credited).",
+      "samples": "n=2, the predeclared depth, is reached; both samples were dispatched inside fresh windows with the same bytes, and neither sample's reading is chosen over the other."
+    },
+    "actions": {
+      "merged": "Nothing merged. Merge target 6539e256 was never pushed or merged; no branch, tag or main was touched.",
+      "dispatched": "No further prompt variants and no third sample; the two arm refs keep their bytes and their bindings.",
+      "pr": "One comment on PR #212 records the closure; the PR itself is left untouched (Draft, no ready, no merge, no close).",
+      "schedule": "This study's own recurring schedule was deleted in the same turn."
+    },
+    "noClaim": "No release or efficacy claim is made. Nothing measured in either sample replaces any earlier verdict, and no frozen predeclaration, dispatch record, gate, reading plan or criterion decision is modified by this closure."
   }
 }

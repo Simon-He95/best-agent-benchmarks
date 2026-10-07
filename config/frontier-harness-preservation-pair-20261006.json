@@ -290,5 +290,25 @@
     "ifTheBarIsMet": "The reading is checked against the unchanged gate (bar met AND same-window veto not triggered AND review ACCEPT AND no hardcoded text) together with this disclosure; if it holds, PR #212's content is replaced by 6539e256 and merged, and the merge record names the reading and the head sha.",
     "ifTheBarIsNotMet": "The prompt line ends without a merge: PR #212 stays Draft, no further prompt variants are dispatched, and the recorded recommendation is to close the PR rather than merge a text with no measured gain.",
     "noClaim": "No release or efficacy claim is made by this record; it records the agent's own decision under Simon's delegation and does not modify any frozen predeclaration."
+  },
+  "lineClosure": {
+    "decidedBy": "the agent itself, on Simon's standing 2026-10-06/07 delegation, under this file's criterionDecision",
+    "decidedAt": "2026-10-07T08:45+08:00",
+    "decision": "The prompt line ends without a merge. PR Simon-He95/best-agent#212 stays Draft; it is not made ready, not merged and not closed by this record; the recorded recommendation is to close the PR rather than merge a text with no measured gain.",
+    "basis": {
+      "bar": "Frozen absolute bar (strictly more than 21 of 30): NOT met - candidate 20 (sample 2) and 19 (sample 1).",
+      "veto": "Not triggered - candidate 20 against its same-window control's 13 (sample 1: 19 against 18).",
+      "review": "ACCEPT-with-fixes on head 48e8aa64, five record-only items, all corrected in best-agent 6539e256 without touching an instruction byte (recorded in config/frontier-harness-preservation-pair-20261006.json#reviewRecord).",
+      "hardcoding": "The shipped 2.21.0 text names no task, file, path, value, tool alias, evaluator or grader, and the pinned negative loop for the six forbidden host-mechanism names is unchanged.",
+      "disclosure": "Real-verdict-supported wins only: sample 2's wins are real-verdict supported except the disclosed discount of terminal-bench/db-wal-recovery (task-self upstream material, recorded, not credited).",
+      "samples": "n=2, the predeclared depth, is reached; both samples were dispatched inside fresh windows with the same bytes, and neither sample's reading is chosen over the other."
+    },
+    "actions": {
+      "merged": "Nothing merged. Merge target 6539e256 was never pushed or merged; no branch, tag or main was touched.",
+      "dispatched": "No further prompt variants and no third sample; the two arm refs keep their bytes and their bindings.",
+      "pr": "One comment on PR #212 records the closure; the PR itself is left untouched (Draft, no ready, no merge, no close).",
+      "schedule": "This study's own recurring schedule was deleted in the same turn."
+    },
+    "noClaim": "No release or efficacy claim is made. Nothing measured in either sample replaces any earlier verdict, and no frozen predeclaration, dispatch record, gate, reading plan or criterion decision is modified by this closure."
   }
 }
