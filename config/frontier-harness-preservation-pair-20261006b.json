@@ -382,5 +382,45 @@
     "review": "The independent review of the 2.21.0 diff returned ACCEPT-with-fixes on 48e8aa64; all five items were record-only and were closed in 6539e256 (whose entire diff is specs/308-v3-preservation-only.md, no instruction byte touched) - so the reviewed text and the measured text are the same bytes.",
     "disclosures": "Every disclosure recorded in this file's outcome stays attached: sample 1's +1 is infrastructure-driven and is not counted as text support; sample 2's db-wal win came from the task's own upstream material and is discounted (7 wins / 1 loss, 19 against 13); the control text's own readings span eight cells across three windows; one attempt per cell. The merged bytes never exceeded the control's own best absolute reading (21).",
     "noClaim": "No release or efficacy claim beyond the paired reading on these 30 cells at the frozen profile. No frozen predeclaration, dispatch record, gate, reading plan or earlier outcome is modified by this field; only Simon's 2026-10-07 criterion update (recorded separately) changed what the merge was judged against."
+  },
+  "prCleanup": {
+    "decidedBy": "Simon, 2026-10-07 (in-thread: close the experiment drafts, keep the feature drafts)",
+    "recordedAt": "2026-10-07T11:20+08:00",
+    "closed": [
+      {
+        "pr": "Simon-He95/best-agent#205",
+        "head": "codex/budget-artifact-delivery",
+        "reason": "Its own record says not to merge: the completed benchmark gate found no real-delivery gain and an expr regression. An earlier, related attempt-budget delivery is on main (commit ea9a03dc, 'cli: deliver bounded benchmark attempt summary after primary stop'); #205 was a separate reserved-window finalization-Run design that the gate did not support."
+      },
+      {
+        "pr": "Simon-He95/best-agent#206",
+        "head": "codex/prompt-input-values",
+        "reason": "Its own record says it must remain Draft: the predeclared gate read 0/4 against the same-source control's 1/4. Belongs to the prompt line that converged on the merged 2.21.0 (PR #212)."
+      },
+      {
+        "pr": "Simon-He95/best-agent#207",
+        "head": "codex/prompt-incremental-delivery",
+        "reason": "Its own record says keep Draft / no merge: 1/4, equal to the source control, with a sqlite-guard failure and a worse expr f2p for the shortened 4,402-byte instruction."
+      },
+      {
+        "pr": "Simon-He95/best-agent#211",
+        "head": "codex/prompt-value-closure",
+        "reason": "Its own record is a no-release decision for the isolated 411-byte external-value clause; superseded by the converged 2.21.0 text."
+      }
+    ],
+    "kept": [
+      "Simon-He95/best-agent#180 (feat/web-command) - an unfinished feature draft, not an experiment.",
+      "Simon-He95/best-agent#184 (feat/desktop-port) - an unfinished feature draft, not an experiment.",
+      "Simon-He95/best-agent#2 (Configure Renovate) - a bot PR, unrelated to this line."
+    ],
+    "nothingLost": "Closing a PR does not delete its branch: after the closures all four remote branches are still present (codex/budget-artifact-delivery fb04425e, codex/prompt-input-values f55fe012, codex/prompt-incremental-delivery d3261bda, codex/prompt-value-closure 4ec367c5), each PR keeps its description and diff readable, each got exactly one comment explaining the closure, and each can be reopened.",
+    "verifiedAfter": "All four report state=CLOSED with merged=no; the repository's open PR list is now #2, #180, #184 only."
+  },
+  "autoMergeNote": {
+    "foundWhile": "closing the four experiment drafts on 2026-10-07",
+    "what": "PR Simon-He95/best-agent#209 (head codex/prompt-input-preservation, head commit ac8af551) now shows as MERGED, mergedAt 2026-10-07T02:52:02Z - two seconds after PR #212 was merged - with mergeCommit equal to its own head OID.",
+    "why": "The merge of #212 brought that commit into main's history: ac8af551 was NOT an ancestor of main before the merge (not reachable from 884433b2) but IS an ancestor of the measured head 6539e256 that was merged. No new commit was created for #209 and main's ref did not advance beyond b5760d0f, which is what a real merge/squash/rebase would have done; the marking is consistent with GitHub recognising the commits as reachable from the base branch.",
+    "noUnintendedContent": "Main's content is unaffected: the merged tree equals the measured head's own spec/tree set, the coding instruction in main is the measured 2.21.0 (blob 73fc44d8fb, version 2.21.0, 6,165 B / e85b985e…), and PR #209's own file specs/291-v3-isolated-input-preservation.md never reached main - it existed only in the older 4341baec commit and was already absent from every commit of this line (40ce0035, 48e8aa64, 6539e256), whose record folded into specs/303 and specs/308. The spec number 291 in main belongs to a different document (specs/291-v3-ranked-compact-packing.md).",
+    "caveat": "Read from refs and PR metadata, not from GitHub's internal event log: the conclusion that #209 was auto-marked rather than human-merged rests on (a) the commit's absence from main before the merge, (b) its presence in the merged head's ancestry, and (c) no new commit and no ref movement on main."
   }
 }
