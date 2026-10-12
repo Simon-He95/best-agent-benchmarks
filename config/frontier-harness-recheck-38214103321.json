@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "recheck-38214103321",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "requestedBy": "User, 2026-10-12: \"7个是不是应该重跑，而且是合理的重跑\" followed by \"不需要全新的完整30题，只要全新的这7题\" — re-measure exactly the seven cells of run 38214103321 whose reward 0 was produced before the model finished or in the delivery step, as a fresh single attempt each, without dispatching a new full 30-task run.",
+  "reason": "Run 38214103321 (candidate 0.0.6-beta.1 / fcadbc13, glm-5.3 at reasoning effort high, 30-task frozen corpus) scored 18 passed / 12 failed, passAt1 0.60. Seven of the twelve failures are not clean capability evidence: four carry an explicit upstream provider transport failure in their own evidence, two were stopped inside the candidate's own attempt-budget window with no model failure at all, and one ended in the delivery step with a build-failed delivery. This batch re-measures exactly those seven, one predeclared attempt each, under the identical composition, so that 'the cell does not pass' can be separated from 'the cell was cut off, or hit a transient upstream transport failure, before it could'. It is a declared re-measurement: no verdict of run 38214103321 or of any earlier run is replaced, refilled or reinterpreted.",
+  "admission": {
+    "rule": "AGENTS.md:13 admits a recovery refill only for a task with no prediction, and scripts/frontier-harness-comparison.mjs:119 mechanically refills only cells whose disposition is error. All seven cells of this batch carry a canonical graded verdict (disposition failed, verifier reward 0) in the frozen record, so NONE of them is admissible as a recovery and this batch refills nothing. It is admitted instead under the declared-repair path of scripts/frontier-harness-repaired-reading.mjs (kind recheck, one extra attempt per cell, published as a companion reading with passAt1 null), and every cell is labelled with the class it is admitted under.",
+    "perCell": [
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "class": "variance-check",
+        "asMeasured": "failed, 1138s, f2p 1/9, p2p 94/94; terminalCause completed and zero model-failure entries, so the attempt itself finished; the cell ends in the delivery step: verifier.delivery=build-failed with signals go-build-failed, reporter-failed-build-event and scored-report-missing, missingFromReport=8.",
+        "question": "Does the same delivery build failure reproduce on a fresh attempt, or did the delivered workspace merely fail to compile once?"
+      },
+      {
+        "task": "terminal-bench/build-cython-ext",
+        "class": "environment-class-recheck",
+        "asMeasured": "failed, 763s; one model-failure entry with failure.reason=transport at 1972 ms; primary Run cancelled/stopped, delivery Run completed; verifier reward 0.",
+        "question": "Does the attempt reach a model-completed state and a clean graded verdict when the transport failure does not recur?"
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "class": "variance-check",
+        "asMeasured": "failed, 786s; no model-failure entry; primary Run cancelled/stopped (stopFlag=true) inside the candidate's own attempt-budget window, delivery Run completed with verifier.delivery unknown.",
+        "question": "Does the cell pass when the primary Run is not cut off inside the candidate's own budget window?"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "class": "environment-class-recheck",
+        "asMeasured": "failed, 1073s; one model-failure entry with failure.reason=transport at 180173 ms; primary Run cancelled/stopped, delivery Run completed; verifier reward 0.",
+        "question": "Does the attempt reach a model-completed state and a clean graded verdict when the transport failure does not recur?"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "class": "environment-class-recheck",
+        "asMeasured": "failed, 876s; two model-failure entries with failure.reason=transport (24899 ms on the primary Run, 120004 ms on the delivery Run); primary Run cancelled/stopped, delivery Run failed with terminalCause=run-deadline, exceptionType NonZeroAgentExitCodeError; verifier reward 0.",
+        "question": "Does the attempt reach a model-completed state and a clean graded verdict when neither transport failure recurs?"
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "class": "environment-class-recheck",
+        "asMeasured": "failed, 805s; one model-failure entry with failure.reason=transport at 17906 ms; primary Run cancelled/stopped, delivery Run completed; verifier reward 0.",
+        "question": "Does the attempt reach a model-completed state and a clean graded verdict when the transport failure does not recur?"
+      },
+      {
+        "task": "terminal-bench/polyglot-c-py",
+        "class": "variance-check",
+        "asMeasured": "failed, 769s; no model-failure entry; primary Run cancelled/stopped (stopFlag=true) inside the candidate's own attempt-budget window, delivery Run completed with verifier.delivery unknown.",
+        "question": "Does the cell pass when the primary Run is not cut off inside the candidate's own budget window?"
+      }
+    ]
+  },
+  "sourceRun": {
+    "runId": 38214103321,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/38214103321",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261012T095525Z--38214103321.json",
+    "frozenRecordSha256": "cc8cb96d6dc816cc46cb7df7a851e70a03657c35ee62bbfe021bb1086ad66a8b",
+    "candidateId": "cli-0.0.6-beta.1-fcadbc1-7de59837e17f",
+    "candidatePin": "config/frontier-harness.json#cli (sourceCommit fcadbc133b865834a58745d5e83d92f9e5ee46d1, cliVersion 0.0.6-beta.1, packageName @best-agent/cli-linux-x64-gnu, target linux-x64-gnu); the workflow builds the Linux SEA itself in this batch's own run and freezes its own receipt, so the batch's binarySha256 will differ from run 38214103321's by design.",
+    "verdicts": {
+      "passed": 18,
+      "failed": 12,
+      "error": 0,
+      "notEvaluated": 0,
+      "validCells": 30,
+      "passAt1": 0.6
+    }
+  },
+  "everythingElse": "Unchanged from run 38214103321: corpus pin (frontier-harness-eval/eval e837a70b, the same 30-task corpus), per-suite task sources, pier pin (0.3.1, docker on GitHub-hosted runners), candidate pin (0.0.6-beta.1 / fcadbc13), provider (glm-5.3 at https://dimagent.cn/v1, compatible, dim-oauth, reasoning effort high), fh_agent_timeout_multiplier=1 and each cell's own declared agent budget and per-call ceiling (1,800,000 ms). Serial execution (fh_max_parallel=1) so that the seven cells are re-measured on the same quiet environment footing and a repeated provider transport failure cannot be blamed on run-level concurrency; the full run used fh_max_parallel=3 and that difference is disclosed here rather than hidden.",
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/anko-typed-variable-bindings,terminal-bench/build-cython-ext,terminal-bench/chess-best-move,terminal-bench/code-from-image,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/polyglot-c-py",
+    "fh_limit": 7,
+    "fh_offset": 0,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 1,
+    "fh_batch": "recheck-38214103321"
+  },
+  "dispatchCommand": "gh workflow run frontier-harness.yml --repo Simon-He95/best-agent-benchmarks --ref fh/usage-accounting-proof -f fh_run=true -f fh_smoke=false -f fh_run_full=false -f fh_tasks=\"datacurve/anko-typed-variable-bindings,terminal-bench/build-cython-ext,terminal-bench/chess-best-move,terminal-bench/code-from-image,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,terminal-bench/polyglot-c-py\" -f fh_limit=7 -f fh_offset=0 -f fh_reasoning_effort=high -f fh_agent_timeout_multiplier=1 -f fh_max_parallel=1 -f fh_batch=recheck-38214103321",
+  "constraints": [
+    "Exactly one predeclared headless attempt per listed cell and nothing else: a 7-task subset, never presented as a full-corpus run.",
+    "No verdict of run 38214103321 or of any earlier run is replaced, refilled or reinterpreted. Every strict verdict of run 38214103321 stands, including all twelve failures.",
+    "This batch is diagnosticOnly: its own report is not a pass@1 and its cells are never merged into run 38214103321's passAt1=0.6 or into any other run's number. Any published reading of it is a companion repaired reading that declares passAt1 null and counts each cell's extra attempt.",
+    "No cell outside the seven listed is re-measured, and no cell is given a second extra attempt.",
+    "Budgets, effort, grader, execution profile, corpus and candidate pin stay exactly as run 38214103321 declared them; nothing is changed to make a cell scoreable.",
+    "Nothing is published to main; the manifest and any later reading live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "readingBoundary": "What this batch can and cannot say. It CAN say, per cell, whether a fresh single attempt under the same composition reaches a model-completed or delivery-completed state and what verdict it then earns; a cell that passes here shows its reward 0 in run 38214103321 was produced by the transport failure, the budget-window cut-off or the delivery build failure, not by a capability limit at that moment. It CANNOT lower or raise run 38214103321's pass rate: that run's frozen record keeps 18 passed / 12 failed / passAt1 0.60 whatever this batch returns, and no number here may be merged with it or with any other run. A cell that fails again is not proof of a capability limit either, because one extra attempt is still one attempt; and because the seven cells were selected precisely for having been cut off, any pass-rate computed over them is a selected-subset figure and is never comparable to the corpus pass rate. Run-to-run variance is material on this corpus (10 of 30 cells flipped between run 37610731220 and run 38214103321), so a flip here is weak evidence about the candidate.",
+  "plannedChecks": "After the batch finishes: read its own report against the seven predeclared cells (present, disposition, durationMs, usage, evidenceSha256); for each cell compare its new terminalCause, model-failure entries and verifier outcome with the cell's own record in run 38214103321; then write the batch's outcome into this manifest (outcome.cells with disposition, rewards, durationMs and class, so scripts/frontier-harness-repaired-reading.mjs can publish a companion reading) and record the batch in docs/benchmarks/history/frontier-harness/ beside the run it re-measures. Never rewrite run 38214103321's record."
+}
