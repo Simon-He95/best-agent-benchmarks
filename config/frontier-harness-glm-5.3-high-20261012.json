@@ -123,5 +123,122 @@
   "runId": 38214103321,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/38214103321",
   "dispatchedAt": "2026-10-12T06:45:29Z",
-  "dispatchHeadSha": "da57eafe47d3661e2bccefde98e9d1ee57197eb9"
+  "dispatchHeadSha": "da57eafe47d3661e2bccefde98e9d1ee57197eb9",
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261012T095525Z--38214103321.json",
+  "frozenRecordSha256": "cc8cb96d6dc816cc46cb7df7a851e70a03657c35ee62bbfe021bb1086ad66a8b",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 30,
+    "passRate": 0.6,
+    "scoreable": true,
+    "capabilityMeasurement": true,
+    "passAt1": 0.6,
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "passed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "runWindow": "2026-10-12T06:45:29Z -> 2026-10-12T09:46:49Z (3h1m20s); 34 of 34 jobs green at the workflow level (3 freeze + 30 Generate + 1 Aggregate), no cancelled or failed job, no throttled image pull and no verdict-less cell; dispatch headSha da57eafe47d3661e2bccefde98e9d1ee57197eb9.",
+    "candidateId": "cli-0.0.6-beta.1-fcadbc1-7de59837e17f",
+    "candidateNote": "30 records agree on one candidate (source commit fcadbc133b865834a58745d5e83d92f9e5ee46d1, cliVersion 0.0.6-beta.1); the acceptance detail also carries the receipt's second hash d14afb9aa6e6c9cf7e7075494c36a053cb2e3c194143bd18303313949ed7dcc6. The binary is not byte-reproducible across builds, so this hash belongs to this run alone: the same commit's smoke build (run 38212871546) delivered 797c4161836d183debe0636c6a8da311b4215e9f913b3c78dbf071b13c72140c.",
+    "specificationGapTasks": [
+      "datacurve/httpx-multipart-response-parsing",
+      "datacurve/fastapi-deprecation-response-headers",
+      "datacurve/meriyah-explicit-resource-declarations"
+    ],
+    "budgetExhausted": "The report's own budget-exhausted count is 0 and no per-task record carries budgetExhausted=true: Pier's AgentTimeoutError never fired. Six of the twelve failures nevertheless ended before the model could finish (4 provider transport failures, 2 cells whose primary Run was stopped inside the candidate's own attempt-budget window), and no budget was extended to make any of them scoreable.",
+    "failedCells": [
+      "datacurve/anko-typed-variable-bindings",
+      "datacurve/katex-multicolumn-array-spans",
+      "datacurve/meriyah-explicit-resource-declarations",
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/polyglot-c-py",
+      "terminal-bench/sanitize-git-repo"
+    ],
+    "failureStages": {
+      "source": "failures.json#byStage of this run's own report artifact; the per-cell attribution below was read from each cell's own evidence file (its model-failure entries and terminal snapshots) plus failures.json's per-task block.",
+      "model": {
+        "count": 4,
+        "tasks": [
+          "datacurve/katex-multicolumn-array-spans",
+          "terminal-bench/dna-insert",
+          "terminal-bench/extract-elf",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "reading": "The harness completed each attempt (terminalCause=completed) and no model-failure entry exists in any of the four evidence files; the task verifier graded the delivered state reward 0 (katex f2p 92/94, the other three reward-only tasks). These are real capability verdicts."
+      },
+      "provider": {
+        "count": 4,
+        "tasks": [
+          "terminal-bench/build-cython-ext",
+          "terminal-bench/code-from-image",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval"
+        ],
+        "reading": "Every cell's evidence carries at least one model-failure entry whose failure.reason is 'transport' (durations 1972 ms, 180173 ms, 24899 ms and 17906 ms in task order; gcode-to-text carries a second, 120004 ms transport failure). The primary Run ends cancelled/stopped in all four; the delivery Run terminated completed for build-cython-ext, code-from-image and largest-eigenval and failed with terminalCause=run-deadline for gcode-to-text, which also carries exceptionType NonZeroAgentExitCodeError. The task verifier graded the delivered state reward 0. The verdicts are canonical and were not retried, but their reward 0 is not clean capability evidence."
+      },
+      "inconclusive": {
+        "count": 2,
+        "tasks": [
+          "terminal-bench/chess-best-move",
+          "terminal-bench/polyglot-c-py"
+        ],
+        "reading": "No model-failure entry. The primary Run was stopped inside the candidate's own attempt-budget window (terminalCause=stopped, stopFlag=true) and the delivery Run terminated completed, but verifier.delivery is unknown, so the analyzer cannot mechanically prove a single cause. The reward-0 verdicts stand and are not clean capability evidence."
+      },
+      "delivery": {
+        "count": 1,
+        "tasks": [
+          "datacurve/anko-typed-variable-bindings"
+        ],
+        "reading": "New stage in this run's analysis (run 37610731220 had none). The attempt itself completed (terminalCause=completed) and the cell ended in the delivery step instead of model grading: verifier.delivery is build-failed with signals go-build-failed, reporter-failed-build-event and scored-report-missing, missingFromReport 8, f2p 1/9 with p2p 94/94. The reward-0 verdict is real, but it is not clean capability evidence."
+      },
+      "specification-gap": {
+        "count": 1,
+        "tasks": [
+          "datacurve/meriyah-explicit-resource-declarations"
+        ],
+        "reading": "Declared in config/frontier-harness.json#specificationGaps: the pinned instruction omits a rule the hidden tests require. f2p 45/49, unchanged from run 37610731220. Its canonical verdict stands and capability comparisons must exclude it."
+      }
+    },
+    "comparisonToBaseline37610731220": {
+      "baseline": "run 37610731220 (2026-10-07): the same corpus, the same model glm-5.3 at the same reasoning effort high, candidate 0.0.4-beta.1 / b5760d0f (candidateId cli-0.0.4-beta.1-b5760d0-d540ab3d5cfa), 18 passed / 12 failed / 0 error / 0 not-evaluated, passAt1 0.6.",
+      "flips": 10,
+      "candidateWon": [
+        "datacurve/arktype-json-schema-refs-dependencies (failed -> passed; f2p 23/25 -> 25/25)",
+        "datacurve/fastapi-deprecation-response-headers (failed -> passed; specification-gap in the baseline, now f2p 137/137)",
+        "datacurve/httpx-multipart-response-parsing (failed -> passed; specification-gap in the baseline, now f2p 122/122)",
+        "terminal-bench/db-wal-recovery (failed -> passed; model in the baseline)",
+        "terminal-bench/openssl-selfsigned-cert (failed -> passed; model in the baseline)"
+      ],
+      "candidateLost": [
+        "datacurve/anko-typed-variable-bindings (passed -> failed, delivery; f2p 9/9 -> 1/9)",
+        "datacurve/katex-multicolumn-array-spans (passed -> failed, model; f2p 94/94 -> 92/94)",
+        "terminal-bench/build-cython-ext (passed -> failed, provider transport)",
+        "terminal-bench/extract-elf (passed -> failed, model)",
+        "terminal-bench/polyglot-c-py (passed -> failed, inconclusive)"
+      ],
+      "reading": "5 gains against 5 losses, net 0 (18 -> 18; passRate 0.60 -> 0.60; passAt1 0.6 -> 0.6). Seven cells the baseline failed and this run failed keep failing and 13 keep passing, so only 1/3 of the cells move. The comparison is a candidate delta plus run-to-run variance by construction: the candidate moved 46 commits and that delta is not inert (two model-visible instruction texts, the compact/handoff fact family, MCP validation moving to Ajv, kernel terminal-state/wake semantics), and the two runs are 5 days and two windows apart. No capability claim is read from it, and neither run's passAt1 is merged into the other's."
+    },
+    "speedReading": "Median wall-clock per PASSED cell: 234.2s (3m54s) for this run against 228.0s (3m48s) for run 37610731220; mean per passed cell 912.5s against 898.8s. Total agent wall clock 515.2 min against 559.1 min; modelCallCount 1,793 against 1,833; totalTokens 184,021,330 against 238,199,675 (prompt 182,903,012 vs 237,158,388; cache read 180,282,944 vs 234,040,384; completion 1,118,318 vs 1,041,287). Median and mean move apart from the totals because the pass set changed shape: 12 of the 18 passes are short terminal-bench cells (74s-493s) while the six datacurve passes run 1,558s-3,398s.",
+    "datacurveFailToPass": "604/618 over the nine scored datacurve cells (anko 1/9, arktype 25/25, expr 79/79, fastapi 137/137, httpx 122/122, katex 92/94, meriyah 45/49, python-statemachine 72/72, scc 31/31), against 610/618 in run 37610731220.",
+    "evidence": "Artifact frontier-harness-report-38214103321 (report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the thirty frozen per-task records and their raw evidence under jobs/; 197,526,964 bytes) plus the thirty per-task artifacts frontier-harness-task-38214103321-<task> (3,015,339,473 bytes); the run's 33 artifacts total 3,306,794,570 bytes. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261012T095525Z--38214103321.json (sha256 cc8cb96d6dc816cc46cb7df7a851e70a03657c35ee62bbfe021bb1086ad66a8b, byte-identical to the artifact's report.json) with the Chinese record 20261012T095525Z--38214103321.md beside it. The record's own generatedAt is 2026-10-12T09:55:25Z and lives in the history file name and in that Chinese record, because report.json itself carries no timestamp field.",
+    "boundaries": [
+      "Diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard.",
+      "Every cell carries a real graded verdict and the run is scoreable, but six of the twelve failures (4 provider transport, 2 inconclusive) were cut off before the model finished and one (anko) ended in the delivery step, so their reward 0 is not read as clean capability evidence.",
+      "No verdict of any earlier run is replaced, merged or reinterpreted; this run's passAt1 comes only from its own frozen report, and the comparison with 37610731220 is a candidate delta plus run-to-run variance, never a single-variable capability reading.",
+      "No condition was changed to make the run scoreable and no cell was retried: the budgets, the per-call ceiling (1,800,000 ms), fh_agent_timeout_multiplier=1 and the declared effort stay exactly as the frozen composition declares them."
+    ]
+  }
 }

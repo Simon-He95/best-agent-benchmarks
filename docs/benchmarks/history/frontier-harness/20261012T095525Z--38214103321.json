@@ -1,0 +1,870 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.6-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "fcadbc133b865834a58745d5e83d92f9e5ee46d1",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": true,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 30,
+    "expectedEligible": 30,
+    "present": 30,
+    "missing": [],
+    "fullExpected": true
+  },
+  "results": {
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.6,
+  "validCells": 30,
+  "passRateValidCells": 0.6,
+  "scoreable": true,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "passed",
+      "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "30 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "30 records agree on one frozen candidate (cli-0.0.6-beta.1-fcadbc1-7de59837e17f|0.0.6-beta.1|7de59837e17f163fc247a3c36a77cc8c723742eb375434d72c4086c6e87608c9|d14afb9aa6e6c9cf7e7075494c36a053cb2e3c194143bd18303313949ed7dcc6)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "30 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": true,
+  "passAt1": 0.6,
+  "usage": {
+    "tasks": 30,
+    "promptTokens": 182903012,
+    "completionTokens": 1118318,
+    "cacheReadTokens": 180282944,
+    "totalTokens": 184021330,
+    "modelCallCount": 1793,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 9,
+        "f2p_passed": 1,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 0.1111111111111111,
+        "p2p": 1,
+        "partial": 0.9223300970873787
+      },
+      "durationMs": 1138458,
+      "usage": {
+        "promptTokens": 6109922,
+        "completionTokens": 35273,
+        "cacheReadTokens": 5963392,
+        "costUsd": null,
+        "totalTokens": 6145195,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 146530,
+        "modelCallCount": 84,
+        "reportedCallCount": 84,
+        "reportedInputTokens": 6109922
+      },
+      "evidenceSha256": "bd2737cf8cc2a91f45038bfd4a9d694cb2c8e77a30988072c569e6809b41b784",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 25,
+        "f2p_passed": 25,
+        "p2p_total": 1679,
+        "p2p_passed": 1679,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2930134,
+      "usage": {
+        "promptTokens": 18925859,
+        "completionTokens": 109048,
+        "cacheReadTokens": 18664704,
+        "costUsd": null,
+        "totalTokens": 19034907,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 261155,
+        "modelCallCount": 160,
+        "reportedCallCount": 160,
+        "reportedInputTokens": 18925859
+      },
+      "evidenceSha256": "b40fd44fe800820e6f71bfbfaa6f3549d7cfc53b0443870eeab3e6d0b11a1443",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 79,
+        "f2p_passed": 79,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2440691,
+      "usage": {
+        "promptTokens": 20248593,
+        "completionTokens": 89681,
+        "cacheReadTokens": 20067328,
+        "costUsd": null,
+        "totalTokens": 20338274,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 181265,
+        "modelCallCount": 167,
+        "reportedCallCount": 167,
+        "reportedInputTokens": 20248593
+      },
+      "evidenceSha256": "d99d01c1c960dbc86d9898c723172a12d25185fb1029c58905a69e5d6f4b4297",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 137,
+        "f2p_passed": 137,
+        "p2p_total": 3134,
+        "p2p_passed": 3134,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1757333,
+      "usage": {
+        "promptTokens": 10510428,
+        "completionTokens": 57435,
+        "cacheReadTokens": 10384064,
+        "costUsd": null,
+        "totalTokens": 10567863,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 126364,
+        "modelCallCount": 124,
+        "reportedCallCount": 124,
+        "reportedInputTokens": 10510428
+      },
+      "evidenceSha256": "9d5096005c10f796ec12f5a7ba1874f6cb39c1b308aa9a28097b438b047dcc7f",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 122,
+        "f2p_passed": 122,
+        "p2p_total": 1272,
+        "p2p_passed": 1272,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1557959,
+      "usage": {
+        "promptTokens": 7101454,
+        "completionTokens": 68399,
+        "cacheReadTokens": 6982592,
+        "costUsd": null,
+        "totalTokens": 7169853,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 118862,
+        "modelCallCount": 83,
+        "reportedCallCount": 83,
+        "reportedInputTokens": 7101454
+      },
+      "evidenceSha256": "1743ba1d350c43036e94d0080c312f6429c7e3d4a1a35e9020f07bafd32d0be5",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 94,
+        "f2p_passed": 92,
+        "p2p_total": 599,
+        "p2p_passed": 599,
+        "f2p": 0.9787234042553191,
+        "p2p": 1,
+        "partial": 0.9971139971139971
+      },
+      "durationMs": 2893233,
+      "usage": {
+        "promptTokens": 29951110,
+        "completionTokens": 112065,
+        "cacheReadTokens": 29611072,
+        "costUsd": null,
+        "totalTokens": 30063175,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 340038,
+        "modelCallCount": 170,
+        "reportedCallCount": 170,
+        "reportedInputTokens": 29951110
+      },
+      "evidenceSha256": "2f44c67e43eca9ed56eadd62cd0ee2a25071221bb5640fd38116bb81b609e986",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 45,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0.9183673469387755,
+        "p2p": 1,
+        "partial": 0.9999223572343647
+      },
+      "durationMs": 3162045,
+      "usage": {
+        "promptTokens": 28358675,
+        "completionTokens": 97207,
+        "cacheReadTokens": 28155008,
+        "costUsd": null,
+        "totalTokens": 28455882,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 203667,
+        "modelCallCount": 237,
+        "reportedCallCount": 237,
+        "reportedInputTokens": 28358675
+      },
+      "evidenceSha256": "1f98f8ff356ffd95e2121c0da702d06202da9e776576fbf17fe330a7fb55a1c3",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 72,
+        "f2p_passed": 72,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3398177,
+      "usage": {
+        "promptTokens": 28287013,
+        "completionTokens": 110213,
+        "cacheReadTokens": 28058944,
+        "costUsd": null,
+        "totalTokens": 28397226,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 228069,
+        "modelCallCount": 181,
+        "reportedCallCount": 181,
+        "reportedInputTokens": 28287013
+      },
+      "evidenceSha256": "a188fe9992602b33e4cc172bbe22b384a1c85b308a0f04578466448b5f32b186",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 31,
+        "f2p_passed": 31,
+        "p2p_total": 286,
+        "p2p_passed": 286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2288472,
+      "usage": {
+        "promptTokens": 17977920,
+        "completionTokens": 84682,
+        "cacheReadTokens": 17771264,
+        "costUsd": null,
+        "totalTokens": 18062602,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 206656,
+        "modelCallCount": 129,
+        "reportedCallCount": 129,
+        "reportedInputTokens": 17977920
+      },
+      "evidenceSha256": "8629ebab24441d416b1b1cb95c01fb76458ad00fdcf17d48e95f83ad61d7b227",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 763208,
+      "usage": {
+        "promptTokens": 4830196,
+        "completionTokens": 20910,
+        "cacheReadTokens": 4734784,
+        "costUsd": null,
+        "totalTokens": 4851106,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 95412,
+        "modelCallCount": 90,
+        "reportedCallCount": 90,
+        "reportedInputTokens": 4830196
+      },
+      "evidenceSha256": "03487508bc3ebf8ff4580dd88a2e1322effc2fdc811c986b7b76769ff9799b38",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 785920,
+      "usage": {
+        "promptTokens": 667351,
+        "completionTokens": 33078,
+        "cacheReadTokens": 592320,
+        "costUsd": null,
+        "totalTokens": 700429,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 75031,
+        "modelCallCount": 22,
+        "reportedCallCount": 22,
+        "reportedInputTokens": 667351
+      },
+      "evidenceSha256": "cea36286be29505a98488027e83d1e8d7426ae306ea6257426599d4b046ab21a",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1073039,
+      "usage": {
+        "promptTokens": 1117183,
+        "completionTokens": 41250,
+        "cacheReadTokens": 1009664,
+        "costUsd": null,
+        "totalTokens": 1158433,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 107519,
+        "modelCallCount": 32,
+        "reportedCallCount": 32,
+        "reportedInputTokens": 1117183
+      },
+      "evidenceSha256": "66d29be8d1c3c7a46540db86172f06496ed185a8d47074d85bfa254b7bae407b",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/constraints-scheduling",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 90305,
+      "usage": {
+        "promptTokens": 51709,
+        "completionTokens": 2685,
+        "cacheReadTokens": 46976,
+        "costUsd": null,
+        "totalTokens": 54394,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 4733,
+        "modelCallCount": 4,
+        "reportedCallCount": 4,
+        "reportedInputTokens": 51709
+      },
+      "evidenceSha256": "5898e538cb3abb7d3c93cfafe8b4d09a91988b2d2819815b0cdc6e1c6b73b2d9",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 249877,
+      "usage": {
+        "promptTokens": 378776,
+        "completionTokens": 9188,
+        "cacheReadTokens": 359936,
+        "costUsd": null,
+        "totalTokens": 387964,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 18840,
+        "modelCallCount": 17,
+        "reportedCallCount": 17,
+        "reportedInputTokens": 378776
+      },
+      "evidenceSha256": "2c8cebf2de4a2a661fc13fce94d3af063c6dba7d719ae5e97d2363464685dce8",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1331376,
+      "usage": {
+        "promptTokens": 855077,
+        "completionTokens": 69100,
+        "cacheReadTokens": 777536,
+        "costUsd": null,
+        "totalTokens": 924177,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 77541,
+        "modelCallCount": 18,
+        "reportedCallCount": 18,
+        "reportedInputTokens": 855077
+      },
+      "evidenceSha256": "c95eef709503ee6c7deb6051c08448a127b669101003fbe46daa0098ec969b77",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 341483,
+      "usage": {
+        "promptTokens": 308889,
+        "completionTokens": 13998,
+        "cacheReadTokens": 287936,
+        "costUsd": null,
+        "totalTokens": 322887,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 20953,
+        "modelCallCount": 14,
+        "reportedCallCount": 14,
+        "reportedInputTokens": 308889
+      },
+      "evidenceSha256": "2c20045d465c5838b3e36d8125840ea2dc7c7335ea3fdce3f68f24f715a8e812",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":566,\"attemptRemainingMs\":899434,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=glm-5.3\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model glm-5.3 --model-timeout-ms 1800000 --attempt-remaining-ms 899434 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'I have provided a file called text.gcode. This is a gcode file for a Prusa MK4s. I'\"'\"'m trying to print some text onto an existing object. When I run the print, what will the text show? Write the output to /app/out.txt\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 875523,
+      "usage": {
+        "promptTokens": 1233633,
+        "completionTokens": 32154,
+        "cacheReadTokens": 1166784,
+        "costUsd": null,
+        "totalTokens": 1265787,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 66849,
+        "modelCallCount": 35,
+        "reportedCallCount": 35,
+        "reportedInputTokens": 1233633
+      },
+      "evidenceSha256": "a5529013d1a00fd65b576cc964df1789c014705fbe4e504e7ea6a1fd0015b5da",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/git-leak-recovery",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 85379,
+      "usage": {
+        "promptTokens": 129153,
+        "completionTokens": 1308,
+        "cacheReadTokens": 125504,
+        "costUsd": null,
+        "totalTokens": 130461,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 3649,
+        "modelCallCount": 11,
+        "reportedCallCount": 11,
+        "reportedInputTokens": 129153
+      },
+      "evidenceSha256": "6a69924795b254fbb93bc3524fae2137c0ccbda6e0d0c0f2f416d095409f748e",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/kv-store-grpc",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 91586,
+      "usage": {
+        "promptTokens": 167303,
+        "completionTokens": 1758,
+        "cacheReadTokens": 163648,
+        "costUsd": null,
+        "totalTokens": 169061,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 3655,
+        "modelCallCount": 14,
+        "reportedCallCount": 14,
+        "reportedInputTokens": 167303
+      },
+      "evidenceSha256": "3ea8d4523ed74b4790705321fd0c028560d46b8716955fa0a93656d7e430426e",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 804560,
+      "usage": {
+        "promptTokens": 1405196,
+        "completionTokens": 25502,
+        "cacheReadTokens": 1299584,
+        "costUsd": null,
+        "totalTokens": 1430698,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 105612,
+        "modelCallCount": 52,
+        "reportedCallCount": 52,
+        "reportedInputTokens": 1405196
+      },
+      "evidenceSha256": "20da040fecaa73996d5e184862476849a29cc80d31c5805513461c6bbbb9fa5a",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/log-summary-date-ranges",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 73588,
+      "usage": {
+        "promptTokens": 79643,
+        "completionTokens": 1720,
+        "cacheReadTokens": 74560,
+        "costUsd": null,
+        "totalTokens": 81363,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 5083,
+        "modelCallCount": 6,
+        "reportedCallCount": 6,
+        "reportedInputTokens": 79643
+      },
+      "evidenceSha256": "51cbd78328387e372fb4e13fd0047b2e7a60eee6b30d40410aa2e809ca0b7823",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/merge-diff-arc-agi-task",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 218540,
+      "usage": {
+        "promptTokens": 523857,
+        "completionTokens": 5789,
+        "cacheReadTokens": 510912,
+        "costUsd": null,
+        "totalTokens": 529646,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 12945,
+        "modelCallCount": 32,
+        "reportedCallCount": 32,
+        "reportedInputTokens": 523857
+      },
+      "evidenceSha256": "3906e2f9e46fb738739d84b3ef4e2596f5c43d498ae68a6d1e5d147d5da3a26e",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/modernize-scientific-stack",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 88170,
+      "usage": {
+        "promptTokens": 47253,
+        "completionTokens": 1421,
+        "cacheReadTokens": 44480,
+        "costUsd": null,
+        "totalTokens": 48674,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 2773,
+        "modelCallCount": 4,
+        "reportedCallCount": 4,
+        "reportedInputTokens": 47253
+      },
+      "evidenceSha256": "83e762e4e777862a8098799f22b520a9cbf446f747c58740a265fccb45afe762",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/multi-source-data-merger",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 153799,
+      "usage": {
+        "promptTokens": 90627,
+        "completionTokens": 4263,
+        "cacheReadTokens": 85120,
+        "costUsd": null,
+        "totalTokens": 94890,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 5507,
+        "modelCallCount": 7,
+        "reportedCallCount": 7,
+        "reportedInputTokens": 90627
+      },
+      "evidenceSha256": "67e9ffda4f89763ad26a836ef3fdaf2c3a9da40604c47d40a8ec3fe254bd0afb",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 141313,
+      "usage": {
+        "promptTokens": 328907,
+        "completionTokens": 3485,
+        "cacheReadTokens": 320192,
+        "costUsd": null,
+        "totalTokens": 332392,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 8715,
+        "modelCallCount": 22,
+        "reportedCallCount": 22,
+        "reportedInputTokens": 328907
+      },
+      "evidenceSha256": "f62e36ba18962b79453d3eef395a642adaaf03f64cafbd90331b6b3bbf36d027",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 769197,
+      "usage": {
+        "promptTokens": 649818,
+        "completionTokens": 33912,
+        "cacheReadTokens": 595648,
+        "costUsd": null,
+        "totalTokens": 683730,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 54170,
+        "modelCallCount": 16,
+        "reportedCallCount": 16,
+        "reportedInputTokens": 649818
+      },
+      "evidenceSha256": "4a5156b0333092a3b1bf224a385c255fab77dfcb79b65892168033a8677a61e2",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 492977,
+      "usage": {
+        "promptTokens": 465441,
+        "completionTokens": 22297,
+        "cacheReadTokens": 435968,
+        "costUsd": null,
+        "totalTokens": 487738,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 29473,
+        "modelCallCount": 15,
+        "reportedCallCount": 15,
+        "reportedInputTokens": 465441
+      },
+      "evidenceSha256": "1ffa7c9c5d0747421e8b1d16c50475c9085a5cee9d09002c1dc218637bda70c2",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 548605,
+      "usage": {
+        "promptTokens": 1738457,
+        "completionTokens": 15459,
+        "cacheReadTokens": 1654080,
+        "costUsd": null,
+        "totalTokens": 1753916,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 84377,
+        "modelCallCount": 24,
+        "reportedCallCount": 24,
+        "reportedInputTokens": 1738457
+      },
+      "evidenceSha256": "481914b9d63f690acf771fc8cf2fd90be0e283fd7995cc793240878e75a48065",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sqlite-db-truncate",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 253547,
+      "usage": {
+        "promptTokens": 187457,
+        "completionTokens": 12225,
+        "cacheReadTokens": 173120,
+        "costUsd": null,
+        "totalTokens": 199682,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 14337,
+        "modelCallCount": 12,
+        "reportedCallCount": 12,
+        "reportedInputTokens": 187457
+      },
+      "evidenceSha256": "984cd03841f1277432c535e20ac941628b816f1b32cd0d6239f44ee7bffd492a",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 112763,
+      "usage": {
+        "promptTokens": 176112,
+        "completionTokens": 2813,
+        "cacheReadTokens": 165824,
+        "costUsd": null,
+        "totalTokens": 178925,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 10288,
+        "modelCallCount": 11,
+        "reportedCallCount": 11,
+        "reportedInputTokens": 176112
+      },
+      "evidenceSha256": "7833e4fb0530a9f40b0ffd021024fdef3d8a911ac4dd497a888bab2150930589",
+      "batchId": "fh-batch-03"
+    }
+  ]
+}
