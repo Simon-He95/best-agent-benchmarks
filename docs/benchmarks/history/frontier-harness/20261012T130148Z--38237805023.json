@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.6-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "fcadbc133b865834a58745d5e83d92f9e5ee46d1",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 7,
+    "expectedEligible": 7,
+    "present": 7,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 2,
+    "failed": 5,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.2857142857142857,
+  "validCells": 7,
+  "passRateValidCells": 0.2857142857142857,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "7 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "7 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "7 records agree on one frozen candidate (cli-0.0.6-beta.1-fcadbc1-689044daa97d|0.0.6-beta.1|689044daa97d14b137987897ee70d4852149c8cfd26389daf782b424d218f834|57a1cb2a3ebb35d227f6862220225c04d9246bf7503aa7fe7262f521f790413c)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "7 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 7,
+    "promptTokens": 17646302,
+    "completionTokens": 222152,
+    "cacheReadTokens": 17121216,
+    "totalTokens": 17868454,
+    "modelCallCount": 373,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 9,
+        "f2p_passed": 9,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1121078,
+      "usage": {
+        "promptTokens": 6719707,
+        "completionTokens": 39873,
+        "cacheReadTokens": 6576576,
+        "costUsd": null,
+        "totalTokens": 6759580,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 143131,
+        "modelCallCount": 89,
+        "reportedCallCount": 89,
+        "reportedInputTokens": 6719707
+      },
+      "evidenceSha256": "22b716af634cd9871485e6b1b48670ee2ec9de83a572887465d3a89ae2be424f",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 657573,
+      "usage": {
+        "promptTokens": 3430004,
+        "completionTokens": 19055,
+        "cacheReadTokens": 3372672,
+        "costUsd": null,
+        "totalTokens": 3449059,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 57332,
+        "modelCallCount": 81,
+        "reportedCallCount": 81,
+        "reportedInputTokens": 3430004
+      },
+      "evidenceSha256": "ea83211c236e874d8aaa9242798bdebf358761fc6d2fab03824edf0221e7e82f",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 802481,
+      "usage": {
+        "promptTokens": 1440216,
+        "completionTokens": 35293,
+        "cacheReadTokens": 1366208,
+        "costUsd": null,
+        "totalTokens": 1475509,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 74008,
+        "modelCallCount": 42,
+        "reportedCallCount": 42,
+        "reportedInputTokens": 1440216
+      },
+      "evidenceSha256": "c8c5a797edbafd0212cdcd282e33bb1f442fb9936a94e457cd2ed701f41d1a7c",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1104511,
+      "usage": {
+        "promptTokens": 2710415,
+        "completionTokens": 46729,
+        "cacheReadTokens": 2605504,
+        "costUsd": null,
+        "totalTokens": 2757144,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 104911,
+        "modelCallCount": 60,
+        "reportedCallCount": 60,
+        "reportedInputTokens": 2710415
+      },
+      "evidenceSha256": "dc9b77ce3901893d3fed85bb02d88d968a0415525554f542c881fe4906aee663",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 807270,
+      "usage": {
+        "promptTokens": 1740189,
+        "completionTokens": 34672,
+        "cacheReadTokens": 1662208,
+        "costUsd": null,
+        "totalTokens": 1774861,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 77981,
+        "modelCallCount": 51,
+        "reportedCallCount": 51,
+        "reportedInputTokens": 1740189
+      },
+      "evidenceSha256": "56aea7edd27422e3943f95a42ae9a780801a3e8afe2b079ec73b5d7ac50a8e67",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 793153,
+      "usage": {
+        "promptTokens": 1356594,
+        "completionTokens": 38588,
+        "cacheReadTokens": 1297920,
+        "costUsd": null,
+        "totalTokens": 1395182,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 58674,
+        "modelCallCount": 35,
+        "reportedCallCount": 35,
+        "reportedInputTokens": 1356594
+      },
+      "evidenceSha256": "b2cb63f42b0522733cecbd4dc1e57d6c8c9449a808e2851e650a261a1c4e47a1",
+      "batchId": "recheck-38214103321"
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 227147,
+      "usage": {
+        "promptTokens": 249177,
+        "completionTokens": 7942,
+        "cacheReadTokens": 240128,
+        "costUsd": null,
+        "totalTokens": 257119,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 9049,
+        "modelCallCount": 15,
+        "reportedCallCount": 15,
+        "reportedInputTokens": 249177
+      },
+      "evidenceSha256": "bf68176e4c3f50136be4f3f133022a5937794980e30edcd35a6da61ad74b96dc",
+      "batchId": "recheck-38214103321"
+    }
+  ]
+}
