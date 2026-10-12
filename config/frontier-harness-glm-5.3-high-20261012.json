@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": false,
+  "kind": "formal-full-run",
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-12: \"用最新的best-agent构建产物来跑bench\" (run the bench on the newest best-agent build artifact). The request names no model and no effort, so this run declares the frozen profile's own default: glm-5.3 at reasoning effort high, which is also the profile run 37610731220 measured.",
+  "reason": "The newest best-agent build, on the profile's own model at the profile's own declared effort. main has moved from b5760d0f (0.0.4-beta.1, the candidate of run 37610731220) 46 commits to fcadbc13 (0.0.6-beta.1, origin/main's head on 2026-10-12), and that range is not inert: two model-visible instruction texts grew, the compact/handoff pipeline gained a handoff-head fact family, MCP tool input validation moved to Ajv, and the kernel's terminal-state and wake semantics changed. The frozen record for this corpus and effort is currently b5760d0f (18 passed / 12 failed / passAt1 0.6), so the picture would otherwise stand on a candidate that no longer exists. This run re-measures the same 30-task corpus at the same effort on the candidate that now exists. It is a new frozen profile and a new measurement, never a continuation or repair of an earlier one: no earlier verdict is reinterpreted or merged, and this run's pass@1 comes only from its own frozen report.",
+  "readingBoundary": "Relative to run 37610731220 (the same corpus, the same model, the same effort, the previous candidate) this run changes the candidate b5760d0f -> fcadbc13 and nothing else, so per-cell differences are that candidate delta plus run-to-run variance. The delta is not inert (two instruction texts, the compact/handoff pipeline, MCP input validation, kernel terminal-state/wake semantics are all model-visible or attempt-visible), so no difference may be read as a single-variable capability claim, and no earlier run is merged into this one's pass rate.",
+  "candidatePin": "config/frontier-harness.json#cli (sourceCommit fcadbc133b865834a58745d5e83d92f9e5ee46d1, cliVersion 0.0.6-beta.1, packageName @best-agent/cli-linux-x64-gnu, target linux-x64-gnu) — the workflow builds the Linux SEA itself and freezes its receipt in that run's own artifact (candidateId cli-0.0.6-beta.1-fcadbc1-<binarySha256[:12]>); the build is not byte-reproducible, so this run's binary hash differs from every earlier run's by design. fcadbc13 is origin/main's head and the newest commit on any branch or tag of the source repository (verified 2026-10-12: local main == origin/main == origin/HEAD == fcadbc13), and 0.0.6-beta.1 is the version literal apps/cli/package.json carries at that commit. Label note: the newest published npm build is 0.0.8-beta.1 (published 2026-10-12T05:48:04Z), whose source tree equals this commit plus that version-literal bump only (the bump is uncommitted in the source working tree); the harness builds its own Linux SEA from the pinned commit, so the candidate label follows the source literal at the pinned commit and the pinned code is the same code as the newest published artifact.",
+  "candidateDeltaAudit": {
+    "from": "b5760d0f9cc145cb3a74426fdfab7fc07ac832de (0.0.4-beta.1, the candidate of run 37610731220)",
+    "to": "fcadbc133b865834a58745d5e83d92f9e5ee46d1 (0.0.6-beta.1, origin/main HEAD)",
+    "size": "46 commits (0 merges), 414 changed files, +18,097/-28,969 lines (42 added / 226 modified / 146 deleted; the deletions are dominated by the specs/ retirement commit 32b9b95d)",
+    "method": "Read-only audit of the headless entry (apps/cli/src/index.ts:119-430 -> runV3Command) against the argv, environment and artifact contracts the benchmark actually uses (tools/frontier-harness-agent/frontier_harness_best_agent/__init__.py and scripts/frontier-harness-harness.mjs), plus a byte-level comparison of every top-level constant in the 39 non-test sources the range touches and a per-directory clustering of the commit range.",
+    "interfaceContract": "NO BLOCKING CHANGE. apps/cli/src/index.ts and apps/cli/src/v3-run-options.ts are byte-identical to b5760d0f, so every flag the plugin passes still exists with the same meaning and domain (--model, --model-timeout-ms, --attempt-remaining-ms, --workspace/--workspace-backend plain, --workspace-authorization unrestricted, --workspace-grant read/write/exec, --process-isolation host, --process-close-policy release, --command-policy path, --tool-exclude network, --attempt-evidence). provider.json's accepted field set is unchanged and still admits reasoningEffort high and max; the DIMCODE_HOME config.json + dimcode/auth.json paths and fields are unchanged. The evidence JSONL shape (apps/cli/src/v3-attempt-evidence.ts), the metrics write path (apps/cli/src/thread-usage-sink.ts) and the thread_metrics projection (packages/v3-thread-store/src/usage-accounting.ts:49-90) are byte-identical between the two commits (empty git diff), so the harness's per-call durations, model-failure classification and token accounting read the same bytes as in the previous run. No new required flag or environment variable was added. The thread-store schema rises 55 -> 56 and adds user_message_kind 'compact-continuation', but every task starts from its own storage root. The only run-path change is apps/cli/src/v3-run.ts (+31/-8, close/cleanup paths: closeAll failure reporting, host.close() in a finally block), which does not touch argv, env, evidence or usage.",
+    "promptAndContextComposition": "Exactly two model-visible instruction texts change in the whole range, and no tool description does: COMPACTED_CONTEXT_INSTRUCTION_TEXT (apps/cli/src/v3-prompt-composition.ts:85) 664 -> 953 bytes (sha256 04c391e5... -> e2d1d6c2...), which now tells a continued attempt to resume unfinished steps and to signal missing or stale facts instead of rebuilding files or worktrees; and WORKSPACE_TOOL_ROUTING_INSTRUCTION_TEXT (apps/cli/src/product-slices/workspace-tools.ts:60) 390 -> 698 bytes (sha256 4ac69142... -> 66f4d3a5...), which requires a read before a whole-file write, task-unique temporary paths and a preference for edit/apply_patch. TASK_MANAGEMENT_INSTRUCTION_TEXT and the coding skill (packages/capability-skill/src/coding.ts) are byte-identical, and the child-model set (apps/cli/src/v3-child-models.ts) is untouched. The compacted-context text is in the prompt whenever the compact slice is selected; the workspace text whenever a workspace tool is selected.",
+    "modelVisibleChanges": "Beyond the two instruction texts: the compact pipeline gained a handoff-head fact family and TIERED_COMPACT_HANDOFF_BYTES = 4,096 (apps/cli/src/tiered-compact.ts:675), the fold retry class now treats compact-busy/compact-timeout/not-found as may-still-land and adds the fold-wait-exhausted upper bound (apps/cli/src/product-slices/auto-compact.ts), a compact-continuation user message kind can appear (packages/v3-thread-store/src/schema.ts:88), MCP tool input validation moved from a hand-written checker to Ajv (packages/mcp-bindings/src/index.ts:74-110) so MCP admission and rejection results change, and the kernel's terminal status, Deadline aborts and wake delivery changed (v3/src/kernel/transition.ts, v3/src/agent.ts, v3/src/kernel/data.ts). New rejection rendering (apps/cli/src/owner-rejection-text.ts:34) is written to stderr only and never enters model input.",
+    "frozenQuantities": "The timeout and budget constants are byte-identical between the two commits (git rev-parse A:<file> B:<file> pairs equal): apps/cli/src/v3-run-options.ts (DEFAULT_MODEL_TIMEOUT_MS 900_000 at :94), apps/cli/src/v3-generation-manager.ts, apps/cli/src/v3-request-budget.ts, packages/model-binding-ai-sdk/src/index.ts, apps/cli/src/compact-application-contracts.ts, apps/cli/src/product-slices/workspace-private-foundation.ts, apps/cli/src/v3-execution-profile.ts, v3/src/plan.ts and packages/capability-context-management/src/index.ts. AUTO_COMPACT_TRIGGER_RATIO (0.85), AUTO_COMPACT_POLL_DEADLINE_MS and COMPACT_ROUND_BOUND_MS are unchanged. The per-call ceiling the run materializes is still the frozen 1,800,000 ms.",
+    "reading": "The candidate is not inert: a task model can observe two different instruction texts and a different compact/handoff pipeline, and an attempt can meet different MCP admission results and different kernel terminal/wake semantics. The timeout, evidence and usage-accounting paths that produced every measured latency and token figure are byte-identical, and the per-call ceiling is unchanged. Any verdict difference against run 37610731220 must be read as this delta plus run-to-run variance."
+  },
+  "corpusPin": {
+    "profileId": "frontier-harness-v1.0-e837a70b",
+    "datasetCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "taskCount": 30,
+    "batchPlan": "config/frontier-harness-batches.json exact-covers the frozen corpus in corpus order (3 tracked batches, 30 unique tasks); the corpus, the per-suite task sources, the batch plan and the pier pin are untouched."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "high is the effort this run declares, it is the frozen profile's own default and one of the two efforts the profile names for glm-5.3, and it is the effort run 37610731220 ran. The materializer accepts exactly the profile's declared options and refuses anything else, so the profile and the declared option set cannot drift apart. The run pins high through the workflow's own fh_reasoning_effort input, and every per-task record transcribes the effort it actually materialized."
+  },
+  "providerSwitchAudit": {
+    "whatChanged": "None. This run declares exactly the provider profile of run 37610731220: kind openai, model glm-5.3, reasoningEffort high, baseURL https://dimagent.cn/v1, compatibilityMode compatible, transportProfile dim-oauth. No config edit, no materializer edit and no credential-identity change is part of this run.",
+    "evidenceOfPrecedent": "glm-5.3 at high is the effort runs 36092882496 and 37610731220 both declared, and {glm-5.3: [max, high]} is already on the admitted (model, effort) list in scripts/materialize-frontier-provider.mjs, so this run needs no new admission and no config edit could admit an unlisted pair. The CI credential was re-synced from the local dimcode OAuth login on 2026-10-12T06:19Z before dispatch (BENCHMARK_PROVIDER_API_KEY timestamp 2026-10-12T06:19:19Z) and its JWT expires 2026-10-19T06:19Z, which covers the run window.",
+    "whatDidNotChange": "The credential source, the base URL, the compatibility mode, the transport profile, the runner, the corpus, the batch plan, the execution profile, the budgets, the agent timeout multiplier and the per-call ceiling."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": 1,
+    "fh_max_parallel": 3,
+    "fh_batch": "glm-5.3-high-20261012"
+  },
+  "knownRisks": {
+    "providerTransport": "A provider transport failure is not retried inside the run: it costs the cell its verdict exactly as measured before. The historical per-call ceiling deaths under glm-5.3 (polyglot-c-py, regex-log at 840.021s on beta.37/beta.38) belong to a 840,000 ms ceiling that no longer exists; the frozen ceiling here is 1,800,000 ms.",
+    "ecrThrottle": "Kept at fh_max_parallel=3, the width at which the previous two full runs had zero ECR image-pull throttles; a recurrence would be a pre-model environment failure with no attempt and no verdict.",
+    "budgetExhausted": "The long datacurve cells approach their official 5400s agent budget, and four cells of run 37610731220 ended with terminalCause=stopped inside the candidate's own attempt-budget window (three of them also carrying a provider transport failure). No budget is extended to make a cell scoreable.",
+    "specificationGaps": "Three corpus tasks carry a declared specification gap (httpx-multipart-response-parsing, fastapi-deprecation-response-headers, meriyah-explicit-resource-declarations); their verdicts are real but are excluded from capability comparisons.",
+    "credentialExpiry": "BENCHMARK_PROVIDER_API_KEY is the rotating dim OAuth JWT; every Generate job verifies the credential at materialization before any attempt. It was re-synced on 2026-10-12 and expires 2026-10-19T06:19Z, after the expected end of this run.",
+    "smokeGate": "No full run is dispatched until a single-task smoke has proven the new candidate builds, delivery-verifies, materializes glm-5.3 at high and reaches the model phase with frozen evidence.",
+    "interfaceAudit": "The candidate's argv/env/evidence/metrics contract was audited before dispatch (see candidateDeltaAudit.interfaceContract); the audit found no blocking change, and the smoke remains the mechanical gate. The audit is static (blob/diff comparison plus source reading): it did not build or run the CLI, so the smoke is the first execution evidence."
+  },
+  "constraints": [
+    "One predeclared headless attempt per task, all 30 Docker-eligible corpus tasks, one frozen candidate, the official agent and verifier budgets preserved (fh_agent_timeout_multiplier=1) and never extended.",
+    "This run's pass@1 comes only from its own frozen aggregate report. It is never merged with run 37610731220, with run 36092882496, or with any other run or diagnostic batch, and it replaces or reinterprets none of their verdicts.",
+    "No condition is changed to make the run scoreable: the per-call ceiling, the budgets and the declared effort stay exactly as the frozen composition declares them.",
+    "The corpus, the per-suite task sources, the batch plan, the execution profile and the pier pin are untouched: only the candidate pin changes.",
+    "Nothing is published to main; the change and this manifest live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against run 37610731220 cell by cell (the candidate delta); mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate.",
+  "dispatched": false
+}
