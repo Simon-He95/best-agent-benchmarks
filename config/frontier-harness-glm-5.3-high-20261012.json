@@ -119,5 +119,9 @@
     "result": "The task PASSED (disposition passed, 619,648 ms, 1,074,695 in / 1,027,136 cache / 31,781 out tokens, 27 model calls, reward 1), and the acceptance block reads candidate.single passed (cli-0.0.6-beta.1-fcadbc1-797c4161836d; binary sha256 797c4161836d183debe0636c6a8da311b4215e9f913b3c78dbf071b13c72140c, receipt hash 686900303c788fa9a684aff9625b7545a7e88e017d85e5cb219732a50b7e5585), provider.single passed (model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
     "gateReading": "The two things this smoke existed to prove are mechanically proven: the new candidate (0.0.6-beta.1 / fcadbc13, built and run as cli-0.0.6-beta.1-fcadbc1-797c4161836d) builds, delivery-verifies and runs on the Docker runner, and glm-5.3 serves a real task attempt at reasoning effort high through the dim-oauth credential, with frozen evidence and accounted tokens. The attempt alone took 619.6s at this effort, against 328s for the same cell on 0.0.4-beta.1/b5760d0f and 115.5s under deepseek-v4-flash; one cell on a different candidate is not a speed measurement, and only the full run's own wall clock can say what this one cannot. It says nothing about the 30-task corpus and is never merged anywhere."
   },
-  "dispatched": false
+  "dispatched": true,
+  "runId": 38214103321,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/38214103321",
+  "dispatchedAt": "2026-10-12T06:45:29Z",
+  "dispatchHeadSha": "da57eafe47d3661e2bccefde98e9d1ee57197eb9"
 }
