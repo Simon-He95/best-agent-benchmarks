@@ -141,5 +141,10 @@
     "smokeGate": "No separate smoke is run for this batch: the candidate, the corpus, the effort and the grader are the ones run 39104093096 and its preceding recovery already executed end-to-end, and the two cells here are being re-attempted for an infrastructure reason that a smoke would not change."
   },
   "plannedChecks": "After the report artifact is downloaded: the two cells' dispositions against their two earlier measurements, mechanical attribution of any verdict-less outcome and whether the 429 recurs, evidence sha256 checks against the records where a verdict exists, a local byte-for-byte recomputation of the aggregate report, the acceptance block for a 2-task subset, usage and per-call durations.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 39173982888,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39173982888",
+  "dispatchedAt": "2026-10-18T22:50:38Z",
+  "dispatchHeadSha": "00778ef13ace5a454b5dc51dce6d935670a9558b",
+  "dispatchNote": "Unlike the preceding batch, the freeze commit was pushed before dispatch, so this run's own headSha (00778ef13ace5a454b5dc51dce6d935670a9558b) is exactly the commit that contains this manifest: the freeze and the dispatch are one identity, and the run's checked-out tree carries the same config/frontier-harness.json#cli pin (02117de8c / 0.0.11-beta.1) this manifest declares."
 }
