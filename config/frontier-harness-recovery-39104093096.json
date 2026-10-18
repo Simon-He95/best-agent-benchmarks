@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-ecr-throttle-39104093096-20261018",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A five-cell recovery cannot produce a pass@1 of its own, and per AGENTS.md a recovery is never merged into a formal run. Run 39104093096 keeps its own frozen record unchanged (19 passed / 6 failed / 5 error / 0 not-evaluated, verdicts.complete failed on the five verdict-less cells, passAt1 null). This batch attempts to fill exactly those five cells and replaces none of the run's other 25 verdicts.",
+  "requestedBy": "User, 2026-10-18: \"先冻结 recovery manifest，再派发这 5 格的 recovery 批次（需要你授权触发 CI）\" — freeze this manifest first, then dispatch the recovery batch for the five cells that the ECR throttle left without a verdict. The authorization to trigger CI is explicit in that message. It follows the same standing policy the earlier ECR recoveries applied (2026-10-01: \"环境和上游繁忙失败的任务，重跑仍然是公平的，可以作为正确的结果\").",
+  "sourceRun": {
+    "runId": 39104093096,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39104093096",
+    "headSha": "5d668da3b8dcf93dedbf5ad876136dda3cefbfe8",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T134012Z--39104093096.json",
+    "frozenRecordSha256": "836d893c4acd44769cac71f785fdbc9ecfce16d88f5fdde7bd6eba86d11b7aec",
+    "candidateId": "cli-0.0.11-beta.1-02117de-7e4677bee677",
+    "outcome": "30 of 30 corpus tasks present; 19 passed / 6 failed / 5 error / 0 not-evaluated; validCells 25, passRate 0.6333333333333333, passRateValidCells 0.76, verdicts.complete failed on the 5 error cells, so scoreable=false, capabilityMeasurement=false, passAt1=null. Its own failure analysis: byStage {infra 5, provider 4, model 2} over 11 not-passed records.",
+    "intentManifest": "config/frontier-harness-glm-5.3-high-20261018.json (frozen before dispatch, headSha 5d668da3, candidatePin 02117de8c / 0.0.11-beta.1; its knownRisks.ecrThrottle declared this exact failure class in advance)."
+  },
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure (or an explicit provider transport failure). All five cells admitted here carry disposition=error with no verdict, no rewards object, no usage record and no attempt evidence at all, so there is no prediction to overwrite. The six cells of run 39104093096 that do carry a verdict are listed under notAdmitted and are never touched.",
+    "preModelEnvironmentFailure": {
+      "class": "pre-model environment failure (public.ecr.aws anonymous pull throttle, HTTP 429)",
+      "tasks": [
+        "datacurve/anko-typed-variable-bindings",
+        "datacurve/httpx-multipart-response-parsing",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "perCell": [
+        {
+          "task": "datacurve/anko-typed-variable-bindings",
+          "record": "results/frontier-harness-results.anko-typed-variable-bindings.json in artifact frontier-harness-report-39104093096, sha256 1e915190a0f6a9f610efb184d607351a4ece72d1cfc945616c9f97b8643937f8",
+          "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 5405, pierExitCode 0, pierStderr empty (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855), artifacts limited to pierResult/pierResultSha256/candidate — no agent evidence, no stdout/stderr file, no usage, no rewards.",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1",
+          "failedAt": "2026-10-18T06:29:48Z (its own Generate job log)",
+          "quotedCause": "docker compose ... build: load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:... failed: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded"
+        },
+        {
+          "task": "datacurve/httpx-multipart-response-parsing",
+          "record": "results/frontier-harness-results.httpx-multipart-response-parsing.json, sha256 268de68cdf1b6af2c5f8297ddcb8c987b3e23fdb9f962d5bc0e6ae9cbe6e6a5e",
+          "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 6848, pierExitCode 0, pierStderr empty, artifacts limited to pierResult/pierResultSha256/candidate — no attempt evidence.",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1",
+          "failedAt": "2026-10-18T07:17:51Z",
+          "quotedCause": "same 429 too many requests / Data limit exceeded shape on the same ECR repository",
+          "specificationGapNote": "This task is one of the profile's three declared specification gaps; if the recovered attempt lands a verdict, that verdict is still a specification-gap reading and is excluded from capability comparisons."
+        },
+        {
+          "task": "datacurve/katex-multicolumn-array-spans",
+          "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json, sha256 ef66f8c98b83f5d6f6d926f9fd70dae40205ea29eeb9555c4002a21f7b63a2a1",
+          "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 6472, pierExitCode 0, pierStderr empty, artifacts limited to pierResult/pierResultSha256/candidate — no attempt evidence.",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+          "failedAt": "2026-10-18T07:18:24Z",
+          "quotedCause": "same 429 too many requests / Data limit exceeded shape on the same ECR repository"
+        },
+        {
+          "task": "datacurve/meriyah-explicit-resource-declarations",
+          "record": "results/frontier-harness-results.meriyah-explicit-resource-declarations.json, sha256 b56ebed8c7062571550d7685fa7c8831b8d417510f694ce3db6c8378c0ad2836",
+          "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 4615, pierExitCode 0, pierStderr empty, artifacts limited to pierResult/pierResultSha256/candidate — no attempt evidence.",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1",
+          "failedAt": "2026-10-18T07:18:52Z",
+          "quotedCause": "same 429 too many requests / Data limit exceeded shape on the same ECR repository",
+          "specificationGapNote": "Declared specification gap; a recovered verdict stays a specification-gap reading and is excluded from capability comparisons."
+        },
+        {
+          "task": "datacurve/python-statemachine-state-data-scoping",
+          "record": "results/frontier-harness-results.python-statemachine-state-data-scoping.json, sha256 98737c213a92598a3f4595cea67085c2d621e2d41965d91c25c62181fd1dd883",
+          "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 4807, pierExitCode 0, pierStderr empty, artifacts limited to pierResult/pierResultSha256/candidate — no attempt evidence.",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1",
+          "failedAt": "2026-10-18T07:19:45Z",
+          "quotedCause": "same 429 too many requests / Data limit exceeded shape on the same ECR repository"
+        }
+      ],
+      "independentReRead": "The five records were extracted byte-exact from the run's own artifact (zip range extraction over the API; gh run download truncated on this link) and re-read locally; each carries result.disposition=error, result.exception.type=RuntimeError with a message containing both '429 Too Many Requests' and 'Data limit exceeded', no evidence artifact, and no reviewer-visible model request. The freeze record docs/benchmarks/history/frontier-harness/20261018T134012Z--39104093096.json (sha256 836d893c...) transcribes the same facts, and the run's own failures.md quotes the compose error in full.",
+      "whyNotTheModelOrTheCandidate": "Nothing ran. The failure is the GitHub-hosted runner's Docker client being refused by public.ecr.aws while building the task image, before the container existed: no provider call, no tool call, no attempt evidence file, and no usage record in any of the five cells (the run's usage block covers 25 of 30 tasks precisely because these five never reached an attempt).",
+      "notAWindowOutage": "Intermittent, not a window-wide outage: arktype (started 06:29:21Z), expr (06:29:22Z) and fastapi (06:29:57Z) pulled images from the same ECR repository successfully in the same hours, and scc started 07:19:53Z — eight seconds after python-statemachine's failure — and succeeded as well."
+    },
+    "notAdmitted": [
+      {
+        "tasks": [
+          "terminal-bench/extract-elf",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval",
+          "terminal-bench/regex-log"
+        ],
+        "why": "All four carry a real graded prediction in run 39104093096 (disposition=failed with verifier reward 0 on a delivered workspace), so no prediction may be replaced. Their reward 0 is not clean capability evidence — each carries an explicit provider transport model-failure entry in its own evidence (extract-elf 1315 ms, largest-eigenval 297116 ms, regex-log 719406 ms, gcode-to-text 52137 ms plus a second 120002 ms failure in its delivery Run, which then ended run-deadline) — but that is the class a declared re-measurement addresses, not the class AGENTS.md:13 admits as a recovery refill: a recovery fills a cell that has no prediction, and these have one.",
+        "oneAttemptRule": "Each already has exactly one graded attempt; re-running them would be a second chance at an already-scored cell. No such batch is created here."
+      },
+      {
+        "tasks": ["datacurve/expr-try-catch-errors", "terminal-bench/dna-insert"],
+        "why": "Graded model failures with no environment event whatsoever: both attempts finished with terminalCause=completed and zero model-failure entries (expr 152/152 model outcomes, f2p 78/79, p2p 66265/66265; dna-insert 30/30, reward 0). These are real capability verdicts and are neither refilled nor re-measured."
+      },
+      {
+        "tasks": ["terminal-bench/regex-log"],
+        "why": "Repeated here for the reading boundary rather than as an admission question: the same cell passed in this candidate's own smoke run 39102625666 (571,084 ms, reward 1) an hour before this run, and failed here on a transport failure. Its run verdict stands; nothing about it is refilled by this batch."
+      }
+    ]
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "cliVersion": "0.0.11-beta.1",
+    "note": "Identical to the candidate of run 39104093096, so this is a same-candidate recovery. The SEA build is not byte-reproducible: this batch's CI-built binary carries its own receipt (cli-0.0.11-beta.1-02117de-<binarySha256[:12]>), as run 39104093096's own binary (7e4677bee677...) differs from the same commit's smoke build (e3b107f9e957...)."
+  },
+  "compositionDeltasVsSourceRun": {
+    "concurrency": "fh_max_parallel 3 -> 1. All five cells build images from public.ecr.aws, the service that refused them, so the batch runs serially — the composition the earlier ECR recovery chose for the same reason (config/frontier-harness-recovery-36711152110.json) and the only composition in which this throttle has never been reproduced. This changes CI-side scheduling only: it adjusts no task condition, no model, no instruction and no budget.",
+    "everythingElse": "Unchanged: the corpus pin (frontier-harness-eval/eval e837a70b, 30 Docker-eligible tasks), the task sources, the pier pin (0.3.1), the provider (glm-5.3 at reasoning effort high through dim-oauth, https://dimagent.cn/v1, compatible), fh_agent_timeout_multiplier=1, every declared per-task agent budget (5400s for these five) and the per-call ceiling (1,800,000 ms).",
+    "ecrContext": "A read-only probe from this machine at 2026-10-18T13:52Z (anonymous token for repository d3j8x8q7/swe-bench-202605 plus a manifest request) returned HTTP 200 for one of the five images, so the registry is serving this repository and the run's 429s were source-specific throttling rather than a repository-wide block. The probe cannot speak for the GitHub runner's own egress IP, and no claim is made that the throttle is gone."
+  },
+  "constraints": [
+    "Only the five named no-verdict cells are attempted; every verdict of run 39104093096 (19 passed, 6 failed) and of every other run is preserved and never replaced, repaired or reinterpreted.",
+    "Same candidate and same run composition: config/frontier-harness.json#cli stays pinned at 02117de8c, fh_reasoning_effort=high, fh_agent_timeout_multiplier=1, the same corpus and the same official grader (pier 0.3.1 with the task's own verifier), so each cell is measured under the run's own effort, budgets and grader.",
+    "One predeclared headless attempt per cell; nothing is retried inside the batch, and if a cell dies again without a verdict it stays verdict-less (no second dispatch is made on the strength of this manifest — a further attempt would need its own frozen manifest and fresh authorization).",
+    "The failed evidence of run 39104093096 is preserved: its artifacts, its frozen record and its manifest are unchanged by this batch.",
+    "Run 39104093096 keeps passAt1=null: this batch refills cells and repairs no pass@1, and its outcomes are never merged into the run's rate.",
+    "Nothing is published to main; this manifest and its outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/anko-typed-variable-bindings,datacurve/httpx-multipart-response-parsing,datacurve/katex-multicolumn-array-spans,datacurve/meriyah-explicit-resource-declarations,datacurve/python-statemachine-state-data-scoping",
+    "fh_limit": "5",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-ecr-throttle-39104093096-20261018"
+  },
+  "dispatched": false
+}
