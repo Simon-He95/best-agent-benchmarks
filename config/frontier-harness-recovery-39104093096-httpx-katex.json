@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-ecr-throttle-39104093096-httpx-katex-20261019",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A two-cell recovery cannot produce a pass@1 of its own, and per AGENTS.md a recovery is never merged into a formal run. Run 39104093096 keeps its own frozen record unchanged (19 passed / 6 failed / 5 error at freeze time, verdicts.complete failed, passAt1 null), and the preceding recovery batch 39136019625 keeps its own record (2 passed / 1 failed / 2 error). This batch attempts to fill the two cells that are still without a verdict and replaces nothing.",
+  "requestedBy": "User, 2026-10-19: \"那就冻结新清单，对 httpx 和 katex 这两个无判定格做第三次尝试\" — freeze a new manifest and make a third attempt for the two cells that still carry no verdict, httpx-multipart-response-parsing and katex-multicolumn-array-spans. The previous manifest declared that a further attempt would need its own frozen manifest and fresh authorization; this manifest is that freeze and the user's message is that authorization.",
+  "attemptLedger": {
+    "note": "These two cells have never been graded and have never reached a model call: both prior attempts died in the task-image pull, before the container existed. This batch is the third and last attempt for each of them in this task.",
+    "datacurve/httpx-multipart-response-parsing": [
+      {
+        "attempt": 1,
+        "run": 39104093096,
+        "record": "results/frontier-harness-results.httpx-multipart-response-parsing.json in artifact frontier-harness-report-39104093096, sha256 268de68cdf1b6af2c5f8297ddcb8c987b3e23fdb9f962d5bc0e6ae9cbe6e6a5e",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 6848, no evidence artifact, no usage; ECR 429 at 2026-10-18T07:17:51Z"
+      },
+      {
+        "attempt": 2,
+        "run": 39136019625,
+        "record": "results/frontier-harness-results.httpx-multipart-response-parsing.json in artifact frontier-harness-report-39136019625, sha256 bc282b2267b7df2d0f254b7cd2e69cf92243f14767a6d308d3b822fa006483c5",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 4078, no evidence artifact, no usage; ECR 429 at 2026-10-18T14:57:42Z"
+      },
+      { "attempt": 3, "run": "this batch" }
+    ],
+    "datacurve/katex-multicolumn-array-spans": [
+      {
+        "attempt": 1,
+        "run": 39104093096,
+        "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39104093096, sha256 ef66f8c98b83f5d6f6d926f9fd70dae40205ea29eeb9555c4002a21f7b63a2a1",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 6472, no evidence artifact, no usage; ECR 429 at 2026-10-18T07:18:24Z"
+      },
+      {
+        "attempt": 2,
+        "run": 39136019625,
+        "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39136019625, sha256 b36b426b46b123d4747e9658199b92971a4780437f51ac267327aaadea3bdd2f",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 4728, no evidence artifact, no usage; ECR 429 at 2026-10-18T14:58:15Z"
+      },
+      { "attempt": 3, "run": "this batch" }
+    ]
+  },
+  "sourceRun": {
+    "runId": 39104093096,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39104093096",
+    "headSha": "5d668da3b8dcf93dedbf5ad876136dda3cefbfe8",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T134012Z--39104093096.json",
+    "frozenRecordSha256": "836d893c4acd44769cac71f785fdbc9ecfce16d88f5fdde7bd6eba86d11b7aec",
+    "candidateId": "cli-0.0.11-beta.1-02117de-7e4677bee677",
+    "outcome": "30 of 30 corpus tasks present; 19 passed / 6 failed / 5 error / 0 not-evaluated; verdicts.complete failed on the five error cells, so scoreable=false, capabilityMeasurement=false, passAt1=null. Five cells were left without any verdict by the ECR throttle; this batch addresses the last two of them."
+  },
+  "precedingRecovery": {
+    "runId": 39136019625,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39136019625",
+    "headSha": "d02d16777f85a47aa4d8b9dfba89d598dc143b06",
+    "manifest": "config/frontier-harness-recovery-39104093096.json",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T175320Z--39136019625.json",
+    "frozenRecordSha256": "cd7fb27d7fb776b3906fd5ef99f59c898af500a2b983cd564854bc938d21c371",
+    "batchLabel": "recovery-ecr-throttle-39104093096-20261018",
+    "candidateId": "cli-0.0.11-beta.1-02117de-eb00dcced4c9",
+    "outcome": "2 passed / 1 failed / 2 error over its five predeclared cells: anko-typed-variable-bindings filled with passed (f2p 9/9, p2p 94/94, 93/93 model outcomes, zero model failures), python-statemachine-state-data-scoping filled with passed (f2p 72/72, p2p 1286/1286, attempt ran to the 5400s budget boundary and carries one transport model-failure), meriyah-explicit-resource-declarations filled with failed (f2p 48/49, the declared specification-gap task). The remaining two — httpx-multipart-response-parsing and katex-multicolumn-array-spans — were refused by public.ecr.aws again, 429, before any model call (see attemptLedger), and by that manifest's own constraint were not retried inside it.",
+    "precedingRecoveryOwnAttempts": "That batch was the second attempt for these two cells, run serially at fh_max_parallel=1; three of its five cells pulled images from the same ECR repository successfully in the same hours (anko, meriyah, python-statemachine), which is why the throttle is read as a per-request quota event rather than a repository- or window-wide block."
+  },
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure (or an explicit provider transport failure). Both cells admitted here carry disposition=error with no rewards object, no usage record, no model request and no evidence artifact in two independent runs, so there is no prediction to overwrite. Every other cell of the corpus carries a canonical verdict and is listed under notAdmitted.",
+    "preModelEnvironmentFailure": {
+      "class": "pre-model environment failure (public.ecr.aws anonymous pull throttle, HTTP 429)",
+      "tasks": [
+        "datacurve/httpx-multipart-response-parsing",
+        "datacurve/katex-multicolumn-array-spans"
+      ],
+      "perCell": [
+        {
+          "task": "datacurve/httpx-multipart-response-parsing",
+          "asMeasured": "In run 39136019625: disposition=error, exception.type=RuntimeError, durationMs 4078, artifacts limited to pierResult/pierResultSha256/candidate (no evidence, no stdout/stderr, no usage) — the model was never called. The exception message contains '429 Too Many Requests', 'toomanyrequests' and 'Data limit exceeded'; its Generate job logged the failure at 2026-10-18T14:57:42Z. The same shape holds in run 39104093096 (durationMs 6848, 07:17:51Z).",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1",
+          "imageSize": "857.4 MiB over 26 layers (read from the registry on 2026-10-18T22:53Z), the second largest of the five throttled-or-recovered datacurve images",
+          "specificationGapNote": "This task is one of the profile's three declared specification gaps; if the recovered attempt lands a verdict, that verdict is a specification-gap reading and is excluded from capability comparisons."
+        },
+        {
+          "task": "datacurve/katex-multicolumn-array-spans",
+          "asMeasured": "In run 39136019625: same shape as httpx — disposition=error, RuntimeError, durationMs 4728, no evidence artifact, no usage; exception message contains the three 429 markers; its Generate job logged the failure at 2026-10-18T14:58:15Z. Same shape in run 39104093096 (durationMs 6472, 07:18:24Z).",
+          "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+          "imageSize": "975.1 MiB over 28 layers, the largest of the five"
+        }
+      ],
+      "independentReRead": "Both per-task records were extracted byte-exact from the preceding batch's own artifact (frontier-harness-report-39136019625; zip range extraction over the API) and re-read locally: each carries disposition=error, a RuntimeError whose message contains all three 429 markers, no evidence member anywhere in that artifact's jobs/ tree for the cell, and no usage block. The batch's report.json extracted with them is byte-identical to its frozen record (cmp clean), and its own failures.md quotes the compose 429 output.",
+      "whyNotTheModelOrTheCandidate": "Nothing ran: no provider call, no tool call, no container, no attempt evidence and no usage in either attempt of either cell. The failure is the GitHub-hosted runner's Docker client being refused by public.ecr.aws while building the task image, which is the host environment the task container is created in — the class AGENTS.md admits.",
+      "whyOneMoreAttemptIsNotRepetition": "The mechanism is a shared public-registry quota, not a property of the cell that a repeat measurement would confirm: it is keyed to the anonymous-pull quota of whichever runner IP issues the request, and each Generate job runs on a different GitHub-hosted runner. Three of the five cells in the preceding serial batch pulled images from the same ECR repository successfully in the same hours, including the third-largest image (meriyah, 876.2 MiB), so neither the repository nor the image size is a deterministic blocker; the two repeatedly-failed cells are simply the two largest images (975.1 and 857.4 MiB of 749.5-975.1 MiB across the five), and a larger pull is the likelier candidate for a data-quota refusal. A third draw therefore still measures the environment rather than the cell, which is the same reasoning the 2026-10-01 ECR recovery used when its own third attempt also succeeded ('a shared-quota throttle on a public registry ... a third measurement of a quota event therefore still measures the environment').",
+      "lastAttempt": "This is declared as the last attempt for these two cells in this task, mirroring the same precedent's constraint: if either cell dies pre-model again it keeps no verdict, the corpus reading keeps it verdict-less, and no further dispatch is made."
+    },
+    "notAdmitted": [
+      {
+        "why": "Every other cell of the 30-task corpus now carries a canonical verdict, so no prediction may be replaced by this or any batch: run 39104093096's own 19 passed and 6 failed (extract-elf, gcode-to-text, largest-eigenval by provider transport; expr-try-catch-errors and dna-insert on their merits; regex-log by provider transport), plus the three cells the preceding recovery filled — anko-typed-variable-bindings (passed, f2p 9/9) and python-statemachine-state-data-scoping (passed, f2p 72/72) and meriyah-explicit-resource-declarations (failed, f2p 48/49, declared specification gap).",
+        "oneAttemptRule": "Each of those cells already has exactly one graded attempt, and a recovery refills only a cell that has no prediction at all."
+      }
+    ]
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "cliVersion": "0.0.11-beta.1",
+    "note": "Identical to the candidate of run 39104093096 and of the preceding recovery batch, so this remains a same-candidate recovery. The SEA build is not byte-reproducible: this batch's CI-built binary carries its own receipt (cli-0.0.11-beta.1-02117de-<binarySha256[:12]>), as the source run's binary (7e4677bee677...) and the preceding batch's (eb00dcced4c9...) differ from each other by design."
+  },
+  "compositionDeltasVsSourceRun": {
+    "concurrency": "fh_max_parallel 3 -> 1, the same serial composition the preceding recovery used. It changes CI-side scheduling only and adjusts no task condition, model, instruction, budget or grader.",
+    "everythingElse": "Unchanged: the corpus pin (frontier-harness-eval/eval e837a70b, 30 Docker-eligible tasks), the task sources, the pier pin (0.3.1), the provider (glm-5.3 at reasoning effort high through dim-oauth, https://dimagent.cn/v1, compatible), fh_agent_timeout_multiplier=1, every declared per-task agent budget (5400s for both cells) and the per-call ceiling (1,800,000 ms). No mitigation is added to the pull path: the workflow and the harness are byte-identical to the source run's, so a verdict this batch produces is measured under exactly the composition the source run declared.",
+    "ecrContext": "Read-only probes from this machine on 2026-10-18T22:49-22:53Z: an anonymous pull token for repository d3j8x8q7/swe-bench-202605 plus manifest requests returned HTTP 200 for both images, and their layer sizes are recorded above. The probe cannot speak for a GitHub runner's egress IP and is not evidence that the throttle is gone; it only confirms the registry is serving these images to someone right now.",
+    "credentialState": "BENCHMARK_PROVIDER_API_KEY was last set on 2026-10-12T06:19:19Z (gh secret list) and the local dimcode OAuth login it was synced from carries exp 1792390751 = 2026-10-19T06:19:11Z, still valid for about 7.5 hours at freeze time (read 2026-10-18T22:48Z). Two datacurve cells at a 5400s budget with serial generation fit inside that window; the materializer refuses an expired token at generation time, so an overrun would surface as a pre-model credential failure and not as a verdict."
+  },
+  "constraints": [
+    "Only these two no-verdict cells are attempted; every verdict of run 39104093096, of the preceding recovery batch 39136019625 and of every other run is preserved and never replaced, repaired or reinterpreted.",
+    "Same candidate and same run composition: config/frontier-harness.json#cli stays pinned at 02117de8c, fh_reasoning_effort=high, fh_agent_timeout_multiplier=1, the same corpus and the same official grader (pier 0.3.1 with the task's own verifier).",
+    "One predeclared headless attempt per cell, and this is the last one: nothing is retried inside the batch, and if a cell dies pre-model again it stays verdict-less with no further dispatch.",
+    "The failed evidence of run 39104093096 and of run 39136019625 is preserved: their artifacts, frozen records and manifests are unchanged by this batch.",
+    "Neither run keeps a pass@1 and neither is changed by this batch: recovery fills cells and repairs nothing, and this batch's outcomes are never merged into any rate.",
+    "Nothing is published to main; this manifest and its outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/httpx-multipart-response-parsing,datacurve/katex-multicolumn-array-spans",
+    "fh_limit": "2",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-ecr-throttle-39104093096-httpx-katex-20261019"
+  },
+  "expectedTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans"
+  ],
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 2 Generate jobs + 1 Aggregate = 6; serial generation, expected wall clock up to about 3.5 hours.",
+  "knownRisks": {
+    "ecrThrottle": "The same shared-quota throttle may strike again; the cell then keeps no verdict, the corpus reading keeps it verdict-less and, per this manifest, no further attempt is made.",
+    "providerTransport": "A transport death would leave the cell without a clean verdict in the same way; run 39104093096 measured four such cells and the preceding batch one more.",
+    "credentialExpiry": "The dim OAuth JWT expires 2026-10-19T06:19:11Z; a batch that ran past it would fail at provider materialization, before any model call.",
+    "budget": "Two datacurve tasks at 5400s each: the expected window is up to about 3.5 hours, and the official budgets are never extended.",
+    "smokeGate": "No separate smoke is run for this batch: the candidate, the corpus, the effort and the grader are the ones run 39104093096 and its preceding recovery already executed end-to-end, and the two cells here are being re-attempted for an infrastructure reason that a smoke would not change."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the two cells' dispositions against their two earlier measurements, mechanical attribution of any verdict-less outcome and whether the 429 recurs, evidence sha256 checks against the records where a verdict exists, a local byte-for-byte recomputation of the aggregate report, the acceptance block for a 2-task subset, usage and per-call durations.",
+  "dispatched": false
+}
