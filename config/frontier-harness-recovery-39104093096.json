@@ -128,5 +128,10 @@
     "fh_max_parallel": "1",
     "fh_batch": "recovery-ecr-throttle-39104093096-20261018"
   },
-  "dispatched": false
+  "dispatched": true,
+  "runId": 39136019625,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39136019625",
+  "dispatchedAt": "2026-10-18T14:26:48Z",
+  "dispatchHeadSha": "d02d16777f85a47aa4d8b9dfba89d598dc143b06",
+  "dispatchNote": "gh workflow run --ref fh/usage-accounting-proof resolved the ref to the remote branch head d02d16777f85a47aa4d8b9dfba89d598dc143b06 at dispatch time (the freeze commit of this manifest, 34e9cac5bf5d76a99115225eb760ac7ff45e19cb, was still local-only, and it is published to the same branch after this dispatch). The two commits are byte-identical in everything this batch consumes: git diff d02d167 34e9cac -- config/frontier-harness.json .github/workflows/frontier-harness.yml is empty, and config/frontier-harness.json#cli reads cliVersion 0.0.11-beta.1 / sourceCommit 02117de8c8a53205dc1bff53269178148115cf38 at d02d167 exactly as this manifest declares. The batch therefore ran the same candidate, the same effort, the same budgets and the same grader the manifest froze."
 }
