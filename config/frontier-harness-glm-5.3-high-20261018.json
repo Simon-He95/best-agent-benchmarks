@@ -100,5 +100,24 @@
     "terminal-bench/sqlite-db-truncate",
     "terminal-bench/vulnerable-secret"
   ],
-  "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against run 38214103321 cell by cell (the candidate delta); mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate."
+  "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against run 38214103321 cell by cell (the candidate delta); mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate.",
+  "smoke": {
+    "runId": 39102625666,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39102625666",
+    "headSha": "47d6f445b6b5720f361723ce8c626c9f101f364e",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "glm-5.3-high-0.0.11-smoke-20261018"
+    },
+    "window": "2026-10-18T06:02:32Z -> 2026-10-18T06:14:32Z (12m00s); all five jobs green: corpus 12s, candidate build + delivery verification 1m45s, plan 10s, the single Generate job 9m58s, aggregate report 11s",
+    "result": "The task PASSED (disposition passed, reward 1, attempt durationMs 571,084, 359,019 in / 328,704 cache / 17,411 out tokens, 14 model calls, 14/14 model outcomes, terminalCause completed, attemptBudgetMs 900,000 with wrapperElapsedMs 600 and modelTimeoutMs 1,800,000), and the acceptance block reads candidate.single passed (cli-0.0.11-beta.1-02117de-e3b107f9e957; binary sha256 e3b107f9e957b710ac03b6a37755dcaa2c8272f6631c1a300b658514e725b339, receipt hash 1386ee8eb5ee18932776b7b08d227189c82433865e4a24239345b42611b1a64a), provider.single passed (model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "The two things this smoke existed to prove are mechanically proven: the new candidate (0.0.11-beta.1 / 02117de8c, built and run as cli-0.0.11-beta.1-02117de-e3b107f9e957) builds, delivery-verifies and runs on the Docker runner with its four staged runtime dependencies, and glm-5.3 serves a real task attempt at reasoning effort high through the dim-oauth credential, with frozen evidence and accounted tokens. The same cell took 619,648 ms on 0.0.6-beta.1/fcadbc13 in the previous smoke and 571,084 ms here; one cell is not a speed measurement, and only the full run's own wall clock can say what this one cannot. It says nothing about the 30-task corpus and is never merged anywhere."
+  }
 }
