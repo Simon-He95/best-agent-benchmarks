@@ -124,5 +124,137 @@
   "runId": 39104093096,
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39104093096",
   "dispatchedAt": "2026-10-18T06:27:25Z",
-  "dispatchHeadSha": "5d668da3b8dcf93dedbf5ad876136dda3cefbfe8"
+  "dispatchHeadSha": "5d668da3b8dcf93dedbf5ad876136dda3cefbfe8",
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T134012Z--39104093096.json",
+  "frozenRecordSha256": "836d893c4acd44769cac71f785fdbc9ecfce16d88f5fdde7bd6eba86d11b7aec",
+  "outcome": {
+    "present": 30,
+    "passed": 19,
+    "failed": 6,
+    "error": 5,
+    "notEvaluated": 0,
+    "validCells": 25,
+    "passRate": 0.6333333333333333,
+    "passRateValidCells": 0.76,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "passAt1": null,
+    "passAt1Reason": "Five predeclared cells carry no verdict at all: their Docker image pull was refused with HTTP 429 before any model call, so `verdicts.complete` failed (30 present, 0 missing, 5 error, 0 not-evaluated) and the run cannot support a pass@1. The visible readings are the raw rate 19/30 = 63.3% and the valid-cell rate 19/25 = 76.0%; neither is published as pass@1, neither enters any leaderboard or field comparison, and nothing here is merged into or read against run 38214103321's 0.60.",
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "failed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "acceptanceDetail": {
+      "coverage.full": "30 of 30 Docker-eligible corpus tasks were predeclared",
+      "verdicts.complete": "30 present, 0 missing, 5 error, 0 not-evaluated",
+      "candidate.single": "30 records agree on one frozen candidate (cli-0.0.11-beta.1-02117de-7e4677bee677|0.0.11-beta.1|7e4677bee6771ee57ae3667a7e83faa14a4764ccfdb3a60232e026ab62865ebe|ccacad5d63e341ec8c79fbf6183e2bbf3855cbe882e211a60ef37bbbc7336e00)",
+      "provider.single": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3",
+      "instructions.frozen": "30 records match the frozen instruction hash of their task"
+    },
+    "runWindow": "2026-10-18T06:27:25Z -> 2026-10-18T08:41:35Z (2h14m10s); 34 of 34 jobs green at the workflow level (3 freeze + 30 Generate + 1 Aggregate), no cancelled or failed job; dispatch headSha 5d668da3b8dcf93dedbf5ad876136dda3cefbfe8.",
+    "candidateId": "cli-0.0.11-beta.1-02117de-7e4677bee677",
+    "candidateNote": "30 records agree on one candidate (source commit 02117de8c8a53205dc1bff53269178148115cf38, cliVersion 0.0.11-beta.1); the record's second hash is candidateManifestSha256 ccacad5d63e341ec8c79fbf6183e2bbf3855cbe882e211a60ef37bbbc7336e00. The binary is not byte-reproducible across builds, so this hash belongs to this run alone: the same commit's smoke build (run 39102625666) delivered e3b107f9e957b710ac03b6a37755dcaa2c8272f6631c1a300b658514e725b339.",
+    "usage": "25 of 30 tasks reported usage (the five verdict-less cells never reached an attempt): promptTokens 77,751,759, cacheReadTokens 75,789,888, completionTokens 648,673, totalTokens 78,400,432, modelCallCount 914, costUsd null. Total agent wall clock over all 30 records 370.6 minutes.",
+    "budgetExhausted": "The report's own budget-exhausted count is 0 and no per-task record carries budgetExhausted=true: Pier's AgentTimeoutError never fired, and every record's agentTimeoutMultiplier is 1 with its per-task effectiveAgentTimeoutSec equal to the baseline run's value for the same task (600/900/1200/1800/5400). No budget was extended, and no cell was retried to make the run scoreable.",
+    "infraCells": {
+      "count": 5,
+      "tasks": [
+        "datacurve/anko-typed-variable-bindings",
+        "datacurve/httpx-multipart-response-parsing",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "reading": "Every one of the five records carries result.disposition=error with result.exception.type=RuntimeError and no evidence artifact at all (artifacts.evidence is absent, and so is failures.json's evidenceSha256), so no model call was ever made: these are pre-model environment failures, not task failures and not capability signals. The exception text is the same shape in all five (failures.md quotes it in full): `docker compose ... build` failed to load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:<tag>-v1.1 with `429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded`. Recorded durations 5405/6848/6472/4615/4807 ms in the task order above; the failure instants read from each Generate job's own log line are anko 2026-10-18T06:29:48Z, httpx 07:17:51Z, katex 07:18:24Z, meriyah 07:18:52Z, python-statemachine 07:19:45Z.",
+      "notAWindowOutage": "The throttle is intermittent rather than a window-wide outage: arktype (started 06:29:21Z), expr (06:29:22Z) and fastapi (06:29:57Z) all pulled an image from the same ECR repository successfully in the same hours, and scc started at 07:19:53Z — eight seconds after python-statemachine's failure — and also succeeded. Four of the five cells were queued into the 07:17:51Z-07:19:45Z span, which is when the limit bit; anko is the outlier that failed at the very start of the run.",
+      "matchesDeclaredRisk": "This is exactly what this manifest's knownRisks.ecrThrottle declared in advance: 'a recurrence would be a pre-model environment failure with no attempt and no verdict'. fh_max_parallel stayed at the declared 3, and no throttle was observed under that width in the two previous full runs."
+    },
+    "failedCells": [
+      "datacurve/expr-try-catch-errors",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval",
+      "terminal-bench/regex-log"
+    ],
+    "failureStages": {
+      "source": "failures.json#byStage of this run's own report artifact (infra 5 / provider 4 / model 2 over 30 records, 11 not passed); every classification below was re-read from the cell's own evidence file, and each extracted evidence file's sha256 was checked against both its per-task record's artifacts.evidenceSha256 and failures.json's evidenceSha256, with every footer reporting complete=true and expectedCounts == writtenCounts.",
+      "infra": {
+        "count": 5,
+        "tasks": [
+          "datacurve/anko-typed-variable-bindings",
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/meriyah-explicit-resource-declarations",
+          "datacurve/python-statemachine-state-data-scoping"
+        ],
+        "reading": "Pre-model ECR 429 throttle (see infraCells): disposition error, no attempt, no verdict, no capability content. They are the only verdict-less cells of the run and the whole reason passAt1 is null."
+      },
+      "provider": {
+        "count": 4,
+        "tasks": [
+          "terminal-bench/extract-elf",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval",
+          "terminal-bench/regex-log"
+        ],
+        "reading": "Each cell's evidence carries model-failure entries whose failure.reason is 'transport' and whose primary Run ends stopped (status cancelled, stopFlag false): extract-elf 1,315 ms, largest-eigenval 297,116 ms, regex-log 719,406 ms. gcode-to-text carries two — 52,137 ms in the primary Run and 120,002 ms in the delivery Run, whose terminalCause is run-deadline (status failed); the other three deliveries terminated completed. The verifier graded the delivered state reward 0 in all four. Those verdicts are canonical and were not retried, but their reward 0 is not clean capability evidence."
+      },
+      "model": {
+        "count": 2,
+        "tasks": [
+          "datacurve/expr-try-catch-errors",
+          "terminal-bench/dna-insert"
+        ],
+        "reading": "Both attempts ran to completion with zero model-failure entries: expr-try-catch-errors 152 model requests / 152 outcomes / 0 failures and terminalCause completed, graded f2p 78/79 and p2p 66,265/66,265; dna-insert 30/30/0 and completed, graded reward 0 (its verifier.delivery reads unknown, so the delivery stage's own status is not proven, while the attempt itself ended normally). These are real capability verdicts."
+      }
+    },
+    "comparisonToBaseline38214103321": {
+      "baseline": "run 38214103321 (2026-10-12): the same corpus, the same model glm-5.3 at the same reasoning effort high, candidate 0.0.6-beta.1 / fcadbc13, 18 passed / 12 failed / 0 error / 0 not-evaluated, passAt1 0.60.",
+      "comparableCells": 25,
+      "notComparable": {
+        "count": 5,
+        "reason": "no verdict in this run (the ECR-throttled infra cells)",
+        "tasks": [
+          "datacurve/anko-typed-variable-bindings",
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/meriyah-explicit-resource-declarations",
+          "datacurve/python-statemachine-state-data-scoping"
+        ]
+      },
+      "gains": [
+        "terminal-bench/build-cython-ext (failed -> passed; provider transport in the baseline)",
+        "terminal-bench/chess-best-move (failed -> passed; inconclusive in the baseline)",
+        "terminal-bench/code-from-image (failed -> passed; provider transport in the baseline)",
+        "terminal-bench/polyglot-c-py (failed -> passed; inconclusive in the baseline)",
+        "terminal-bench/sanitize-git-repo (failed -> passed; model in the baseline)"
+      ],
+      "losses": [
+        "datacurve/expr-try-catch-errors (passed -> failed, model; f2p 79/79 -> 78/79, p2p 66,265/66,265 unchanged)",
+        "terminal-bench/regex-log (passed -> failed, provider transport; the same cell passed in this candidate's own smoke run 39102625666 at 571,084 ms an hour earlier, so its reward 0 here is not capability evidence)"
+      ],
+      "unchanged": {
+        "bothPassed": 14,
+        "bothFailed": 4,
+        "note": "Both-failed: dna-insert, extract-elf, gcode-to-text, largest-eigenval. Both-passed: arktype, fastapi, scc, constraints-scheduling, db-wal-recovery, git-leak-recovery, kv-store-grpc, log-summary-date-ranges, merge-diff-arc-agi-task, modernize-scientific-stack, multi-source-data-merger, openssl-selfsigned-cert, sqlite-db-truncate, vulnerable-secret."
+      },
+      "reading": "On the 25-cell comparable subset this run passes 19/25 = 76.0% against the baseline's 16/25 = 64.0%, net +3 cells (5 gains, 2 losses, 18 unchanged). The comparison is a three-way composite by construction — a 261-commit candidate delta whose model-visible changes are documented in candidateDeltaAudit, this run's ECR throttle, and run-to-run variance — so no capability claim is read from it, and the two runs' headline rates (63.3% vs 60.0% raw) are not comparable at all, because five of this run's cells have no attempt. Neither run's number is merged into the other's."
+    },
+    "speedReading": "Median wall clock per PASSED cell 281.6s (4m42s) against 234.2s (3m54s) for run 38214103321; mean per passed cell 767.2s against 912.5s. Total agent wall clock 370.6 min against 515.2 min; modelCallCount 914 against 1,793; totalTokens 78,400,432 against 184,021,330. The totals are not like-for-like: this run has five cells with no attempt at all and five fewer cells that reported usage, while its pass set shifted toward the long datacurve cells (arktype 3,534s, fastapi 2,808s, scc 2,384s of the 19 passes).",
+    "datacurveFailToPass": "271/272 over the four datacurve cells that were actually graded (arktype 25/25, expr 78/79, fastapi 137/137, scc 31/31); the other five datacurve cells had no attempt in this run, so this figure covers 4 of 9 datacurve cells and is not comparable to the baseline's 604/618 over nine.",
+    "reportReproducibility": "scripts/frontier-harness-report.mjs re-run locally over this run's thirty frozen per-task records, its own corpus artifact and its own expected-tasks.txt (--formal) reproduces the artifact's report.json byte-for-byte (sha256 836d893c4acd44769cac71f785fdbc9ecfce16d88f5fdde7bd6eba86d11b7aec). A second, separately written recount (not importing that script) rechecks the disposition tally, coverage, candidate/model/effort uniqueness, instruction hashes, usage sums and every perTask entry's disposition/durationMs/rewards/evidenceSha256/batchId against the thirty records and agrees on all of them.",
+    "evidence": "Artifact frontier-harness-report-39104093096 (report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the thirty frozen per-task records and their raw evidence under jobs/; 81,776,568 bytes) plus the thirty per-task artifacts frontier-harness-task-39104093096-<task> (3,329,712,337 bytes); the run's 33 artifacts total 3,519,757,347 bytes. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261018T134012Z--39104093096.json (sha256 836d893c4acd44769cac71f785fdbc9ecfce16d88f5fdde7bd6eba86d11b7aec, byte-identical to the artifact's report.json) with the Chinese record 20261018T134012Z--39104093096.md beside it. The record's own generatedAt is 2026-10-18T13:40:12Z and lives in the history file name and in that Chinese record, because report.json itself carries no timestamp field.",
+    "recoveryEligibility": "No recovery was dispatched and no cell was retried. The five infra cells are pre-model environment failures whose source evidence is mechanical (each Generate job's own error record and CI log), which is the condition the repository's recovery clause admits; filling them would need a recovery manifest frozen before that batch, the same candidate, the same effort and the same grader, the failed evidence preserved, and no existing prediction replaced. Triggering any GitHub benchmark run needs explicit user authorization, which this run does not carry.",
+    "boundaries": [
+      "Diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard.",
+      "This run has no passAt1: five predeclared cells carry no verdict because their image pull was throttle-rejected before the model ran. The raw 63.3% and valid-cell 76.0% are disclosed as visible readings only.",
+      "Four of the six failures that do carry a verdict were cut off by a provider transport failure before the model finished (and gcode-to-text's delivery Run then died on run-deadline), so their reward 0 is not read as clean capability evidence; the two model-stage failures are real capability verdicts.",
+      "No verdict of any earlier run is replaced, merged or reinterpreted; this run's comparison with 38214103321 is a candidate delta plus the throttle plus run-to-run variance, never a single-variable capability reading.",
+      "No condition was changed to make the run scoreable and no cell was retried: the budgets, the per-call ceiling (1,800,000 ms), fh_agent_timeout_multiplier=1 and the declared effort stay exactly as the frozen composition declares them."
+    ]
+  }
 }

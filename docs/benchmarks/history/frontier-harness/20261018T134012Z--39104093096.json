@@ -1,0 +1,775 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.11-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": true,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 30,
+    "expectedEligible": 30,
+    "present": 30,
+    "missing": [],
+    "fullExpected": true
+  },
+  "results": {
+    "passed": 19,
+    "failed": 6,
+    "error": 5,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.6333333333333333,
+  "validCells": 25,
+  "passRateValidCells": 0.76,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "passed",
+      "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "failed",
+      "detail": "30 present, 0 missing, 5 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "30 records agree on one frozen candidate (cli-0.0.11-beta.1-02117de-7e4677bee677|0.0.11-beta.1|7e4677bee6771ee57ae3667a7e83faa14a4764ccfdb3a60232e026ab62865ebe|ccacad5d63e341ec8c79fbf6183e2bbf3855cbe882e211a60ef37bbbc7336e00)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "30 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 25,
+    "promptTokens": 77751759,
+    "completionTokens": 648673,
+    "cacheReadTokens": 75789888,
+    "totalTokens": 78400432,
+    "modelCallCount": 914,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/anko-typed-variable-bindings. Command: docker compose --project-name pier-task__gcqhvbz --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/anko-typed-variable-bindings/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmp4_wvslh2/pier-task__GCQHvBZ-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/anko-typed-variable-bindings/fh-39104093096-anko-typed-variable-bindings/pier-task__GCQHvBZ/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 714B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B 0.0s done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-2770cc051fd27154\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfe"
+      },
+      "durationMs": 5405,
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 25,
+        "f2p_passed": 25,
+        "p2p_total": 1679,
+        "p2p_passed": 1679,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3533965,
+      "usage": {
+        "promptTokens": 16830049,
+        "completionTokens": 87789,
+        "cacheReadTokens": 16553600,
+        "costUsd": null,
+        "totalTokens": 16917838,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 276449,
+        "modelCallCount": 149,
+        "reportedCallCount": 149,
+        "reportedInputTokens": 16830049
+      },
+      "evidenceSha256": "f50bf3fd8ad609414e6ddb7928c191858daf11c5aa29b0b1e6e3b65f037759dc",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 79,
+        "f2p_passed": 78,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 0.9873417721518988,
+        "p2p": 1,
+        "partial": 0.999984927046907
+      },
+      "durationMs": 3197600,
+      "usage": {
+        "promptTokens": 24055237,
+        "completionTokens": 76557,
+        "cacheReadTokens": 23475648,
+        "costUsd": null,
+        "totalTokens": 24131794,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 579589,
+        "modelCallCount": 152,
+        "reportedCallCount": 152,
+        "reportedInputTokens": 24055237
+      },
+      "evidenceSha256": "e886dff1019c0a7b1afc81ae1772db5bba42aaf6666af1fdf8de9cc4f9ac7332",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 137,
+        "f2p_passed": 137,
+        "p2p_total": 3134,
+        "p2p_passed": 3134,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2808223,
+      "usage": {
+        "promptTokens": 9067421,
+        "completionTokens": 80665,
+        "cacheReadTokens": 8912320,
+        "costUsd": null,
+        "totalTokens": 9148086,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 155101,
+        "modelCallCount": 96,
+        "reportedCallCount": 96,
+        "reportedInputTokens": 9067421
+      },
+      "evidenceSha256": "34ae4af40666673a231540da78d15def2e0eb5fbf1d92341ec7c70ab8d40312b",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/httpx-multipart-response-parsing. Command: docker compose --project-name pier-task__nnknhur --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/httpx-multipart-response-parsing/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmptw49c39w/pier-task__NnKnHuR-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/httpx-multipart-response-parsing/fh-39104093096-httpx-multipart-response-parsing/pier-task__NnKnHuR/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 730B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 30B\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-2770cc051fd27154\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public."
+      },
+      "durationMs": 6848,
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/katex-multicolumn-array-spans. Command: docker compose --project-name pier-task__cvqwbxe --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmp08xtv_27/pier-task__CvQwbXE-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/fh-39104093096-katex-multicolumn-array-spans/pier-task__CvQwbXE/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 718B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-2770cc051fd27154\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67"
+      },
+      "durationMs": 6472,
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/meriyah-explicit-resource-declarations. Command: docker compose --project-name pier-task__7m2vaup --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/meriyah-explicit-resource-declarations/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmpofhdemfe/pier-task__7m2vAUP-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/meriyah-explicit-resource-declarations/fh-39104093096-meriyah-explicit-resource-declarations/pier-task__7m2vAUP/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 754B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-2770cc051fd27154\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/"
+      },
+      "durationMs": 4615,
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/python-statemachine-state-data-scoping. Command: docker compose --project-name pier-task__rxvqhxe --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/python-statemachine-state-data-scoping/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmpqv8mrq6v/pier-task__RXVqhXE-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/python-statemachine-state-data-scoping/fh-39104093096-python-statemachine-state-data-scoping/pier-task__RXVqhXE/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 754B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-2770cc051fd27154\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/"
+      },
+      "durationMs": 4807,
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 31,
+        "f2p_passed": 31,
+        "p2p_total": 286,
+        "p2p_passed": 286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 2384228,
+      "usage": {
+        "promptTokens": 14859558,
+        "completionTokens": 71961,
+        "cacheReadTokens": 14675776,
+        "costUsd": null,
+        "totalTokens": 14931519,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 183782,
+        "modelCallCount": 117,
+        "reportedCallCount": 117,
+        "reportedInputTokens": 14859558
+      },
+      "evidenceSha256": "8e539615ed99bbc8c7054de85a85d522d10a05d088dac30136a0b4c0092b6316",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 804275,
+      "usage": {
+        "promptTokens": 2612369,
+        "completionTokens": 20113,
+        "cacheReadTokens": 2527296,
+        "costUsd": null,
+        "totalTokens": 2632482,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 85073,
+        "modelCallCount": 63,
+        "reportedCallCount": 63,
+        "reportedInputTokens": 2612369
+      },
+      "evidenceSha256": "9d66c30337b605757820d910c5614d2e4a15d7ae634fb29f11e1b4da383147ac",
+      "batchId": "fh-batch-01"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 830392,
+      "usage": {
+        "promptTokens": 670043,
+        "completionTokens": 34901,
+        "cacheReadTokens": 605376,
+        "costUsd": null,
+        "totalTokens": 704944,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 64667,
+        "modelCallCount": 29,
+        "reportedCallCount": 29,
+        "reportedInputTokens": 670043
+      },
+      "evidenceSha256": "db21e6c0514579443cf9103c41bf2229f654837e4a37570a6a6b0b8240714a87",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 1047755,
+      "usage": {
+        "promptTokens": 991172,
+        "completionTokens": 42552,
+        "cacheReadTokens": 932608,
+        "costUsd": null,
+        "totalTokens": 1033724,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 58564,
+        "modelCallCount": 32,
+        "reportedCallCount": 32,
+        "reportedInputTokens": 991172
+      },
+      "evidenceSha256": "30d634b1e067fe1d2c1b02f65186ab1f8ecb2d6f8652d0c2f11aba2dc8477ca7",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/constraints-scheduling",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 121648,
+      "usage": {
+        "promptTokens": 55207,
+        "completionTokens": 3817,
+        "cacheReadTokens": 49280,
+        "costUsd": null,
+        "totalTokens": 59024,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 5927,
+        "modelCallCount": 4,
+        "reportedCallCount": 4,
+        "reportedInputTokens": 55207
+      },
+      "evidenceSha256": "d95a9979296ac4ca67bd465adb23c047813c06970023d546c563adab05d5d0ab",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 222228,
+      "usage": {
+        "promptTokens": 526683,
+        "completionTokens": 6706,
+        "cacheReadTokens": 471360,
+        "costUsd": null,
+        "totalTokens": 533389,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 55323,
+        "modelCallCount": 10,
+        "reportedCallCount": 10,
+        "reportedInputTokens": 526683
+      },
+      "evidenceSha256": "4c79be272c53c5981956a9fd9847b5c94dca8f6131c9c0cfe340164a3cd150bd",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1137020,
+      "usage": {
+        "promptTokens": 2371460,
+        "completionTokens": 46534,
+        "cacheReadTokens": 2195136,
+        "costUsd": null,
+        "totalTokens": 2417994,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 176324,
+        "modelCallCount": 30,
+        "reportedCallCount": 30,
+        "reportedInputTokens": 2371460
+      },
+      "evidenceSha256": "0cd63297bb374375a624b879f4fe08447c91440764e8788562de81e8743d1391",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 800159,
+      "usage": {
+        "promptTokens": 187975,
+        "completionTokens": 33969,
+        "cacheReadTokens": 145792,
+        "costUsd": null,
+        "totalTokens": 221944,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 42183,
+        "modelCallCount": 10,
+        "reportedCallCount": 10,
+        "reportedInputTokens": 187975
+      },
+      "evidenceSha256": "b802aa11aaff8879b7c1b81737dd1a1a2bddc0fc804b5e8da8792c39f542a796",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":638,\"attemptRemainingMs\":899362,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=glm-5.3\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model glm-5.3 --model-timeout-ms 1800000 --attempt-remaining-ms 899362 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'I have provided a file called text.gcode. This is a gcode file for a Prusa MK4s. I'\"'\"'m trying to print some text onto an existing object. When I run the print, what will the text show? Write the output to /app/out.txt\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 875048,
+      "usage": {
+        "promptTokens": 998933,
+        "completionTokens": 25894,
+        "cacheReadTokens": 945792,
+        "costUsd": null,
+        "totalTokens": 1024827,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 53141,
+        "modelCallCount": 32,
+        "reportedCallCount": 32,
+        "reportedInputTokens": 998933
+      },
+      "evidenceSha256": "d3077efd6a07a8fbe6692aa339a00873fd5d38d56b9a61caaf18afef5b544799",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/git-leak-recovery",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 402134,
+      "usage": {
+        "promptTokens": 168200,
+        "completionTokens": 16317,
+        "cacheReadTokens": 146816,
+        "costUsd": null,
+        "totalTokens": 184517,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 21384,
+        "modelCallCount": 9,
+        "reportedCallCount": 9,
+        "reportedInputTokens": 168200
+      },
+      "evidenceSha256": "929a0f22b41cb8c308595dd8aa5696f03a9fcdfcea4f82ab8ca364a3d483c5c5",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/kv-store-grpc",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 116891,
+      "usage": {
+        "promptTokens": 188623,
+        "completionTokens": 1857,
+        "cacheReadTokens": 184256,
+        "costUsd": null,
+        "totalTokens": 190480,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 4367,
+        "modelCallCount": 15,
+        "reportedCallCount": 15,
+        "reportedInputTokens": 188623
+      },
+      "evidenceSha256": "636d94831239875f8b2aee02fd022827e4fcf6e3a58534968d77cfc6be4c3c5a",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 771963,
+      "usage": {
+        "promptTokens": 297970,
+        "completionTokens": 18571,
+        "cacheReadTokens": 268544,
+        "costUsd": null,
+        "totalTokens": 316541,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 29426,
+        "modelCallCount": 12,
+        "reportedCallCount": 12,
+        "reportedInputTokens": 297970
+      },
+      "evidenceSha256": "470b78baf3a826140c8d9605ec9334acaba0007b70a25d3e1f8513ba2032dff1",
+      "batchId": "fh-batch-02"
+    },
+    {
+      "task": "terminal-bench/log-summary-date-ranges",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 97861,
+      "usage": {
+        "promptTokens": 185958,
+        "completionTokens": 2165,
+        "cacheReadTokens": 176576,
+        "costUsd": null,
+        "totalTokens": 188123,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 9382,
+        "modelCallCount": 11,
+        "reportedCallCount": 11,
+        "reportedInputTokens": 185958
+      },
+      "evidenceSha256": "c222c5cc4ffb2ab1550ba09a1bac1c7773021bbead7a3eb4e7b2c78dad9b12ba",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/merge-diff-arc-agi-task",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 702245,
+      "usage": {
+        "promptTokens": 1902735,
+        "completionTokens": 24474,
+        "cacheReadTokens": 1853824,
+        "costUsd": null,
+        "totalTokens": 1927209,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 48911,
+        "modelCallCount": 49,
+        "reportedCallCount": 49,
+        "reportedInputTokens": 1902735
+      },
+      "evidenceSha256": "5f84382cced059cbda44f969836fd3adec7c229ed124587717ea2b3181b3454f",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/modernize-scientific-stack",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 80375,
+      "usage": {
+        "promptTokens": 61221,
+        "completionTokens": 1267,
+        "cacheReadTokens": 58176,
+        "costUsd": null,
+        "totalTokens": 62488,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 3045,
+        "modelCallCount": 5,
+        "reportedCallCount": 5,
+        "reportedInputTokens": 61221
+      },
+      "evidenceSha256": "dee1ca5edc5fdb0d283504d7de7d096acd6bbf333b63dc9d6ad0d1cf2e0a9882",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/multi-source-data-merger",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 143135,
+      "usage": {
+        "promptTokens": 77927,
+        "completionTokens": 3842,
+        "cacheReadTokens": 72832,
+        "costUsd": null,
+        "totalTokens": 81769,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 5095,
+        "modelCallCount": 6,
+        "reportedCallCount": 6,
+        "reportedInputTokens": 77927
+      },
+      "evidenceSha256": "f1292c80b35a7e9d093f58f676888214adc34c31218c69402da34aa648918b46",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 207662,
+      "usage": {
+        "promptTokens": 383907,
+        "completionTokens": 6521,
+        "cacheReadTokens": 368832,
+        "costUsd": null,
+        "totalTokens": 390428,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 15075,
+        "modelCallCount": 23,
+        "reportedCallCount": 23,
+        "reportedInputTokens": 383907
+      },
+      "evidenceSha256": "eaf3ef08a98ba0aa4a4b18721fcabc9d50a495fbecc72376c0615f81f8de2437",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 262649,
+      "usage": {
+        "promptTokens": 229790,
+        "completionTokens": 8449,
+        "cacheReadTokens": 219712,
+        "costUsd": null,
+        "totalTokens": 238239,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 10078,
+        "modelCallCount": 14,
+        "reportedCallCount": 14,
+        "reportedInputTokens": 229790
+      },
+      "evidenceSha256": "087171afc6b4d8fb5d32ff6b58db2a685b65fff97e23b2c686bc5fb23e1ecd97",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 846678,
+      "usage": {
+        "promptTokens": 585,
+        "completionTokens": 4034,
+        "cacheReadTokens": 0,
+        "costUsd": null,
+        "totalTokens": 4619,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 585,
+        "modelCallCount": 1,
+        "reportedCallCount": 1,
+        "reportedInputTokens": 585
+      },
+      "evidenceSha256": "a6c82e0ba7cba00725b38061036289c3c98e33602075d1630875994d06c03bad",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 281647,
+      "usage": {
+        "promptTokens": 546092,
+        "completionTokens": 8645,
+        "cacheReadTokens": 500096,
+        "costUsd": null,
+        "totalTokens": 554737,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 45996,
+        "modelCallCount": 20,
+        "reportedCallCount": 20,
+        "reportedInputTokens": 546092
+      },
+      "evidenceSha256": "68bfcb29b4c645d14c7586b782babf22e7ccab4d63d6883cbafe78cd53da2e26",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/sqlite-db-truncate",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 402559,
+      "usage": {
+        "promptTokens": 313126,
+        "completionTokens": 17609,
+        "cacheReadTokens": 292800,
+        "costUsd": null,
+        "totalTokens": 330735,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 20326,
+        "modelCallCount": 14,
+        "reportedCallCount": 14,
+        "reportedInputTokens": 313126
+      },
+      "evidenceSha256": "e7ab9911ff11a344ff21e3a10eeb93d2941a7b637ea54329d091a69c46227d7f",
+      "batchId": "fh-batch-03"
+    },
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 126853,
+      "usage": {
+        "promptTokens": 169518,
+        "completionTokens": 3464,
+        "cacheReadTokens": 157440,
+        "costUsd": null,
+        "totalTokens": 172982,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 12078,
+        "modelCallCount": 11,
+        "reportedCallCount": 11,
+        "reportedInputTokens": 169518
+      },
+      "evidenceSha256": "0354af9bdf8204c5bc8ada76652ef9765286995e63b05103f206b15406496c31",
+      "batchId": "fh-batch-03"
+    }
+  ]
+}
