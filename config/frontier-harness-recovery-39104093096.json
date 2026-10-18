@@ -133,5 +133,92 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39136019625",
   "dispatchedAt": "2026-10-18T14:26:48Z",
   "dispatchHeadSha": "d02d16777f85a47aa4d8b9dfba89d598dc143b06",
-  "dispatchNote": "gh workflow run --ref fh/usage-accounting-proof resolved the ref to the remote branch head d02d16777f85a47aa4d8b9dfba89d598dc143b06 at dispatch time (the freeze commit of this manifest, 34e9cac5bf5d76a99115225eb760ac7ff45e19cb, was still local-only, and it is published to the same branch after this dispatch). The two commits are byte-identical in everything this batch consumes: git diff d02d167 34e9cac -- config/frontier-harness.json .github/workflows/frontier-harness.yml is empty, and config/frontier-harness.json#cli reads cliVersion 0.0.11-beta.1 / sourceCommit 02117de8c8a53205dc1bff53269178148115cf38 at d02d167 exactly as this manifest declares. The batch therefore ran the same candidate, the same effort, the same budgets and the same grader the manifest froze."
+  "dispatchNote": "gh workflow run --ref fh/usage-accounting-proof resolved the ref to the remote branch head d02d16777f85a47aa4d8b9dfba89d598dc143b06 at dispatch time (the freeze commit of this manifest, 34e9cac5bf5d76a99115225eb760ac7ff45e19cb, was still local-only, and it is published to the same branch after this dispatch). The two commits are byte-identical in everything this batch consumes: git diff d02d167 34e9cac -- config/frontier-harness.json .github/workflows/frontier-harness.yml is empty, and config/frontier-harness.json#cli reads cliVersion 0.0.11-beta.1 / sourceCommit 02117de8c8a53205dc1bff53269178148115cf38 at d02d167 exactly as this manifest declares. The batch therefore ran the same candidate, the same effort, the same budgets and the same grader the manifest froze.",
+  "outcome": {
+    "runWindow": "2026-10-18T14:26:48Z -> 2026-10-18T17:36:37Z (3h9m49s); 9 of 9 jobs green at the workflow level (3 freeze + 5 Generate + 1 Aggregate), no cancelled or failed job, serial execution at fh_max_parallel=1.",
+    "results": {
+      "present": 5,
+      "passed": 2,
+      "failed": 1,
+      "error": 2,
+      "notEvaluated": 0,
+      "validCells": 3,
+      "passRate": 0.4,
+      "passRateValidCells": 0.6666666666666666,
+      "scoreable": false,
+      "capabilityMeasurement": false,
+      "passAt1": null
+    },
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 Docker-eligible corpus tasks were predeclared — this batch is a subset by design)",
+      "verdicts.complete": "failed (5 present, 0 missing, 2 error, 0 not-evaluated)",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed",
+      "pinnedCandidate": "cli-0.0.11-beta.1-02117de-eb00dcced4c9|0.0.11-beta.1|eb00dcced4c97fdb38b6f9ba2763fc7f51308c0f67afb4397fd3320273fd6488|3da7896ca344d2c0c11fd9656828a3a86b3a7663f9be085a3da66e923094eefd"
+    },
+    "perCell": {
+      "datacurve/anko-typed-variable-bindings": {
+        "disposition": "passed",
+        "class": "model",
+        "detail": "FILLED WITH A CLEAN VERDICT. Attempt completed (terminalCause completed, pierExitCode 0) with 93 model requests / 93 outcomes / 0 model-failure entries, 1697s (1697263 ms of the 5400000 ms official budget), delivery graded reward=1, f2p 9/9, p2p 94/94. This cell had no prediction in run 39104093096 (ECR 429 before any model call) and now carries its first verdict for that run's candidate.",
+        "durationMs": 1697263,
+        "evidenceSha256": "e5ee44582179296c19688a6b7e458feb60f23f77e8862e24a653ad09098ef3ea",
+        "evidenceVerified": true
+      },
+      "datacurve/httpx-multipart-response-parsing": {
+        "disposition": "error",
+        "class": "pre-model environment failure (ECR 429)",
+        "detail": "STILL VERDICT-LESS. disposition=error, exception.type=RuntimeError, durationMs 4078, and the record carries no evidence artifact at all (only pierResult/candidate; no evidence/stdout/stderr/usage) — the model was never called. The exception message contains '429 Too Many Requests', 'toomanyrequests' and 'Data limit exceeded' (read mechanically from the frozen record). Its Generate job logged the failure at 2026-10-18T14:57:42Z and its job log contains 'toomanyrequests' once. Per this manifest no further attempt is made for this cell.",
+        "durationMs": 4078,
+        "evidence": "none (no evidence artifact exists for this cell)"
+      },
+      "datacurve/katex-multicolumn-array-spans": {
+        "disposition": "error",
+        "class": "pre-model environment failure (ECR 429)",
+        "detail": "STILL VERDICT-LESS. Same shape as httpx: disposition=error, exception.type=RuntimeError, durationMs 4728, no evidence artifact, exception message containing the three 429 markers. Its Generate job logged the failure at 2026-10-18T14:58:15Z with 'toomanyrequests' once. Per this manifest no further attempt is made for this cell.",
+        "durationMs": 4728,
+        "evidence": "none (no evidence artifact exists for this cell)"
+      },
+      "datacurve/meriyah-explicit-resource-declarations": {
+        "disposition": "failed",
+        "class": "specification-gap",
+        "detail": "FILLED WITH A REAL VERDICT THAT IS NOT A CAPABILITY READING. Attempt completed (terminalCause completed) with 157 requests / 157 outcomes / 0 model-failure entries, 4003s (4002608 ms), delivery graded reward=0, f2p 48/49, p2p 51469/51469. The task is one of the profile's three declared specification gaps, so this verdict is excluded from capability comparisons exactly as the earlier runs' meriyah verdicts were. For reference only: both run 37610731220 and run 38214103321 measured f2p 45/49 on this cell.",
+        "durationMs": 4002608,
+        "evidenceSha256": "81eaffe5d0fcdd543cb6108efcdf6cbfe8c7861b91e42bc7a0190fb89862ad02",
+        "evidenceVerified": true
+      },
+      "datacurve/python-statemachine-state-data-scoping": {
+        "disposition": "passed",
+        "class": "passed-with-one-transport-failure",
+        "detail": "FILLED WITH A REAL VERDICT, DISCLOSED WITH ITS CAVEAT. The primary Run ended stopped (status cancelled) with the cell's durationMs 5402975 against the official attemptBudgetMs 5400000 — the attempt ran into the candidate's own budget window — and its delivery Run terminated completed; the task verifier graded the delivered state reward=1, f2p 72/72, p2p 1286/1286. The evidence nevertheless carries exactly one model-failure entry (reason=transport, 6026 ms) and 298 outcomes over 299 requests, so the pass is real but was not an untroubled run. Reference: this cell passed 72/72 in runs 37610731220 and 38214103321 as well.",
+        "durationMs": 5402975,
+        "evidenceSha256": "c56b764750ef493f70a0d62cefeedd0154d6be36e00291c4b812559a1f7a5aec",
+        "evidenceVerified": true
+      }
+    },
+    "usage": "Only the three verdicted cells reported usage: promptTokens 54,694,944, cacheReadTokens 54,163,392, completionTokens 227,417, totalTokens 54,922,361, modelCallCount 448, costUsd null. The two verdict-less cells never reached an attempt and carry no usage record.",
+    "reportReproducibility": "scripts/frontier-harness-report.mjs re-run locally over this batch's five frozen records, its own corpus artifact and its own expected-tasks.txt reproduces the artifact's report.json byte-for-byte (sha256 cd7fb27d7fb776b3906fd5ef99f59c898af500a2b983cd564854bc938d21c371). A second, separately written recount (not importing that script) rechecks the disposition tally, coverage, candidate/model/effort uniqueness, the per-task official budget against the source run's same task, instruction hashes, usage sums, evidence presence (required for the three verdicted cells, absent for the two error cells) and each extracted evidence file's sha256 against its record — all agree.",
+    "sourceRunUnchanged": "Run 39104093096 keeps its own frozen record and manifest untouched: 19 passed / 6 failed / 5 error, verdicts.complete failed on the five now-partly-filled cells, passAt1 null. Nothing from this batch is merged into that run's rate or into any other run's, and no per-task record of it was modified. The two cells that stayed verdict-less keep run 39104093096's own reading as their only record.",
+    "boundaries": [
+      "This is a five-cell recovery, not a scoreable run: coverage.full and verdicts.complete both fail by construction, and passAt1 is null. The report's 40.0% raw and 66.7% valid-cell figures are this batch's own visible readings only.",
+      "A recovery fills cells that have no prediction; it never repairs a run's pass@1. Run 39104093096 therefore still has none, and this batch's three verdicts are never combined with its 25 to produce a rate.",
+      "Two of the five admitted cells were refused by the same public.ecr.aws throttle again (httpx, katex), so the environment class this manifest was written for is not fully cleared. Per this manifest they are not retried; a further attempt would need its own frozen manifest and fresh user authorization.",
+      "meriyah's verdict is a declared specification-gap reading, and python-statemachine's pass carries one provider transport failure; both are disclosed above rather than presented as clean capability evidence.",
+      "No condition was changed to make any cell scoreable: the candidate pin, the effort (high), the reasoning options, the per-task official budgets (fh_agent_timeout_multiplier=1) and the per-call ceiling (1,800,000 ms) stay exactly as the source run declared them. The only composition delta was fh_max_parallel 3 -> 1, declared before dispatch."
+    ],
+    "artifactSizes": {
+      "note": "from the run's own artifact list; artifact frontier-harness-report-39136019625 covers report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the five frozen per-task records and their raw evidence under jobs/",
+      "report": 64560863,
+      "perTaskArtifacts": 605898759,
+      "perTaskCount": 5,
+      "candidate": 108265374,
+      "corpus": 3988,
+      "total": 778728984,
+      "artifacts": 8
+    },
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T175320Z--39136019625.json",
+    "frozenRecordSha256": "cd7fb27d7fb776b3906fd5ef99f59c898af500a2b983cd564854bc938d21c371",
+    "evidence": "Artifact frontier-harness-report-39136019625 (64,560,863 bytes) plus the five per-task artifacts frontier-harness-task-39136019625-<task> (605,898,759 bytes); the run's 8 artifacts total 778,728,984 bytes. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261018T175320Z--39136019625.json (sha256 cd7fb27d7fb776b3906fd5ef99f59c898af500a2b983cd564854bc938d21c371, byte-identical to the artifact's report.json) with the Chinese record 20261018T175320Z--39136019625.md beside it."
+  }
 }

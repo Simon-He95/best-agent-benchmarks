@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.11-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 5,
+    "expectedEligible": 5,
+    "present": 5,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 2,
+    "failed": 1,
+    "error": 2,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.4,
+  "validCells": 3,
+  "passRateValidCells": 0.6666666666666666,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "5 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "failed",
+      "detail": "5 present, 0 missing, 2 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "5 records agree on one frozen candidate (cli-0.0.11-beta.1-02117de-eb00dcced4c9|0.0.11-beta.1|eb00dcced4c97fdb38b6f9ba2763fc7f51308c0f67afb4397fd3320273fd6488|3da7896ca344d2c0c11fd9656828a3a86b3a7663f9be085a3da66e923094eefd)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "5 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 3,
+    "promptTokens": 54694944,
+    "completionTokens": 227417,
+    "cacheReadTokens": 54163392,
+    "totalTokens": 54922361,
+    "modelCallCount": 448,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 9,
+        "f2p_passed": 9,
+        "p2p_total": 94,
+        "p2p_passed": 94,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1697263,
+      "usage": {
+        "promptTokens": 5969826,
+        "completionTokens": 41210,
+        "cacheReadTokens": 5860352,
+        "costUsd": null,
+        "totalTokens": 6011036,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 109474,
+        "modelCallCount": 93,
+        "reportedCallCount": 93,
+        "reportedInputTokens": 5969826
+      },
+      "evidenceSha256": "e5ee44582179296c19688a6b7e458feb60f23f77e8862e24a653ad09098ef3ea",
+      "batchId": "recovery-ecr-throttle-39104093096-20261018"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/httpx-multipart-response-parsing. Command: docker compose --project-name pier-task__acpmrp8 --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/httpx-multipart-response-parsing/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmppq4a6xye/pier-task__aCpmrP8-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/httpx-multipart-response-parsing/fh-39136019625-httpx-multipart-response-parsing/pier-task__aCpmrP8/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 730B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-8e8a24192dac619a\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/d3j8x8q7/swe-bench-20260"
+      },
+      "durationMs": 4078,
+      "batchId": "recovery-ecr-throttle-39104093096-20261018"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/katex-multicolumn-array-spans. Command: docker compose --project-name pier-task__rtvycqv --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmpnltbxn9r/pier-task__RtVYcQv-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/fh-39136019625-katex-multicolumn-array-spans/pier-task__RtVYcQv/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 718B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-8e8a24192dac619a\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67"
+      },
+      "durationMs": 4728,
+      "batchId": "recovery-ecr-throttle-39104093096-20261018"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 48,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0.9795918367346939,
+        "p2p": 1,
+        "partial": 0.9999805893085911
+      },
+      "durationMs": 4002608,
+      "usage": {
+        "promptTokens": 18855722,
+        "completionTokens": 79015,
+        "cacheReadTokens": 18677376,
+        "costUsd": null,
+        "totalTokens": 18934737,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 178346,
+        "modelCallCount": 157,
+        "reportedCallCount": 157,
+        "reportedInputTokens": 18855722
+      },
+      "evidenceSha256": "81eaffe5d0fcdd543cb6108efcdf6cbfe8c7861b91e42bc7a0190fb89862ad02",
+      "batchId": "recovery-ecr-throttle-39104093096-20261018"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 72,
+        "f2p_passed": 72,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 5402975,
+      "usage": {
+        "promptTokens": 29869396,
+        "completionTokens": 107192,
+        "cacheReadTokens": 29625664,
+        "costUsd": null,
+        "totalTokens": 29976588,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 243732,
+        "modelCallCount": 198,
+        "reportedCallCount": 198,
+        "reportedInputTokens": 29869396
+      },
+      "evidenceSha256": "c56b764750ef493f70a0d62cefeedd0154d6be36e00291c4b812559a1f7a5aef",
+      "batchId": "recovery-ecr-throttle-39104093096-20261018"
+    }
+  ]
+}
