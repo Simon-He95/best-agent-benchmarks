@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.11-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/httpx-multipart-response-parsing"
+  ],
+  "coverage": {
+    "expected": 2,
+    "expectedEligible": 2,
+    "present": 2,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 0,
+    "error": 1,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.5,
+  "validCells": 1,
+  "passRateValidCells": 1,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "2 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "failed",
+      "detail": "2 present, 0 missing, 1 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "2 records agree on one frozen candidate (cli-0.0.11-beta.1-02117de-9f97710442cc|0.0.11-beta.1|9f97710442cc27d6cedb379988f1a87cf3a0cfbe6966bf3cfdec56f8795a02ed|fa66ef2f2975d2984e4dbbe8667e9ca6ffae48d92ac2247346b485b50180c7cd)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "2 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 1,
+    "promptTokens": 7717621,
+    "completionTokens": 51817,
+    "cacheReadTokens": 7619840,
+    "totalTokens": 7769438,
+    "modelCallCount": 103,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 122,
+        "f2p_passed": 122,
+        "p2p_total": 1272,
+        "p2p_passed": 1272,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 1804316,
+      "usage": {
+        "promptTokens": 7717621,
+        "completionTokens": 51817,
+        "cacheReadTokens": 7619840,
+        "costUsd": null,
+        "totalTokens": 7769438,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 97781,
+        "modelCallCount": 103,
+        "reportedCallCount": 103,
+        "reportedInputTokens": 7717621
+      },
+      "evidenceSha256": "c170ea3a8c62cc5ce27b60751ce081670bd75709afa607591159654067e2b838",
+      "batchId": "recovery-ecr-throttle-39104093096-httpx-katex-20261019"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "error",
+      "budgetExhausted": false,
+      "exception": {
+        "type": "RuntimeError",
+        "message": "Docker compose command failed for environment datacurve/katex-multicolumn-array-spans. Command: docker compose --project-name pier-task__mvyuv6s --project-directory /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/pier-task/environment -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-base.yaml -f /tmp/tmpdm99vtmp/pier-task__mVyuv6s-docker-compose-resources.json -f /home/runner/work/_temp/pier-env/lib/python3.12/site-packages/pier/environments/docker/docker-compose-build.yaml -f /home/runner/work/best-agent-benchmarks/best-agent-benchmarks/results/frontier-harness/jobs/katex-multicolumn-array-spans/fh-39173982888-katex-multicolumn-array-spans/pier-task__mVyuv6s/docker-compose-mounts.json build. Return code: 1. Stdout: #1 [internal] load local bake definitions\n#1 reading from stdin 718B done\n#1 DONE 0.0s\n\n#2 [internal] load build definition from Dockerfile\n#2 transferring dockerfile: 365B 0.0s done\n#2 DONE 0.0s\n\n#3 [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n#3 ERROR: failed to copy: httpReadSeeker: failed open: unexpected status code https://public.ecr.aws/v2/d3j8x8q7/swe-bench-202605/manifests/sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae: 429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded\n------\n > [internal] load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1:\n------\nDockerfile:1\n\n--------------------\n\n   1 | >>> FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\n\n   2 |     ARG PIER_AGENT_INSTALL_FINGERPRINT=best-agent-cli-34223f5828cca3e3\n\n   3 |     RUN [\"/bin/bash\", \"-c\", \"printf \\\"Pier agent install fingerprint: %s\\\\n\\\" \\\"$PIER_AGENT_INSTALL_FINGERPRINT\\\"\"]\n\n--------------------\n\nfailed to solve: public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fk"
+      },
+      "durationMs": 4724,
+      "batchId": "recovery-ecr-throttle-39104093096-httpx-katex-20261019"
+    }
+  ]
+}

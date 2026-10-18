@@ -146,5 +146,90 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39173982888",
   "dispatchedAt": "2026-10-18T22:50:38Z",
   "dispatchHeadSha": "00778ef13ace5a454b5dc51dce6d935670a9558b",
-  "dispatchNote": "Unlike the preceding batch, the freeze commit was pushed before dispatch, so this run's own headSha (00778ef13ace5a454b5dc51dce6d935670a9558b) is exactly the commit that contains this manifest: the freeze and the dispatch are one identity, and the run's checked-out tree carries the same config/frontier-harness.json#cli pin (02117de8c / 0.0.11-beta.1) this manifest declares."
+  "dispatchNote": "Unlike the preceding batch, the freeze commit was pushed before dispatch, so this run's own headSha (00778ef13ace5a454b5dc51dce6d935670a9558b) is exactly the commit that contains this manifest: the freeze and the dispatch are one identity, and the run's checked-out tree carries the same config/frontier-harness.json#cli pin (02117de8c / 0.0.11-beta.1) this manifest declares.",
+  "outcome": {
+    "runWindow": "2026-10-18T22:50:38Z -> 2026-10-18T23:24:27Z (33m49s); 6 of 6 jobs green at the workflow level (3 freeze + 2 Generate + 1 Aggregate), no cancelled or failed job, serial execution at fh_max_parallel=1.",
+    "headline": "One of the two cells finally carries a verdict and the other does not: httpx-multipart-response-parsing PASSED on its third attempt (f2p 122/122, p2p 1272/1272, reward=1, 103/103 model outcomes with zero model-failures), while katex-multicolumn-array-spans was refused by the same public.ecr.aws throttle for the third time (429, 4724 ms, no evidence, no attempt) and, under this manifest's lastAttempt clause, is now permanently verdict-less in this corpus.",
+    "results": {
+      "present": 2,
+      "passed": 1,
+      "failed": 0,
+      "error": 1,
+      "notEvaluated": 0,
+      "validCells": 1,
+      "passRate": 0.5,
+      "passRateValidCells": 1,
+      "scoreable": false,
+      "capabilityMeasurement": false,
+      "passAt1": null
+    },
+    "acceptance": {
+      "coverage.full": "failed (2 of 30 Docker-eligible corpus tasks were predeclared — this batch is a subset by design)",
+      "verdicts.complete": "failed (2 present, 0 missing, 1 error, 0 not-evaluated)",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed",
+      "pinnedCandidate": "cli-0.0.11-beta.1-02117de-9f97710442cc|0.0.11-beta.1|9f97710442cc27d6cedb379988f1a87cf3a0cfbe6966bf3cfdec56f8795a02ed|fa66ef2f2975d2984e4dbbe8667e9ca6ffae48d92ac2247346b485b50180c7cd"
+    },
+    "perCell": {
+      "datacurve/httpx-multipart-response-parsing": {
+        "disposition": "passed",
+        "class": "specification-gap (so the verdict is real but is not a capability reading)",
+        "detail": "FILLED ON THE THIRD ATTEMPT. Attempt completed (terminalCause completed, pierExitCode 0) with 103 model requests / 103 outcomes / zero model-failure entries, 1804316 ms (about 30m04s) of the 5400000 ms official budget, delivery graded reward=1, f2p 122/122, p2p 1272/1272. The task is one of the profile's three declared specification gaps, so this pass is excluded from capability comparisons, exactly as the earlier 122/122 reading on candidate fcadbc13/0.0.6-beta.1 was. For reference only: run 38214103321 measured 122/122 on this cell too.",
+        "durationMs": 1804316,
+        "evidenceSha256": "c170ea3a8c62cc5ce27b60751ce081670bd75709afa607591159654067e2b838",
+        "evidenceVerified": true
+      },
+      "datacurve/katex-multicolumn-array-spans": {
+        "disposition": "error",
+        "class": "pre-model environment failure (ECR 429), third occurrence — LAST ATTEMPT, no further dispatch",
+        "detail": "STILL VERDICT-LESS, now permanently. disposition=error, exception.type=RuntimeError, durationMs 4724, and the record carries no evidence artifact at all (only pierResult/candidate; no evidence/stdout/stderr/usage): the model was never called. The exception message contains '429 Too Many Requests', 'toomanyrequests' and 'Data limit exceeded'; its Generate job logged the failure at 2026-10-18T23:24:01Z and its job log contains 'toomanyrequests' once. The image is public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1 (975.1 MiB, the largest of the five throttled-or-recovered datacurve images). This was the last attempt this manifest declared: no further dispatch is made, and the corpus keeps this cell without a verdict.",
+        "durationMs": 4724,
+        "evidence": "none (no evidence artifact exists for this cell, in any of its three attempts)"
+      }
+    },
+    "attemptLedgerOutcome": {
+      "datacurve/httpx-multipart-response-parsing": "attempt 1 (run 39104093096): error, 6848 ms, 429, no evidence → attempt 2 (run 39136019625): error, 4078 ms, 429, no evidence → attempt 3 (this batch): PASSED, f2p 122/122, p2p 1272/1272, spec-gap verdict.",
+      "datacurve/katex-multicolumn-array-spans": "attempt 1 (run 39104093096): error, 6472 ms, 429, no evidence → attempt 2 (run 39136019625): error, 4728 ms, 429, no evidence → attempt 3 (this batch): error, 4724 ms, 429, no evidence. Terminated under the lastAttempt clause."
+    },
+    "usage": "Only the one verdicted cell reported usage: promptTokens 7,717,621, cacheReadTokens 7,619,840, completionTokens 51,817, totalTokens 7,769,438, modelCallCount 103, costUsd null. The verdict-less cell never reached an attempt and carries no usage record.",
+    "reportReproducibility": "scripts/frontier-harness-report.mjs re-run locally over this batch's two frozen records, its own corpus artifact and its own expected-tasks.txt reproduces the artifact's report.json byte-for-byte (sha256 0c7448b0fa03f8dde47be9fcdda308bbc7d7bebfb3b0d8b9c525027be0fbb067). A second, separately written recount (not importing that script) rechecks the disposition tally, coverage, candidate/model/effort uniqueness, the per-task official budget and instruction sha256 against the source run's same cells, usage sums, evidence presence (required for the verdicted cell, absent for the error cell) and the extracted evidence file's sha256 against its record — all agree.",
+    "corpusReading": {
+      "note": "A mechanical ledger across runs, NOT a pass@1 of any run: run 39104093096 alone remains 19 passed / 6 failed / 5 error with passAt1 null, and no recovery outcome is ever merged into its rate.",
+      "verdictsFilled": {
+        "by 39136019625": [
+          "datacurve/anko-typed-variable-bindings (passed, f2p 9/9)",
+          "datacurve/python-statemachine-state-data-scoping (passed, f2p 72/72)",
+          "datacurve/meriyah-explicit-resource-declarations (failed, f2p 48/49, declared specification gap)"
+        ],
+        "by this batch": [
+          "datacurve/httpx-multipart-response-parsing (passed, f2p 122/122, declared specification gap)"
+        ]
+      },
+      "permanentlyVerdictLess": [
+        "datacurve/katex-multicolumn-array-spans (three attempts, all refused by the ECR throttle before any model call; lastAttempt clause reached)"
+      ],
+      "counts": "29 of the 30 corpus cells now carry a real graded verdict across the source run and its two recovery batches; 1 cell (katex) has none, by environment, and stays that way."
+    },
+    "sourceRunUnchanged": "Run 39104093096 keeps its own frozen record and manifest untouched (19 passed / 6 failed / 5 error, passAt1 null), and the preceding batch 39136019625 keeps its own (2 passed / 1 failed / 2 error, passAt1 null). Nothing from this batch is merged into either, and no per-task record of either was modified.",
+    "boundaries": [
+      "This is a two-cell recovery, not a scoreable run: coverage.full and verdicts.complete both fail by construction and passAt1 is null; the report's 50.0% raw and 1/1 valid-cell figures are this batch's own visible readings only.",
+      "The filled cell is a declared specification-gap task, so its pass is a real verdict but not a capability measurement; it must never be counted in a capability comparison.",
+      "The verdict-less cell is an environment failure (anonymous public-registry pull quota), not a task or capability outcome; it now stays verdict-less with no further attempt, and no reading may present it as either a pass or a failure.",
+      "No condition was changed to make any cell scoreable: the candidate pin, the effort (high), the per-task official budgets (fh_agent_timeout_multiplier=1) and the per-call ceiling (1,800,000 ms) stay exactly as the source run declared them. The only composition delta was fh_max_parallel 3 -> 1, declared before dispatch, and no pull-path mitigation was added."
+    ],
+    "artifactSizes": {
+      "note": "from the run's own artifact list; artifact frontier-harness-report-39173982888 covers report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the two frozen per-task records and their raw evidence under jobs/",
+      "report": 8476210,
+      "perTaskArtifacts": 225004872,
+      "perTaskCount": 2,
+      "candidate": 108262611,
+      "corpus": 3988,
+      "total": 341747681,
+      "artifacts": 5
+    },
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261018T233329Z--39173982888.json",
+    "frozenRecordSha256": "0c7448b0fa03f8dde47be9fcdda308bbc7d7bebfb3b0d8b9c525027be0fbb067",
+    "evidence": "Artifact frontier-harness-report-39173982888 (8,476,210 bytes) plus the two per-task artifacts frontier-harness-task-39173982888-<task> (225,004,872 bytes); the run's 5 artifacts total 341,747,681 bytes. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261018T233329Z--39173982888.json (sha256 0c7448b0fa03f8dde47be9fcdda308bbc7d7bebfb3b0d8b9c525027be0fbb067, byte-identical to the artifact's report.json) with the Chinese record 20261018T233329Z--39173982888.md beside it."
+  }
 }
