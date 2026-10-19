@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "recheck-39266782346-20261019",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A re-measurement never replaces the verdict it re-measures, so run 39266782346's strict passAt1 stays null exactly as it was, and this batch has no pass@1 of its own. What it can produce is the run's repaired pass rate: scripts/frontier-harness-repaired-reading.mjs --official publishes it over the run's predeclared task set, with both verdicts of every re-measured cell, the class each was admitted under and the extra-attempt count disclosed.",
+  "requestedBy": "User, 2026-10-19: \"那你解决完重跑没通过的16题\" — the user asks to fix the causes and re-run the 16 non-passing cells of run 39266782346. This manifest is the re-measurement half of that instruction: the eleven cells the run graded as failed. The five cells with no canonical record are recovered under config/frontier-harness-recovery-39266782346.json instead.",
+  "sourceRun": {
+    "runId": 39266782346,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39266782346",
+    "formalRunId": "formal-39266782346",
+    "headSha": "241fcc1da7d081ec1d9cecad7f6c64f492b1d92b",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261019T163215Z--39266782346.json (exact bytes of report.json inside artifact frontier-harness-report-39266782346)",
+    "frozenRecordSha256": "df43494d5af2fd07cad1d80527935ade8d9e214c75e8b18cf3d7571fd6cc2833",
+    "results": {
+      "passed": 14,
+      "failed": 11,
+      "error": 4,
+      "notEvaluated": 1,
+      "passRate": 0.4666666666666667,
+      "validCells": 25,
+      "passRateValidCells": 0.56,
+      "scoreable": false,
+      "passAt1": null
+    }
+  },
+  "admission": {
+    "rule": "AGENTS.md:11 — a declared re-measurement is the only way an already-graded cell may be measured again, and it never replaces the verdict it re-measures. Each cell below already carries a canonical verdict from run 39266782346 (all eleven are disposition=failed with a verifier-graded rewards object), so none of them is 'recovered': each receives exactly one extra attempt, admitted under the variance-check class, with the same candidate, the same provider and effort, the same per-cell official budget, the same grader and the same generation parallelism as the source run. No cell receives a second extra attempt.",
+    "class": "variance check — the source verdict stands and is not replaced; the extra attempt asks whether the same frozen composition produces the same terminal state",
+    "disclosure": "All eleven cells were graded: each carries a verifier-graded rewards object with reward 0. Five of them show terminalCause=completed (the agent finished inside its budget and the delivered workspace did not satisfy the verifier); the other six show terminalCause=stopped, i.e. their agent phase used its whole declared budget before delivering. The budget is NOT extended for this re-measurement (AGENTS.md forbids it and the source composition is kept identical), so for those six a repeated exhaustion is the expected outcome and is reported as such rather than attributed to the re-run.",
+    "cells": [
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards f2p 121/122 and p2p 1272/1272 (reward 0), 88 model outcomes, terminalCause=completed",
+        "note": "The single failing fail-to-pass case is the one config/frontier-harness.json declares as a specification gap for this task (how a folded continuation line is normalized), so a flip here would measure the gap, not a capability change."
+      },
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards f2p 23/25 and p2p 1679/1679 (reward 0), 147 model outcomes, terminalCause=completed",
+        "note": "Two fail-to-pass cases missed; the check is whether the same composition misses them again."
+      },
+      {
+        "task": "terminal-bench/dna-insert",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 21 model outcomes, terminalCause=completed"
+      },
+      {
+        "task": "terminal-bench/openssl-selfsigned-cert",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 13 model outcomes, terminalCause=completed"
+      },
+      {
+        "task": "terminal-bench/sanitize-git-repo",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 32 model outcomes, terminalCause=completed"
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 30 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 900 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell: the identical 900 s budget is applied, so a repeat is expected and discloses the budget fact rather than a new capability reading."
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 37 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 1200 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell, same disclosure as the cell above."
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 10 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 900 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell, same disclosure as the cell above."
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 33 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 900 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell, same disclosure as the cell above."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 6 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 900 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell, same disclosure as the cell above."
+      },
+      {
+        "task": "terminal-bench/vulnerable-secret",
+        "class": "variance-check",
+        "asMeasured": "failed, rewards reward=0, 8 model outcomes, terminalCause=stopped with deliveryTerminalCause=completed; the 900 s declared agent budget was used in full",
+        "note": "Budget-exhausted cell, same disclosure as the cell above."
+      }
+    ]
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "Two datacurve cells of this set (httpx, arktype) are delivered from digest-pinned GHCR mirrors instead of anonymous public.ecr.aws pulls; the other nine cells run on their frozen images with an unchanged transport. The mirror list, the digest proofs and the in-job alias guard are declared in config/frontier-harness-recovery-39266782346.json#mitigation and are not repeated here. No budget, effort, candidate, instruction or grader changes.",
+    "notAConditionThatMakesTheCellPassable": "For the nine cells whose images are unchanged, nothing about the composition changes at all; for the two datacurve cells the image bytes are digest-identical, so the change is transport only."
+  },
+  "constraints": [
+    "Every verdict of run 39266782346 is preserved: this re-measurement is committed beside the frozen record and never inside it, and the run's own report.json, artifacts and counts are untouched.",
+    "Exactly one extra attempt per cell, never a second chance at that attempt.",
+    "The strict passAt1 stays null for the source run and for this batch: the counted attempts exceed what a single-attempt metric allows, so the published figure is the repaired pass rate, not a pass@1.",
+    "Same candidate pin, provider, effort, official budgets, grader and generation parallelism as run 39266782346."
+  ],
+  "dispatchInputs": {
+    "note": "The plan job refuses a run that predeclares more than 10 tasks, so these eleven cells are re-measured by two runs that share the candidate, provider, effort, budgets and generation parallelism declared in config/frontier-harness-recovery-39266782346.json#dispatchInputs: dispatch A (six datacurve cells, mirror transport) carries httpx and arktype, and dispatch B (ten terminal-bench cells) carries the other nine. Both runs select their cells with explicit `fh_tasks` (offset/limit would select corpus-order neighbours that this manifest does not name). This manifest names only its own cells.",
+    "dispatches": [
+      {
+        "label": "A",
+        "fh_batch": "recovery-and-recheck-39266782346-20261019-a",
+        "tasks": [
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/arktype-json-schema-refs-dependencies"
+        ]
+      },
+      {
+        "label": "B",
+        "fh_batch": "recovery-and-recheck-39266782346-20261019-b",
+        "tasks": [
+          "terminal-bench/chess-best-move",
+          "terminal-bench/code-from-image",
+          "terminal-bench/extract-elf",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval",
+          "terminal-bench/vulnerable-secret",
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/sanitize-git-repo"
+        ]
+      }
+    ]
+  },
+  "expectedTasks": [
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/vulnerable-secret",
+    "terminal-bench/dna-insert",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/sanitize-git-repo"
+  ],
+  "knownRisks": {
+    "budgetRepeat": "Six cells already used their whole declared budget; with the budget unchanged, a repeated exhaustion is the most likely outcome and is disclosed, not worked around.",
+    "providerTransport": "A transport death would leave a cell's extra attempt without a verdict; the source verdict then simply stands.",
+    "finality": "One extra attempt per cell; a second dispatch for any of these cells is not permitted by AGENTS.md."
+  },
+  "outcome": null
+}
