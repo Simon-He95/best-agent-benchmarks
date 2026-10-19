@@ -84,6 +84,18 @@ on:
         description: Prompt-prefix experiment selector (A, B, C, D, E or F; empty = unchanged behaviour)
         required: false
         default: ""
+      fh_image_mirror:
+        description: "Declared recovery delta; JSON map of a task's frozen dockerImage to a digest-pinned mirror reference (empty = unchanged)"
+        required: false
+        default: ""
+      fh_mirror_image:
+        description: "Mirror one task image into GHCR (digest-preserving) and stop; empty = a normal generation run"
+        required: false
+        default: ""
+      fh_mirror_repo:
+        description: GHCR repository that holds mirrored task images (no tag)
+        required: false
+        default: "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605"
 
 concurrency:
   group: frontier-harness-${{ inputs.fh_batch || 'default' }}
@@ -92,6 +104,10 @@ concurrency:
 permissions:
   actions: read
   contents: read
+  # Read the digest-pinned task-image mirror in GHCR produced by
+  # .github/workflows/fh-image-mirror.yml. It is unused, and has no effect on
+  # any run, whenever fh_image_mirror is empty.
+  packages: read
 
 env:
   BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
@@ -485,6 +501,91 @@ jobs:
       - name: Materialize the frozen provider identity
         run: node scripts/materialize-frontier-provider.mjs "$RUNNER_TEMP/best-agent-provider" "$GITHUB_ENV" config/frontier-harness.json "${{ inputs.fh_reasoning_effort }}"
 
+      # Declared recovery delta for a frozen task image whose public registry
+      # refuses anonymous pulls (public.ecr.aws: HTTP 429 "Data limit
+      # exceeded"). The image is delivered from the digest-verified GHCR mirror
+      # and aliased to the pinned reference, so the task source, the harness and
+      # the task's Dockerfile keep their exact bytes and only the transport that
+      # delivered them changes. The step refuses to continue unless a probe
+      # build proves the pinned reference resolves from that alias while the
+      # source registry is blackholed, so a plumbing failure can never consume
+      # the attempt it guards.
+      - name: Use the mirrored task image (declared recovery delta)
+        if: ${{ inputs.fh_image_mirror != '' }}
+        env:
+          MIRROR_SPEC: ${{ inputs.fh_image_mirror }}
+          TASK_NAME: ${{ matrix.entry.task }}
+        run: |
+          set -euo pipefail
+          MAPPING_FILE="$RUNNER_TEMP/mirror-mapping.env"
+          rm -f "$MAPPING_FILE"
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const spec = JSON.parse(process.env.MIRROR_SPEC);
+          const corpus = JSON.parse(
+            fs.readFileSync("results/corpora/frontier-harness-1.0.json", "utf8"),
+          );
+          const entry = corpus.tasks.find((task) => task.name === process.env.TASK_NAME);
+          const image = entry === undefined ? undefined : entry.dockerImage;
+          const mirror = image === undefined ? undefined : spec[image];
+          if (mirror === undefined) {
+            console.log(
+              `no mirror mapping for ${process.env.TASK_NAME} (${image}); the build keeps its pinned reference unchanged`,
+            );
+            process.exit(0);
+          }
+          const lines = `FH_MIRROR_SOURCE=${image}\nFH_MIRROR_REF=${mirror}\n`;
+          fs.writeFileSync(path.join(process.env.RUNNER_TEMP, "mirror-mapping.env"), lines);
+          fs.appendFileSync(process.env.GITHUB_ENV, lines);
+          console.log(`declared mirror mapping: ${image} <- ${mirror}`);
+          NODE
+          if [ ! -f "$MAPPING_FILE" ]; then
+            exit 0
+          fi
+          set -a
+          . "$MAPPING_FILE"
+          set +a
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "$FH_MIRROR_REF"
+          docker tag "$FH_MIRROR_REF" "$FH_MIRROR_SOURCE"
+          docker image inspect --format 'alias: {{.Id}} {{index .RepoDigests 0}}' "$FH_MIRROR_SOURCE"
+          HOST="${FH_MIRROR_SOURCE%%/*}"
+          sudo cp /etc/hosts "$RUNNER_TEMP/hosts.before"
+          printf '127.0.0.1 %s\n127.0.0.1 registry-1.%s\n' "$HOST" "$HOST" | sudo tee -a /etc/hosts >/dev/null
+          mkdir -p "$RUNNER_TEMP/alias-probe"
+          printf 'FROM %s\nRUN echo alias-resolved-from-local\n' "$FH_MIRROR_SOURCE" > "$RUNNER_TEMP/alias-probe/Dockerfile"
+          printf 'services:\n  main:\n    build:\n      context: .\n    pull_policy: build\n    command: [ "sh", "-c", "sleep infinity" ]\n' > "$RUNNER_TEMP/alias-probe/docker-compose.yaml"
+          if ! docker compose --progress plain \
+            -f "$RUNNER_TEMP/alias-probe/docker-compose.yaml" \
+            --project-directory "$RUNNER_TEMP/alias-probe" build 2>&1 | tee "$RUNNER_TEMP/mirror-probe.log"; then
+            sudo cp "$RUNNER_TEMP/hosts.before" /etc/hosts
+            echo "the pinned reference did not resolve from the mirror alias while the source registry was blackholed; no attempt is made"
+            exit 1
+          fi
+          sudo cp "$RUNNER_TEMP/hosts.before" /etc/hosts
+          grep -q alias-resolved-from-local "$RUNNER_TEMP/mirror-probe.log"
+          mkdir -p results/candidate
+          node -e '
+            const fs = require("node:fs");
+            const { execFileSync } = require("node:child_process");
+            const inspect = execFileSync(
+              "docker",
+              ["image", "inspect", "--format", "{{.Id}}|{{index .RepoDigests 0}}", process.env.FH_MIRROR_SOURCE],
+              { encoding: "utf8" },
+            ).trim().split("|");
+            fs.writeFileSync("results/candidate/image-mirror-receipt.json", JSON.stringify({
+              task: process.env.TASK_NAME,
+              sourceRef: process.env.FH_MIRROR_SOURCE,
+              mirrorRef: process.env.FH_MIRROR_REF,
+              aliasImageId: inspect[0],
+              aliasRepoDigest: inspect[1],
+              probe: "docker compose build resolved the pinned reference from the local mirror alias while the source registry was blackholed",
+              writtenAt: new Date().toISOString(),
+            }, null, 2) + "\n");
+            console.log("wrote results/candidate/image-mirror-receipt.json");
+          '
+
       - name: Generate and freeze the task attempt
         env:
           BEST_AGENT_CLI_CANDIDATE_DIR: ${{ github.workspace }}/results/candidate
@@ -604,3 +705,197 @@ jobs:
           name: frontier-harness-report-${{ github.run_id }}
           path: results/frontier-harness/**
           if-no-files-found: error
+
+  # Declared recovery infrastructure for a frozen task image whose read-only
+  # public registry (public.ecr.aws) refuses anonymous pulls with HTTP 429
+  # "toomanyrequests: Data limit exceeded". It copies one image into GHCR with
+  # its digest preserved (skopeo copy --all), then proves on a fresh runner that
+  # `docker compose build` resolves the *original* FROM reference from the local
+  # mirror alias while the source registry is blackholed — i.e. that the task
+  # source, the harness and the task's Dockerfile keep their exact bytes and
+  # only the transport that delivered them changes.
+  #
+  # The seed matrix runs the same copy on several fresh runners because the
+  # refusal is a shared anonymous-pull quota keyed to the runner's egress IP:
+  # one attempt can lose that lottery, several in parallel rarely do. Seeding is
+  # idempotent, never runs a model, never grades a task and never modifies the
+  # corpus, the candidate pin or any history record. Both jobs are inert
+  # whenever fh_mirror_image is empty, which is the case for every run that is
+  # not a declared image-mirroring recovery.
+  fh-mirror:
+    name: Mirror the task image into GHCR (attempt ${{ matrix.attempt }})
+    if: ${{ inputs.fh_mirror_image != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Copy the image to GHCR with its digest preserved
+        env:
+          SRC: ${{ inputs.fh_mirror_image }}
+          MIRROR_REPO: ${{ inputs.fh_mirror_repo }}
+        run: |
+          set -euo pipefail
+          export TAG="${SRC##*:}"
+          export MIRROR="$MIRROR_REPO:$TAG"
+          export ATTEMPT="${{ matrix.attempt }}"
+          export RUN_ID="${{ github.run_id }}"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq skopeo
+          skopeo --version
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          # skopeo reads this file for both the GHCR push and the mirror checks.
+          export REGISTRY_AUTH_FILE="$HOME/.docker/config.json"
+          export SOURCE_DIGEST="sha256:$(skopeo inspect --raw "docker://$SRC" | sha256sum | awk '{print $1}')"
+          echo "source $SRC resolves to $SOURCE_DIGEST"
+          mkdir -p receipt
+          # Idempotent fast path: a later attempt, or a re-dispatch, finds the
+          # mirror already carrying the identical digest and stops here.
+          if skopeo inspect --raw "docker://$MIRROR" >/dev/null 2>&1; then
+            EXISTING_DIGEST="sha256:$(skopeo inspect --raw "docker://$MIRROR" | sha256sum | awk '{print $1}')"
+            if [ "$EXISTING_DIGEST" = "$SOURCE_DIGEST" ]; then
+              echo "mirror $MIRROR already carries $SOURCE_DIGEST"
+              node -e '
+                require("node:fs").writeFileSync("receipt/seed-receipt.json", JSON.stringify({
+                  outcome: "already-present",
+                  sourceRef: process.env.SRC,
+                  sourceDigest: process.env.SOURCE_DIGEST,
+                  mirrorRef: process.env.MIRROR,
+                  mirrorDigest: process.env.SOURCE_DIGEST,
+                  digestPreserved: true,
+                  attempt: process.env.ATTEMPT,
+                  runId: process.env.RUN_ID,
+                  writtenAt: new Date().toISOString(),
+                }, null, 2) + "\n");
+              '
+              cat receipt/seed-receipt.json
+              exit 0
+            fi
+            echo "mirror carries $EXISTING_DIGEST, which differs from the source; re-copying"
+          fi
+          skopeo copy --all "docker://$SRC" "docker://$MIRROR"
+          export MIRROR_DIGEST="sha256:$(skopeo inspect --raw "docker://$MIRROR" | sha256sum | awk '{print $1}')"
+          echo "mirror $MIRROR resolves to $MIRROR_DIGEST"
+          test "$MIRROR_DIGEST" = "$SOURCE_DIGEST"
+          # Pull the mirror back by the source digest: only a digest-preserving
+          # copy can satisfy this, so it is the identity proof for the record.
+          docker pull "$MIRROR@$SOURCE_DIGEST"
+          docker image inspect --format 'pulled {{.Id}} {{index .RepoDigests 0}}' "$MIRROR@$SOURCE_DIGEST"
+          node -e '
+            require("node:fs").writeFileSync("receipt/seed-receipt.json", JSON.stringify({
+              outcome: "copied",
+              sourceRef: process.env.SRC,
+              sourceDigest: process.env.SOURCE_DIGEST,
+              mirrorRef: process.env.MIRROR,
+              mirrorDigest: process.env.MIRROR_DIGEST,
+              digestPreserved: process.env.MIRROR_DIGEST === process.env.SOURCE_DIGEST,
+              attempt: process.env.ATTEMPT,
+              runId: process.env.RUN_ID,
+              writtenAt: new Date().toISOString(),
+            }, null, 2) + "\n");
+          '
+          cat receipt/seed-receipt.json
+
+      - name: Upload the seed receipt
+        if: ${{ hashFiles('receipt/seed-receipt.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fh-mirror-seed-receipt-${{ matrix.attempt }}
+          path: receipt/seed-receipt.json
+          if-no-files-found: error
+          retention-days: 90
+
+  fh-mirror-prove:
+    name: Prove the offline local-alias build
+    needs: [fh-mirror]
+    if: ${{ always() && inputs.fh_mirror_image != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Download every seed receipt
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fh-mirror-seed-receipt-*
+          path: receipts
+          merge-multiple: true
+
+      - name: Prove docker compose build resolves the pinned reference locally
+        env:
+          MIRROR_REPO: ${{ inputs.fh_mirror_repo }}
+        run: |
+          set -euo pipefail
+          export RECEIPT=""
+          for candidate in receipts/seed-receipt.json receipts/*/seed-receipt.json; do
+            if [ -f "$candidate" ]; then export RECEIPT="$candidate"; break; fi
+          done
+          if [ -z "$RECEIPT" ]; then
+            echo "no seed receipt exists: every seed attempt was refused by the source registry (the anonymous-pull lottery was lost on all runners)"
+            exit 1
+          fi
+          echo "using receipt $RECEIPT"
+          cat "$RECEIPT"
+          read_json() {
+            node -e 'const fs=require("node:fs");console.log(JSON.parse(fs.readFileSync(process.env.RECEIPT,"utf8"))[process.argv[1]])' "$1"
+          }
+          export SRC="$(read_json sourceRef)"
+          export DIGEST="$(read_json sourceDigest)"
+          export MIRROR="$MIRROR_REPO@$DIGEST"
+          export HOST="${SRC%%/*}"
+          export RUN_ID="${{ github.run_id }}"
+          echo "source=$SRC digest=$DIGEST host=$HOST mirror=$MIRROR"
+          # 1) Blackhole the source registry: any registry contact from here on
+          #    fails loudly instead of silently succeeding.
+          sudo cp /etc/hosts "$RUNNER_TEMP/hosts.before"
+          printf '127.0.0.1 %s\n127.0.0.1 registry-1.%s\n' "$HOST" "$HOST" | sudo tee -a /etc/hosts >/dev/null
+          getent hosts "$HOST" || true
+          # 2) Deliver the identical bytes from GHCR and alias them to the
+          #    reference the frozen task Dockerfile pins.
+          echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "$MIRROR"
+          docker tag "$MIRROR" "$SRC"
+          export ALIAS_REPO_DIGEST="$(docker image inspect --format '{{index .RepoDigests 0}}' "$SRC")"
+          docker image inspect --format 'alias: {{.Id}} {{index .RepoDigests 0}}' "$SRC"
+          # 3) Same shape as pier's own compose build: a plain FROM line plus
+          #    pull_policy build.
+          mkdir -p "$RUNNER_TEMP/alias-probe"
+          printf 'FROM %s\nRUN echo alias-resolved-from-local\n' "$SRC" > "$RUNNER_TEMP/alias-probe/Dockerfile"
+          printf 'services:\n  main:\n    build:\n      context: .\n    pull_policy: build\n    command: [ "sh", "-c", "sleep infinity" ]\n' > "$RUNNER_TEMP/alias-probe/docker-compose.yaml"
+          docker compose --progress plain \
+            -f "$RUNNER_TEMP/alias-probe/docker-compose.yaml" \
+            --project-directory "$RUNNER_TEMP/alias-probe" build 2>&1 | tee "$RUNNER_TEMP/proof-build.log"
+          # 4) Restore the runner's hosts file and record the proof.
+          sudo cp "$RUNNER_TEMP/hosts.before" /etc/hosts
+          mkdir -p proof
+          node -e '
+            const fs = require("node:fs");
+            const log = fs.readFileSync(process.env.RUNNER_TEMP + "/proof-build.log", "utf8");
+            fs.writeFileSync("proof/proof-receipt.json", JSON.stringify({
+              outcome: "build-succeeded-with-source-registry-blackholed",
+              sourceRef: process.env.SRC,
+              sourceDigest: process.env.DIGEST,
+              mirrorRef: process.env.MIRROR,
+              aliasRepoDigest: process.env.ALIAS_REPO_DIGEST,
+              probe: "docker compose build FROM the pinned reference, pull_policy build, source registry host blackholed in /etc/hosts",
+              buildLogTail: log.split("\n").filter(Boolean).slice(-12),
+              runId: process.env.RUN_ID,
+              writtenAt: new Date().toISOString(),
+            }, null, 2) + "\n");
+          '
+          cat proof/proof-receipt.json
+
+      - name: Upload the proof receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: fh-mirror-proof-receipt
+          path: proof/proof-receipt.json
+          if-no-files-found: error
+          retention-days: 90
