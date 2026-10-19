@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-ecr-mirror-39104093096-katex-20261019",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A one-cell recovery cannot produce a pass@1 of its own, and per AGENTS.md a recovery is never merged into a formal run. Run 39104093096 keeps its own frozen record (19 passed / 6 failed / 5 error at freeze time, verdicts.complete failed, passAt1 null), recovery 39136019625 keeps its own (2 passed / 1 failed / 2 error), recovery 39173982888 keeps its own (1 passed / 0 failed / 1 error), and the fourth attempt recorded here replaces no verdict of any of them.",
+  "requestedBy": "User, 2026-10-19: \"katex 那格的 429 是公共镜像仓库匿名拉取配额限制，能不能在 manifest 里标注改用认证拉取或换镜像源，再补一次单独重试？\" — the user identifies the anonymous-pull quota as the cause and asks for a manifest that declares either an authenticated pull or a different image source, followed by one more single retry. This manifest declares the mirror variant (see mitigation.whyMirrorRatherThanAuthenticatedPull), and the same message is the authorization to dispatch it.",
+  "supersedesLastAttempt": {
+    "whatWasDeclared": "config/frontier-harness-recovery-39104093096-httpx-katex.json (commit 00778ef) declared the third attempt to be the last one for these two cells, and record commit 8618056 restated that katex therefore stays verdict-less.",
+    "whyThisAttemptIsStillPrincipled": "That clause was written against repeating the same measurement: it guarded against re-rolling an unchanged lottery, not against removing the cause. This attempt is a different measurement — the anonymous-pull dependency is removed and verified away before the cell runs, and the image bytes are proven identical — so it is admitted under the user's explicit instruction rather than as a fourth draw of the same coin. It is declared the final attempt below.",
+    "lastAttempt": true
+  },
+  "attemptLedger": {
+    "note": "The cell has never been graded and has never reached a model call: every attempt so far died in the task-image pull, before the container existed. The digest the tag resolves to is the same in all three refusals.",
+    "datacurve/katex-multicolumn-array-spans": [
+      {
+        "attempt": 1,
+        "run": 39104093096,
+        "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39104093096, sha256 ef66f8c98b83f5d6f6d926f9fd70dae40205ea29eeb9555c4002a21f7b63a2a1",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 6472, no evidence artifact, no usage; ECR 429 at 2026-10-18T07:18:24Z"
+      },
+      {
+        "attempt": 2,
+        "run": 39136019625,
+        "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39136019625, sha256 b36b426b46b123d4747e9658199b92971a4780437f51ac267327aaadea3bdd2f",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 4728, no evidence artifact, no usage; ECR 429 at 2026-10-18T14:58:15Z"
+      },
+      {
+        "attempt": 3,
+        "run": 39173982888,
+        "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39173982888, sha256 bbed6cf941c022b1f5a5063cfbb9e02378a91b00110f1b9f02904df25586ca20 (extracted from that artifact and re-read by this operator, together with the frozen record docs/benchmarks/history/frontier-harness/20261018T233329Z--39173982888.json)",
+        "asMeasured": "disposition=error, RuntimeError, durationMs 4724, no evidence artifact, no usage; ECR 429 at 2026-10-18T23:24:01Z"
+      },
+      { "attempt": 4, "run": "this batch", "change": "the image is delivered from the digest-verified GHCR mirror declared below" }
+    ],
+    "threeIndependentObservationsOfTheSameDigest": "The tag kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1 resolves to manifest sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae, read three ways: (1) the sha256 this operator computed locally from the registry's raw manifest bytes on 2026-10-19T02:12Z (28 layers, config sha256:bdafc0e4f8d9e7c7e560f84861f95acdf208ed7a98a8c338721e6eefbcfca178), (2) the digest every one of the three 429 refusals names in its own error text, and (3) the sourceDigest the CI seed receipt reports. A quota refusal is therefore the same object being refused, not a different image."
+  },
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure. This cell carries disposition=error with no rewards object, no usage record, no model request and no evidence artifact in three independent runs, so there is no prediction to overwrite. Every other cell of the corpus now carries a canonical verdict and is listed under notAdmitted.",
+    "preModelEnvironmentFailure": {
+      "class": "pre-model environment failure (public.ecr.aws anonymous pull throttle, HTTP 429 \"Data limit exceeded\")",
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "dockerImage": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+      "whyNotTheModelOrTheCandidate": "Nothing ran in any of the three attempts: no provider call, no tool call, no container, no attempt evidence, no usage. The failure is the GitHub-hosted runner's Docker client being refused by public.ecr.aws while building the task image, which is the host environment the task container is created in.",
+      "whyOneMoreAttemptIsNotRepetition": "The refusal is a shared anonymous-pull quota keyed to the runner's egress IP, and this batch measured that directly: of three seed jobs that pulled from the same repository in the same dispatch (run 39189195640), exactly one was refused with the same 429 while two succeeded. Repeating the pull is therefore a lottery over runner IPs — three losses in a row is what the cell has already drawn. This attempt removes the quota dependency instead of drawing again."
+    },
+    "notAdmitted": [
+      {
+        "tasks": [
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/anko-typed-variable-bindings",
+          "datacurve/meriyah-explicit-resource-declarations",
+          "datacurve/python-statemachine-state-data-scoping",
+          "datacurve/expr-try-catch-errors",
+          "terminal-bench/dna-insert",
+          "terminal-bench/extract-elf",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval",
+          "terminal-bench/regex-log",
+          "terminal-bench/build-cython-ext",
+          "terminal-bench/chess-best-move",
+          "terminal-bench/code-from-image",
+          "terminal-bench/polyglot-c-py",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "why": "Every one of them now carries a canonical graded verdict — run 39104093096's own 19 passed and 6 failed, plus the cells the two earlier recovery batches filled (httpx passed 122/122 on its third attempt, anko passed 9/9, python-statemachine passed 72/72, meriyah failed 48/49 as a declared specification gap) — so no prediction may be replaced, and no cell here is re-measured."
+      }
+    ]
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "The image is delivered from a digest-pinned GHCR mirror instead of the read-only public registry that refused it. Nothing else changes: the corpus pin, the task sources, the harness, the task's Dockerfile, the candidate pin (02117de8c / 0.0.11-beta.1), the provider (glm-5.3 at reasoning effort high through dim-oauth), fh_agent_timeout_multiplier=1, the cell's 5400 s official budget and the per-call ceiling (1,800,000 ms) are exactly what the source run declared. The task source and the Dockerfile keep their pinned bytes because the mirror is aliased to the pinned reference locally, so no source file is rewritten and the frozen per-task record's task.dockerImage stays the reference the Dockerfile actually uses.",
+    "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+    "sourceDigest": "sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+    "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+    "mirrorDigest": "sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+    "digestPreserved": true,
+    "seedingRun": {
+      "runId": 39189195640,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39189195640",
+      "headSha": "e5e19aea140802fbb910a4afca7778be9d12babe",
+      "window": "2026-10-19T02:16:33Z -> 2026-10-19T02:19:35Z (3m02s)",
+      "seedJobs": "3 parallel seed jobs on fresh runners: attempt 1 was refused by the source registry with the same 429 (the lottery, measured), attempts 2 and 3 copied the image and both receipts report digestPreserved=true; artifacts fh-mirror-seed-receipt-2 and fh-mirror-seed-receipt-3",
+      "copyMechanism": "skopeo copy --all, which copies the manifest bytes verbatim, and the receipts prove it by resolving the mirror back at the source digest (docker pull <mirror>@<sourceDigest> succeeded in the seed job)"
+    },
+    "proofRun": {
+      "job": "Prove the offline local-alias build (same run 39189195640)",
+      "outcome": "build-succeeded-with-source-registry-blackholed",
+      "howItProvesIt": "On a fresh runner with no local image: the source registry host was blackholed in /etc/hosts (127.0.0.1 public.ecr.aws and 127.0.0.1 registry-1.public.ecr.aws), the digest-pinned mirror was pulled from GHCR, aliased to the pinned reference, and a docker compose build was run with a Dockerfile whose only image line is `FROM public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1` plus pier's own `pull_policy: build`; the build completed and executed its RUN step (`#6 [2/2] RUN echo alias-resolved-from-local`, `#7 naming to docker.io/library/alias-probe-main done`), which is only possible if the pinned reference resolved from the local alias rather than from the registry.",
+      "artifact": "fh-mirror-proof-receipt in run 39189195640"
+    },
+    "inJobGuard": "The Generate job re-proves the same thing in the very job that runs the attempt, immediately before the harness: it pulls the mirror, aliases it, blackholes the source registry, and refuses to continue unless the probe build passes; it then restores /etc/hosts and writes results/candidate/image-mirror-receipt.json, which travels in this run's own artifacts. A plumbing failure therefore fails the job before the harness runs and can never consume the attempt.",
+    "whyMirrorRatherThanAuthenticatedPull": "The user offered either. An authenticated pull from public.ecr.aws needs an AWS principal (ecr-public:GetAuthorizationToken plus long-lived access keys as new repository secrets in this public repository) and only shifts the quota to that account; the GHCR mirror needs no new external credential at all (it uses this repository's own GITHUB_TOKEN), and its identity is checkable by digest rather than by trusting the transport. The mirror is therefore the variant this manifest declares. Authenticated ECR pull remains available as a future alternative if the mirror is ever unavailable, and it is recorded here as not used.",
+    "workflowDelta": "One declared, inert-by-default change to .github/workflows/frontier-harness.yml (commit e5e19ae): the optional fh_image_mirror / fh_mirror_image / fh_mirror_repo inputs, the mirror and proof jobs (which run only when fh_mirror_image is set), packages: read, and the consumer step in the Generate job (which runs only when fh_image_mirror is set). Every run that leaves both inputs empty is bit-for-bit the workflow the source run used: ruby YAML parse plus bash -n over all 25 embedded scripts, and npm test (256 tests, 0 failures), were run on this change before it was committed.",
+    "notAConditionThatMakesTheCellPassable": "The change touches only how the frozen image bytes reach the runner. It does not alter the image contents (digest-identical), the task instruction, the workspace, the tool surface, the model, the effort, the budgets or the grader, so it cannot make the task easier or the verdict gentler; the cell still has to be solved by the model inside the same container the source run declared."
+  },
+  "candidatePin": {
+    "source": "config/frontier-harness.json#cli (unchanged)",
+    "sourceCommit": "02117de8c8a53205dc1bff53269178148115cf38",
+    "cliVersion": "0.0.11-beta.1",
+    "note": "Identical to the candidate of run 39104093096 and of both earlier recovery batches. The SEA build is not byte-reproducible: this batch's CI-built binary carries its own receipt (cli-0.0.11-beta.1-02117de-<binarySha256[:12]>), as the source run's 7e4677bee677... and the earlier batches' eb00dcced4c9... differ from each other by design."
+  },
+  "constraints": [
+    "Only this one no-verdict cell is attempted; every verdict of run 39104093096, of recovery 39136019625, of recovery 39173982888 and of every other run is preserved and never replaced, repaired or reinterpreted.",
+    "Same candidate and same run composition as the source run except the declared image transport; fh_agent_timeout_multiplier=1, the cell's own 5400 s official budget and the per-call ceiling stay exactly as declared.",
+    "One predeclared headless attempt, and this is the final one: if the cell dies again — pre-model, mid-attempt, or on the pull step before the harness — it keeps no verdict, the corpus reading keeps it verdict-less, and no further dispatch is made for it.",
+    "The failed evidence of all three earlier attempts is preserved: their artifacts, frozen records and manifests are unchanged by this batch.",
+    "Neither run nor recovery keeps a pass@1 and none is changed by this batch: recovery fills cells and repairs nothing, and this batch's outcome is never merged into any rate. The mirror is infrastructure, not a measurement, and posts no result of its own.",
+    "Nothing is published to main; this manifest, the workflow delta and the outcome live on the working branch fh/usage-accounting-proof, and no other run is cancelled, restarted or re-dispatched."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/katex-multicolumn-array-spans",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-ecr-mirror-39104093096-katex-20261019",
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\"}"
+  },
+  "expectedTasks": ["datacurve/katex-multicolumn-array-spans"],
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 1 Generate job + 1 Aggregate = 5; the two mirror jobs are inert for this dispatch (fh_mirror_image is empty) because the mirror already exists. Serial generation; expected wall clock up to about 1.5 hours.",
+  "knownRisks": {
+    "providerTransport": "A transport death would leave the cell without a clean verdict; run 39104093096 measured four such cells and both earlier batches one more each.",
+    "credentialExpiry": "The dim OAuth JWT carries exp 1792390751 = 2026-10-19T06:19:11Z, about 3.9 hours after this freeze. Provider materialization happens at the start of the Generate job and refuses an expired token, so an overrun would surface as a pre-model credential failure with no verdict rather than as a graded attempt.",
+    "mirrorPull": "The Generate job's own guard makes a mirror or alias failure fail closed before the harness runs: no attempt is consumed and the cell keeps no verdict.",
+    "budget": "One datacurve task with a 5400 s official budget; the budget is never extended.",
+    "finality": "This is the last attempt for this cell: a verdict-less outcome ends the cell's participation as verdict-less, and the corpus reading is 29 graded cells of 30."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements, the presence and content of results/candidate/image-mirror-receipt.json in this run's own artifacts, mechanical attribution of any verdict-less outcome (pull step, pre-model or mid-attempt), evidence sha256 checks if a verdict exists, a local byte-for-byte recomputation of the aggregate report, the acceptance block for a 1-task subset, and usage.",
+  "dispatched": false
+}
