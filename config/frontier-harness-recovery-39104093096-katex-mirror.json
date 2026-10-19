@@ -132,5 +132,10 @@
     "finality": "This is the last attempt for this cell: a verdict-less outcome ends the cell's participation as verdict-less, and the corpus reading is 29 graded cells of 30."
   },
   "plannedChecks": "After the report artifact is downloaded: the cell's disposition against its three earlier measurements, the presence and content of results/candidate/image-mirror-receipt.json in this run's own artifacts, mechanical attribution of any verdict-less outcome (pull step, pre-model or mid-attempt), evidence sha256 checks if a verdict exists, a local byte-for-byte recomputation of the aggregate report, the acceptance block for a 1-task subset, and usage.",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 39189767089,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39189767089",
+  "dispatchedAt": "2026-10-19T02:23:54Z",
+  "dispatchHeadSha": "d730092ef06168992f789d6e742d3148c411bc69",
+  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha (d730092ef06168992f789d6e742d3148c411bc69) is exactly the commit that contains this manifest and the workflow delta it relies on: the freeze, the declared image transport and the dispatched tree are one identity. The run's own artifacts carry results/candidate/image-mirror-receipt.json, written by the Generate job's guard before the harness runs."
 }
