@@ -33,7 +33,11 @@
         "record": "results/frontier-harness-results.katex-multicolumn-array-spans.json in artifact frontier-harness-report-39173982888, sha256 bbed6cf941c022b1f5a5063cfbb9e02378a91b00110f1b9f02904df25586ca20 (extracted from that artifact and re-read by this operator, together with the frozen record docs/benchmarks/history/frontier-harness/20261018T233329Z--39173982888.json)",
         "asMeasured": "disposition=error, RuntimeError, durationMs 4724, no evidence artifact, no usage; ECR 429 at 2026-10-18T23:24:01Z"
       },
-      { "attempt": 4, "run": "this batch", "change": "the image is delivered from the digest-verified GHCR mirror declared below" }
+      {
+        "attempt": 4,
+        "run": "this batch",
+        "change": "the image is delivered from the digest-verified GHCR mirror declared below"
+      }
     ],
     "threeIndependentObservationsOfTheSameDigest": "The tag kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1 resolves to manifest sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae, read three ways: (1) the sha256 this operator computed locally from the registry's raw manifest bytes on 2026-10-19T02:12Z (28 layers, config sha256:bdafc0e4f8d9e7c7e560f84861f95acdf208ed7a98a8c338721e6eefbcfca178), (2) the digest every one of the three 429 refusals names in its own error text, and (3) the sourceDigest the CI seed receipt reports. A quota refusal is therefore the same object being refused, not a different image."
   },
@@ -122,7 +126,9 @@
     "fh_batch": "recovery-ecr-mirror-39104093096-katex-20261019",
     "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\"}"
   },
-  "expectedTasks": ["datacurve/katex-multicolumn-array-spans"],
+  "expectedTasks": [
+    "datacurve/katex-multicolumn-array-spans"
+  ],
   "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 1 Generate job + 1 Aggregate = 5; the two mirror jobs are inert for this dispatch (fh_mirror_image is empty) because the mirror already exists. Serial generation; expected wall clock up to about 1.5 hours.",
   "knownRisks": {
     "providerTransport": "A transport death would leave the cell without a clean verdict; run 39104093096 measured four such cells and both earlier batches one more each.",
@@ -137,5 +143,85 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39189767089",
   "dispatchedAt": "2026-10-19T02:23:54Z",
   "dispatchHeadSha": "d730092ef06168992f789d6e742d3148c411bc69",
-  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha (d730092ef06168992f789d6e742d3148c411bc69) is exactly the commit that contains this manifest and the workflow delta it relies on: the freeze, the declared image transport and the dispatched tree are one identity. The run's own artifacts carry results/candidate/image-mirror-receipt.json, written by the Generate job's guard before the harness runs."
+  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha (d730092ef06168992f789d6e742d3148c411bc69) is exactly the commit that contains this manifest and the workflow delta it relies on: the freeze, the declared image transport and the dispatched tree are one identity. The run's own artifacts carry results/candidate/image-mirror-receipt.json, written by the Generate job's guard before the harness runs.",
+  "outcome": {
+    "runWindow": "2026-10-19T02:23:54Z -> 2026-10-19T02:44:39Z (20m45s); 6 of 6 executed jobs green (3 freeze + 1 Generate + 1 Aggregate); the mirror seed and proof jobs were skipped by their own conditions because this dispatch carried the pre-seeded mirror mapping instead of fh_mirror_image.",
+    "headline": "The mirror worked and the cell finally reached the model, but it still carries no verdict: the attempt ran 983 s of its 5400 s budget and completed 37 model exchanges before the 38th request died on a provider connection failure, which terminated the Run as model-failure. Under this manifest's finality clause the cell is now closed without a verdict, so the corpus reading is 29 graded cells of 30.",
+    "results": {
+      "present": 1,
+      "passed": 0,
+      "failed": 0,
+      "error": 1,
+      "notEvaluated": 0,
+      "validCells": 0,
+      "passRate": 0,
+      "passRateValidCells": null,
+      "scoreable": false,
+      "capabilityMeasurement": false,
+      "passAt1": null
+    },
+    "acceptance": {
+      "coverage.full": "failed (1 of 30 Docker-eligible corpus tasks were predeclared — this batch is a subset by design)",
+      "verdicts.complete": "failed (1 present, 0 missing, 1 error, 0 not-evaluated)",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed",
+      "pinnedCandidate": "cli-0.0.11-beta.1-02117de-bcc1b16308ad|0.0.11-beta.1|bcc1b16308addc0c8ddb551b0a67a3c245df43ce72a675059e95e1bf56800af5|7333daacb87a23165bf1e01bb164340de58be0bd4dc51e5e5710f105b77f88ea"
+    },
+    "perCell": {
+      "datacurve/katex-multicolumn-array-spans": {
+        "disposition": "error",
+        "class": "provider (model-failure, reason=connection) — FINAL ATTEMPT, no further dispatch",
+        "detail": "STILL VERDICT-LESS, and now closed. disposition=error, terminalCause=model-failure, exceptionType=NonZeroAgentExitCodeError, durationMs 983039 (about 16m23s of the 5400 s budget, budgetExhausted=false). Unlike attempts 1-3, the model really ran: the evidence carries 38 model requests, 37 model outcomes and exactly one model-failure entry, whose failure.reason is 'connection' and whose durationMs is 23883; the primary Run then terminated with terminalCause model-failure (status failed). The verifier's f2p 0/94 is a reading of the delivered state, not a canonical verdict. This is a provider connection failure, not the ECR throttle, not a budget cut and not a task outcome.",
+        "durationMs": 983039,
+        "modelOutcomes": 37,
+        "modelFailures": 1,
+        "failureReason": "connection",
+        "failureDurationMs": 23883,
+        "evidenceSha256": "033a0d7d62b5184084d36516d40b714e8b5f049d3e0788238dce86e020437ad4",
+        "evidenceVerified": true
+      }
+    },
+    "mirrorDelivery": {
+      "outcome": "the declared transport worked and is proven for this very job",
+      "receiptPathInThisRunsArtifacts": "results/candidate/image-mirror-receipt.json (uploaded with frontier-harness-task-39189767089-katex-multicolumn-array-spans)",
+      "receipt": {
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+        "aliasImageId": "sha256:bdafc0e4f8d9e7c7e560f84861f95acdf208ed7a98a8c338721e6eefbcfca178",
+        "aliasRepoDigest": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+        "writtenAt": "2026-10-19T02:27:46.863Z"
+      },
+      "identityChecks": "The alias image id is the source image's own config digest (sha256:bdafc0e4f8d9e7c7e560f84861f95acdf208ed7a98a8c338721e6eefbcfca178), which this operator also read independently from the registry; the receipt was written before the attempt started; and the per-task record's task.dockerImage, instructionSha256 and effectiveAgentTimeoutSec are byte-identical to the source run's own cell (the corpus image reference was never rewritten).",
+      "reading": "The anonymous-pull quota is no longer in this cell's path: the job pulled the digest-pinned mirror, aliased it to the pinned reference, passed its own blackholed probe, and only then ran the harness — which is why this attempt got 983 s and 37 model exchanges in, where the previous three died in 4-7 s at the image pull."
+    },
+    "attemptLedgerOutcome": "attempt 1 (39104093096): error, 6472 ms, ECR 429, model never called → attempt 2 (39136019625): error, 4728 ms, ECR 429 → attempt 3 (39173982888): error, 4724 ms, ECR 429 → attempt 4 (this batch): error, 983039 ms, the mirror worked and the model ran 37 exchanges before a provider connection failure (reason=connection, 23883 ms) ended the Run as model-failure.",
+    "usage": "One task, and this time it reported real usage because the model actually ran: promptTokens 1,541,691, cacheReadTokens 1,473,472, completionTokens 24,766, totalTokens 1,566,457, modelCallCount 37, costUsd null.",
+    "reportReproducibility": "scripts/frontier-harness-report.mjs re-run locally over this batch's frozen record, its own corpus artifact and its own expected-tasks.txt reproduces the artifact's report.json byte-for-byte (sha256 2b99061cba6357d8c24629cbc1a87cf572a518fe57c3acde964ba55881429ca1). A second, separately written recount (not importing that script) rechecks the tally, coverage, candidate/model/effort uniqueness, the per-task budget, instruction and dockerImage against the source run and the corpus, the usage sums, the evidence file's sha256 against the record, and the mirror receipt's sourceRef/mirrorRef/aliasImageId/probe/timestamp — all agree.",
+    "corpusReading": {
+      "note": "A mechanical ledger across runs, NOT a pass@1 of any run: run 39104093096 alone remains 19 passed / 6 failed / 5 error with passAt1 null, and no recovery outcome is ever merged into its rate.",
+      "counts": "29 of the 30 corpus cells carry a real graded verdict across the source run and its recovery batches; the single cell without one is datacurve/katex-multicolumn-array-spans, which is closed here: three attempts were refused by the public-registry anonymous-pull quota before any model call and the fourth ran to a provider connection failure, so its absence of a verdict is an environment outcome and must never be read as either a pass or a failure.",
+      "noFurtherAttempt": "This manifest declared this attempt final and the user's standing instruction forbids another dispatch: none is made."
+    },
+    "sourceRunUnchanged": "Run 39104093096 (19 passed / 6 failed / 5 error, passAt1 null), recovery 39136019625 (2 passed / 1 failed / 2 error, passAt1 null) and recovery 39173982888 (1 passed / 0 failed / 1 error, passAt1 null) keep their own frozen records, manifests and verdicts untouched; nothing from this batch is merged into any of them or into any other run.",
+    "boundaries": [
+      "This is a one-cell recovery, not a scoreable run: coverage.full and verdicts.complete both fail by construction, validCells is 0 and passAt1 is null.",
+      "The cell's verdict-less state is an environment outcome in all four attempts (three anonymous-pull refusals, then one provider connection failure); it is not a task failure and not a capability signal, and the corpus reading is 29 graded cells of 30.",
+      "The mirror changes only the transport that delivered the image, and that is proven here by identity: the source image's own config digest, the digest-pinned mirror and the local alias are one object, and the task source, harness, Dockerfile, corpus, instruction and budget are the source run's own bytes and values.",
+      "No condition was changed to make the cell scoreable: the candidate pin, the effort (high), the cell's 5400 s official budget (fh_agent_timeout_multiplier=1) and the per-call ceiling (1,800,000 ms) are unchanged, and no retry is made after this attempt."
+    ],
+    "artifactSizes": {
+      "note": "from the run's own artifact list; the report artifact covers report.json, report.json.md, failures.json, failures.md, expected-tasks.txt, the frozen per-task record and its raw evidence under jobs/",
+      "report": 1972364,
+      "perTaskArtifacts": 110235997,
+      "perTaskCount": 1,
+      "candidate": 108265305,
+      "corpus": 3988,
+      "total": 220477654,
+      "artifacts": 4
+    },
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261019T024725Z--39189767089.json",
+    "frozenRecordSha256": "2b99061cba6357d8c24629cbc1a87cf572a518fe57c3acde964ba55881429ca1",
+    "evidence": "Artifact frontier-harness-report-39189767089 (1,972,364 bytes) plus frontier-harness-task-39189767089-katex-multicolumn-array-spans (110,235,997 bytes, which carries results/candidate/image-mirror-receipt.json); the run's 4 artifacts total 220,477,654 bytes. The frozen aggregate copy is docs/benchmarks/history/frontier-harness/20261019T024725Z--39189767089.json (sha256 2b99061cba6357d8c24629cbc1a87cf572a518fe57c3acde964ba55881429ca1, byte-identical to the artifact's report.json) with the Chinese record 20261019T024725Z--39189767089.md beside it."
+  }
 }
