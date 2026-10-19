@@ -152,5 +152,242 @@
     "providerTransport": "A transport death would leave a cell's extra attempt without a verdict; the source verdict then simply stands.",
     "finality": "One extra attempt per cell; a second dispatch for any of these cells is not permitted by AGENTS.md."
   },
-  "outcome": null
+  "outcome": {
+    "batchRuns": [
+      {
+        "label": "A",
+        "runId": 39285999175,
+        "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39285999175",
+        "runWindow": "2026-10-19T16:30:38Z -> 2026-10-19T17:34:59Z (1h4m21s)",
+        "batchLabel": "recovery-and-recheck-39266782346-20261019-a",
+        "predeclaredTasks": [
+          "datacurve/httpx-multipart-response-parsing",
+          "datacurve/arktype-json-schema-refs-dependencies"
+        ],
+        "results": {
+          "expected": 6,
+          "present": 6,
+          "passed": 1,
+          "failed": 5,
+          "error": 0,
+          "notEvaluated": 0,
+          "validCells": 6,
+          "passRate": 0.16666666666666666,
+          "scoreable": false,
+          "capabilityMeasurement": false,
+          "passAt1": null
+        },
+        "acceptance": [
+          {
+            "id": "coverage.full",
+            "status": "failed",
+            "detail": "6 of 30 Docker-eligible corpus tasks were predeclared"
+          },
+          {
+            "id": "verdicts.complete",
+            "status": "passed",
+            "detail": "6 present, 0 missing, 0 error, 0 not-evaluated"
+          },
+          {
+            "id": "candidate.single",
+            "status": "passed",
+            "detail": "6 records agree on one frozen candidate (cli-0.0.13-beta.1-1577b7b-55220003b04d|0.0.13-beta.1|55220003b04daf4f5dc0cfc8f52c3085b603918923ff8a68d4d06d0df1996487|1d0ac0618216a4a828bf32729da25307f76070cf55d56cbcbd96eb6361b72e41)"
+          },
+          {
+            "id": "provider.single",
+            "status": "passed",
+            "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+          },
+          {
+            "id": "instructions.frozen",
+            "status": "passed",
+            "detail": "6 records match the frozen instruction hash of their task"
+          }
+        ],
+        "candidateId": "6 records agree on one frozen candidate (cli-0.0.13-beta.1-1577b7b-55220003b04d|0.0.13-beta.1|55220003b04daf4f5dc0cfc8f52c3085b603918923ff8a68d4d06d0df1996487|1d0ac0618216a4a828bf32729da25307f76070cf55d56cbcbd96eb6361b72e41)"
+      },
+      {
+        "label": "B",
+        "runId": 39286004007,
+        "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39286004007",
+        "runWindow": "2026-10-19T16:30:40Z -> 2026-10-19T17:02:19Z (31m39s)",
+        "batchLabel": "recovery-and-recheck-39266782346-20261019-b",
+        "predeclaredTasks": [
+          "terminal-bench/chess-best-move",
+          "terminal-bench/code-from-image",
+          "terminal-bench/extract-elf",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval",
+          "terminal-bench/vulnerable-secret",
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/sanitize-git-repo"
+        ],
+        "results": {
+          "expected": 10,
+          "present": 10,
+          "passed": 5,
+          "failed": 5,
+          "error": 0,
+          "notEvaluated": 0,
+          "validCells": 10,
+          "passRate": 0.5,
+          "scoreable": false,
+          "capabilityMeasurement": false,
+          "passAt1": null
+        },
+        "acceptance": [
+          {
+            "id": "coverage.full",
+            "status": "failed",
+            "detail": "10 of 30 Docker-eligible corpus tasks were predeclared"
+          },
+          {
+            "id": "verdicts.complete",
+            "status": "passed",
+            "detail": "10 present, 0 missing, 0 error, 0 not-evaluated"
+          },
+          {
+            "id": "candidate.single",
+            "status": "passed",
+            "detail": "10 records agree on one frozen candidate (cli-0.0.13-beta.1-1577b7b-88efb9e10696|0.0.13-beta.1|88efb9e106967d82b964ea4d414903e0075f46bc7a3cee1226f71cd266f86e28|e1490f31e4eb076577dbe0edd088a52fe36e9fcd5e65ff416bfab3ab7ac9d3a6)"
+          },
+          {
+            "id": "provider.single",
+            "status": "passed",
+            "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+          },
+          {
+            "id": "instructions.frozen",
+            "status": "passed",
+            "detail": "10 records match the frozen instruction hash of their task"
+          }
+        ],
+        "candidateId": "10 records agree on one frozen candidate (cli-0.0.13-beta.1-1577b7b-88efb9e10696|0.0.13-beta.1|88efb9e106967d82b964ea4d414903e0075f46bc7a3cee1226f71cd266f86e28|e1490f31e4eb076577dbe0edd088a52fe36e9fcd5e65ff416bfab3ab7ac9d3a6)"
+      }
+    ],
+    "results": {
+      "cells": 11,
+      "passed": 4,
+      "failed": 7,
+      "error": 0,
+      "notEvaluated": 0
+    },
+    "cells": [
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 122,
+          "f2p_passed": 121,
+          "p2p_total": 1272,
+          "p2p_passed": 1272,
+          "f2p": 0.9918032786885246,
+          "p2p": 1,
+          "partial": 0.9992826398852224
+        },
+        "durationMs": 1582312
+      },
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 25,
+          "f2p_passed": 23,
+          "p2p_total": 1679,
+          "p2p_passed": 1679,
+          "f2p": 0.92,
+          "p2p": 1,
+          "partial": 0.9988262910798122
+        },
+        "durationMs": 2399515
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 796700
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "passed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 713916
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 695490
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 873167
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 870988
+      },
+      {
+        "task": "terminal-bench/vulnerable-secret",
+        "disposition": "passed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 134065
+      },
+      {
+        "task": "terminal-bench/dna-insert",
+        "disposition": "passed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 1697293
+      },
+      {
+        "task": "terminal-bench/openssl-selfsigned-cert",
+        "disposition": "passed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 194093
+      },
+      {
+        "task": "terminal-bench/sanitize-git-repo",
+        "disposition": "failed",
+        "class": "variance check — the source verdict stands; this attempt measures whether the same frozen composition repeats its terminal state",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 504899
+      }
+    ],
+    "note": "Each of the eleven cells repeated or beat its source measurement with no budget extension. httpx and arktype repeated their failures; code-from-image, vulnerable-secret, dna-insert and openssl-selfsigned-cert flipped to passed; chess-best-move, extract-elf, gcode-to-text, largest-eigenval and sanitize-git-repo repeated their failures. Every source verdict is unchanged and is published only through the repaired reading."
+  }
 }
