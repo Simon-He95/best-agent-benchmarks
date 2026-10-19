@@ -1,0 +1,61 @@
+name: Fetch a frozen Frontier-Harness report
+
+# Reads one finished run's report artifact *inside* GitHub and re-uploads only
+# the small aggregate files (report.json, report.json.md, failures.json,
+# failures.md, expected-tasks.txt). The 90 MB report artifact also carries every
+# task's raw evidence, which a reading of the aggregate does not need; fetching
+# the whole archive over a home connection is slow and can drop mid-transfer.
+#
+# This workflow never runs a model, never grades a task and never writes to any
+# run's record: it copies the frozen bytes of one run's report next to nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Run id whose frontier-harness-report artifact is fetched
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  fetch:
+    name: Fetch report files from run ${{ inputs.source_run_id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontier-harness-report-${{ inputs.source_run_id }}
+          path: full
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify the aggregate files are present
+        run: |
+          set -euo pipefail
+          test -f full/report.json
+          test -f full/expected-tasks.txt
+          node -e '
+            const r = require("./full/report.json");
+            if (!r.results || !r.coverage) throw new Error("report.json carries no aggregate");
+            console.log(JSON.stringify({ coverage: r.coverage, results: r.results, passRate: r.passRate, passAt1: r.passAt1 }));
+          '
+
+      - name: Keep only the aggregate files
+        run: |
+          set -euo pipefail
+          mkdir -p partial
+          for f in report.json report.json.md failures.json failures.md expected-tasks.txt; do
+            if [ -f "full/$f" ]; then cp "full/$f" "partial/$f"; fi
+          done
+          ls -la partial
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-harness-aggregate-${{ inputs.source_run_id }}
+          path: partial
+          if-no-files-found: error
+          retention-days: 90
