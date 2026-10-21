@@ -15,7 +15,7 @@
 | E1 | `exec` 的 args 里出现 shell 管道/`&&` 时，二进制把整串当文件参数，报 `No such file or directory`；模型无法得知"本工具无 shell，需用 `sh -c`"。run 中 extract-elf 2 次、meriyah 1 次 | `capability-builtin-tools/src/index.ts:1116`（只说 not a shell）、`:1123`、`:1824-1847`（canonicalizer 只校验 NUL/Unicode/字节）；`workspace-tools.ts:67-71` 明确禁止全局点名 shell | **改** | 2 |
 | E2 | `args[0] === command` 时进程照跑（`readelf readelf -a`），退出码 1 但已部分成功，模型被误导 | `capability-builtin-tools/src/index.ts:1122`（有禁令，无诊断） | **改** | 2 |
 | E3 | 缺 `command` 时只回 `malformed-input · required field command`，无 message | `capability-builtin-tools/src/index.ts:1751-1759` | **改** | 1 |
-| E4 | `write{path:"."}` 等根路径被拒，文案却是"路径语法含反斜杠/URI/控制字符"，而描述里写着 `use "." for the workspace root` | 描述 `:2563-2566`；拒绝 `:1694`、`:2299`、`:2502`；`apply_patch:517` | **改** | 1 |
+| E4 | `write{path:"."}` 等根路径被拒，文案却是"路径语法含反斜杠/URI/控制字符"，而描述里写着 `use "." for the workspace root` | 描述 `:2563-2566`；拒绝 `:1694`、`:2299`、`:2502`；`apply_patch:517` | **改（已合并）** | 1 — PR #439、spec 425 |
 | E5 | `write` 回显输入路径拼写（`{"path":"diff.pl"}`），`exec` 回显 `cwd:"."`，`process-start` 完全不回显 cwd | `workspace-tools-backend:238/281/362`；校验器强制 `value.path === input.path`（`capability-builtin-tools:1922`）；`external-process-service:841` | **改** | 3 |
 
 ## 二、审计发现但本次不改的项
@@ -38,7 +38,7 @@
 | B2 | `exec` 从未用散文说明 `command` 必填 | `capability-builtin-tools:1130-1140` | **改** | 与 E3 同批 |
 | B3 | 文本没有说"相对路径解析到 workspace root" | `:2565-2566`；根只出现在 external context（非权威块） | **改** | 与 E5 同批（回显 + 一句说明） |
 | B4 | `process-start` 两种策略的 cwd 根说明不对称 | `capability-process-tools:1028/1030-1031` | **改** | 与 E5 同批 |
-| D11 | `automation-*.stopAt` 拒绝 RFC 3339 合法的 `Z` 后缀 | `v3-automation-tool.ts:76/197` | **改** | 标准合规问题，一行正则；本清单编写期间我自己也必须回避这个形状 |
+| D11 | `automation-*.stopAt` 拒绝 RFC 3339 合法的 `Z` 后缀 | `v3-automation-tool.ts:78-79`、`:204` | **不改（更正）** | 本条审计结论有误：合同明确要求显式 numeric offset（`docs/product-v3/automation.md:61`「RFC 3339 values require an explicit numeric offset」），工具描述与拒绝文案都逐字这么说。RFC 3339 允许 `Z`，但产品合同把它窄化成必须带偏移量，`Z` 被拒是设计选择，不是缺陷。既有测试 `apps/cli/test/v3-automation-tool.test.ts:305` 正是钉住这一点。要接受 `Z` 必须先改合同，不是一行正则 |
 
 ## 三、已逐条核对、未发现缺陷
 
@@ -46,12 +46,30 @@
 
 ## 四、批次划分与验收
 
-| 批次 | 内容 | 验收 |
+| 批次 | 内容 | 状态 |
 | --- | --- | --- |
-| 1 | E3、E4、D11、B2 | 新增/修改的断言级测试：`"."` 被拒时文案指向"根不可写"；`stopAt` 接受 `Z` 与 `+08:00` 等价；缺 `command` 的 issue 带 message |
-| 2 | E1、E2、B1 | 含 `\|`/`&&`/`;`/`$(` 的 args 返回具名诊断且**不启动进程**；`args[0]===command` 返回具名诊断；文本按 policy 条件投影 |
-| 3 | E5、B3、B4 | payload 新增 `resolvedPath`/`resolvedCwd`；断言相对输入得到 `resolve(root, path)`；预算与 compact 边界重跑 |
-| 4 | D2、D3、D4、D6、D14 | 各自单测；`unknown/malformed` 不再吞掉可表达的错误 |
+| 1 | E4（root 拒绝文案） | **已合并**：PR #439（merge commit `cfc77d75a`），spec 425。red 2 failed / 112 passed，green 324 passed；共享套件 1551 passed / 1 skipped。CI 的 `Linux Sandbox Acceptance` 因账号计费未启动（非代码原因），仓库无分支保护，按既有惯例合并 |
+| 2 | ~~D11（`stopAt` 接受 `Z`）~~ **取消** | 经合同核对不是缺陷（见 D11 行）：合同要求显式 numeric offset，`Z` 被拒是设计选择。接受 `Z` 需先改合同，不在本清单范围 |
+| 3 | E1、E2、B1（args 里的 shell 元字符 / `args[0]===command` 的具名诊断） | 待开始。这是实测出现次数最多的一类浪费（extract-elf、meriyah、chess） |
+| 4 | E5、B3、B4（解析后绝对路径 / cwd 回显） | 待开始。需要预算与 compact 边界复核 |
+| 5 | D2、D3、D4、D6、D14 | 待开始 |
+
+### 批次 1 的独立 review 结论与处置
+
+review 提出两条阻断/三条建议，全部采纳或明确登记：
+
+| finding | 处置 |
+| --- | --- |
+| `"/"` 是**文件系统根**，不是工作区根；初版文案与新测试把它叫成 workspace root | **已修**：区分两种根，`"."`/`"./"`/`"src/.."` 给 workspace-root 文案，`"/"`/`"//"` 给 filesystem-root 文案，测试分别断言 |
+| 文案说 "name a file or directory inside it"，但 write/edit/apply_patch 只接受文件 | **已修**：改为 "name a file inside it" |
+| 依赖"`allowRoot` 只影响根"这条跨包未文档化不变式 | **已修**：改成与 `canonicalRemove` 同形的"一次 `canonicalize(…, true)` + 显式判根"，不再依赖该不变式 |
+| `exec` 描述新增的"command 必填"句与键集句、args 句重复 | **已撤回**：本批不含该句；真正的缺口是 `required` issue 没有 message，而那是共享 wire 类型 |
+| 三处同类文案（builtin write/edit、remove、apply_patch）不统一 | **登记，本批不改**：统一需要 domain 暴露"是否根"，属接口变更，另批 |
+| `describe()` 仍对 `allowRoot=false` 的工具说 `use "."` | **登记**：这是比文案更本质的修法（减少无效调用而非把错误说好听），需改 `describe` 签名与钉住描述的测试，单独成批 |
+
+### 因 review 而从批次 1 移出的项
+
+- **E3（`required field command` 无 message）**：`ToolInputIssueV1`（`packages/application-content/src/index.ts:209`）的 `required` 变体是 `{code, field}`，加 message 需放宽共享 wire 类型并同步 codec/展示测试。单独成批。
 
 **每批必跑**（按耗时递增）：`pnpm typecheck` → `pnpm test:v3` → `pnpm test:model-binding-ai-sdk` → `pnpm test:workspace-tools-backend` → `pnpm test:capability-builtin-tools` → `pnpm test:application-protocol` → `pnpm test:process-tools` → `pnpm test:context-management` → `pnpm test:v3-thread-store` → 30 个 targeted CLI 文件 → `pnpm test:cli`。
 
