@@ -16,7 +16,7 @@
 | E2 | `args[0] === command` 时进程照跑（`readelf readelf -a`），退出码 1 但已部分成功，模型被误导 | `capability-builtin-tools/src/index.ts:1122`（有禁令，无诊断） | **改（后果已写明）** | 3 — PR #440。**不做拒绝**：`make make`（target 名等于命令名）、`grep grep file` 都合法 |
 | E3 | 缺 `command` 时只回 `malformed-input · required field command`，无 message | `capability-builtin-tools/src/index.ts:1751-1759` | **改** | 1 |
 | E4 | `write{path:"."}` 等根路径被拒，文案却是"路径语法含反斜杠/URI/控制字符"，而描述里写着 `use "." for the workspace root` | 描述 `:2563-2566`；拒绝 `:1694`、`:2299`、`:2502`；`apply_patch:517` | **改（已合并）** | 1 — PR #439、spec 425 |
-| E5 | `write` 回显输入路径拼写（`{"path":"diff.pl"}`），`exec` 回显 `cwd:"."`，`process-start` 完全不回显 cwd | `workspace-tools-backend:238/281/362`；校验器强制 `value.path === input.path`（`capability-builtin-tools:1922`）；`external-process-service:841` | **改** | 3 |
+| E5 | `write` 回显输入路径拼写（`{"path":"diff.pl"}`），`exec` 回显 `cwd:"."`，`process-start` 完全不回显 cwd | `workspace-tools-backend:238/281/362`；校验器强制 `value.path === input.path`（`capability-builtin-tools:1922`）；`external-process-service:841` | **改（移出批次 4，单独成批）** | 5 — 回显解析后的绝对路径要改 known payload 形状（新增字段）+ 三处 `value.path === input.path` 等值断言 + backend 生产侧；run 39620264048 的八格证据里没有一次路径或 cwd 误用，收益无法由证据支撑 |
 
 ## 二、审计发现但本次不改的项
 
@@ -36,8 +36,10 @@
 | D15 | 结构化文件工具从不回显解析后的绝对路径（与 E5 同源） | 同 E5 | 并入 E5 | — |
 | B1 | 模型可见文本中没有任何一句说明"管道/重定向/`&&` 该用 `sh -c`" | 全仓 0 处；`workspace-tools.ts:67-71` 的设计约束 | **改（已合并）** | 3 — PR #440：按冻结 policy+alias 集投影；`path` 点名 `sh -c`，`catalog` 点名实际承认的 shell alias，词表外的 shell 只给条件式补救，不断言"本组合没有 shell" |
 | B2 | `exec` 从未用散文说明 `command` 必填 | `capability-builtin-tools:1130-1140` | **改** | 与 E3 同批 |
-| B3 | 文本没有说"相对路径解析到 workspace root" | `:2565-2566`；根只出现在 external context（非权威块） | **改** | 与 E5 同批（回显 + 一句说明） |
-| B4 | `process-start` 两种策略的 cwd 根说明不对称 | `capability-process-tools:1028/1030-1031` | **改** | 与 E5 同批 |
+| B3 | 文本没有说"相对路径解析到 workspace root" | `:2565-2566`；根只出现在 external context（非权威块） | **改（已合并）** | 4 — PR #441、spec 427：八个结构化文件工具都补 `a relative path is anchored at the workspace root, not at any exec cwd` |
+| B4 | `process-start` 两种策略的 cwd 根说明不对称 | `capability-process-tools:1028/1030-1031` | **改（已合并）** | 4 — PR #441、spec 427：两种 cwd policy 都陈述同一句锚，只有 sandbox-backed 那支仍说"检查解析后的目录" |
+| E6 | `describe("Path")` 对 `write`／`edit`／`remove`／`apply_patch` 也说 `use "." for the workspace root`，而这四个工具的准入拒绝根 | `capability-builtin-tools` 的 `pathDescription` 单点投影 + `isWorkspacePath(".", false) === undefined`；实测：同一次 `describe` 既喂接受根的 `list` 也喂拒绝根的 `write` | **改（已合并）** | 4 — PR #441（merge `4d708d03a`）、spec 427：`describe(subject, admitsRoot)`，拒绝根的四者改为 `"." names the workspace root and is not an accepted path` |
+| E7 | LSP 四个工具的路径句从不把 `"."` 说成根的拼写，但 `path:"."` 仍以 `invalid` 闭合 | `capability-code-intelligence-tools:177-183`（`PATH_NOTE`）与 `safePath:471`（拒绝 `.` 组件） | 暂缓 | 现状不构成"描述邀请、准入拒绝"（`PATH_NOTE` 只说 `"."` 先归一化、结果不得含 `.` 组件）；若要补锚句单独成批 |
 | D11 | `automation-*.stopAt` 拒绝 RFC 3339 合法的 `Z` 后缀 | `v3-automation-tool.ts:78-79`、`:204` | **不改（更正）** | 本条审计结论有误：合同明确要求显式 numeric offset（`docs/product-v3/automation.md:61`「RFC 3339 values require an explicit numeric offset」），工具描述与拒绝文案都逐字这么说。RFC 3339 允许 `Z`，但产品合同把它窄化成必须带偏移量，`Z` 被拒是设计选择，不是缺陷。既有测试 `apps/cli/test/v3-automation-tool.test.ts:305` 正是钉住这一点。要接受 `Z` 必须先改合同，不是一行正则 |
 
 ## 三、已逐条核对、未发现缺陷
@@ -51,8 +53,8 @@
 | 1 | E4（root 拒绝文案） | **已合并**：PR #439（merge commit `cfc77d75a`），spec 425。red 2 failed / 112 passed，green 324 passed；共享套件 1551 passed / 1 skipped。CI 的 `Linux Sandbox Acceptance` 因账号计费未启动（非代码原因），仓库无分支保护，按既有惯例合并 |
 | 2 | ~~D11（`stopAt` 接受 `Z`）~~ **取消** | 经合同核对不是缺陷（见 D11 行）：合同要求显式 numeric offset，`Z` 被拒是设计选择。接受 `Z` 需先改合同，不在本清单范围 |
 | 3 | E1、E2、B1（args 里的 shell 元字符 / `args[0]===command`） | **已合并**：PR #440（merge commit `bf1b85952`），spec 426。文案按冻结 policy+alias 集投影；**不新增拒绝**（合法 literal argv 反例）。red 1 failed / 17 passed，green 325 passed；共享套件 1612 passed / 1 skipped；`test:cli` 6270 passed / 14 skipped。唯一 BUG 级 review finding（`--exec-alias fish` 让"本组合不承认任何 shell"变成假话）已修 |
-| 4 | E5、B3、B4（解析后绝对路径 / cwd 回显） | 待开始。需要预算与 compact 边界复核 |
-| 5 | D2、D3、D4、D6、D14 | 待开始 |
+| 4 | E6、B3、B4（路径句只广告自己的准入 / 相对路径锚 / 两种 cwd policy 对称） | **已合并**：PR #441（merge commit `4d708d03a`），spec 427。red 1 failed / 17 passed；green 三包 368 passed；每批必跑 `typecheck`／`test:v3` 367／`test:model-binding-ai-sdk` 339／`test:workspace-tools-backend` 85／`test:capability-builtin-tools` 266／`test:application-protocol` 74／`test:process-tools` 109／`test:context-management` 88／`test:v3-thread-store` 490／`test:apply-patch` 62／`test:cli` 6270 passed / 14 skipped 全 `exit 0`。两轮独立 review 共抓到 3 个 BUG（审计快照 `remove` 行未按最终代码重生成、快照 `exec` 两行回退成 426 之前文案、spec 表格把根拒绝写成语法句），全部修好后以"重跑 audit 后工作树干净"证明快照可由源码重现 |
+| 5 | E5、D2、D3、D4、D6、D14、E7 | 待开始 |
 
 ### 批次 1 的独立 review 结论与处置
 
@@ -83,3 +85,5 @@ review 提出两条阻断/三条建议，全部采纳或明确登记：
 ## 五、一条不属工具契约但影响最大的事实
 
 run 39557190033 的 8 个失败格里，6 格出现 provider `transport` 故障，累计吞掉 **2,246 秒**预算（largest-eigenval 一格 594s / 900s）。这是本轮最大的单一可回收项，但它是传输层问题，不属于本清单的工具契约范围，需要单独判定是否允许"剩余预算内续跑"而不违反 benchmark 的单次尝试语义。
+
+复现批次（run 39620264048，`20261021T164650Z--39620264048.md`）在同一 8 格上再次记录到 **7 次 transport 中断 / 1,181 秒**，并把它钉成可机械核对的事实：八格的 `exec` cwd 只有默认 `.` 与 workspace 内子目录，非成功闭包只有 3 次硬拒绝（`exec` 两次 `not-found`：`file`、`xxd` 不在冻结 PATH；`write` 一次 `conflict`），没有一次 `malformed-input`／`outside-workspace`／`cwd-unavailable`／`permission-denied`；五格 verifier 报"文件不存在"的交付物路径在整格轨迹里**从未被提到**。因此"文件不存在 = 写错路径 / cwd 搞错"这一假设被证据否定，本清单里与路径有关的两项（E4/E6）属于"描述与准入不一致"的可诊断性问题，不是这些失败的成因。
