@@ -125,5 +125,10 @@
     },
     "gateReading": "The smoke proves what the gate exists to prove: the new candidate builds from 5bc13e8b as a Linux x64 SEA, passes delivery verification, materializes the frozen glm-5.3/high provider identity through the re-synced dim-oauth credential, and reaches the model phase with frozen evidence. The one task's reward-0 is a model attempt outcome (the attempt's provider call failed, then the CLI delivered a status report) and is not a candidate build, delivery, container or harness setup failure; it is disclosed here as the same provider-transport risk this run declares. One cell is not a capability measurement and is never merged anywhere."
   },
-  "dispatched": false
+  "dispatched": true,
+  "runId": 39557190033,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39557190033",
+  "formalRunId": "formal-39557190033",
+  "dispatchedAt": "2026-10-21T06:43:22Z",
+  "dispatchHeadSha": "66ed09017c8f6125b45815d8bc6efc1faee93358"
 }
