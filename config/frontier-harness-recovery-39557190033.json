@@ -163,5 +163,134 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39585210102",
   "dispatchedAt": "2026-10-21T10:31:28Z",
   "dispatchHeadSha": "8422b1be89b8e06664c99e4053b277fbfbe30b2c",
-  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha is exactly the commit that contains this manifest: the freeze, the declared image transport and the dispatched tree are one identity. Each Generate job writes results/candidate/image-mirror-receipt.json before the harness runs."
+  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha is exactly the commit that contains this manifest: the freeze, the declared image transport and the dispatched tree are one identity. Each Generate job writes results/candidate/image-mirror-receipt.json before the harness runs.",
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T134127Z--39585210102.json",
+  "frozenRecordSha256": "358279caeb3386977e6838a9af03f5b799cfdc81fec134644fb6b6fe2c141266",
+  "outcome": {
+    "runWindow": "2026-10-21T10:31:28Z -> 2026-10-21T13:07:50Z (2h36m22s); 9 of 9 executed jobs green (3 freeze + 5 Generate + 1 Aggregate; the two mirror seed/proof jobs are skipped because fh_mirror_image is empty), no cancelled or failed job; headSha 8422b1be89b8e06664c99e4053b277fbfbe30b2c is the freeze commit itself.",
+    "headline": "The recovery did what it was admitted to do: all five verdict-less cells reached the model through the declared mirrors and every one of them now carries a canonical verdict — four passed and one failed, with zero error and zero not-evaluated. The source run's own record is untouched; the five filled cells enter only the official repaired reading, whose strict passAt1 stays null.",
+    "results": {
+      "present": 5,
+      "passed": 4,
+      "failed": 1,
+      "error": 0,
+      "notEvaluated": 0,
+      "validCells": 5,
+      "passRate": 0.8,
+      "passRateValidCells": 0.8,
+      "scoreable": false,
+      "capabilityMeasurement": false,
+      "passAt1": null
+    },
+    "acceptance": {
+      "coverage.full": "failed (5 of 30 Docker-eligible corpus tasks were predeclared — this batch is a subset by design)",
+      "verdicts.complete": "passed (5 present, 0 missing, 0 error, 0 not-evaluated)",
+      "candidate.single": "passed (cli-0.0.14-beta.1-5bc13e8-455f6ebecf88|0.0.14-beta.1|455f6ebecf883b20fb39cd41c64884573e85371f5163902436da46c1e3ecd93e|e49db27631f50392f49dc7114d035e77d1440a508b6b4367a062b3b836e7c135)",
+      "provider.single": "passed (model glm-5.3 at reasoning effort high; the frozen profile is glm-5.3)",
+      "instructions.frozen": "passed (5 records match their task's frozen instruction hash)"
+    },
+    "candidateId": "cli-0.0.14-beta.1-5bc13e8-455f6ebecf88",
+    "candidateNote": "Same source commit 5bc13e8b5e23de0140c7e5dbb930a68f8ac38359 and same cliVersion 0.0.14-beta.1 as the source run, but a different binary hash because the SEA build is not byte-reproducible: the source run's build delivered ce25df08d65a…, this one 455f6ebecf88…. The receipt is the identity that binds these attempts to the pinned commit.",
+    "usage": "5 of 5 tasks reported usage: promptTokens 123,280,009, cacheReadTokens 121,924,352, completionTokens 499,773, totalTokens 123,779,782, modelCallCount 901, costUsd null.",
+    "budgetExhausted": "The report's own budget-exhausted count is 0. One cell (meriyah) used its whole declared 5,400 s and is recorded as terminalCause=stopped with deliveryTerminalCause=completed; that is the agent phase finishing its own budget, not a budget-exhausted counter, and no budget was extended.",
+    "cells": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "disposition": "passed",
+        "class": "model attempt",
+        "rewards": {
+          "reward": 1,
+          "f2p_total": 25,
+          "f2p_passed": 25,
+          "p2p_total": 1679,
+          "p2p_passed": 1679
+        },
+        "durationMs": 4691270,
+        "asMeasured": "passed, terminalCause=completed (no delivery cause), 215 model outcomes, 4,691 s of its 5,400 s budget, evidence sha256 554f39efba6b0582a8bbda301acb08d6008f9c044fff94a000c9e76ec70fe89d"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "disposition": "passed",
+        "class": "model attempt",
+        "rewards": {
+          "reward": 1,
+          "f2p_total": 79,
+          "f2p_passed": 79,
+          "p2p_total": 66265,
+          "p2p_passed": 66265
+        },
+        "durationMs": 3961346,
+        "asMeasured": "passed, terminalCause=completed, 180 model outcomes, 3,961 s of 5,400 s, evidence sha256 a08dc76b56371cbb355dd220fc6f046ed28eb83106b47f63ad06e188d45d5987"
+      },
+      {
+        "task": "datacurve/katex-multicolumn-array-spans",
+        "disposition": "passed",
+        "class": "model attempt",
+        "rewards": {
+          "reward": 1,
+          "f2p_total": 94,
+          "f2p_passed": 94,
+          "p2p_total": 599,
+          "p2p_passed": 599
+        },
+        "durationMs": 3570699,
+        "asMeasured": "passed, terminalCause=completed, 165 model outcomes, 3,571 s of 5,400 s, evidence sha256 55c2894700ceecdc4bb266fd2b18e23ba18158ab8762d1ab90c86957b178728f. This cell's earlier ledger (three pre-model 429s under 0.0.11-beta.1 and one provider connection death on the mirrored attempt) is disclosed in admission.cells.priorAttemptsDisclosure; this is its first attempt under 0.0.14-beta.1 that reached a verdict."
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "disposition": "failed",
+        "class": "model attempt",
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 49,
+          "f2p_passed": 0,
+          "p2p_total": 51469,
+          "p2p_passed": 51469,
+          "partial": 0.9990488761209674
+        },
+        "durationMs": 5411735,
+        "asMeasured": "failed, terminalCause=stopped with deliveryTerminalCause=completed (its whole 5,400 s budget used before it delivered), 188 model outcomes, evidence sha256 4cb6839324447d1482f64bc9b351084366a86986c8a8566a3e963d65e3db28d8. Pass-to-pass was complete (51,469/51,469) while fail-to-pass was 0/49, so the verdict is a real task outcome, not an environment failure. This task carries a declared specification gap (the instruction never states how a for-of head is disambiguated when the binding itself is named `of`), and the report excludes it from capability comparisons while keeping the verdict."
+      },
+      {
+        "task": "datacurve/python-statemachine-state-data-scoping",
+        "disposition": "passed",
+        "class": "model attempt",
+        "rewards": {
+          "reward": 1,
+          "f2p_total": 72,
+          "f2p_passed": 72,
+          "p2p_total": 1286,
+          "p2p_passed": 1286
+        },
+        "durationMs": 3401353,
+        "asMeasured": "passed, terminalCause=completed, 152 model outcomes, 3,401 s of 5,400 s, evidence sha256 85670bd62c648713670ecc8ac08c45eb5311fbabf39731d42383ae36906660a8"
+      }
+    ],
+    "mirrorDeliveryProof": "The declared transport is mechanically proven inside this run, not merely asserted: the full run log contains zero occurrences of '429 Too Many Requests' (the source run had five); all five declared mappings appear with the exact source refs and digests of this manifest; every Generate job proved the pinned reference resolves from its local alias while the source registry was blackholed ('alias-resolved-from-local', 20 proof lines over 5 jobs); and each job recorded the alias image id, e.g. katex's sha256:bdafc0e4f8d9e7c7e560f84861f95acdf208ed7a98a8c338721e6eefbcfca178, which equals the config digest read independently from the source registry on 2026-10-19 — the alias points at the same image object. The four-to-seven second pre-model failures of the source run became 3,401-5,412 second attempts with 152-215 model exchanges.",
+    "sourceRunUntouched": "Run 39557190033's frozen record, artifacts and 18 passed / 7 failed / 5 error / 0 not-evaluated counts are unchanged. This batch fills cells and repairs nothing; its verdicts live only in this record and in the official repaired reading.",
+    "recordReading": "The complete hand-written record, including the per-cell table, the mirror evidence and the boundary statement, is docs/benchmarks/history/frontier-harness/20261021T134127Z--39585210102.md next to the verbatim report copy.",
+    "officialRepairedReading": {
+      "generatedBy": "node scripts/frontier-harness-repaired-reading.mjs --record docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json --repairs config/frontier-harness-recovery-39557190033.json --output docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.official.json --official",
+      "record": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.official.json",
+      "metric": "repairedPassRate",
+      "repairedPassRate": 0.7333333333333333,
+      "repairedCells": 5,
+      "extraAttempts": 5,
+      "ofExpected": 30,
+      "repairedCounts": {
+        "passed": 22,
+        "failed": 8,
+        "error": 0,
+        "notEvaluated": 0
+      },
+      "sourceRunCounts": {
+        "passed": 18,
+        "failed": 7,
+        "error": 5,
+        "notEvaluated": 0
+      },
+      "strictPassAt1": null,
+      "reading": "The source run's own record keeps 18 passed / 7 failed / 5 error / 0 not-evaluated and a null passAt1. Filling its five verdict-less cells with four passes and one failure yields 22 passed / 8 failed / 0 error / 0 not-evaluated over the same 30 predeclared tasks, i.e. a 73.3% repaired pass rate that counts five disclosed extra attempts. That figure is published beside the run's frozen record, never instead of it, and the strict one-attempt-per-task passAt1 remains null."
+    }
+  }
 }

@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "recordKind": "official-repaired-reading",
+  "sourceRun": {
+    "runId": 39557190033,
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json",
+    "frozenRecordSha256": "78e2247fdaf3bfc7174852674bb0136cd888f91e8e607c5019711388cad7dbbb",
+    "results": {
+      "passed": 18,
+      "failed": 7,
+      "error": 5,
+      "notEvaluated": 0
+    },
+    "passAt1": null
+  },
+  "repairs": [
+    {
+      "batchLabel": "recovery-39557190033-20261021",
+      "kind": "recovery",
+      "runId": 39585210102,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39585210102",
+      "manifestPath": "config/frontier-harness-recovery-39557190033.json",
+      "cells": [
+        {
+          "task": "datacurve/arktype-json-schema-refs-dependencies",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "model attempt",
+          "rewards": {
+            "reward": 1,
+            "f2p_total": 25,
+            "f2p_passed": 25,
+            "p2p_total": 1679,
+            "p2p_passed": 1679
+          },
+          "durationMs": 4691270
+        },
+        {
+          "task": "datacurve/expr-try-catch-errors",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "model attempt",
+          "rewards": {
+            "reward": 1,
+            "f2p_total": 79,
+            "f2p_passed": 79,
+            "p2p_total": 66265,
+            "p2p_passed": 66265
+          },
+          "durationMs": 3961346
+        },
+        {
+          "task": "datacurve/katex-multicolumn-array-spans",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "model attempt",
+          "rewards": {
+            "reward": 1,
+            "f2p_total": 94,
+            "f2p_passed": 94,
+            "p2p_total": 599,
+            "p2p_passed": 599
+          },
+          "durationMs": 3570699
+        },
+        {
+          "task": "datacurve/meriyah-explicit-resource-declarations",
+          "originalDisposition": "error",
+          "remediatedDisposition": "failed",
+          "changed": true,
+          "class": "model attempt",
+          "rewards": {
+            "reward": 0,
+            "f2p_total": 49,
+            "f2p_passed": 0,
+            "p2p_total": 51469,
+            "p2p_passed": 51469,
+            "partial": 0.9990488761209674
+          },
+          "durationMs": 5411735
+        },
+        {
+          "task": "datacurve/python-statemachine-state-data-scoping",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "model attempt",
+          "rewards": {
+            "reward": 1,
+            "f2p_total": 72,
+            "f2p_passed": 72,
+            "p2p_total": 1286,
+            "p2p_passed": 1286
+          },
+          "durationMs": 3401353
+        }
+      ]
+    }
+  ],
+  "repairedReading": {
+    "passed": 22,
+    "failed": 8,
+    "error": 0,
+    "notEvaluated": 0,
+    "expected": 30,
+    "validCells": 30,
+    "passRate": 0.7333333333333333,
+    "passRateValidCells": 0.7333333333333333,
+    "passAt1": null,
+    "extraAttempts": 5,
+    "cells": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "model attempt"
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "model attempt"
+      },
+      {
+        "task": "datacurve/katex-multicolumn-array-spans",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "model attempt"
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "originalDisposition": "error",
+        "remediatedDisposition": "failed",
+        "changed": true,
+        "class": "model attempt"
+      },
+      {
+        "task": "datacurve/python-statemachine-state-data-scoping",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "model attempt"
+      }
+    ]
+  },
+  "official": {
+    "metric": "repairedPassRate",
+    "value": 0.7333333333333333,
+    "repairedCells": 5,
+    "extraAttempts": 5,
+    "ofExpected": 30,
+    "label": "FrontierHarness Eval v1.0, run 39557190033 on candidate 5bc13e8b5e23de0140c7e5dbb930a68f8ac38359; 5 cell(s) re-measured once each under a frozen, declared manifest. The strict one-attempt-per-task pass@1 of the raw run is null; this official result counts the declared re-measurements and discloses them."
+  },
+  "boundary": "A repaired reading is not a pass@1. Every repaired cell received one extra attempt beyond the run's own predeclared attempts, so this figure counts more attempts than the run did, it is published beside the run's frozen record and never instead of it, and the run's own verdicts are unchanged. Across the whole reading a cell carries exactly one additional attempt at most, and each repair is labelled with the class it was admitted under so a reader can recompute the reading from the frozen record plus the named manifests."
+}

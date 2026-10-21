@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.14-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "5bc13e8b5e23de0140c7e5dbb930a68f8ac38359",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 5,
+    "expectedEligible": 5,
+    "present": 5,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 4,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.8,
+  "validCells": 5,
+  "passRateValidCells": 0.8,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "5 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "5 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "5 records agree on one frozen candidate (cli-0.0.14-beta.1-5bc13e8-455f6ebecf88|0.0.14-beta.1|455f6ebecf883b20fb39cd41c64884573e85371f5163902436da46c1e3ecd93e|e49db27631f50392f49dc7114d035e77d1440a508b6b4367a062b3b836e7c135)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "5 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 5,
+    "promptTokens": 123280009,
+    "completionTokens": 499773,
+    "cacheReadTokens": 121924352,
+    "totalTokens": 123779782,
+    "modelCallCount": 901,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 25,
+        "f2p_passed": 25,
+        "p2p_total": 1679,
+        "p2p_passed": 1679,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 4691270,
+      "usage": {
+        "promptTokens": 31236791,
+        "completionTokens": 121530,
+        "cacheReadTokens": 30910464,
+        "costUsd": null,
+        "totalTokens": 31358321,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 326327,
+        "modelCallCount": 215,
+        "reportedCallCount": 215,
+        "reportedInputTokens": 31236791
+      },
+      "evidenceSha256": "554f39efba6b0582a8bbda301acb08d6008f9c044fff94a000c9e76ec70fe89d",
+      "batchId": "recovery-39557190033-20261021"
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 79,
+        "f2p_passed": 79,
+        "p2p_total": 66265,
+        "p2p_passed": 66265,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3961346,
+      "usage": {
+        "promptTokens": 28455978,
+        "completionTokens": 104474,
+        "cacheReadTokens": 28225984,
+        "costUsd": null,
+        "totalTokens": 28560452,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 229994,
+        "modelCallCount": 180,
+        "reportedCallCount": 180,
+        "reportedInputTokens": 28455978
+      },
+      "evidenceSha256": "a08dc76b56371cbb355dd220fc6f046ed28eb83106b47f63ad06e188d45d5987",
+      "batchId": "recovery-39557190033-20261021"
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 94,
+        "f2p_passed": 94,
+        "p2p_total": 599,
+        "p2p_passed": 599,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3570699,
+      "usage": {
+        "promptTokens": 25521888,
+        "completionTokens": 97115,
+        "cacheReadTokens": 25212992,
+        "costUsd": null,
+        "totalTokens": 25619003,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 308896,
+        "modelCallCount": 165,
+        "reportedCallCount": 165,
+        "reportedInputTokens": 25521888
+      },
+      "evidenceSha256": "55c2894700ceecdc4bb266fd2b18e23ba18158ab8762d1ab90c86957b178728f",
+      "batchId": "recovery-39557190033-20261021"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 0,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9990488761209674
+      },
+      "durationMs": 5411735,
+      "usage": {
+        "promptTokens": 22061174,
+        "completionTokens": 106597,
+        "cacheReadTokens": 21791040,
+        "costUsd": null,
+        "totalTokens": 22167771,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 270134,
+        "modelCallCount": 189,
+        "reportedCallCount": 189,
+        "reportedInputTokens": 22061174
+      },
+      "evidenceSha256": "4cb6839324447d1482f64bc9b351084366a86986c8a8566a3e963d65e3db28d8",
+      "batchId": "recovery-39557190033-20261021"
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1,
+        "f2p_total": 72,
+        "f2p_passed": 72,
+        "p2p_total": 1286,
+        "p2p_passed": 1286,
+        "f2p": 1,
+        "p2p": 1,
+        "partial": 1
+      },
+      "durationMs": 3401353,
+      "usage": {
+        "promptTokens": 16004178,
+        "completionTokens": 70057,
+        "cacheReadTokens": 15783872,
+        "costUsd": null,
+        "totalTokens": 16074235,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 220306,
+        "modelCallCount": 152,
+        "reportedCallCount": 152,
+        "reportedInputTokens": 16004178
+      },
+      "evidenceSha256": "85670bd62c648713670ecc8ac08c45eb5311fbabf39731d42383ae36906660a8",
+      "batchId": "recovery-39557190033-20261021"
+    }
+  ]
+}
