@@ -12,8 +12,8 @@
 
 | # | 现象 | 代码证据 | 处置 | 批次 |
 | --- | --- | --- | --- | --- |
-| E1 | `exec` 的 args 里出现 shell 管道/`&&` 时，二进制把整串当文件参数，报 `No such file or directory`；模型无法得知"本工具无 shell，需用 `sh -c`"。run 中 extract-elf 2 次、meriyah 1 次 | `capability-builtin-tools/src/index.ts:1116`（只说 not a shell）、`:1123`、`:1824-1847`（canonicalizer 只校验 NUL/Unicode/字节）；`workspace-tools.ts:67-71` 明确禁止全局点名 shell | **改** | 2 |
-| E2 | `args[0] === command` 时进程照跑（`readelf readelf -a`），退出码 1 但已部分成功，模型被误导 | `capability-builtin-tools/src/index.ts:1122`（有禁令，无诊断） | **改** | 2 |
+| E1 | `exec` 的 args 里出现 shell 管道/`&&` 时，二进制把整串当文件参数，报 `No such file or directory`；模型无法得知"本工具无 shell，需用 `sh -c`"。run 中 extract-elf 2 次、meriyah 1 次 | `capability-builtin-tools/src/index.ts:1116`（只说 not a shell）、`:1123`、`:1824-1847`（canonicalizer 只校验 NUL/Unicode/字节）；`workspace-tools.ts:67-71` 明确禁止全局点名 shell | **改（文案已合并）** | 3 — PR #440、spec 426。**不做拒绝**：`grep -F 'a\|b'`、`make make` 是合法 literal argv，按元字符拒绝会造出新的误拒 |
+| E2 | `args[0] === command` 时进程照跑（`readelf readelf -a`），退出码 1 但已部分成功，模型被误导 | `capability-builtin-tools/src/index.ts:1122`（有禁令，无诊断） | **改（后果已写明）** | 3 — PR #440。**不做拒绝**：`make make`（target 名等于命令名）、`grep grep file` 都合法 |
 | E3 | 缺 `command` 时只回 `malformed-input · required field command`，无 message | `capability-builtin-tools/src/index.ts:1751-1759` | **改** | 1 |
 | E4 | `write{path:"."}` 等根路径被拒，文案却是"路径语法含反斜杠/URI/控制字符"，而描述里写着 `use "." for the workspace root` | 描述 `:2563-2566`；拒绝 `:1694`、`:2299`、`:2502`；`apply_patch:517` | **改（已合并）** | 1 — PR #439、spec 425 |
 | E5 | `write` 回显输入路径拼写（`{"path":"diff.pl"}`），`exec` 回显 `cwd:"."`，`process-start` 完全不回显 cwd | `workspace-tools-backend:238/281/362`；校验器强制 `value.path === input.path`（`capability-builtin-tools:1922`）；`external-process-service:841` | **改** | 3 |
@@ -34,7 +34,7 @@
 | D13 | `apply_patch` 顶层 status 恒 `succeeded`，即使全部文件失败 | `capability-apply-patch:341` | **需先确认** | 在 run 39557190033 中 build-cython-ext 有一次 `apply_patch` 失败（无 path）；先复现该 closure 实际形状再定 |
 | D14 | `subagent-*`/`automation-*`/`thread-*` 的失败 payload 只有 `{code}`，无 message | `v3-subagent-tool.ts:1169`、`v3-automation-tool.ts:487` | 暂缓 | 词表较多，单独批次 |
 | D15 | 结构化文件工具从不回显解析后的绝对路径（与 E5 同源） | 同 E5 | 并入 E5 | — |
-| B1 | 模型可见文本中没有任何一句说明"管道/重定向/`&&` 该用 `sh -c`" | 全仓 0 处；`workspace-tools.ts:67-71` 的设计约束 | **改（条件投影）** | 必须与 policy 允许集一致，不能全局写死；与 E1 同批 |
+| B1 | 模型可见文本中没有任何一句说明"管道/重定向/`&&` 该用 `sh -c`" | 全仓 0 处；`workspace-tools.ts:67-71` 的设计约束 | **改（已合并）** | 3 — PR #440：按冻结 policy+alias 集投影；`path` 点名 `sh -c`，`catalog` 点名实际承认的 shell alias，词表外的 shell 只给条件式补救，不断言"本组合没有 shell" |
 | B2 | `exec` 从未用散文说明 `command` 必填 | `capability-builtin-tools:1130-1140` | **改** | 与 E3 同批 |
 | B3 | 文本没有说"相对路径解析到 workspace root" | `:2565-2566`；根只出现在 external context（非权威块） | **改** | 与 E5 同批（回显 + 一句说明） |
 | B4 | `process-start` 两种策略的 cwd 根说明不对称 | `capability-process-tools:1028/1030-1031` | **改** | 与 E5 同批 |
@@ -50,7 +50,7 @@
 | --- | --- | --- |
 | 1 | E4（root 拒绝文案） | **已合并**：PR #439（merge commit `cfc77d75a`），spec 425。red 2 failed / 112 passed，green 324 passed；共享套件 1551 passed / 1 skipped。CI 的 `Linux Sandbox Acceptance` 因账号计费未启动（非代码原因），仓库无分支保护，按既有惯例合并 |
 | 2 | ~~D11（`stopAt` 接受 `Z`）~~ **取消** | 经合同核对不是缺陷（见 D11 行）：合同要求显式 numeric offset，`Z` 被拒是设计选择。接受 `Z` 需先改合同，不在本清单范围 |
-| 3 | E1、E2、B1（args 里的 shell 元字符 / `args[0]===command` 的具名诊断） | 待开始。这是实测出现次数最多的一类浪费（extract-elf、meriyah、chess） |
+| 3 | E1、E2、B1（args 里的 shell 元字符 / `args[0]===command`） | **已合并**：PR #440（merge commit `bf1b85952`），spec 426。文案按冻结 policy+alias 集投影；**不新增拒绝**（合法 literal argv 反例）。red 1 failed / 17 passed，green 325 passed；共享套件 1612 passed / 1 skipped；`test:cli` 6270 passed / 14 skipped。唯一 BUG 级 review finding（`--exec-alias fish` 让"本组合不承认任何 shell"变成假话）已修 |
 | 4 | E5、B3、B4（解析后绝对路径 / cwd 回显） | 待开始。需要预算与 compact 边界复核 |
 | 5 | D2、D3、D4、D6、D14 | 待开始 |
 
