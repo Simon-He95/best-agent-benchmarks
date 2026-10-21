@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-39557190033-20261021",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A five-cell recovery cannot produce a pass@1 of its own and is never merged into the run it fills. Run 39557190033 keeps its own frozen record (18 passed / 7 failed / 5 error / 0 not-evaluated, scoreable false, passAt1 null). The cells filled here were recorded as error, i.e. they carry no prediction that a new attempt could overwrite.",
+  "requestedBy": "User, 2026-10-21: \"那就另立一个 recovery manifest，把这 5 个无判定格补上\" — after run 39557190033 was frozen, the user asks for a recovery manifest that fills the five verdict-less cells. This manifest is that admission; nothing else is re-run.",
+  "sourceRun": {
+    "runId": 39557190033,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39557190033",
+    "formalRunId": "formal-39557190033",
+    "headSha": "66ed09017c8f6125b45815d8bc6efc1faee93358",
+    "window": "2026-10-21T06:43:22Z -> 2026-10-21T09:08:29Z",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json (exact bytes of report.json inside artifact frontier-harness-report-39557190033)",
+    "frozenRecordSha256": "78e2247fdaf3bfc7174852674bb0136cd888f91e8e607c5019711388cad7dbbb",
+    "results": {
+      "passed": 18,
+      "failed": 7,
+      "error": 5,
+      "notEvaluated": 0,
+      "passRate": 0.6,
+      "validCells": 25,
+      "passRateValidCells": 0.72,
+      "scoreable": false,
+      "passAt1": null
+    },
+    "candidatePin": "cli-0.0.14-beta.1-5bc13e8-ce25df08d65a (CI-built linux-x64-gnu SEA from best-agent main 5bc13e8b5e23de0140c7e5dbb930a68f8ac38359, package version 0.0.14-beta.1; binary sha256 ce25df08d65a61ab154959e63f5757198295de5423304d60da09e4adae03080e, candidateManifestSha256 20b4aaa829fe7d365a7caa128e2efba8acec8659246a9e5c4031c32e3a354e5f)"
+  },
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure or an explicit provider transport failure; AGENTS.md:11 — resume only work that has no canonical record. Each cell below is quoted exactly as run 39557190033 measured it. None of the five is passed or failed, so no canonical verdict is retried or overwritten.",
+    "mechanicalProof": "All five records carry result.disposition=error with result.exception.type=RuntimeError, no result.modelOutcomes, and no artifacts.evidence (the harness writes evidence only once an attempt starts), so no model call was ever made. Each exception message names the source image tag and the manifest digest its pull was refused at, and each refusal digests the identical object the declared mirror carries: the tag and digest pairs were extracted from the five records and compared to the mirror digests programmatically (2026-10-21), five of five equal.",
+    "cells": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 4426, no model outcomes, no attempt evidence; `docker compose ... build` failed at `load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1` with `429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded` on manifest sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9",
+        "whyNotTheModelOrTheCandidate": "The refusal happens while Docker builds the task image, before any agent exists in the container; the manifest digest it names is exactly the object the declared mirror aliases.",
+        "priorAttempts": "Run 39266782346 recorded this cell as the same pre-model 429; recovery batch 39285999175 then delivered it through the same mirror and it reached the model and was graded failed (f2p 23/25, p2p 1679/1679). This recovery is a new admission under a new source run whose cell carries no prediction."
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 4810, no model outcomes, no attempt evidence; refused at `...:kh71gkadwafw4ry4r6g37era0182qpms-v1.1` with the same 429 on manifest sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486",
+        "whyNotTheModelOrTheCandidate": "Same signature as the cell above: the image never reached the runner, so no model was invoked.",
+        "priorAttempts": "Run 39266782346 recorded the same pre-model 429; recovery batch 39285999175 delivered it through this mirror and it PASSED (f2p 94/94). This recovery is a new admission under a new source run whose cell carries no prediction."
+      },
+      {
+        "task": "datacurve/katex-multicolumn-array-spans",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 5636, no model outcomes, no attempt evidence; refused at `...:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1` with the same 429 on manifest sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+        "whyNotTheModelOrTheCandidate": "Same signature as the two cells above.",
+        "priorAttemptsDisclosure": "This cell has the longest attempt ledger of the five and it is disclosed in full rather than hidden: attempts 1-3 (runs 39104093096, 39136019625, 39173982888) were pre-model 429s on the same image under candidate 0.0.11-beta.1; attempt 4 (run 39189767089, config/frontier-harness-recovery-39104093096-katex-mirror.json) proved the mirror works — the model ran 37 exchanges — and ended in a provider `connection` failure, and that manifest closed the cell with a `lastAttempt` clause scoped to run 39104093096. This run (39557190033) is a different source run and a different candidate (0.0.14-beta.1), and it recorded the cell as a pre-model 429 again, so under AGENTS.md:13 the cell again has no prediction and is recoverable here. This manifest declares one attempt and does not claim more than that."
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 5185, no model outcomes, no attempt evidence; refused at `...:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1` with the same 429 on manifest sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "whyNotTheModelOrTheCandidate": "Same signature as the cells above.",
+        "priorAttempts": "Run 39266782346 recorded the same pre-model 429; recovery batch 39285999175 delivered it through this mirror and it reached the model and was graded failed. This recovery is a new admission under a new source run whose cell carries no prediction."
+      },
+      {
+        "task": "datacurve/python-statemachine-state-data-scoping",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 7217, no model outcomes, no attempt evidence; refused at `...:kh719np6e210pf8skawv132rw183pfyy-v1.1` with the same 429 on manifest sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a",
+        "whyNotTheModelOrTheCandidate": "Same signature as the cells above.",
+        "priorAttempts": "Run 39266782346 recorded a provider transport death for this cell; recovery batch 39285999175 delivered it through this mirror and reached the model (graded failed). This run recorded it as a pre-model 429, so it again carries no prediction."
+      }
+    ],
+    "notAdmittedHere": "The seven cells run 39557190033 graded as failed (build-cython-ext, chess-best-move, code-from-image, dna-insert, extract-elf, gcode-to-text, largest-eigenval) carry verifier-graded verdicts and are NOT filled by this recovery. Measuring any of them again would require a separately declared re-measurement under AGENTS.md:11, which this manifest does not declare and does not perform."
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "The five task images are delivered from digest-pinned GHCR mirrors instead of the anonymous public.ecr.aws pull that refused all five. Nothing else changes: the corpus pin, the task sources, the harness, each task's Dockerfile, the candidate pin (best-agent main 5bc13e8b / 0.0.14-beta.1), the provider (glm-5.3 at reasoning effort high through dim-oauth), fh_agent_timeout_multiplier=1, every cell's own official budget, and fh_max_parallel=3 (the source run's own generation parallelism) are exactly what run 39557190033 declared. Each task's Dockerfile keeps its pinned `FROM public.ecr.aws/...` bytes because the mirror is aliased to that reference locally, so the frozen per-task record's task.dockerImage stays the reference the Dockerfile actually uses.",
+    "whyMirrorRatherThanAuthenticatedPull": "An authenticated public.ecr.aws pull would need an AWS principal and long-lived access keys as new repository secrets in this public repository, and it only moves the quota to that account. The GHCR mirror needs no external credential (it uses this repository's own GITHUB_TOKEN) and its identity is checkable by digest rather than by trusting the transport.",
+    "mirrors": [
+      {
+        "task": "datacurve/arktype-json-schema-refs-dependencies",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1",
+        "sourceDigest": "sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9",
+        "digestPreserved": true,
+        "seedingRun": 39281423406
+      },
+      {
+        "task": "datacurve/expr-try-catch-errors",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1",
+        "sourceDigest": "sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486",
+        "digestPreserved": true,
+        "seedingRun": 39281433847
+      },
+      {
+        "task": "datacurve/katex-multicolumn-array-spans",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1",
+        "sourceDigest": "sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae",
+        "digestPreserved": true,
+        "seedingRun": 39189195640
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1",
+        "sourceDigest": "sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "digestPreserved": true,
+        "seedingRun": 39281458586
+      },
+      {
+        "task": "datacurve/python-statemachine-state-data-scoping",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1",
+        "sourceDigest": "sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a",
+        "digestPreserved": true,
+        "seedingRun": 39281474305
+      }
+    ],
+    "mirrorAvailabilityCheck": "Reproduced by this operator on 2026-10-21 before the freeze: `docker manifest inspect` resolved all five digest-pinned refs anonymously from GHCR (5 of 5 present), so no dispatch is spent on a mirror that no longer exists. The Generate job still re-proves it in-run.",
+    "inJobGuard": "The Generate job pulls each declared mirror, aliases it to the pinned reference, blackholes the source registry host in /etc/hosts, and refuses to continue unless a probe build proves the pinned reference resolves from the local alias. A plumbing failure therefore fails that job before the harness runs and cannot consume an attempt.",
+    "notAConditionThatMakesTheCellPassable": "The change touches only how the frozen image bytes reach the runner. It does not alter image contents (digest-identical), any task instruction, the workspace, the tool surface, the model, the effort, the budgets or the grader, so it cannot make a task easier or a verdict gentler."
+  },
+  "constraints": [
+    "Only the five cells with no canonical record are filled here; every verdict of run 39557190033 is preserved and never replaced, repaired or reinterpreted by this recovery.",
+    "Same candidate pin, same provider, same effort, same per-cell official budgets, same grader and same fh_max_parallel=3 as run 39557190033; the only declared delta is the image transport for these five datacurve cells.",
+    "One predeclared headless attempt per cell. A cell that dies again keeps no verdict, and the corpus reading keeps it verdict-less.",
+    "Neither this recovery nor run 39557190033 keeps a pass@1 and none is changed by this batch: recovery fills cells and repairs nothing, and its outcome is never merged into a rate.",
+    "No earlier frozen record, manifest or artifact is modified; the failed evidence of run 39557190033 stays exactly as it was measured."
+  ],
+  "dispatchInputs": {
+    "whyOneDispatch": "The plan job refuses a run that predeclares more than 10 tasks (`Each workflow run must preselect between 1 and 10 tasks.`), and this set is five cells, so a single dispatch covers it without splitting.",
+    "whyExplicitTaskIds": "`fh_tasks` is used instead of offset/limit because these five cells are scattered through corpus order, which also holds the 18 cells that already passed and the 7 that are graded failed; an offset/limit selection would re-run cells this manifest does not admit. `fh_tasks` is validated against the frozen corpus and the GPU exclusion before any job starts.",
+    "whyParallelThree": "fh_max_parallel=3 is the source run's own generation parallelism, kept identical so the only declared delta stays the image transport.",
+    "whyNoSeparateSmoke": "The candidate commit 5bc13e8b was already smoke-gated on this corpus (run 39555372358) and full-run (39557190033) under this exact provider profile; this batch rebuilds the same commit and its fh-candidate job must pass the same delivery gate before any Generate job can start, so a second smoke would measure the same plumbing, not a new candidate.",
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/arktype-json-schema-refs-dependencies,datacurve/expr-try-catch-errors,datacurve/katex-multicolumn-array-spans,datacurve/meriyah-explicit-resource-declarations,datacurve/python-statemachine-state-data-scoping",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "3",
+    "fh_batch": "recovery-39557190033-20261021",
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\"}"
+  },
+  "expectedTasks": [
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping"
+  ],
+  "expectedJobs": "3 freeze jobs (candidate, corpus, plan) + 5 Generate jobs + 1 Aggregate = 9; the two mirror jobs stay inert because fh_mirror_image is empty (the mirrors already exist). Generation parallelism 3, so the batch runs in two waves; expected wall clock about 2-3 hours because four of the five cells have a 5400 s official budget.",
+  "knownRisks": {
+    "providerTransport": "A transport death would leave a cell without a clean verdict, as it already did for one attempt of the katex cell and for several cells of earlier runs.",
+    "credentialExpiry": "The dim OAuth JWT in CI carries exp 2026-10-26T06:20:08Z; provider materialization happens at the start of every Generate job and refuses an expired token, so an expiry would surface as a pre-model failure with no verdict.",
+    "mirrorPull": "The Generate job's own guard makes a mirror or alias failure fail closed before the harness runs, so no attempt is consumed by a plumbing failure.",
+    "budget": "Each cell keeps the official budget the source run declared (5400 s for these five); none is extended.",
+    "finality": "One attempt per cell in this manifest. A cell that dies again keeps no verdict and this manifest makes no second dispatch for it."
+  },
+  "plannedChecks": "After the report artifact is downloaded: the five dispositions against their source-run measurements, the presence and content of results/candidate/image-mirror-receipt.json in each Generate job's own artifacts, mechanical attribution of any verdict-less outcome, evidence sha256 checks for any graded cell, the acceptance block for a 5-task subset, usage, and then the repaired reading of run 39557190033 over the five filled cells (with the strict passAt1 left null).",
+  "dispatched": false
+}
