@@ -158,5 +158,10 @@
     "finality": "One attempt per cell in this manifest. A cell that dies again keeps no verdict and this manifest makes no second dispatch for it."
   },
   "plannedChecks": "After the report artifact is downloaded: the five dispositions against their source-run measurements, the presence and content of results/candidate/image-mirror-receipt.json in each Generate job's own artifacts, mechanical attribution of any verdict-less outcome, evidence sha256 checks for any graded cell, the acceptance block for a 5-task subset, usage, and then the repaired reading of run 39557190033 over the five filled cells (with the strict passAt1 left null).",
-  "dispatched": false
+  "dispatched": true,
+  "runId": 39585210102,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39585210102",
+  "dispatchedAt": "2026-10-21T10:31:28Z",
+  "dispatchHeadSha": "8422b1be89b8e06664c99e4053b277fbfbe30b2c",
+  "dispatchNote": "The freeze commit was pushed before dispatch, so this run's own headSha is exactly the commit that contains this manifest: the freeze, the declared image transport and the dispatched tree are one identity. Each Generate job writes results/candidate/image-mirror-receipt.json before the harness runs."
 }
