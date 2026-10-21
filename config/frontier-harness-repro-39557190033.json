@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "repro-39557190033-20261021",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A reproduction batch has no pass@1 of its own and is never merged into any rate. Run 39557190033 keeps its own frozen record (18/7/5/0 before its declared recovery) and its official repaired reading (22/8/0/0, repairedPassRate 0.7333). This batch re-measures the eight cells that reading reports as failed, exactly once each, and replaces none of their verdicts.",
+  "requestedBy": "User, 2026-10-21: \"把失败的任务，用最新的best-agent去复现，然后看是否哪些是我们的tool_call限制问题才产生的失败\" — reproduce the failed tasks on the newest best-agent, then determine whether any failure was caused by our own tool-call admission. This manifest is the reproduction half; the tool-call attribution was answered separately from the existing evidence in docs/benchmarks/frontier-harness-tool-call-attribution-39557190033.md.",
+  "purpose": "Two questions this batch answers that the source evidence cannot: (1) do these eight dispositions reproduce on the newest candidate, or were any of them candidate-specific; (2) does the tool-call waste observed in the source run (shell pipelines passed as literal args, command name repeated as args[0]) recur on the newest tool surface. It is a variance check, not a capability measurement: the source run's verdicts stand unchanged and this batch's own numbers are never published as a rate.",
+  "sourceReading": {
+    "sourceRun": 39557190033,
+    "sourceRunUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39557190033",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json",
+    "frozenRecordSha256": "78e2247fdaf3bfc7174852674bb0136cd888f91e8e607c5019711388cad7dbbb",
+    "recoveryRun": 39585210102,
+    "officialRepairedReading": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.official.json",
+    "repairedReading": {
+      "passed": 22,
+      "failed": 8,
+      "error": 0,
+      "notEvaluated": 0,
+      "passAt1": null,
+      "repairedPassRate": 0.7333333333333333
+    },
+    "sourceCandidate": "cli-0.0.14-beta.1-5bc13e8-ce25df08d65a (best-agent main 5bc13e8b, 0.0.14-beta.1)"
+  },
+  "admission": {
+    "rule": "AGENTS.md:11 — a declared re-measurement is the only way an already-graded cell may be measured again, and it never replaces the verdict it re-measures. All eight cells already carry a canonical verdict (seven from run 39557190033, meriyah from its recovery run 39585210102). Each receives exactly one extra attempt, admitted under the variance-check class, with the frozen per-cell official budget, the same grader and the same generation parallelism as the source run. No cell receives a second extra attempt in this manifest.",
+    "class": "variance check — the source verdict stands and is not replaced; this attempt asks whether the same frozen composition reproduces the same terminal state on a newer candidate",
+    "cells": [
+      {
+        "task": "terminal-bench/build-cython-ext",
+        "asMeasured": "failed, reward 0, 779s of 900s, terminalCause=stopped, deliveryTerminalCause=completed, 48 model outcomes, 1 model failure (transport, 1912ms), 6 failed tool closures",
+        "hypothesis": "genuine difficulty: the three pyknotid Cython extensions were not built; 16 edits to setup.py/.pyx and 26 exec calls ran"
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "asMeasured": "failed, reward 0, 839s of 900s, terminalCause=stopped, 26 model outcomes, 1 model failure (transport, 49529ms), 8 failed execs",
+        "hypothesis": "no deliverable: /app/move.txt was never written; the budget went to pip/apt/cairo setup and vision analysis"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "asMeasured": "failed, reward 0, 1171s of 1200s, terminalCause=stopped with deliveryTerminalCause=run-deadline, 37 model outcomes, 2 model failures (transport, 6329ms + 120003ms), 5 failed tool closures",
+        "hypothesis": "no deliverable: /app/output.txt was never written; 11 writes all went to /tmp scratch scripts during OCR exploration"
+      },
+      {
+        "task": "terminal-bench/dna-insert",
+        "asMeasured": "failed, reward 0, 569s of 1800s, terminalCause=completed, 21 model outcomes, 0 model failures, 3 failed tool closures",
+        "hypothesis": "genuine domain error: primers.fasta parsed and passed every structural assertion, failing only |Tm_fwd - Tm_rev| = 8.46 > 5"
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "asMeasured": "failed, reward 0, 793s of 900s, terminalCause=stopped, 6 model outcomes, 1 model failure (transport, 460173ms = 51% of the budget), 4 failed execs",
+        "hypothesis": "no deliverable: zero write calls in the whole attempt; /app/extract.js never existed. The transport stall plus a non-shell exec shape consumed the budget"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "asMeasured": "failed, reward 0, 785s of 900s, terminalCause=stopped, 33 model outcomes, 1 model failure (transport, 24201ms), 1 failed exec",
+        "hypothesis": "no deliverable: /app/out.txt was never written; 12 writes all went to /app rendering scratch scripts"
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "asMeasured": "failed, reward 0, 768s of 900s, terminalCause=stopped, 6 model outcomes, 1 model failure (transport, 593882ms = 66% of the budget), 2 failed execs, ZERO write/edit calls",
+        "hypothesis": "no implementation: /app/eigen.py stayed the task's own reference stub, which passes 26 of 27 verifier cases and fails only test_speedup[2] by 1 microsecond. The 26/27 is the stub's score, not the model's"
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "asMeasured": "failed, reward 0, f2p 0/49, p2p 51469/51469 (partial 0.99905), 5411s of 5400s, terminalCause=stopped, 188 model outcomes, 1 model failure (transport, 1111585ms = 21% of the budget), 3 hard rejections",
+        "hypothesis": "genuine difficulty: no fail-to-pass case satisfied, no passing case broken"
+      }
+    ]
+  },
+  "candidatePin": {
+    "sourceCommit": "6d8f97ed63b112a1913522ceab57f23cf1836283",
+    "cliVersion": "0.0.15-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "origin/main head of Simon-He95/best-agent read on 2026-10-21 (commit date 2026-10-21T14:28:28Z, 'Merge pull request #437 from Simon-He95/codex/audit-history-identity-475'); apps/cli/package.json at that commit carries 0.0.15-beta.1; .nvmrc 24.15.0. The workflow builds the Linux x64 SEA itself in this run's own fh-candidate job; the SEA is not byte-reproducible, so this run's binary hash belongs to this run alone.",
+    "deltaFromSourceCandidate": "255 commits from 1577b7b6 to 5bc13e8b were audited for run 39557190033; 5bc13e8b to 6d8f97ed is 39 further commits of which the model-visible ones are recorded in the tool-contract disposition list. No tool-contract fix from that list is included in this candidate: this batch is the UNFIXED baseline."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": ["max", "high"],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to run 39557190033 so the only declared deltas are the candidate and the image transport below."
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "The one datacurve cell in this set (meriyah) is delivered from its digest-pinned GHCR mirror instead of the anonymous public.ecr.aws pull. The seven terminal-bench cells use their frozen Docker Hub images unchanged. Nothing else changes: corpus pin, task sources, harness, each task's Dockerfile, provider, effort, fh_agent_timeout_multiplier=1, each cell's own official budget, and fh_max_parallel=3 (the source run's own generation parallelism).",
+    "mirrors": [
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1",
+        "sourceDigest": "sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "digestPreserved": true,
+        "seedingRun": 39281458586
+      }
+    ]
+  },
+  "constraints": [
+    "One predeclared headless attempt per cell; no cell receives a second extra attempt in this manifest.",
+    "Every verdict of run 39557190033 and of recovery run 39585210102 is preserved and never replaced, repaired or reinterpreted by this batch.",
+    "This batch produces no pass@1 and its own counts are never merged into any rate; the official figure for run 39557190033 stays its declared repaired pass rate over its own predeclared task set.",
+    "Same provider, same effort, same per-cell official budgets, same grader and same generation parallelism as the source run; the declared deltas are the candidate and the meriyah image transport.",
+    "No budget, timeout or effort is extended to make any cell scoreable."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/build-cython-ext,terminal-bench/chess-best-move,terminal-bench/code-from-image,terminal-bench/dna-insert,terminal-bench/extract-elf,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,datacurve/meriyah-explicit-resource-declarations",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "3",
+    "fh_batch": "repro-39557190033-20261021",
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\"}"
+  },
+  "expectedTasks": [
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/largest-eigenval",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "knownRisks": {
+    "providerTransport": "The source run recorded six transport stalls across these cells for 2246 seconds. A recurrence costs a cell its verdict exactly as measured and is disclosed, never retried.",
+    "noFixesIncluded": "This candidate carries none of the tool-contract fixes in docs/benchmarks/tool-contract-disposition-list.md. A comparison against a later fixed candidate must therefore be read as candidate-plus-fix, not as the fix alone.",
+    "budget": "Each cell keeps the official budget the source run declared; none is extended.",
+    "finality": "One attempt per cell. A cell that dies again keeps no new verdict and its source verdict still stands."
+  },
+  "plannedChecks": "After the artifact is downloaded: the eight dispositions against their source-run measurements; a per-cell tool-call tally (hard rejections vs ran-and-failed, and the shell-metacharacter waste count) so the tool-contract question can be compared with run 39557190033; the transport-stall seconds; and whether any cell wrote its deliverable path. Then a short record beside the source run's frozen record.",
+  "dispatched": false
+}
