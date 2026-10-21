@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.15-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "6d8f97ed63b112a1913522ceab57f23cf1836283",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 8,
+    "expectedEligible": 8,
+    "present": 8,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 7,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.125,
+  "validCells": 8,
+  "passRateValidCells": 0.125,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "8 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "8 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "8 records agree on one frozen candidate (cli-0.0.15-beta.1-6d8f97e-0e5c8a22c7ba|0.0.15-beta.1|0e5c8a22c7ba0b89f72b88a7c7cf5a12e323c9492b7784d3899a847d028bf6c3|6612b3ffffea341e7e127037d89f1a44b7636e9406b457802b7b3eb86346c894)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "8 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 8,
+    "promptTokens": 25077115,
+    "completionTokens": 223381,
+    "cacheReadTokens": 24597696,
+    "totalTokens": 25300496,
+    "modelCallCount": 335,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 807823,
+      "usage": {
+        "promptTokens": 1213477,
+        "completionTokens": 14402,
+        "cacheReadTokens": 1154496,
+        "costUsd": null,
+        "totalTokens": 1227879,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 58981,
+        "modelCallCount": 37,
+        "reportedCallCount": 37,
+        "reportedInputTokens": 1213477
+      },
+      "evidenceSha256": "b683491c87ac0f7c7b45a303529caac00d1601a18f5d7887dcdddc0a622773f7",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":646,\"attemptRemainingMs\":899354,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=glm-5.3\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model glm-5.3 --model-timeout-ms 1800000 --attempt-remaining-ms 899354 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'The file chess_board.png has an image of a chess board. It is currently white to move. Write the best move for white to play to /app/move.txt in the form [src][dst], for example, e2e4 or h1h8. If there are multiple winning moves, print them all, one per line.\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 880929,
+      "usage": {
+        "promptTokens": 293769,
+        "completionTokens": 11217,
+        "cacheReadTokens": 275840,
+        "costUsd": null,
+        "totalTokens": 304986,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 17929,
+        "modelCallCount": 16,
+        "reportedCallCount": 16,
+        "reportedInputTokens": 293769
+      },
+      "evidenceSha256": "7ccec2c6182bca6157aa9599061c58820185281512ccaa2ce1e7a0e574495c74",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1122120,
+      "usage": {
+        "promptTokens": 1119126,
+        "completionTokens": 32900,
+        "cacheReadTokens": 1033024,
+        "costUsd": null,
+        "totalTokens": 1152026,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 86102,
+        "modelCallCount": 33,
+        "reportedCallCount": 33,
+        "reportedInputTokens": 1119126
+      },
+      "evidenceSha256": "9ecde6f7222740cf63b8293040a6a20bafaa037c2cb996312a9c919226b0b14a",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1148490,
+      "usage": {
+        "promptTokens": 794779,
+        "completionTokens": 40360,
+        "cacheReadTokens": 744768,
+        "costUsd": null,
+        "totalTokens": 835139,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 50011,
+        "modelCallCount": 23,
+        "reportedCallCount": 23,
+        "reportedInputTokens": 794779
+      },
+      "evidenceSha256": "e6a958c3a77aeb497ddcf5f0c1647c204dc60fb269ba28d45f81ac5348cc40d7",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 557688,
+      "usage": {
+        "promptTokens": 496470,
+        "completionTokens": 16386,
+        "cacheReadTokens": 469504,
+        "costUsd": null,
+        "totalTokens": 512856,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 26966,
+        "modelCallCount": 22,
+        "reportedCallCount": 22,
+        "reportedInputTokens": 496470
+      },
+      "evidenceSha256": "2679423f938f10cd27023d0adc0eadef06b894a2c2a286e65c88a2f3f44eb488",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":900000,\"wrapperElapsedMs\":594,\"attemptRemainingMs\":899406,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=glm-5.3\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model glm-5.3 --model-timeout-ms 1800000 --attempt-remaining-ms 899406 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'I have provided a file called text.gcode. This is a gcode file for a Prusa MK4s. I'\"'\"'m trying to print some text onto an existing object. When I run the print, what will the text show? Write the output to /app/out.txt\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 872557,
+      "usage": {
+        "promptTokens": 979068,
+        "completionTokens": 19176,
+        "cacheReadTokens": 938560,
+        "costUsd": null,
+        "totalTokens": 998244,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 40508,
+        "modelCallCount": 36,
+        "reportedCallCount": 36,
+        "reportedInputTokens": 979068
+      },
+      "evidenceSha256": "4ba2c11dfb31944c9dfe7072e41b483306bed2dfa160a601dad7b3b1576adfdd",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 788143,
+      "usage": {
+        "promptTokens": 140686,
+        "completionTokens": 5571,
+        "cacheReadTokens": 126144,
+        "costUsd": null,
+        "totalTokens": 146257,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 14542,
+        "modelCallCount": 10,
+        "reportedCallCount": 10,
+        "reportedInputTokens": 140686
+      },
+      "evidenceSha256": "d711a73f6b5f605a822d7d6e5ea1abc0e8bd1c229ed7fab4c99107cff8a67401",
+      "batchId": "repro-39557190033-20261021"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 48,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0.9795918367346939,
+        "p2p": 1,
+        "partial": 0.9999805893085911
+      },
+      "durationMs": 3083816,
+      "usage": {
+        "promptTokens": 20039740,
+        "completionTokens": 83369,
+        "cacheReadTokens": 19855360,
+        "costUsd": null,
+        "totalTokens": 20123109,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 184380,
+        "modelCallCount": 158,
+        "reportedCallCount": 158,
+        "reportedInputTokens": 20039740
+      },
+      "evidenceSha256": "00e311792d3852a536dd138cf428bd451110b852fb30c781ed9d36be3e309ae8",
+      "batchId": "repro-39557190033-20261021"
+    }
+  ]
+}

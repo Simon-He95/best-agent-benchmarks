@@ -138,5 +138,460 @@
     "finality": "One attempt per cell. A cell that dies again keeps no new verdict and its source verdict still stands."
   },
   "plannedChecks": "After the artifact is downloaded: the eight dispositions against their source-run measurements; a per-cell tool-call tally (hard rejections vs ran-and-failed, and the shell-metacharacter waste count) so the tool-contract question can be compared with run 39557190033; the transport-stall seconds; and whether any cell wrote its deliverable path. Then a short record beside the source run's frozen record.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-21T14:49:37Z",
+  "dispatchedRun": 39620264048,
+  "outcome": {
+    "schemaVersion": 1,
+    "runId": 39620264048,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39620264048",
+    "headSha": "1cbb8d3dde0be2440d3902476c9a23c72519212b",
+    "batchLabel": "repro-39557190033-20261021",
+    "frozenReport": "docs/benchmarks/history/frontier-harness/20261021T164650Z--39620264048.json",
+    "frozenReportSha256": "38fbf8c248900810000aae611b8a27134887b62f31d34cc7f63e679df46da9b0",
+    "recordNote": "docs/benchmarks/history/frontier-harness/20261021T164650Z--39620264048.md",
+    "summary": {
+      "passed": 1,
+      "failed": 7,
+      "error": 0,
+      "notEvaluated": 0
+    },
+    "reproduced": 7,
+    "flipped": 1,
+    "noVerdict": 0,
+    "cells": [
+      {
+        "task": "terminal-bench/build-cython-ext",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 807823,
+        "class": "real-difficulty",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 779,
+        "terminalCause": "cancelled/stopped",
+        "deliveryTerminalCause": "completed/completed",
+        "modelOutcomes": 37,
+        "evidencePresent": true,
+        "attribution": "the pyknotid Cython package still fails one repository test (planarity 1.0 API change), 19 edits and 32 execs spent on the port"
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 880929,
+        "class": "no-deliverable",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 839,
+        "terminalCause": "cancelled/stopped",
+        "deliveryTerminalCause": "failed/run-deadline",
+        "modelOutcomes": 16,
+        "evidencePresent": true,
+        "attribution": "/app/move.txt never written and never mentioned; 435s of transport stalls; wrapper exits 1 so the harness records infra"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 1122120,
+        "class": "no-deliverable",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 1171,
+        "terminalCause": "cancelled/stopped",
+        "deliveryTerminalCause": "completed/completed",
+        "modelOutcomes": 33,
+        "evidencePresent": true,
+        "attribution": "/app/output.txt never written; all 5 writes are /tmp scratch scripts; budget spent on OCR exploration"
+      },
+      {
+        "task": "terminal-bench/dna-insert",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 1148490,
+        "class": "domain-error",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 569,
+        "terminalCause": "completed/completed",
+        "deliveryTerminalCause": null,
+        "modelOutcomes": 23,
+        "evidencePresent": true,
+        "attribution": "primers.fasta written and structurally valid, but |Tm_fwd - Tm_rev| = 6.49 > 5; the model's own Tm formula differs from the verifier's"
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "disposition": "passed",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 557688,
+        "class": "delivered",
+        "reproduced": "flipped",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 793,
+        "terminalCause": "completed/completed",
+        "deliveryTerminalCause": null,
+        "modelOutcomes": 22,
+        "evidencePresent": true,
+        "attribution": "/app/extract.js written and run against the task binary; 0 transport failures; 558s of 900s"
+      },
+      {
+        "task": "terminal-bench/gcode-to-text",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 872557,
+        "class": "no-deliverable",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 785,
+        "terminalCause": "cancelled/stopped",
+        "deliveryTerminalCause": "failed/run-deadline",
+        "modelOutcomes": 36,
+        "evidencePresent": true,
+        "attribution": "/app/out.txt never written; 14 writes all rewrite /app/render.py; delivery stage hits run-deadline"
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 788143,
+        "class": "no-deliverable",
+        "reproduced": "reproduced",
+        "sourceRun": 39557190033,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0
+        },
+        "sourceDurationSeconds": 768,
+        "terminalCause": "cancelled/stopped",
+        "deliveryTerminalCause": "completed/completed",
+        "modelOutcomes": 10,
+        "evidencePresent": true,
+        "attribution": "0 writes; /app/eigen.py stays the task's reference stub; 550s of 900s lost to one transport stall"
+      },
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "disposition": "failed",
+        "rewards": {
+          "reward": 0,
+          "f2p_total": 49,
+          "f2p_passed": 48,
+          "p2p_total": 51469,
+          "p2p_passed": 51469,
+          "f2p": 0.9795918367346939,
+          "p2p": 1,
+          "partial": 0.9999805893085911
+        },
+        "durationMs": 3083816,
+        "class": "specification-gap",
+        "reproduced": "reproduced",
+        "sourceRun": 39585210102,
+        "sourceDisposition": "failed",
+        "sourceRewards": {
+          "reward": 0,
+          "f2p_total": 49,
+          "f2p_passed": 0,
+          "p2p_total": 51469,
+          "p2p_passed": 51469,
+          "partial": 0.99905
+        },
+        "sourceDurationSeconds": 5411,
+        "terminalCause": "completed/completed",
+        "deliveryTerminalCause": null,
+        "modelOutcomes": 206,
+        "evidencePresent": true,
+        "attribution": "f2p 48/49 with p2p 51469/51469; the one failing case is the declared specification gap (for-of head with `of` as the binding name)"
+      }
+    ],
+    "toolCallComparison": {
+      "definition": "Both sides are computed by .tmp/fh-39620264048-metrics.mjs from the frozen agent/best-agent-evidence.jsonl of each cell, calls de-duplicated by callId. hardRejections = admission refusals carrying a code (malformed-input, not-found, permission-denied, too-large, occurrence-mismatch, unknown-command, conflict). ranAndFailed = the process started and ended nonzero. shellMetacharArgs counts exec calls whose command is not sh/bash/zsh and whose argv names |, &&, >, $( or ;; `literal` applies that rule verbatim (a grep alternation's | also matches) and `operator` keeps only tokens that really are shell operators. repeatedCommand = args[0] equals the command. deliverable = the cell wrote or ran its own deliverable path.",
+      "sourceRun": {
+        "runId": 39557190033,
+        "cells": "7 cells of run 39557190033 plus meriyah from recovery run 39585210102",
+        "toolCalls": 412,
+        "hard": 8,
+        "ranFailed": 33,
+        "metacharLiteral": 30,
+        "metacharOperator": 5,
+        "repeated": 1,
+        "transportCount": 8,
+        "transportSeconds": 2368
+      },
+      "thisRun": {
+        "runId": 39620264048,
+        "toolCalls": 388,
+        "hard": 3,
+        "ranFailed": 37,
+        "metacharLiteral": 62,
+        "metacharOperator": 8,
+        "repeated": 2,
+        "transportCount": 7,
+        "transportSeconds": 1182
+      },
+      "perCell": [
+        {
+          "task": "terminal-bench/build-cython-ext",
+          "source": {
+            "toolCalls": 78,
+            "hardRejections": 1,
+            "hardRejectionCodes": {
+              "occurrence-mismatch": 1
+            },
+            "ranAndFailed": 5,
+            "shellMetacharArgsLiteral": 10,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": true,
+            "deliverableMentioned": true
+          },
+          "thisRun": {
+            "toolCalls": 66,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 11,
+            "shellMetacharArgsLiteral": 13,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 2,
+            "deliverableWritten": true,
+            "deliverableMentioned": true
+          }
+        },
+        {
+          "task": "terminal-bench/chess-best-move",
+          "source": {
+            "toolCalls": 27,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 8,
+            "shellMetacharArgsLiteral": 6,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          },
+          "thisRun": {
+            "toolCalls": 18,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 2,
+            "shellMetacharArgsLiteral": 3,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          }
+        },
+        {
+          "task": "terminal-bench/code-from-image",
+          "source": {
+            "toolCalls": 41,
+            "hardRejections": 2,
+            "hardRejectionCodes": {
+              "not-found": 2
+            },
+            "ranAndFailed": 3,
+            "shellMetacharArgsLiteral": 5,
+            "shellMetacharArgsOperator": 1,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          },
+          "thisRun": {
+            "toolCalls": 39,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 5,
+            "shellMetacharArgsLiteral": 15,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          }
+        },
+        {
+          "task": "terminal-bench/dna-insert",
+          "source": {
+            "toolCalls": 24,
+            "hardRejections": 1,
+            "hardRejectionCodes": {
+              "not-found": 1
+            },
+            "ranAndFailed": 2,
+            "shellMetacharArgsLiteral": 1,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": true
+          },
+          "thisRun": {
+            "toolCalls": 24,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 2,
+            "shellMetacharArgsLiteral": 1,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": true,
+            "deliverableMentioned": true
+          }
+        },
+        {
+          "task": "terminal-bench/extract-elf",
+          "source": {
+            "toolCalls": 10,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 4,
+            "shellMetacharArgsLiteral": 2,
+            "shellMetacharArgsOperator": 2,
+            "repeatedCommand": 1,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          },
+          "thisRun": {
+            "toolCalls": 24,
+            "hardRejections": 2,
+            "hardRejectionCodes": {
+              "not-found": 2
+            },
+            "ranAndFailed": 2,
+            "shellMetacharArgsLiteral": 11,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": true,
+            "deliverableMentioned": true
+          }
+        },
+        {
+          "task": "terminal-bench/gcode-to-text",
+          "source": {
+            "toolCalls": 33,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 1,
+            "shellMetacharArgsLiteral": 0,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          },
+          "thisRun": {
+            "toolCalls": 38,
+            "hardRejections": 1,
+            "hardRejectionCodes": {
+              "conflict": 1
+            },
+            "ranAndFailed": 0,
+            "shellMetacharArgsLiteral": 0,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          }
+        },
+        {
+          "task": "terminal-bench/largest-eigenval",
+          "source": {
+            "toolCalls": 11,
+            "hardRejections": 1,
+            "hardRejectionCodes": {
+              "not-found": 1
+            },
+            "ranAndFailed": 1,
+            "shellMetacharArgsLiteral": 4,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": true
+          },
+          "thisRun": {
+            "toolCalls": 11,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 1,
+            "shellMetacharArgsLiteral": 4,
+            "shellMetacharArgsOperator": 0,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": true
+          }
+        },
+        {
+          "task": "datacurve/meriyah-explicit-resource-declarations",
+          "source": {
+            "toolCalls": 188,
+            "hardRejections": 3,
+            "hardRejectionCodes": {
+              "permission-denied": 1,
+              "not-found": 2
+            },
+            "ranAndFailed": 9,
+            "shellMetacharArgsLiteral": 2,
+            "shellMetacharArgsOperator": 2,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          },
+          "thisRun": {
+            "toolCalls": 168,
+            "hardRejections": 0,
+            "hardRejectionCodes": {},
+            "ranAndFailed": 14,
+            "shellMetacharArgsLiteral": 15,
+            "shellMetacharArgsOperator": 8,
+            "repeatedCommand": 0,
+            "deliverableWritten": false,
+            "deliverableMentioned": false
+          }
+        }
+      ]
+    },
+    "transportSeconds": {
+      "thisRun": 1182,
+      "thisRunStalls": 7,
+      "sourceRun": 2368,
+      "sourceRunStalls": 8,
+      "sourceManifestClaim": "config/frontier-harness-repro-39557190033.json#knownRisks.providerTransport states six stalls for 2246 seconds. A recount of the same eight cells from their frozen evidence gives 8 stalls for 2368 seconds, and the manifest's own per-cell list (1912 + 49529 + 6329 + 120003 + 24201 + 593882 + 460173 + 1111585 ms) sums to 2367.6 seconds, so both the count and the total in that sentence disagree with the cells it describes; this outcome and the record quote the recount.",
+      "method": "sum of every model-failure entry's durationMs in each cell's evidence, which is the stalled model call only, not the wall clock it cost the cell"
+    },
+    "toolAdmissionVerdict": "No. No cell's verdict was produced by tool admission: the 3 refusals in this batch are all correct (two `file`/`xxd` binaries absent from the frozen PATH in extract-elf, one write conflict in gcode-to-text) and each cell kept working afterwards, extract-elf with a different tool went on to pass; every failed cell either never wrote its deliverable (chess-best-move, code-from-image, gcode-to-text, largest-eigenval), wrote a wrong one (dna-insert, meriyah's single specification-gap case) or ran out of budget on real work (build-cython-ext). What does persist is a diagnostic-cost shape: shell operators passed as literal argv (8 real cases, all in meriyah) and a command name repeated into args[0] (2 cases, build-cython-ext) each burn one round with an error message that does not say the tool has no shell."
+  }
 }
