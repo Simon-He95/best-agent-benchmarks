@@ -130,5 +130,76 @@
   "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39557190033",
   "formalRunId": "formal-39557190033",
   "dispatchedAt": "2026-10-21T06:43:22Z",
-  "dispatchHeadSha": "66ed09017c8f6125b45815d8bc6efc1faee93358"
+  "dispatchHeadSha": "66ed09017c8f6125b45815d8bc6efc1faee93358",
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json",
+  "frozenRecordSha256": "78e2247fdaf3bfc7174852674bb0136cd888f91e8e607c5019711388cad7dbbb",
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 7,
+    "error": 5,
+    "notEvaluated": 0,
+    "validCells": 25,
+    "passRate": 0.6,
+    "passRateValidCells": 0.72,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "passAt1": null,
+    "passAt1Reason": "Five predeclared cells carry no verdict at all: their Docker image pull was refused with HTTP 429 before any model call, so `verdicts.complete` failed (30 present, 0 missing, 5 error, 0 not-evaluated) and the run cannot support a pass@1. The visible readings are the raw rate 18/30 = 60.0% and the valid-cell rate 18/25 = 72.0%; neither is published as pass@1, neither enters any leaderboard or field comparison, and nothing here is merged into or read against run 39266782346's 0.60.",
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "failed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "acceptanceDetail": {
+      "coverage.full": "30 of 30 Docker-eligible corpus tasks were predeclared",
+      "verdicts.complete": "30 present, 0 missing, 5 error, 0 not-evaluated",
+      "candidate.single": "30 records agree on one frozen candidate (cli-0.0.14-beta.1-5bc13e8-ce25df08d65a|0.0.14-beta.1|ce25df08d65a61ab154959e63f5757198295de5423304d60da09e4adae03080e|20b4aaa829fe7d365a7caa128e2efba8acec8659246a9e5c4031c32e3a354e5f)",
+      "provider.single": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3",
+      "instructions.frozen": "30 records match the frozen instruction hash of their task"
+    },
+    "runWindow": "2026-10-21T06:43:22Z -> 2026-10-21T09:08:29Z (2h25m07s); 34 of 34 non-skipped jobs green at the workflow level (3 freeze + 30 Generate + 1 Aggregate; the two unused mirror jobs are skipped), no cancelled or failed job; dispatch headSha 66ed09017c8f6125b45815d8bc6efc1faee93358.",
+    "candidateId": "cli-0.0.14-beta.1-5bc13e8-ce25df08d65a",
+    "candidateNote": "30 records agree on one candidate (source commit 5bc13e8b5e23de0140c7e5dbb930a68f8ac38359, cliVersion 0.0.14-beta.1); the record's second hash is candidateManifestSha256 20b4aaa829fe7d365a7caa128e2efba8acec8659246a9e5c4031c32e3a354e5f. The binary is not byte-reproducible across builds, so this hash belongs to this run alone: the same commit's smoke build (run 39555372358) delivered 40375f5939bc048fa07e2a11dbc6a91322915468c50a6860db8c943dbea2ac2c.",
+    "usage": "25 of 30 tasks reported usage (the five verdict-less cells never reached an attempt): promptTokens 54,617,042, cacheReadTokens 52,672,896, completionTokens 486,405, totalTokens 55,103,447, modelCallCount 825, costUsd null.",
+    "budgetExhausted": "The report's own budget-exhausted count is 0 and no per-task record carries budgetExhausted=true. Six failed terminal-bench cells did use their whole declared agent budget and are recorded as terminalCause=stopped with deliveryTerminalCause=completed; that is the agent phase finishing its own budget, not the report's budget-exhausted counter, and no budget was extended.",
+    "infraCells": {
+      "count": 5,
+      "tasks": [
+        "datacurve/arktype-json-schema-refs-dependencies",
+        "datacurve/expr-try-catch-errors",
+        "datacurve/katex-multicolumn-array-spans",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "reading": "Every one of the five records carries result.disposition=error with result.exception.type=RuntimeError and no evidence artifact at all (artifacts.evidence is absent, and so is failures.json's evidenceSha256), so no model call was ever made: these are pre-model environment failures, not task failures and not capability signals. The exception text is the same shape in all five (failures.md quotes it in full): `docker compose ... build` failed to load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:<tag>-v1.1 with `429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded`. Recorded durations 4,426/4,810/5,636/5,185/7,217 ms in the task order above."
+    },
+    "failedCells": [
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/chess-best-move",
+      "terminal-bench/code-from-image",
+      "terminal-bench/dna-insert",
+      "terminal-bench/extract-elf",
+      "terminal-bench/gcode-to-text",
+      "terminal-bench/largest-eigenval"
+    ],
+    "failureStages": {
+      "source": "failures.json#byStage of this run's own report artifact (infra 6 / provider 5 / model 1 over 30 records, 12 not passed); the canonical dispositions above stand unchanged and this stage attribution is a derived view, not a re-grade.",
+      "failedCellsDetail": [
+        "terminal-bench/build-cython-ext: failed, reward 0, 779s of its 900s budget, terminalCause=stopped, deliveryTerminalCause=completed, 48 model outcomes, 1 model failure, 6 failed tool closures",
+        "terminal-bench/chess-best-move: failed, reward 0, 839s of 900s, stopped/completed, 26 model outcomes, 1 model failure, 8 failed tool closures",
+        "terminal-bench/code-from-image: failed, reward 0, 1171s of 1200s, stopped with deliveryTerminalCause=run-deadline, 37 model outcomes, 1 model failure, 5 failed tool closures",
+        "terminal-bench/dna-insert: failed, reward 0, 569s of 1800s, terminalCause=completed (no delivery cause), 21 model outcomes, 0 model failures, 3 failed tool closures",
+        "terminal-bench/extract-elf: failed, reward 0, 793s of 900s, stopped/completed, 6 model outcomes, 1 model failure, 4 failed tool closures",
+        "terminal-bench/gcode-to-text: failed, reward 0, 785s of 900s, stopped/completed, 33 model outcomes, 1 model failure, 1 failed tool closure",
+        "terminal-bench/largest-eigenval: failed, reward 0, 768s of 900s, stopped/completed, 6 model outcomes, 1 model failure, 2 failed tool closures"
+      ]
+    },
+    "declaredRiskThatMaterialized": "knownRisks.ecrThrottle declared `fh_max_parallel=3` as the width two earlier full runs used without an ECR image-pull throttle. This run was dispatched at exactly that width and five datacurve cells were still refused with HTTP 429 'Data limit exceeded'. The risk is recorded as having occurred; no budget, parallelism, candidate or verdict was changed in response.",
+    "comparisonToRun39266782346": "Same corpus, same model, same effort, different candidate (0.0.13-beta.1 / 1577b7b6 -> 0.0.14-beta.1 / 5bc13e8b) and different generation parallelism (8 -> 3). That run recorded 14 passed / 11 failed / 4 error / 1 not-evaluated (raw 46.7%, valid-cell 56.0%); this one records 18 / 7 / 5 / 0 (raw 60.0%, valid-cell 72.0%). The difference is this candidate's delta plus run-to-run variance and is not a single-variable capability claim. Nothing is merged: run 39266782346's own frozen record, its recovery batches and its recheck batches keep every verdict they measured.",
+    "independentMeasurement": "This is the first full measurement of candidate cli-0.0.14-beta.1-5bc13e8-ce25df08d65a on this corpus, taken exactly once per task. It replaces, repairs and reinterprets no earlier run.",
+    "recordReading": "The complete hand-written record, including the per-cell table and the declared-risk disclosure, is docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.md next to the verbatim report copy."
+  }
 }
