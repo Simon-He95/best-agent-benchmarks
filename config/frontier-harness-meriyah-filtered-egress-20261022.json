@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "meriyah-filtered-egress-20261022",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A single-cell diagnostic has no pass@1 and is never merged into any rate. Run 39557190033 keeps its frozen record and its official repaired reading; its declared recovery, the reproduction 39620264048 and the tool-contract arm 39700728172 keep theirs. This batch re-measures one cell once and replaces no verdict.",
+  "requestedBy": "User, 2026-10-22: \"先按工具能力合并 #445，spec 保持 Active 并记下待补合同；然后加 fh_filtered_egress 和容器内 egress 探针，把 meriyah 单格以 fh_require_clean=true 派发\" — merge the provider-proxy change as a tool capability, then run one clean meriyah cell under filtered egress.",
+  "purpose": "Produce the first meriyah reading that is a measurement at all. Every earlier reading of this cell has a defect: run 39557190033 and recovery 39585210102 stalled on transport, 39620264048 reached f2p 48/49 but is the unfixed tool surface, and 39700728172 recorded f2p 0/49 from an EMPTY model.patch while the model read the upstream solution through the network (clone + git show d40161d + npm pack meriyah@7.4.0 + test262 fetch). This batch removes both defects from the composition — a filtered-egress boundary the container must prove from inside, and a contamination gate that fails the job if the model still reaches an answer source — so whatever f2p it records can be read as the model's own work on this cell.",
+  "comparisonBaseline": {
+    "uncontaminatedReading": {
+      "runId": 39620264048,
+      "cell": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "rewards": { "reward": 0, "f2p_total": 49, "f2p_passed": 48, "p2p_total": 51469, "p2p_passed": 51469 },
+      "durationSeconds": 3084,
+      "modelOutcomes": 206,
+      "note": "The only earlier reading with a real model.patch and no upstream access. This batch is measured against it."
+    },
+    "contaminatedReading": {
+      "runId": 39700728172,
+      "rewards": { "reward": 0, "f2p_total": 49, "f2p_passed": 0, "p2p_total": 51469, "p2p_passed": 51469 },
+      "durationSeconds": 5382,
+      "modelOutcomes": 200,
+      "defects": [
+        "model.patch was 0 bytes: the cell's collect hook diffs base..HEAD and the model never committed, so the verifier graded the pristine base tree",
+        "the model cloned the upstream repository, read commit d40161d (the commit implementing this feature), downloaded meriyah@7.4.0 from npm, and fetched the test262 explicit-resource-management suite"
+      ],
+      "note": "Recorded, never subtracted against the 48/49 baseline."
+    }
+  },
+  "admission": {
+    "rule": "AGENTS.md:11 — a declared re-measurement is the only way an already-graded cell may be measured again, and it never replaces the verdict it re-measures. This cell carries a canonical verdict (failed) and has been re-measured twice; this manifest declares one further attempt under the variance-check class, with the frozen official budget, the same grader and the same generation parallelism. No second extra attempt is admitted here.",
+    "class": "variance check — the canonical verdict stands; this attempt asks whether the cell produces a measurable reading at all once the composition removes the two defects that made every earlier attempt unmeasurable",
+    "priorAttemptsDisclosure": "Third re-measurement of this cell. 39557190033/recovery 39585210102 measured it first (error → failed, f2p 0/49), 39620264048 re-measured it once (f2p 48/49, clean), 39700728172 re-measured it once (f2p 0/49, empty patch, contaminated). All four readings stay separate; none is merged and none is rewritten."
+  },
+  "candidatePin": {
+    "sourceCommit": "7d76cdc108c1407a3148c0a179c86283d389bb34",
+    "cliVersion": "0.0.16-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "origin/main head of Simon-He95/best-agent read on 2026-10-22, the merge commit of PR #445. apps/cli/package.json carries 0.0.16-beta.1 and .nvmrc 24.15.0. The workflow builds the Linux x64 SEA in this run's own fh-candidate job; the SEA is not byte-reproducible so this run's binary hash belongs to this run alone.",
+    "deltaFromContaminatedArm": "39700728172 ran 4d708d03a. This run moves to 7d76cdc10: PR #445 / spec 430 makes the provider transport honor HTTPS_PROXY and NO_PROXY (the browser-grade transport fact this composition needs), its review fix (first non-empty proxy spelling wins), plus PR #442 / spec 428 (thread-store reads shared thread identities as bytes) and PR #443 / spec 429 (TUI refuses only the held thread) which this headless run never exercises, and a version bump. The only delta that can change a benchmark attempt is the proxy support; the thread-store and TUI slices are not on this path, and that is stated rather than assumed because they touch thread-store internals that a headless run does write to."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": ["max", "high"],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to every earlier arm. Under filtered egress this host is the single allowlisted domain, so the model can still think while a shell subprocess can reach nothing."
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "Two composition facts change for this attempt and both are declared. (1) Filtered egress: the agent phase keeps the task's restricted network_mode, so Pier puts the trial container on an internal network with no default route whose only egress is its own allowlisting proxy; the provider host is the one allowlisted domain and the CLI reaches it through the proxy environment. Every earlier arm instead rewrote the agent phase to public so the CLI had direct egress. (2) A contamination gate: after the attempt is frozen, the job classifies every egress call and fails when the model reached an answer source. Nothing else changes: same corpus pin, task sources, harness, task Dockerfile, provider, effort, fh_agent_timeout_multiplier=1, the cell's own 5400 s official budget, fh_max_parallel=3 and the same GHCR image mirror for this cell.",
+    "mirrors": [
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1",
+        "sourceDigest": "sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "digestPreserved": true,
+        "seedingRun": 39281458586,
+        "note": "The image is pulled during the environment build, before the agent phase, so the internal agent network does not affect it."
+      }
+    ],
+    "probeContract": {
+      "where": "tools/frontier-harness-agent/frontier_harness_best_agent/__init__.py, before the model starts, as the agent user with the CLI's own environment",
+      "allowlistSource": "config/frontier-harness.json#filteredEgress plus the provider host from the frozen provider profile",
+      "denyHosts": ["github.com", "registry.npmjs.org", "pypi.org"],
+      "fourFacts": [
+        "a bare TCP connect to the provider is blocked (the container has no route out, which is what stops a shell git clone)",
+        "a bare TCP connect to each deny host is blocked",
+        "a CONNECT through the proxy to the provider answers",
+        "a CONNECT through the proxy to each deny host is refused"
+      ],
+      "failClosed": "Any missing fact raises before the model runs, so an unproven boundary can never be read as a measurement"
+    }
+  },
+  "constraints": [
+    "One predeclared headless attempt; no second attempt in this manifest.",
+    "Every verdict of runs 39557190033, 39585210102, 39620264048 and 39700728172 is preserved and never replaced, repaired or reinterpreted.",
+    "This batch produces no pass@1 and its count is never merged into any rate.",
+    "Same provider, same effort, the cell's own 5400 s official budget, same grader, same generation parallelism; the declared deltas are the candidate, filtered egress and the contamination gate.",
+    "No budget, timeout or effort is extended to make the cell scoreable.",
+    "If the probe cannot prove the boundary, or the contamination gate fires, the attempt is reported as inconclusive rather than as a model result. That is the point of the batch."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/meriyah-explicit-resource-declarations",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "3",
+    "fh_batch": "meriyah-filtered-egress-20261022",
+    "fh_filtered_egress": true,
+    "fh_require_clean": true,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\"}"
+  },
+  "expectedTasks": ["datacurve/meriyah-explicit-resource-declarations"],
+  "knownRisks": {
+    "probeMayFailClosed": "The boundary is new. If Pier's proxy or the internal network behaves differently than read (for example the CONNECT probe needs a credential Pier does not pass to a non-agent process), the attempt will fail before the model runs. That is the intended failure mode and will be reported as an inconclusive composition rather than a model result.",
+    "emptyPatchCaptureGap": "The cell's collect hook diffs base..HEAD, so a model that edits the working tree without committing still produces a 0-byte model.patch. Filtered egress does not fix that; it is a benchmark-harness contract gap recorded in 39700728172 and NOT changed here. If it recurs, this batch will again record no f2p measurement and say so.",
+    "specificationGap": "The one fail-to-pass case that has blocked this cell is the declared specification gap (how a for-of head is disambiguated when the binding is named `of`). No candidate change addresses it, so a pass is not predicted.",
+    "budget": "The cell keeps its official 5400 s; the probe's own seconds are counted inside the attempt budget, not added to it.",
+    "finality": "One attempt. A cell that dies again keeps no new verdict and its canonical verdict still stands."
+  },
+  "plannedChecks": "Read the egress-probe.json receipt first: it must say `bounded` with all four facts, otherwise the attempt never ran the model and nothing else is read. Then the contamination receipt (the job fails if it fires), then the disposition, rewards, duration and f2p/p2p against the 48/49 uncontaminated baseline, the candidate receipt (7d76cdc10, 0.0.16-beta.1, and the built source carrying spec 430), whether model.patch was non-empty, and usage. Report the reading only if the probe is bounded and the cell is clean; otherwise report the mechanical reason. Then a short record beside the three existing ones; no .official.json for this batch.",
+  "dispatched": false
+}
