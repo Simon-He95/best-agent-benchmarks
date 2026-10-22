@@ -88,6 +88,11 @@ on:
         description: "Declared recovery delta; JSON map of a task's frozen dockerImage to a digest-pinned mirror reference (empty = unchanged)"
         required: false
         default: ""
+      fh_require_clean:
+        description: "Fail a Generate job whose attempt reached an answer source (upstream commits, a published build, or the hidden test corpus)"
+        required: false
+        type: boolean
+        default: false
       fh_mirror_image:
         description: "Mirror one task image into GHCR (digest-preserving) and stop; empty = a normal generation run"
         required: false
@@ -609,6 +614,30 @@ jobs:
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
             --batch-id "${{ matrix.entry.batchId }}" \
             --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"
+
+      # A cell is only a measurement if the model solved it. This step reads the
+      # attempt the previous step froze and refuses an attempt that reached an
+      # answer source (the task's own upstream commits, a published build of the
+      # project under test, or the hidden test corpus). It runs before upload so
+      # the receipt ships with the rest of the cell's evidence.
+      - name: Refuse an attempt that reached the answer
+        if: always()
+        env:
+          REQUIRE_CLEAN: ${{ inputs.fh_require_clean }}
+        run: |
+          TASK_SHORT="${{ steps.candidate.outputs.task_short }}"
+          JOBS="results/frontier-harness/jobs/${TASK_SHORT}"
+          test -d "$JOBS" || { echo "no attempt was frozen for ${TASK_SHORT}"; exit 0; }
+          if [ "$REQUIRE_CLEAN" = "true" ]; then
+            node scripts/frontier-harness-contamination.mjs \
+              --jobs "$JOBS" \
+              --output "results/frontier-harness/results/contamination.${TASK_SHORT}.json" \
+              --require-clean
+          else
+            node scripts/frontier-harness-contamination.mjs \
+              --jobs "$JOBS" \
+              --output "results/frontier-harness/results/contamination.${TASK_SHORT}.json"
+          fi
 
       - name: Upload immutable generation artifacts
         if: always()
