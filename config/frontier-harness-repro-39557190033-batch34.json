@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "repro-39557190033-batch34-20261022",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A reproduction batch has no pass@1 of its own and is never merged into any rate. Run 39557190033 keeps its own frozen record and its official repaired reading (22/30, repairedPassRate 0.7333); its declared recovery and the diagnostic reproduction batch 39620264048 keep theirs. This batch re-measures the same eight cells a third time — once each — and replaces no verdict.",
+  "requestedBy": "User, 2026-10-22: \"先派发 8 格子集，重点看批次 3+4 有没有减少浪费轮次和 tool-call 误用\" — dispatch the 8-cell subset now, with the question focused on whether tool-contract batches 3 and 4 reduced wasted rounds and tool-call misuse.",
+  "purpose": "One question this batch answers that the previous two cannot: do the model-visible tool-contract fixes merged as PR #439 (spec 425), PR #440 (spec 426) and PR #441 (spec 427) change the tool-call waste observed on the same eight cells? The preceding reproduction (39620264048) ran candidate 6d8f97ed, which the frozen manifest declared as the UNFIXED baseline: it recorded 10 contract-shape wastes (8 shell operators passed as literal argv, all in meriyah; 2 repeated command names, both in build-cython-ext) and 3 hard rejections (all correct). This batch is the first run whose candidate carries those fixes, so the only admissible comparison is the per-cell tool-call tally against 39620264048 — dispositions are recorded but are not the primary question.",
+  "sourceReading": {
+    "sourceRun": 39557190033,
+    "sourceRunUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39557190033",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.json",
+    "frozenRecordSha256": "78e2247fdaf3bfc7174852674bb0136cd888f91e8e607c5019711388cad7dbbb",
+    "recoveryRun": 39585210102,
+    "officialRepairedReading": "docs/benchmarks/history/frontier-harness/20261021T092902Z--39557190033.official.json",
+    "repairedReading": {
+      "passed": 22,
+      "failed": 8,
+      "error": 0,
+      "notEvaluated": 0,
+      "passAt1": null,
+      "repairedPassRate": 0.7333333333333333
+    },
+    "sourceCandidate": "cli-0.0.14-beta.1-5bc13e8-ce25df08d65a (best-agent main 5bc13e8b, 0.0.14-beta.1)"
+  },
+  "comparisonBaseline": {
+    "runId": 39620264048,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39620264048",
+    "record": "docs/benchmarks/history/frontier-harness/20261021T164650Z--39620264048.json",
+    "recordSha256": "38fbf8c248900810000aae611b8a27134887b62f31d34cc7f63e679df46da9b0",
+    "reading": "docs/benchmarks/history/frontier-harness/20261021T164650Z--39620264048.md",
+    "candidate": "cli-0.0.15-beta.1-6d8f97e-0e5c8a22c7ba (best-agent main 6d8f97ed, 0.0.15-beta.1) — the UNFIXED baseline",
+    "whyNotTheSourceRun": "Run 39557190033 ran candidate 0.0.14-beta.1 and its cells spent 2246 s in six transport stalls, so a comparison against it would confound the candidate delta with the transport delta. 39620264048 is the nearest arm: same eight cells, same budgets, same provider profile, and a candidate that is the same 0.0.15-beta.1 line whose only difference from this batch is the three tool-contract pull requests below.",
+    "totals": {
+      "passed": 1,
+      "failed": 7,
+      "toolCalls": 388,
+      "hardRejections": 3,
+      "ranAndFailedClosures": 37,
+      "contractShapeWaste": 10,
+      "unshelledShellOperators": 8,
+      "repeatedCommandName": 2,
+      "modelFailures": 7,
+      "transportMs": 1181173,
+      "usageModelCallCount": 335
+    },
+    "perCell": [
+      { "task": "terminal-bench/build-cython-ext", "disposition": "failed", "durationSeconds": 808, "budgetSeconds": 900, "modelOutcomes": 37, "failedClosures": 11, "hardRejections": 0, "unshelledShellOperators": 0, "repeatedCommandName": 2, "writeCalls": 19 },
+      { "task": "terminal-bench/chess-best-move", "disposition": "failed", "durationSeconds": 881, "budgetSeconds": 900, "modelOutcomes": 16, "failedClosures": 2, "hardRejections": 0, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 6 },
+      { "task": "terminal-bench/code-from-image", "disposition": "failed", "durationSeconds": 1122, "budgetSeconds": 1200, "modelOutcomes": 33, "failedClosures": 5, "hardRejections": 0, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 5 },
+      { "task": "terminal-bench/dna-insert", "disposition": "failed", "durationSeconds": 1148, "budgetSeconds": 1800, "modelOutcomes": 23, "failedClosures": 2, "hardRejections": 0, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 6 },
+      { "task": "terminal-bench/extract-elf", "disposition": "passed", "durationSeconds": 558, "budgetSeconds": 900, "modelOutcomes": 22, "failedClosures": 4, "hardRejections": 2, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 1 },
+      { "task": "terminal-bench/gcode-to-text", "disposition": "failed", "durationSeconds": 873, "budgetSeconds": 900, "modelOutcomes": 36, "failedClosures": 1, "hardRejections": 1, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 14 },
+      { "task": "terminal-bench/largest-eigenval", "disposition": "failed", "durationSeconds": 788, "budgetSeconds": 900, "modelOutcomes": 10, "failedClosures": 1, "hardRejections": 0, "unshelledShellOperators": 0, "repeatedCommandName": 0, "writeCalls": 0 },
+      { "task": "datacurve/meriyah-explicit-resource-declarations", "disposition": "failed", "durationSeconds": 3084, "budgetSeconds": 5400, "modelOutcomes": 206, "failedClosures": 14, "hardRejections": 0, "unshelledShellOperators": 8, "repeatedCommandName": 0, "writeCalls": 30 }
+    ]
+  },
+  "admission": {
+    "rule": "AGENTS.md:11 — a declared re-measurement is the only way an already-graded cell may be measured again, and it never replaces the verdict it re-measures. All eight cells already carry a canonical verdict (seven from run 39557190033, meriyah from its recovery run 39585210102) and each already received one extra attempt in 39620264048. This manifest declares one further attempt per cell under the variance-check class, with the frozen per-cell official budget, the same grader and the same generation parallelism. It does not replace any verdict and no cell receives a second extra attempt in this manifest.",
+    "class": "variance check — the source verdicts stand; this attempt asks whether a declared tool-contract change alters the tool-call shape or the terminal state on the same frozen composition",
+    "priorAttemptsDisclosure": "This is the third measurement of these cells: run 39557190033 (and recovery 39585210102 for meriyah) measured them first, and 39620264048 re-measured them once each on the unfixed 0.0.15-beta.1 candidate. All three readings stay separate records; none is merged, and no cell's earlier verdict is rewritten by this one.",
+    "cells": [
+      { "task": "terminal-bench/build-cython-ext", "asMeasured": "source: failed, reward 0, 779s/900s; baseline 39620264048: failed, 808s/900s, 37 outcomes, 11 failed execs, 2 repeated-command shapes, 19 write calls" },
+      { "task": "terminal-bench/chess-best-move", "asMeasured": "source: failed, reward 0, 839s/900s; baseline: failed, 881s/900s, 16 outcomes, 2 failed execs, 435s in two transport stalls, /app/move.txt never mentioned" },
+      { "task": "terminal-bench/code-from-image", "asMeasured": "source: failed, reward 0, 1171s/1200s; baseline: failed, 1122s/1200s, 33 outcomes, 5 failed execs, all 5 writes under /tmp, /app/output.txt never mentioned" },
+      { "task": "terminal-bench/dna-insert", "asMeasured": "source: failed, reward 0, 569s/1800s; baseline: failed, 1148s/1800s, 23 outcomes, 0 model failures, primers.fasta written, verifier failed only on |Tm_fwd - Tm_rev| = 6.49 > 5" },
+      { "task": "terminal-bench/extract-elf", "asMeasured": "source: failed, reward 0, 793s/900s; baseline: PASSED, 558s/900s, 22 outcomes, /app/extract.js written, 2 hard rejections (file, xxd not on the frozen PATH)" },
+      { "task": "terminal-bench/gcode-to-text", "asMeasured": "source: failed, reward 0, 785s/900s; baseline: failed, 873s/900s, 36 outcomes, 1 write conflict, 14 writes all to /app/render.py, /app/out.txt never mentioned" },
+      { "task": "terminal-bench/largest-eigenval", "asMeasured": "source: failed, reward 0, 768s/900s; baseline: failed, 788s/900s, 10 outcomes, 550s in one transport stall, ZERO write calls" },
+      { "task": "datacurve/meriyah-explicit-resource-declarations", "asMeasured": "source: failed, f2p 0/49; baseline: failed, f2p 48/49, p2p 51469/51469, 3084s/5400s, 206 outcomes, 8 shell operators passed as literal argv (7 failed immediately), spec gap on the `of` binding-name disambiguation" }
+    ]
+  },
+  "candidatePin": {
+    "sourceCommit": "4d708d03a897266291bba7a1bf967ba3dd856a82",
+    "cliVersion": "0.0.15-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "origin/main head of Simon-He95/best-agent read on 2026-10-22, the merge commit of PR #441 (commit date 2026-10-22T06:57:49+08:00). apps/cli/package.json at that commit carries 0.0.15-beta.1 and .nvmrc carries 24.15.0, so config/frontier-harness.json#cli keeps its version and target and only sourceCommit moves from 6d8f97ed to 4d708d03a. The workflow builds the Linux x64 SEA itself in this run's own fh-candidate job; the SEA is not byte-reproducible, so this run's binary hash belongs to this run alone.",
+    "deltaFromBaselineCandidate": "6d8f97ed to 4d708d03a is exactly three tool-contract slices and their specs, with no other model-visible change: PR #439 / spec 425 (a rejected structured-file root names which root it refused instead of reporting a path-grammar error), PR #440 / spec 426 (exec states how to run a shell line, projected from the frozen command policy and alias set, and states the args[0] consequence), PR #441 / spec 427 (a structured-file path description advertises the root only where that tool's own admission accepts it, and states that a relative path is anchored at the workspace root rather than at an exec cwd; process-start states the same anchor under both cwd policies). All three change model-visible description text only: no tool name, key set, JSON Schema, bound, failure code, canonicalizer verdict or payload shape changes, so this arm is candidate-plus-text-fix, never a capability change."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": ["max", "high"],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to runs 39557190033 and 39620264048, so the only declared deltas are the candidate and the meriyah image transport below."
+  },
+  "mitigation": {
+    "declaredCompositionDelta": "The one datacurve cell in this set (meriyah) is delivered from its digest-pinned GHCR mirror instead of the anonymous public.ecr.aws pull. The seven terminal-bench cells use their frozen Docker Hub images unchanged. Nothing else changes: corpus pin, task sources, harness, each task's Dockerfile, provider, effort, fh_agent_timeout_multiplier=1, each cell's own official budget, and fh_max_parallel=3 (the source run's own generation parallelism).",
+    "mirrors": [
+      {
+        "task": "datacurve/meriyah-explicit-resource-declarations",
+        "sourceRef": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1",
+        "sourceDigest": "sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "mirrorRef": "ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc",
+        "digestPreserved": true,
+        "seedingRun": 39281458586
+      }
+    ]
+  },
+  "constraints": [
+    "One predeclared headless attempt per cell; no cell receives a second extra attempt in this manifest.",
+    "Every verdict of run 39557190033, of recovery run 39585210102 and of the reproduction run 39620264048 is preserved and never replaced, repaired or reinterpreted by this batch.",
+    "This batch produces no pass@1 and its counts are never merged into any rate; the official figure for run 39557190033 stays its declared repaired pass rate over its own predeclared task set.",
+    "Same provider, same effort, same per-cell official budgets, same grader and same generation parallelism as the source run; the declared deltas are the candidate (three text-only tool-contract slices) and the meriyah image transport.",
+    "No budget, timeout or effort is extended to make any cell scoreable.",
+    "The disposition is recorded but is not the primary question: the three fixes change model-visible text only, so a disposition flip is possible but not predicted, and a flip is never attributed to a capability change."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/build-cython-ext,terminal-bench/chess-best-move,terminal-bench/code-from-image,terminal-bench/dna-insert,terminal-bench/extract-elf,terminal-bench/gcode-to-text,terminal-bench/largest-eigenval,datacurve/meriyah-explicit-resource-declarations",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "3",
+    "fh_batch": "repro-39557190033-batch34-20261022",
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\"}"
+  },
+  "expectedTasks": [
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/largest-eigenval",
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "knownRisks": {
+    "providerTransport": "The baseline run recorded seven transport stalls across five cells for 1181 seconds (largest-eigenval 550 s of a 900 s budget, chess-best-move 435 s). A recurrence costs a cell its verdict exactly as measured and is disclosed, never retried; it also makes the tool-call tally noisier because a stalled cell issues fewer calls.",
+    "textOnlyFixes": "The three merged slices change description text only. A zero change in the waste count is therefore a possible outcome and must be reported as such rather than explained away, and the sample is one attempt per cell on one provider profile — it can show that a waste shape did or did not recur, never a rate.",
+    "meriyahSpecGap": "meriyah's only remaining fail-to-pass case is the declared specification gap (how a for-of head is disambiguated when the binding itself is named `of`). No text fix in this candidate addresses it, so a pass there is not predicted.",
+    "budget": "Each cell keeps the official budget the source run declared; none is extended.",
+    "finality": "One attempt per cell. A cell that dies again keeps no new verdict and its source verdict still stands."
+  },
+  "plannedChecks": "After the report artifact is downloaded, read it with the same metric code used for 39620264048 (dedup tool calls by callId across terminal snapshots) so the comparison is apples to apples: per cell the tool-call count, hard rejections by code, ran-and-failed closures, shell operators passed as literal argv to a non-shell exec, args[0] repeating the command name, transport stall seconds, write calls and whether the verifier's deliverable path was ever named; then the eight dispositions and budgets against the predeclared baseline table above, the candidate receipt (one frozen candidate, its three tool-contract slices present in the built source), usage, and evidence sha256 checks. Expected observable effect, predeclared: the shell-operator and repeated-command shapes should stop appearing in the argument shapes (or recur — either result is recorded verbatim), and no cell's outcome may be attributed to a capability change. Then a short record beside the two existing ones; no .official.json is written for this batch.",
+  "dispatched": false
+}
