@@ -110,5 +110,13 @@
     "finality": "One attempt. A cell that dies again keeps no new verdict and its canonical verdict still stands."
   },
   "plannedChecks": "Read the egress-probe.json receipt first: it must say `bounded` with all four facts, otherwise the attempt never ran the model and nothing else is read. Then the contamination receipt (the job fails if it fires), then the disposition, rewards, duration and f2p/p2p against the 48/49 uncontaminated baseline, the candidate receipt (7d76cdc10, 0.0.16-beta.1, and the built source carrying spec 430), whether model.patch was non-empty, and usage. Report the reading only if the probe is bounded and the cell is clean; otherwise report the mechanical reason. Then a short record beside the three existing ones; no .official.json for this batch.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-22T04:12:54Z",
+  "dispatchedRun": {
+    "runId": 39721121070,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39721121070",
+    "benchmarksHeadSha": "ed67a9b5bd33aad8096592320a1f8926d2539ccb",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs, including fh_filtered_egress=true and fh_require_clean=true; the candidate is the pin above."
+  }
 }
