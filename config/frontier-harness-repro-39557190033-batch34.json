@@ -141,5 +141,13 @@
     "finality": "One attempt per cell. A cell that dies again keeps no new verdict and its source verdict still stands."
   },
   "plannedChecks": "After the report artifact is downloaded, read it with the same metric code used for 39620264048 (dedup tool calls by callId across terminal snapshots) so the comparison is apples to apples: per cell the tool-call count, hard rejections by code, ran-and-failed closures, shell operators passed as literal argv to a non-shell exec, args[0] repeating the command name, transport stall seconds, write calls and whether the verifier's deliverable path was ever named; then the eight dispositions and budgets against the predeclared baseline table above, the candidate receipt (one frozen candidate, its three tool-contract slices present in the built source), usage, and evidence sha256 checks. Expected observable effect, predeclared: the shell-operator and repeated-command shapes should stop appearing in the argument shapes (or recur — either result is recorded verbatim), and no cell's outcome may be attributed to a capability change. Then a short record beside the two existing ones; no .official.json is written for this batch.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-22T00:36:45Z",
+  "dispatchedRun": {
+    "runId": 39700728172,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39700728172",
+    "benchmarksHeadSha": "fb93d0ce7b342d903274f996c51a9066e418d2ac",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs; the candidate is the pin above, read by the workflow's fh-candidate job from config/frontier-harness.json#cli.sourceCommit."
+  }
 }
