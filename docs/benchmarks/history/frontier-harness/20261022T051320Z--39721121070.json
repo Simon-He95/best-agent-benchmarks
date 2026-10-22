@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.16-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "7d76cdc108c1407a3148c0a179c86283d389bb34",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 1,
+    "expectedEligible": 1,
+    "present": 1,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0,
+  "validCells": 1,
+  "passRateValidCells": 0,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "1 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "1 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "1 records agree on one frozen candidate (cli-0.0.16-beta.1-7d76cdc-431ab13e9440|0.0.16-beta.1|431ab13e9440f5ae384b9b0d057a25664cb3425344f26c5a21fbb55d5c5825be|978531de66516dc3eb5cd436589b230c1e591e7bcdedaa8660276d15fa951ecc)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "1 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 1,
+    "promptTokens": 14387334,
+    "completionTokens": 75781,
+    "cacheReadTokens": 14165696,
+    "totalTokens": 14463115,
+    "modelCallCount": 128,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 48,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0.9795918367346939,
+        "p2p": 1,
+        "partial": 0.9999805893085911
+      },
+      "durationMs": 3376961,
+      "usage": {
+        "promptTokens": 14387334,
+        "completionTokens": 75781,
+        "cacheReadTokens": 14165696,
+        "costUsd": null,
+        "totalTokens": 14463115,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 221638,
+        "modelCallCount": 128,
+        "reportedCallCount": 128,
+        "reportedInputTokens": 14387334
+      },
+      "evidenceSha256": "3e69494ac952b11fe2899f15603e6329970d5747d01e4495ac3e5049edd9fa33",
+      "batchId": "meriyah-filtered-egress-20261022"
+    }
+  ]
+}
