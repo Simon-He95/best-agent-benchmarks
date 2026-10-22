@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "formal-full-run",
+  "batchLabel": "full-c38c6c843-20261022",
+  "diagnosticOnly": false,
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-22: \"用最新的best-agent本地构建再全量重新跑一下\", then \"你为啥不走github ci？而要浪费我本地的内存和流量？\" — run the full 30-task corpus again on the latest best-agent, on CI rather than on the local host.",
+  "purpose": "Refresh all 30 corpus cells against the current best-agent main. The last full-corpus reading is run 39557190033 on 0.0.14-beta.1 (5bc13e8b5). Since then main advanced 120 commits across 32 merged pull requests, including the tool-contract batches spec 425/426/427 (a file tool names the root it refused, exec states the shell remedy, path descriptions advertise only the root their canonicalizer admits), spec 430 (the provider transport honors the proxy environment), spec 431/432 (compact import identity, history-search description) and spec 433 (apply_patch anchors the standard empty-file first hunk). This run asks one question: what does the whole corpus read at now, on the same composition as 39557190033.",
+  "comparisonBaseline": {
+    "fullCorpusReading": {
+      "runId": 39557190033,
+      "candidate": "0.0.14-beta.1 @ 5bc13e8b5e23de0140c7e5dbb930a68f8ac38359",
+      "dispositions": {
+        "passed": 18,
+        "failed": 7,
+        "error": 5,
+        "notEvaluated": 0
+      },
+      "note": "18 passed / 7 failed / 5 error over 30 cells, 3084 s on the longest cell. Its five error cells died in the environment build on a public.ecr.aws rate limit, and six cells lost 2,246 s to provider transport stalls. Both are recorded as composition or infrastructure facts, never as model failures."
+    },
+    "convention": "This run is compared cell by cell against that reading. The comparison is arithmetic only: no rate is merged, and no earlier record or verdict is rewritten."
+  },
+  "candidatePin": {
+    "sourceCommit": "c38c6c843333c267967811d38092363d751a3b97",
+    "cliVersion": "0.0.16-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "gh api repos/Simon-He95/best-agent/commits/main returns c38c6c843333c267967811d38092363d751a3b97 on 2026-10-22T14:12Z: 'Merge pull request #458 from Simon-He95/fix/window-wall-fold-not-terminal'. git show c38c6c843:apps/cli/package.json carries version 0.0.16-beta.1 and .nvmrc carries 24.15.0. The workflow builds the Linux x64 SEA in this run's own fh-candidate job; the SEA is not byte-reproducible, so this run's binary hash belongs to this run alone.",
+    "deltaFromPreviousFullRun": "39557190033 ran 5bc13e8b5. This run moves to c38c6c843: 120 commits, 32 merged pull requests. The slices most likely to change a headless benchmark attempt are the tool-contract batches (425 root-rejection wording, 426 exec shell remedy, 427 path-root honesty), spec 430 provider proxy support, and spec 433 apply_patch's empty-file anchor. The thread-store, TUI, image and compact slices are not on a headless tool-calling path, which is stated as a reading of the diff rather than a proof."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to 39557190033: same model, same effort, same gateway."
+  },
+  "composition": {
+    "sameAs": "39557190033",
+    "stated": "This run deliberately keeps the 39557190033 composition so the two full-corpus readings can be compared: the agent phase is normalized to public egress, no filtered-egress probe is run, no contamination gate is enabled, one attempt per cell, each cell's own declared budget, fh_agent_timeout_multiplier=1 and the same grader. The only declared delta is the candidate.",
+    "whyNotFilteredEgress": "Filtered egress changes what a task container can reach, and several cells legitimately install their own dependencies during the agent phase (dna-insert runs apt-get install primer3, code-from-image installs OCR tooling). Turning it on here would measure a different, stricter composition and could not be compared with 39557190033. Filtered egress stays a separate declared arm (see config/frontier-harness-meriyah-filtered-egress-20261022.json).",
+    "parallelism": "fh_max_parallel=8 is a scheduling choice only: it changes how many cells run concurrently, never a cell's budget, timeout or grader."
+  },
+  "mitigation": {
+    "imageMirror": "Five datacurve images were rate-limited (429) during 39557190033's environment builds. The digest-preserving GHCR mirrors seeded for the recovery arm are passed for those five so they are not rebuilt from public.ecr.aws. The remaining four datacurve images and the seven terminal-bench images are pulled from their frozen references; a rate limit there would be recorded as an infra error, exactly as last time.",
+    "noCleanClaim": "Because no contamination gate is enabled and egress is public, this run makes no claim that any cell was uncontaminated. Run 39700728172 is the evidence for why that matters: a cell can read its upstream solution and its patch can still be graded. Any cell whose record is to be used as a capability reading still needs its own contamination receipt."
+  },
+  "constraints": [
+    "One predeclared attempt per cell over the exact frozen corpus; no second attempt in this manifest.",
+    "No verdict, frozen record or artifact of 39557190033, 39585210102, 39620264048, 39700728172 or 39721121070 is replaced, repaired or reinterpreted by this run.",
+    "Nothing above is read as a model-capability result: this run keeps public egress and no contamination gate, so it cannot separate a model failure from an answer source it may have reached.",
+    "Every error cell keeps its mechanical cause (environment build, rate limit, transport, budget) in the record; an error is never counted as a model failure.",
+    "No budget, timeout or effort is extended to make any cell scoreable."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "8",
+    "fh_batch": "full-c38c6c843-20261022",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\"}"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "knownRisks": {
+    "ecrRateLimit": "The five error cells of 39557190033 all died on `429 Too Many Requests` from public.ecr.aws. Five mirrors are passed above; the other four datacurve images are not mirrored, so an error there is possible and would be recorded as infra, not as a model failure.",
+    "transport": "39557190033 lost 2,246 s across six cells to provider transport stalls. Nothing in this candidate claims to fix that, so a stalled cell keeps its mechanical cause.",
+    "noContaminationGate": "Public egress and no contamination gate: a cell that reaches its upstream solution is not detected here. This run is a refresh of the composition, not a capability reading.",
+    "rerun": "One attempt per cell. A cell that fails here keeps its canonical verdict; no retry is admitted by this manifest."
+  },
+  "plannedChecks": "Read the aggregate report first: per-cell disposition, rewards, durationMs and usage, plus the job conclusions. Then compare cell by cell against 39557190033 and state the arithmetic only. For each failed or error cell, read its own frozen record and evidence to name the mechanical cause (environment build, rate limit, transport, budget, or a verifier verdict), and read its tool closures to say whether a tool admission refusal was involved. Freeze the report.json as its own record beside the earlier ones, with a hand-written note that says: this run has no filtered-egress probe and no contamination gate, so nothing here is a clean capability reading.",
+  "dispatched": false
+}
