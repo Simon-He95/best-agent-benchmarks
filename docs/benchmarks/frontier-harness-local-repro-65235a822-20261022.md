@@ -41,6 +41,8 @@
 
 7/7 failed、7/7 `terminalCause=stopped`（都撞到自己那一格的 agent 预算）、7/7 reward 0。`pierExitCode` 全 0、`pierSignal` 全 null：容器、镜像、setup、候选安装都正常，**没有一格是 infra 或候选安装失败**。
 
+唯一的进程级异常是 `gcode-to-text` 的 `NonZeroAgentExitCodeError`：该格 `deliveryTerminalCause=run-deadline`，agent 进程在 900s 截止时以 exit 1 结束（stderr/stdout 为空）。其余 6 格的 delivery 阶段是 `completed`。这是"撞预算"的正常收束，不是工具或候选故障。
+
 ### 2.1 模型调用全部是正常响应
 
 每格的 evidence `model-outcome` 依次是 `{"response": N}`，N 与 `modelCallCount` 逐格相等（39/18/26/8/9/30/7），**没有一次 `connection` / `timeout` / `model-failure`**。这与 39557190033 的 6 次 transport 中断、累计 2,246s 被吞形成直接对照；同一 provider、同一 model、同一天内的不同时段，1 次尝试/格，**不能据此声称传输层已修好**——只能记"本轮没有复现"。
