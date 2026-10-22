@@ -61,6 +61,15 @@
 
 没有一次是"路径写错 / cwd 解析到别处 / 准入层误拒"。本轮 5 次拒绝之后模型都继续走了下一轮（同格后续调用仍成功），没有一格在拒绝处终止。
 
+再看**执行后**的 shell 级路径错误（不是准入拒绝）：7 格合计只有 2 次非零退出里出现 `no such file` / `not found` 形态——
+
+| 格 | 调用 | 输出 | 性质 |
+| --- | --- | --- | --- |
+| build-cython-ext | `sh -c "cat /usr/local/lib/python3.13/site-packages/planarity/classic/planarity_networkx.py; … grep -n … planarity.py"` | `grep: …/planarity.py: No such file or directory` | 模型自己猜的 site-packages 路径，不影响后续（同格随后成功读取并修改源码） |
+| dna-insert | `sh -c "python3 - <<'EOF' …"` | `/usr/bin/sh: 1: python3: not found` | 该镜像没有 python3（任务预期是 Perl + oligotm）；模型随后改用 node/perl |
+
+harness 以 `cd /app` 启动、`--workspace /app`；模型给出的路径要么是 `/app/...` 绝对路径，要么是相对 `/app` 的相对路径（例如 dna-insert 的 `.`、`sequences.fasta`），**没有一次 cwd 错位**。
+
 ### 2.3 "文件不存在"类：交付物一次都没有被尝试写过
 
 | 格 | verifier 要求的交付物 | 本格所有调用里提到该路径的次数 | 实际写操作 |
