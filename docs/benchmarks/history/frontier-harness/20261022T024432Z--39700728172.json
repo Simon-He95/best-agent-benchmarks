@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.15-beta.1",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "4d708d03a897266291bba7a1bf967ba3dd856a82",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [
+    "datacurve/meriyah-explicit-resource-declarations"
+  ],
+  "coverage": {
+    "expected": 8,
+    "expectedEligible": 8,
+    "present": 8,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 2,
+    "failed": 6,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 0.25,
+  "validCells": 8,
+  "passRateValidCells": 0.25,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "8 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "8 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "8 records agree on one frozen candidate (cli-0.0.15-beta.1-4d708d0-da6825c2d373|0.0.15-beta.1|da6825c2d373b2baa18bd3b7596c29b483062681e1ec61e31d43a9a6894d4923|4614ff54f47f1ca4184856da2b6bb9b43f8f1d69d5298037f19309defc8ddb5e)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "8 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 8,
+    "promptTokens": 31738081,
+    "completionTokens": 268014,
+    "cacheReadTokens": 31103680,
+    "totalTokens": 32006095,
+    "modelCallCount": 393,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 828352,
+      "usage": {
+        "promptTokens": 2419731,
+        "completionTokens": 17841,
+        "cacheReadTokens": 2350912,
+        "costUsd": null,
+        "totalTokens": 2437572,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 68819,
+        "modelCallCount": 68,
+        "reportedCallCount": 68,
+        "reportedInputTokens": 2419731
+      },
+      "evidenceSha256": "41291e244545090a5f74dd4914e2a5ec910c8d4a80929105dabf96b521978ffd",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 858284,
+      "usage": {
+        "promptTokens": 385710,
+        "completionTokens": 18276,
+        "cacheReadTokens": 339904,
+        "costUsd": null,
+        "totalTokens": 403986,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 45806,
+        "modelCallCount": 21,
+        "reportedCallCount": 21,
+        "reportedInputTokens": 385710
+      },
+      "evidenceSha256": "a85c660e493e5333f55a21f0944f9507728c08b5014541abd946f580596931a6",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "exception": {
+        "type": "NonZeroAgentExitCodeError",
+        "message": "Command failed (exit 1): set -e\nexport PATH=\"$HOME/.best-agent-cli/runtime/bin:$PATH\"\nmkdir -p /logs/agent/best-agent-runtime\nprintf '%s\\n' '{\"attemptBudgetMs\":1200000,\"wrapperElapsedMs\":646,\"attemptRemainingMs\":1199354,\"modelTimeoutMs\":1800000}' > /logs/agent/best-agent-attempt-timing.json\ncd /app || exit 1\nexport BEST_AGENT_PROVIDER_CONFIG=\"$HOME/.best-agent/provider.json\"\nexport DIMCODE_HOME=\"$HOME/.dimcode\"\nexport BEST_AGENT_STORAGE_ROOT=/logs/agent/best-agent-runtime\nexport BEST_AGENT_PROVIDER_MODEL=glm-5.3\nset +e\n\"$HOME/.best-agent-cli/bin/best-agent\" run --model glm-5.3 --model-timeout-ms 1800000 --attempt-remaining-ms 1199354 --no-base-instructions --workspace /app --workspace-backend plain --workspace-authorization unrestricted --process-isolation host --process-close-policy release --command-policy path --workspace-grant read --workspace-grant write --workspace-grant exec --tool-exclude network --attempt-evidence /logs/agent/best-agent-evidence.jsonl 'You'\"'\"'re given an image of a pseudocode snippet at `/app/code.png`. Implement the intended logic of that snippet in any language and produce the same final value it would print. Write the result to `/app/output.txt`.\n - Hint:\n   - For helping you make sure your solution is correct, the correct answer starts with `bee26a`\n' </dev/null > /logs/agent/best-agent-stdout.txt 2> /logs/agent/best-agent-stderr.txt\nstatus=$?\nset -e\nprintf '{\\\"exitCode\\\":%s}\\n' \"$status\" > /logs/agent/best-agent-process-receipt.json\nexit \"$status\"\nstdout: None\nstderr: None"
+      },
+      "durationMs": 1171702,
+      "usage": {
+        "promptTokens": 955790,
+        "completionTokens": 29205,
+        "cacheReadTokens": 889280,
+        "costUsd": null,
+        "totalTokens": 984995,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 66510,
+        "modelCallCount": 34,
+        "reportedCallCount": 34,
+        "reportedInputTokens": 955790
+      },
+      "evidenceSha256": "14bea4ee8b23bdd2896a179a60573d3d1526d0548bfe02a0796d572f44cfc3ba",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 1700399,
+      "usage": {
+        "promptTokens": 449668,
+        "completionTokens": 42624,
+        "cacheReadTokens": 387904,
+        "costUsd": null,
+        "totalTokens": 492292,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 61764,
+        "modelCallCount": 17,
+        "reportedCallCount": 17,
+        "reportedInputTokens": 449668
+      },
+      "evidenceSha256": "c21b0b17f183676766faa1b6c52c9051b3f0b2b61253f92340dd97bc3f673f9a",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 821766,
+      "usage": {
+        "promptTokens": 388372,
+        "completionTokens": 21186,
+        "cacheReadTokens": 334464,
+        "costUsd": null,
+        "totalTokens": 409558,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 53908,
+        "modelCallCount": 15,
+        "reportedCallCount": 15,
+        "reportedInputTokens": 388372
+      },
+      "evidenceSha256": "55b0f4f4960db3a38c45f44c81bacb78cd5d92266ae1f99d7c52723518ccec1c",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 794615,
+      "usage": {
+        "promptTokens": 785337,
+        "completionTokens": 17884,
+        "cacheReadTokens": 724928,
+        "costUsd": null,
+        "totalTokens": 803221,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 60409,
+        "modelCallCount": 31,
+        "reportedCallCount": 31,
+        "reportedInputTokens": 785337
+      },
+      "evidenceSha256": "aa4c3eb787b728b5b20b152a89b6a3cef0b542997c788eb53ce96c5b0e74ac73",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0
+      },
+      "durationMs": 788091,
+      "usage": {
+        "promptTokens": 100107,
+        "completionTokens": 6318,
+        "cacheReadTokens": 84928,
+        "costUsd": null,
+        "totalTokens": 106425,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 15179,
+        "modelCallCount": 7,
+        "reportedCallCount": 7,
+        "reportedInputTokens": 100107
+      },
+      "evidenceSha256": "779e8bde48b1523ec54f53dca02f030580a059824c0693bc9042bb58c384b2c7",
+      "batchId": "repro-39557190033-batch34-20261022"
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "disposition": "failed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 0,
+        "f2p_total": 49,
+        "f2p_passed": 0,
+        "p2p_total": 51469,
+        "p2p_passed": 51469,
+        "f2p": 0,
+        "p2p": 1,
+        "partial": 0.9990488761209674
+      },
+      "durationMs": 5381657,
+      "usage": {
+        "promptTokens": 26253366,
+        "completionTokens": 114680,
+        "cacheReadTokens": 25991360,
+        "costUsd": null,
+        "totalTokens": 26368046,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 262006,
+        "modelCallCount": 200,
+        "reportedCallCount": 200,
+        "reportedInputTokens": 26253366
+      },
+      "evidenceSha256": "5c4135b49598627114f3e6556b7c506b8c50e9d3cef3413034c2fd1c75587c42",
+      "batchId": "repro-39557190033-batch34-20261022"
+    }
+  ]
+}
