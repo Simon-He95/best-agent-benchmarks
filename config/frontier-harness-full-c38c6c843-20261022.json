@@ -110,5 +110,13 @@
     "rerun": "One attempt per cell. A cell that fails here keeps its canonical verdict; no retry is admitted by this manifest."
   },
   "plannedChecks": "Read the aggregate report first: per-cell disposition, rewards, durationMs and usage, plus the job conclusions. Then compare cell by cell against 39557190033 and state the arithmetic only. For each failed or error cell, read its own frozen record and evidence to name the mechanical cause (environment build, rate limit, transport, budget, or a verifier verdict), and read its tool closures to say whether a tool admission refusal was involved. Freeze the report.json as its own record beside the earlier ones, with a hand-written note that says: this run has no filtered-egress probe and no contamination gate, so nothing here is a clean capability reading.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-22T14:14:17Z",
+  "dispatchedRun": {
+    "runId": 39793858384,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39793858384",
+    "benchmarksHeadSha": "7d02cbffb3c27c75e73eea94eff01f63396f7db2",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs, including fh_max_parallel=8 and the five digest-preserving image mirrors. A first dispatch (39793804520) was cancelled before any job started because it was submitted without fh_image_mirror; it produced no attempt and no record."
+  }
 }
