@@ -100,6 +100,11 @@
       "workspaceGrants": ["read", "write", "exec"]
     }
   },
+  "filteredEgress": {
+    "note": "Used only when a run is dispatched with fh_filtered_egress=true. The agent phase keeps a restricted network_mode, so Pier puts the trial container on an internal network whose only route out is its own allowlisting proxy (the provider host is the single allowlisted domain). The CLI reaches the provider through the proxy environment (spec 430, best-agent PR #445).",
+    "denyHosts": ["github.com", "registry.npmjs.org", "pypi.org"],
+    "whyTheseHosts": "The three sources a model used to read the answer in run 39700728172: the task's own upstream repository, a published npm build of the project under test, and the package index. A cell is only a measurement if none of them answers."
+  },
   "gpuTasks": [],
   "resourceExceededTasks": [],
   "specificationGaps": {

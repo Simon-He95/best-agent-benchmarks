@@ -410,6 +410,67 @@ test("normalizeTaskTomlNetwork only rewrites the agent phase", async () => {
   assert.match(opened.text, /allow_internet = true/u);
 });
 
+test("filtered egress keeps the agent restricted and adds one when a task declares none", async () => {
+  const { normalizeTaskTomlNetwork } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+
+  // A task that already declares a restricted agent phase: the restricted value is
+  // the point of the composition, so the normalizer must leave it alone.
+  const restricted = "[verifier]\nnetwork_mode = \"no-network\"\n[agent]\nnetwork_mode = \"no-network\"\ntimeout_sec = 900.0\n[environment]\nallow_internet = false\n";
+  const kept = normalizeTaskTomlNetwork(restricted, { filteredEgress: true });
+  assert.deepEqual(kept.changes, []);
+  assert.equal(kept.text, restricted);
+
+  // A task that declares none (all seven terminal-bench cells): the restriction is
+  // added, inside [agent], and nothing else moves.
+  const bare = "[verifier]\ntimeout_sec = 900.0\n[agent]\ntimeout_sec = 900.0\n[environment]\ndocker_image = \"x\"\n";
+  const added = normalizeTaskTomlNetwork(bare, { filteredEgress: true });
+  assert.deepEqual(added.changes, ['[agent] (absent) -> network_mode = "no-network"']);
+  assert.match(added.text, /\[agent\]\nnetwork_mode = "no-network"\ntimeout_sec = 900\.0/u);
+  // The verifier section is never touched, and its own restriction survives.
+  assert.match(added.text, /\[verifier\]\ntimeout_sec = 900\.0/u);
+  assert.doesNotMatch(added.text, /\[environment\][^[]*network_mode/u);
+  // The provenance comment says which composition this is, so two artifacts from
+  // different compositions can never be confused.
+  assert.match(added.text, /^# Staged by frontier-harness-harness\.mjs: filtered egress/u);
+  assert.doesNotMatch(added.text, /agent phase is network-enabled/u);
+});
+
+test("filtered egress re-restricts an agent phase the default composition would open", async () => {
+  const { normalizeTaskTomlNetwork } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+  const datacurveLike = "[agent]\nnetwork_mode = \"public\"\ntimeout_sec = 5400.0\n[environment]\nallow_internet = true\n";
+  const restricted = normalizeTaskTomlNetwork(datacurveLike, { filteredEgress: true });
+  assert.deepEqual(restricted.changes, [
+    '[agent] network_mode = "public" -> network_mode = "no-network"',
+    "[environment] allow_internet = true -> allow_internet = false",
+  ]);
+  // Both halves are needed: pier decides the container's network from the resolved
+  // mode, and the legacy boolean is what an image without network_mode falls back to.
+  assert.match(restricted.text, /network_mode = "no-network"/u);
+  assert.match(restricted.text, /allow_internet = false/u);
+
+  // The same input under the default composition still opens it, so the two
+  // compositions are distinguishable by their staged bytes alone.
+  const opened = normalizeTaskTomlNetwork(datacurveLike);
+  assert.deepEqual(opened.changes, []);
+  assert.match(opened.text, /network_mode = "public"/u);
+});
+
+test("the allowlisted host is the provider's, read from the frozen profile", async () => {
+  const { providerHostFromConfig } = await import(
+    `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
+  );
+  // The real frozen profile decides the allowlist, not a copy of it.
+  assert.equal(providerHostFromConfig(config), "dimagent.cn");
+  assert.equal(providerHostFromConfig({ provider: { baseURL: "https://example.com:8443/v1" } }), "example.com");
+  assert.equal(providerHostFromConfig({ provider: { baseURL: "relay.example.net/v1" } }), "relay.example.net");
+  assert.equal(providerHostFromConfig({ provider: {} }), undefined);
+  assert.equal(providerHostFromConfig({}), undefined);
+});
+
 test("stagePierTask copies the source task verbatim with network normalization", async () => {
   const { stagePierTask } = await import(
     `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`

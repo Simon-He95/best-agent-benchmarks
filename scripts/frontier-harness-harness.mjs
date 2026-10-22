@@ -153,6 +153,7 @@ function parseArgs(argv) {
     candidateId: "unknown",
     batchId: "local",
     formalRunId: "diagnostic-local",
+    filteredEgress: false,
   };
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
@@ -194,6 +195,12 @@ function parseArgs(argv) {
         break;
       case "--formal-run-id":
         parsed.formalRunId = argv[++i];
+        break;
+      // Filtered egress: keep the task's restricted agent network_mode so Pier
+      // builds its internal network and allowlisting proxy, and expect the CLI to
+      // reach the provider through the proxy environment (spec 430).
+      case "--filtered-egress":
+        parsed.filteredEgress = argv[++i] !== "false";
         break;
       default:
         throw new Error(`Unknown argument: ${argv[i]}`);
@@ -374,6 +381,30 @@ const NETWORK_PROVENANCE_COMMENT =
   " policy is untouched.";
 
 /**
+ * The filtered-egress variant of the same note. Under this composition the agent
+ * phase keeps a restricted network_mode, so pier puts the container on an
+ * internal network whose only route out is its own allowlisting proxy; the
+ * provider is the single allowlisted domain. The CLI reaches it through the
+ * proxy environment (spec 430), and a shell subprocess that tries to reach
+ * anything else has no route at all.
+ */
+const FILTERED_EGRESS_PROVENANCE_COMMENT =
+  "# Staged by frontier-harness-harness.mjs: filtered egress (fh_filtered_egress)." +
+  " The agent phase keeps a restricted network_mode, so the trial container sits" +
+  " on an internal network with no default route and its only egress is Pier's" +
+  " allowlisting proxy; the provider host is the one allowlisted domain and the" +
+  " CLI reaches it through the proxy environment. The verifier's own network" +
+  " policy is untouched.";
+
+/** The proxy host Pier's allowlist admits, read from the frozen provider profile. */
+export function providerHostFromConfig(config) {
+  const raw = config?.provider?.baseURL;
+  if (typeof raw !== "string" || raw === "") return undefined;
+  const parsed = new URL(raw.includes("://") ? raw : `https://${raw}`);
+  return parsed.hostname || undefined;
+}
+
+/**
  * Line-scoped TOML normalization: rewrite agent-phase network restrictions so
  * the model provider stays reachable. Only the [agent] network_mode and
  * [environment] allow_internet lines are touched; [verifier] sections (and any
@@ -382,38 +413,61 @@ const NETWORK_PROVENANCE_COMMENT =
  * @returns {{ text: string, changes: string[] }} the normalized TOML text and
  *   a list of human-readable change descriptions (empty when unrestricted).
  */
-export function normalizeTaskTomlNetwork(tomlText) {
+export function normalizeTaskTomlNetwork(tomlText, options = {}) {
+  const filteredEgress = options.filteredEgress === true;
   const lines = tomlText.split("\n");
   const changes = [];
   let section = "";
+  let agentSectionLine = -1;
   for (let i = 0; i < lines.length; i++) {
     const header = lines[i].trim().match(/^\[+([^\]]+)\]+$/);
     if (header) {
       section = header[1];
+      if (section === "agent") agentSectionLine = i;
       continue;
     }
     if (section === "agent") {
       const match = lines[i].match(/^(\s*network_mode\s*=\s*)"[^"]*"(\s*(?:#.*)?)$/);
       if (match) {
         const before = lines[i].trim();
-        lines[i] = `${match[1]}"public"${match[2]}`;
+        lines[i] = `${match[1]}"${filteredEgress ? "no-network" : "public"}"${match[2]}`;
         if (before !== lines[i].trim()) {
           changes.push(`[agent] ${before} -> ${lines[i].trim()}`);
         }
       }
     }
     if (section === "environment") {
-      const match = lines[i].match(/^(\s*allow_internet\s*=\s*)false(\s*(?:#.*)?)$/);
+      const match = filteredEgress
+        ? lines[i].match(/^(\s*allow_internet\s*=\s*)true(\s*(?:#.*)?)$/)
+        : lines[i].match(/^(\s*allow_internet\s*=\s*)false(\s*(?:#.*)?)$/);
       if (match) {
         const before = lines[i].trim();
-        lines[i] = `${match[1]}true${match[2]}`;
+        lines[i] = `${match[1]}${filteredEgress ? "false" : "true"}${match[2]}`;
         changes.push(`[environment] ${before} -> ${lines[i].trim()}`);
       }
     }
   }
+  // A task may declare no agent-phase restriction at all. Under filtered egress the
+  // restriction is the whole point, so it is added rather than assumed.
+  if (filteredEgress && agentSectionLine >= 0) {
+    let sectionEnd = lines.length;
+    for (let i = agentSectionLine + 1; i < lines.length; i += 1) {
+      if (/^\s*\[/.test(lines[i])) {
+        sectionEnd = i;
+        break;
+      }
+    }
+    const declaresNetworkMode = lines
+      .slice(agentSectionLine + 1, sectionEnd)
+      .some((line) => /^\s*network_mode\s*=/.test(line));
+    if (!declaresNetworkMode) {
+      lines.splice(agentSectionLine + 1, 0, 'network_mode = "no-network"');
+      changes.push('[agent] (absent) -> network_mode = "no-network"');
+    }
+  }
   return {
     text: changes.length
-      ? `${NETWORK_PROVENANCE_COMMENT}\n${lines.join("\n")}`
+      ? `${filteredEgress ? FILTERED_EGRESS_PROVENANCE_COMMENT : NETWORK_PROVENANCE_COMMENT}\n${lines.join("\n")}`
       : lines.join("\n"),
     changes,
   };
@@ -424,7 +478,7 @@ export function normalizeTaskTomlNetwork(tomlText) {
  * copy the complete task directory verbatim (modes preserved so tests keep
  * their executable bits), then apply the network normalization above.
  */
-export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
+export function stagePierTask({ task, sourceRoot, pierTaskDir, filteredEgress = false }) {
   const sourceTaskDir = join(sourceRoot, ...task.sourceTaskDir.split("/"));
   if (!existsSync(join(sourceTaskDir, "task.toml"))) {
     throw new Error(`task.toml missing under ${sourceTaskDir}.`);
@@ -453,7 +507,7 @@ export function stagePierTask({ task, sourceRoot, pierTaskDir }) {
   }
   const stagedTomlPath = join(pierTaskDir, "task.toml");
   const original = readFileSync(stagedTomlPath, "utf8");
-  const normalized = normalizeTaskTomlNetwork(original);
+  const normalized = normalizeTaskTomlNetwork(original, { filteredEgress });
   if (normalized.changes.length) {
     writeFileSync(stagedTomlPath, normalized.text);
   }
@@ -837,7 +891,7 @@ async function main() {
   // Stage the complete task directory from the authoritative source; the only
   // edit is the agent-phase network normalization documented in stagePierTask.
   const pierTaskDir = join(args.jobsDir, "pier-task");
-  const staged = stagePierTask({ task, sourceRoot, pierTaskDir });
+  const staged = stagePierTask({ task, sourceRoot, pierTaskDir, filteredEgress: args.filteredEgress });
   if (staged.networkChanges.length) {
     process.stderr.write(
       `Staging note (${task.name}): ${staged.networkChanges.join("; ")}\n`,
@@ -865,6 +919,20 @@ async function main() {
   const gitIdentity = resolveGitIdentity();
   process.env.BEST_AGENT_GIT_IDENTITY_NAME = gitIdentity.name;
   process.env.BEST_AGENT_GIT_IDENTITY_EMAIL = gitIdentity.email;
+
+  // Filtered egress asks the plugin to prove the boundary from inside the container
+  // before the model runs: the provider must answer through the proxy, and the
+  // answer sources must not answer at all. A probe that does not prove both makes
+  // the attempt inconclusive instead of letting it read as a measurement.
+  if (args.filteredEgress) {
+    const providerHost = providerHostFromConfig(config);
+    if (!providerHost) throw new Error("Filtered egress needs a provider host to allowlist.");
+    process.env.FH_EGRESS_PROBE = "1";
+    process.env.FH_EGRESS_PROBE_ALLOW = providerHost;
+    process.env.FH_EGRESS_PROBE_DENY = (config.filteredEgress?.denyHosts ?? []).join(",");
+    if (!process.env.FH_EGRESS_PROBE_DENY)
+      throw new Error("Filtered egress needs at least one host the probe must fail to reach.");
+  }
 
   const pierBin = process.env.FH_PIER_BIN ?? "pier";
   const pierArgs = [

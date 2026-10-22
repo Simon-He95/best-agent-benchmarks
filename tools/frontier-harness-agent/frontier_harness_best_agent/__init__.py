@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import shlex
 import shutil
 import sqlite3
@@ -22,6 +23,126 @@ def _required_env(key: str) -> str:
     if not value:
         raise RuntimeError(f"{key} is required")
     return value
+
+
+# Two facts decide whether a cell is a measurement under filtered egress, and they
+# are different facts: the container has no route out at all (so a bare TCP connect
+# to anything fails), and the allowlisting proxy admits exactly one host (so the
+# provider answers through it while an answer source is refused). The probe reports
+# both, per host, as `DIRECT <host> <result>` and `PROXY <host> <result>` lines. It
+# must be written in each image's own interpreter because the datacurve images are
+# Node and some terminal-bench images are Python, and it must not need a package.
+
+_EGRESS_PYTHON_PROBE = (
+    "import json,os,socket,sys,urllib.request\n"
+    "def direct(host):\n"
+    "    s=socket.socket(); s.settimeout(8)\n"
+    "    try:\n"
+    "        s.connect((host,443)); print('DIRECT',host,'reachable',s.getpeername()[0])\n"
+    "    except Exception as e:\n"
+    "        print('DIRECT',host,'blocked:'+type(e).__name__)\n"
+    "    finally:\n"
+    "        s.close()\n"
+    "def proxied(host):\n"
+    "    try:\n"
+    "        u=urllib.request.urlopen('https://'+host+'/',timeout=15)\n"
+    "        print('PROXY',host,'reachable',u.status); u.close()\n"
+    "    except Exception as e:\n"
+    "        code=getattr(e,'code',None)\n"
+    "        print('PROXY',host,'blocked:'+(str(code) if code else type(e).__name__))\n"
+    "for host in sys.argv[1:]:\n"
+    "    direct(host); proxied(host)\n"
+)
+
+_EGRESS_NODE_PROBE = (
+    "const http=require('http');\n"
+    "const net=require('net');\n"
+    "const hosts=process.argv.slice(1);\n"
+    "const proxyURL=new URL(process.env.HTTPS_PROXY||process.env.https_proxy||process.env.HTTP_PROXY||process.env.http_proxy||'http://none.invalid');\n"
+    "const auth='Basic '+Buffer.from(decodeURIComponent(proxyURL.username)+':'+decodeURIComponent(proxyURL.password)).toString('base64');\n"
+    "const direct=(host)=>new Promise((r)=>{const s=net.connect(443,host);let d=false;\n"
+    "  const f=(x)=>{if(d)return;d=true;s.destroy();r(x)};\n"
+    "  s.setTimeout(8000);s.on('connect',()=>f('reachable '+(s.remoteAddress||'-')));\n"
+    "  s.on('timeout',()=>f('blocked:timeout'));s.on('error',(e)=>f('blocked:'+(e.code||e.name)));});\n"
+    "const proxied=(host)=>new Promise((r)=>{const q=http.request({host:proxyURL.hostname,port:proxyURL.port||8080,method:'CONNECT',path:host+':443',headers:{'Proxy-Authorization':auth}});\n"
+    "  let d=false;const f=(x)=>{if(d)return;d=true;q.destroy();r(x)};\n"
+    "  q.setTimeout(15000);q.on('connect',(res,sock)=>{sock.destroy();f(res.statusCode===200?'reachable':'blocked:'+res.statusCode)});\n"
+    "  q.on('response',(res)=>{res.resume();f('blocked:'+res.statusCode)});\n"
+    "  q.on('timeout',()=>f('blocked:timeout'));q.on('error',(e)=>f('blocked:'+(e.code||e.name)));q.end();});\n"
+    "(async()=>{for(const host of hosts){console.log('DIRECT',host,await direct(host));console.log('PROXY',host,await proxied(host));}})();\n"
+)
+
+
+def build_egress_probe_command(allow: str, deny: list[str]) -> str:
+    """The one shell command that measures the boundary, for any task image."""
+    quoted = " ".join(shlex.quote(host) for host in [allow, *deny])
+    return "\n".join(
+        [
+            "set +e",
+            "if command -v node >/dev/null 2>&1; then",
+            "  node -e " + shlex.quote(_EGRESS_NODE_PROBE) + " " + quoted,
+            "elif command -v python3 >/dev/null 2>&1; then",
+            "  python3 -c " + shlex.quote(_EGRESS_PYTHON_PROBE) + " " + quoted,
+            "else",
+            "  echo 'DIRECT probes blocked:no-interpreter'",
+            "fi",
+        ]
+    )
+
+
+def evaluate_egress_probe(stdout: str, allow: str, deny: list[str]) -> dict[str, object]:
+    """The receipt one probe run earns, and the verdict a reader should trust.
+
+    `bounded` needs all four facts, because any subset is satisfiable by a
+    composition that does not actually bound the model:
+
+      - no host answers a bare TCP connect (the container has no route out, so a
+        shell `git clone` fails even though the model itself has working tools);
+      - the provider answers through the proxy (the CLI can still think);
+      - every answer source is refused through the proxy (the allowlist is the
+        only path, and it does not carry them).
+    """
+    observations = []
+    for line in (stdout or "").splitlines():
+        match = re.match(r"^(DIRECT|PROXY) (\S+) (\S+)(?: (\S+))?$", line.strip())
+        if match:
+            entry = {"path": match.group(1), "host": match.group(2), "result": match.group(3)}
+            if match.group(4):
+                entry["peer"] = match.group(4)
+            observations.append(entry)
+
+    def results(path: str, host: str) -> list[str]:
+        return [o["result"] for o in observations if o["path"] == path and o["host"] == host]
+
+    direct_blocked = [
+        host
+        for host in [allow, *deny]
+        if results("DIRECT", host) and all(r.startswith("blocked:") for r in results("DIRECT", host))
+    ]
+    proxy_reachable = [host for host in [allow] if "reachable" in results("PROXY", host)]
+    proxy_blocked = [
+        host
+        for host in deny
+        if results("PROXY", host) and all(r.startswith("blocked:") for r in results("PROXY", host))
+    ]
+    receipt: dict[str, object] = {
+        "schemaVersion": 2,
+        "declared": "filtered egress (internal network + allowlisting proxy)",
+        "allow": allow,
+        "deny": deny,
+        "observations": observations,
+        "directBlocked": direct_blocked,
+        "providerReachableThroughProxy": proxy_reachable == [allow],
+        "deniedHostsBlockedThroughProxy": proxy_blocked,
+    }
+    receipt["verdict"] = (
+        "bounded"
+        if len(direct_blocked) == len([allow, *deny])
+        and receipt["providerReachableThroughProxy"]
+        and len(proxy_blocked) == len(deny)
+        else "unproven"
+    )
+    return receipt
 
 
 def _git_identity_command() -> str:
@@ -362,6 +483,43 @@ class BestAgentCli(BaseInstalledAgent):
             command=f"set -e; chown {shlex.quote(uid + ':' + gid)} -- {targets}; chmod 600 -- {targets}",
         )
 
+    async def _prove_egress_boundary(self, environment: BaseEnvironment) -> None:
+        """Prove the filtered-egress boundary from inside the container.
+
+        A cell is only a measurement if the model could not read the answer. Under
+        filtered egress the container has no default route and its only way out is
+        Pier's allowlisting proxy, so this probe must show two things before the
+        model starts: the provider answers, and the answer sources do not answer at
+        all.
+
+        It runs as the agent user with the same environment the CLI receives — a
+        boundary that only holds for root is not the boundary the model runs behind.
+        The receipt is written next to the attempt's other logs, and an unproven
+        boundary fails closed instead of letting the attempt read as a measurement.
+        """
+        if os.environ.get("FH_EGRESS_PROBE") != "1":
+            return
+        allow = _required_env("FH_EGRESS_PROBE_ALLOW")
+        deny = [host for host in _required_env("FH_EGRESS_PROBE_DENY").split(",") if host]
+        result = await self.exec_as_agent(
+            environment,
+            command=build_egress_probe_command(allow, deny),
+            timeout_sec=180,
+        )
+        receipt = evaluate_egress_probe(result.stdout or "", allow, deny)
+        receipt["stdout"] = (result.stdout or "")[-2000:]
+        Path(self.logs_dir).mkdir(parents=True, exist_ok=True)
+        (Path(self.logs_dir) / "egress-probe.json").write_text(
+            json.dumps(receipt, indent=2) + "\n", encoding="utf-8"
+        )
+        if receipt["verdict"] != "bounded":
+            # Fail closed: an unproven boundary would let this attempt be read as a
+            # measurement of the model, which is the one claim this run must not make.
+            raise RuntimeError(
+                "Filtered egress is not proven inside the container: "
+                + json.dumps(receipt, separators=(",", ":"))
+            )
+
     @with_prompt_template
     async def run(
         self,
@@ -380,6 +538,7 @@ class BestAgentCli(BaseInstalledAgent):
         workspace = _required_env("BEST_AGENT_CLI_WORKSPACE")
         execution_args = json.loads(_required_env("BEST_AGENT_CLI_EXECUTION_ARGS_JSON"))
         await self._prepare_provider(environment)
+        await self._prove_egress_boundary(environment)
         wrapper_elapsed_ms = (time.monotonic_ns() - started_ns) // 1_000_000
         attempt_remaining_ms = attempt_budget_ms - wrapper_elapsed_ms
         if attempt_remaining_ms <= 210_000:

@@ -84,6 +84,11 @@ on:
         description: Prompt-prefix experiment selector (A, B, C, D, E or F; empty = unchanged behaviour)
         required: false
         default: ""
+      fh_filtered_egress:
+        description: Keep each task's restricted agent network so Pier builds an internal network plus an allowlisting proxy; the provider is the only allowlisted domain and an in-container probe must prove the boundary first
+        required: false
+        type: boolean
+        default: false
       fh_image_mirror:
         description: "Declared recovery delta; JSON map of a task's frozen dockerImage to a digest-pinned mirror reference (empty = unchanged)"
         required: false
@@ -613,7 +618,8 @@ jobs:
             --agent-timeout-multiplier "${{ inputs.fh_agent_timeout_multiplier }}" \
             --candidate-id "${{ steps.candidate.outputs.candidate_id }}" \
             --batch-id "${{ matrix.entry.batchId }}" \
-            --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}"
+            --formal-run-id "${{ inputs.fh_run_full && format('formal-{0}', github.run_id) || format('diagnostic-{0}', github.run_id) }}" \
+            --filtered-egress "${{ inputs.fh_filtered_egress }}"
 
       # A cell is only a measurement if the model solved it. This step reads the
       # attempt the previous step froze and refuses an attempt that reached an
