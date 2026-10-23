@@ -122,5 +122,13 @@
     "rerun": "One attempt per cell. A cell that fails keeps its canonical verdict; no retry is admitted by this manifest."
   },
   "plannedChecks": "Read the aggregate report first (per-cell disposition, rewards, durationMs, usage, acceptance criteria). Compare cell by cell against 39793858384 and, where it has a verdict, against 39557190033; state the arithmetic only. For each failed or error cell, read its own frozen record and evidence to name the mechanical cause, and read its tool closures to say whether a tool admission refusal was involved and whether each refusal was correct. Freeze report.json as its own record beside the earlier ones with a hand-written note that says this run has no filtered-egress probe and no contamination gate, so nothing here is a clean capability reading.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-23T01:24:34Z",
+  "dispatchedRun": {
+    "runId": 39883822819,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/39883822819",
+    "benchmarksHeadSha": "6577985b0733c25afd4f6dbb886a24360bfd2218",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs, including fh_run_full=true (which expanded to 30 Generate jobs), fh_max_parallel=8 and the seven digest-preserving image mirrors. The plan job logged BATCH_LABEL=full-9420ec3e8-20261023."
+  }
 }
