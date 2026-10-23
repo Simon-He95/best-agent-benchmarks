@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "formal-full-run",
+  "batchLabel": "full-9420ec3e8-20261023",
+  "diagnosticOnly": false,
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-23: \"用最新的best-agent本地构建再全量重新跑一下\" — run the whole 30-cell corpus again on the newest best-agent, built from source by this run's own candidate job.",
+  "purpose": "Repeat the full-corpus reading on the newest best-agent main. Run 39793858384 read the corpus on c38c6c843 (14 passed / 14 failed / 2 error). Main has since advanced 9 commits, and this arm asks the same question the previous full arms asked: what does the corpus read at now, on the same composition.",
+  "comparisonBaseline": {
+    "previousFullRun": {
+      "runId": 39793858384,
+      "candidate": "0.0.16-beta.1 @ c38c6c843333c267967811d38092363d751a3b97",
+      "dispositions": {
+        "passed": 14,
+        "failed": 14,
+        "error": 2,
+        "notEvaluated": 0
+      },
+      "note": "Recorded in docs/benchmarks/history/frontier-harness/20261022T153241Z--39793858384.json. Its two error cells (fastapi-deprecation-response-headers, scc-bounded-memory-spilling) died on a public.ecr.aws 429 during the environment build because their images were not mirrored. This arm seeds those two mirrors first, so a repeat 429 there would be a new finding rather than an inherited one."
+    },
+    "olderFullRun": {
+      "runId": 39557190033,
+      "candidate": "0.0.14-beta.1 @ 5bc13e8b5",
+      "dispositions": {
+        "passed": 18,
+        "failed": 7,
+        "error": 5,
+        "notEvaluated": 0
+      }
+    },
+    "convention": "Cell-by-cell arithmetic only. No rate is merged, and no earlier record or verdict is rewritten."
+  },
+  "candidatePin": {
+    "sourceCommit": "9420ec3e8f3123e7f4923189932fab4913ad664e",
+    "cliVersion": "0.0.16-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "git log origin/main of Simon-He95/best-agent on 2026-10-23T14:0xZ returns 9420ec3e8f3123e7f4923189932fab4913ad664e: 'feat(tui): show a reply's artifact:<assetId> picture from its committed media part', committed 2026-10-23T00:56:35+08:00. git show 9420ec3e8:apps/cli/package.json carries 0.0.16-beta.1 and .nvmrc carries 24.15.0. The workflow builds the Linux x64 SEA in this run's own fh-candidate job; the SEA is not byte-reproducible, so this run's binary hash belongs to this run alone.",
+    "deltaFromPreviousFullRun": "39793858384 ran c38c6c843. This run moves 9 commits forward: d0b20f38d (view-image reads one workspace file through the same path admission), b39af4cf2 (view_image reads with the workspace owner's own limits leaf), af41c089b (MCP names the field an input-schema rejection is about), a564194dd (a human interrupt can upgrade a pending steer stop), 9420ec3e8 (TUI renders a reply's artifact picture), plus four test/doc commits (b41bae883, 9ebaf7668, 79c908630, 86d00783b). Only d0b20f38d, b39af4cf2 and af41c089b touch a model-visible tool surface (view_image's path admission and limits, and the MCP schema-rejection message); the MCP change matters only for a task that publishes a dynamic MCP server, which no corpus cell does. The TUI/steer/compact-test slices are not on a headless tool-calling path. That is a reading of the diff, not a proof."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to 39557190033 and 39793858384: same model, same effort, same gateway."
+  },
+  "composition": {
+    "sameAs": "39793858384 and 39557190033",
+    "stated": "Public egress, no filtered-egress probe, no contamination gate, one attempt per cell, each cell's own declared budget, fh_agent_timeout_multiplier=1, the same grader. The only declared deltas are the candidate and two additional image mirrors.",
+    "whyTheseDeltasStayComparable": "An image mirror changes where the same digest-pinned image is fetched from, never its bytes, so it cannot change what a cell measures. It removes the one infra failure this corpus has repeatedly hit.",
+    "parallelism": "fh_max_parallel=8 is a scheduling choice only: it changes how many cells run at once, never a cell's budget, timeout or grader."
+  },
+  "mitigation": {
+    "imageMirror": "Seven digest-preserving GHCR mirrors are passed: the five seeded for the recovery arm plus the two seeded on 2026-10-23 for fastapi-deprecation-response-headers (source digest sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6, seed run 39883169349) and scc-bounded-memory-spilling (sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62, seed run 39883172195). Both seeds self-proved: with the source registry blackholed in /etc/hosts, a compose build from the pinned reference still resolved through the mirror (`build-succeeded-with-source-registry-blackholed`). These are the two cells that errored on 429 in 39793858384. The remaining two datacurve images (anko-typed-variable-bindings, httpx-multipart-response-parsing) are still pulled from their frozen references; a rate limit there would be recorded as infra, never as a model failure.",
+    "noCleanClaim": "No contamination gate and public egress, so this run claims no cell was clean. Any cell whose record is to be used as a capability reading still needs its own contamination receipt."
+  },
+  "constraints": [
+    "One predeclared attempt per cell over the exact frozen corpus; no second attempt in this manifest.",
+    "No verdict, frozen record or artifact of 39557190033, 39620264048, 39700728172, 39721121070 or 39793858384 is replaced, repaired or reinterpreted by this run.",
+    "Nothing here is read as a model-capability result: with public egress and no contamination gate, a model failure cannot be separated from an answer source a cell may have reached.",
+    "Every error cell keeps its mechanical cause (environment build, rate limit, transport, budget) in the record; an error is never counted as a model failure.",
+    "A model.patch of 0 bytes means the collect hook graded the pristine tree; such a cell's f2p is not the model's work and the record says so.",
+    "No budget, timeout or effort is extended to make any cell scoreable."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "8",
+    "fh_batch": "full-9420ec3e8-20261023",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\"}"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "knownRisks": {
+    "ecrRateLimit": "The two 429 cells of 39793858384 are mirrored here, but anko and httpx are not, so an environment-build 429 is still possible and would be recorded as infra.",
+    "transport": "39793858384 lost 472 s to transport stalls plus one 1,800 s single-call timeout in arktype; 39557190033 lost 2,246 s. Nothing in this candidate claims to fix that.",
+    "noContaminationGate": "Public egress and no gate: a cell that reaches its upstream solution is not detected here.",
+    "emptyPatchCaptureGap": "The datacurve collect hook diffs base..HEAD, so a cell that edits without committing still grades the pristine tree. 39793858384 hit this in arktype; it is a harness contract gap, not changed here.",
+    "rerun": "One attempt per cell. A cell that fails keeps its canonical verdict; no retry is admitted by this manifest."
+  },
+  "plannedChecks": "Read the aggregate report first (per-cell disposition, rewards, durationMs, usage, acceptance criteria). Compare cell by cell against 39793858384 and, where it has a verdict, against 39557190033; state the arithmetic only. For each failed or error cell, read its own frozen record and evidence to name the mechanical cause, and read its tool closures to say whether a tool admission refusal was involved and whether each refusal was correct. Freeze report.json as its own record beside the earlier ones with a hand-written note that says this run has no filtered-egress probe and no contamination gate, so nothing here is a clean capability reading.",
+  "dispatched": false
+}
