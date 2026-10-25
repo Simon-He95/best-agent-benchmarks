@@ -249,6 +249,28 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
                     self.assertIn("best-agent-process-receipt.json", cli)
                     self.assert_no_transfer_secrets(env.records, str(logs.records))
 
+    async def test_positive_remaining_projection_is_forwarded_to_selected_cli(self):
+        for remaining in [119999, 29999]:
+            with self.subTest(remaining=remaining):
+                env = RecordedEnvironment("/root", 0, 0)
+                with patch.dict(os.environ, {"BEST_AGENT_ATTEMPT_BUDGET_MS": str(remaining + 1)}):
+                    with patch("frontier_harness_best_agent.time.monotonic_ns", side_effect=[0, 1000000]):
+                        await self.agent.run("task", env, None)
+                cli = env.records[-1]["command"]
+                self.assertIn(f"--attempt-remaining-ms {remaining}", cli)
+                # This tests forwarding, not whether that candidate admits a short window.
+                self.assertEqual(sum('best-agent" run' in r["command"] for r in env.records), 1)
+
+    async def test_exhausted_remaining_projection_stops_before_cli(self):
+        for elapsed_ns in [900000000, 1000000000]:
+            with self.subTest(elapsed_ns=elapsed_ns):
+                env = RecordedEnvironment("/root", 0, 0)
+                with patch.dict(os.environ, {"BEST_AGENT_ATTEMPT_BUDGET_MS": "900"}):
+                    with patch("frontier_harness_best_agent.time.monotonic_ns", side_effect=[0, elapsed_ns]):
+                        with self.assertRaisesRegex(RuntimeError, "No task attempt time remains"):
+                            await self.agent.run("task", env, None)
+                self.assertFalse(any('best-agent" run' in r["command"] for r in env.records))
+
     async def test_original_setup_failure_stops_before_cli(self):
         for stage in ["metadata", "mkdir", "upload", "ownership"]:
             with self.subTest(stage=stage):

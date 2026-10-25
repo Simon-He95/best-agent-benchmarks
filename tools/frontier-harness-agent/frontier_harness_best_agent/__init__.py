@@ -541,8 +541,8 @@ class BestAgentCli(BaseInstalledAgent):
         await self._prove_egress_boundary(environment)
         wrapper_elapsed_ms = (time.monotonic_ns() - started_ns) // 1_000_000
         attempt_remaining_ms = attempt_budget_ms - wrapper_elapsed_ms
-        if attempt_remaining_ms <= 210_000:
-            raise RuntimeError("No admitted attempt delivery window remains after provider setup")
+        if attempt_remaining_ms <= 0:
+            raise RuntimeError("No task attempt time remains after provider setup")
         timing = json.dumps(
             {
                 "attemptBudgetMs": attempt_budget_ms,
