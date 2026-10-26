@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recovery",
+  "batchLabel": "recovery-anko-40257143514-20261026",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A one-cell recovery cannot produce a pass@1 of its own and is never merged into the run it fills. Run 40257143514 keeps its own frozen record (15 passed / 14 failed / 1 error / 0 not-evaluated, scoreable false, passAt1 null). The cell filled here was recorded as error, i.e. it carries no prediction that a new attempt could overwrite.",
+  "requestedBy": "User, 2026-10-26: \"失败那么多是为什么，如果是上游provider抖动就要重新跑\" — explain the failure count and re-run when the cause is upstream. This manifest is the recovery half of that instruction: it fills the run's only verdict-less cell, which died before any model call on a public.ecr.aws anonymous-pull 429. The provider-jitter half is config/frontier-harness-recheck-provider-40257143514-20261026.json.",
+  "purpose": "Give datacurve/anko-typed-variable-bindings the attempt it never got. In run 40257143514 its environment build was refused by public.ecr.aws before any agent existed in the container, so the run could not record a verdict for it and its verdicts.complete criterion failed. This recovery delivers the identical image from a digest-verified GHCR mirror, so the refusal cannot recur, and records whatever the attempt then measures.",
+  "sourceRun": {
+    "runId": 40257143514,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40257143514",
+    "formalRunId": "formal-40257143514",
+    "headSha": "8c9139718c2bea368e05a0e526d2fd90a76f43b6",
+    "window": "2026-10-26T02:02:41Z -> 2026-10-26T03:29:01Z",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T032901Z--40257143514.json (exact bytes of report.json inside artifact frontier-harness-report-40257143514; re-downloaded on 2026-10-26T04:12Z, sha256 identical, cmp identical)",
+    "frozenRecordSha256": "4debb4393e5ea1a731f1bd09c5f83f9dfc7e8581c93e4ba34927dc83c3ba9008",
+    "results": {
+      "passed": 15,
+      "failed": 14,
+      "error": 1,
+      "notEvaluated": 0,
+      "passRate": 0.5,
+      "validCells": 29,
+      "passRateValidCells": 0.5172413793103449,
+      "scoreable": false,
+      "passAt1": null
+    },
+    "candidate": "cli-0.0.17-36b1c85-6fb651b8045e (0.0.17, source commit 36b1c8583982a4e699cf52f884ce535a1d335ecc, binary sha256 6fb651b8045e1461cb9fa0c5548bef171edb1bea32a047c8d6dd645dba7b413d)"
+  },
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure or an explicit provider transport failure; freeze the recovery manifest before recovery, use the same candidate and formal run semantics, preserve the failed evidence, and never replace an existing prediction.",
+    "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+    "mechanicalProof": "The frozen record's own per-task entry for this cell carries result.disposition=error with result.exception.type=RuntimeError, no result.modelOutcomes, and no artifacts.evidence at all (the harness writes evidence only once an attempt exists), so no model call was ever made and no prediction exists to replace. The exception text is `docker compose ... build` failing to load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1 with `429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded` on manifest sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b. The mirror this manifest delivers carries exactly that digest, so the recovery is the same object, not a substitute.",
+    "cells": [
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "asMeasured": "disposition=error, exception.type=RuntimeError, durationMs 5,000, effectiveAgentTimeoutSec 5400, no model outcomes, no attempt evidence, no usage; refused at `...:kh79betfed7ets4an20cr4j57182y9wt-v1.1` with the 429 above on manifest sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b.",
+        "whyNotTheModelOrTheCandidate": "The refusal happens while Docker builds the task image, before any agent process exists in the container; the cell's own record has no evidence stream and no model call. The exception text was produced 5 s into the job.",
+        "priorAttempts": "Passed in run 39883822819 (the previous full run on candidate 0.0.16-beta.1 @ 9420ec3e8) and error here. This recovery is a new admission under a new source run whose cell carries no prediction; it declares exactly one attempt."
+      }
+    ]
+  },
+  "candidatePin": {
+    "sourceCommit": "36b1c8583982a4e699cf52f884ce535a1d335ecc",
+    "cliVersion": "0.0.17",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "note": "The same source commit as the source run, so the recovered cell is measured on the same candidate. The workflow rebuilds the Linux SEA in this run's own fh-candidate job and the SEA is not byte-reproducible, so this run's binarySha256 is its own; the receipt binds it to this commit."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": ["max", "high"],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to the source run: same model, same effort, same gateway, same credential."
+  },
+  "mitigation": {
+    "imageMirror": "public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1 is delivered from ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b and aliased to the pinned reference, so the task source, the harness and the task's Dockerfile keep their exact bytes and only the transport that delivered them changes.",
+    "seedReceipt": "Run 40270578089 attempt 3: outcome=copied, sourceDigest == mirrorDigest == sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b, digestPreserved=true. An earlier seed run (40268226348) lost the anonymous-pull lottery on all three runners and produced no receipt; it is disclosed rather than hidden.",
+    "aliasProof": "The same run's fh-mirror-prove job reports outcome=build-succeeded-with-source-registry-blackholed with aliasRepoDigest ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b, i.e. a compose build FROM the pinned reference resolved while public.ecr.aws was blackholed in /etc/hosts, so a plumbing failure cannot consume the attempt this manifest guards.",
+    "noCleanClaim": "Public egress and no contamination gate, so this batch claims no cell was clean."
+  },
+  "constraints": [
+    "Exactly one attempt for the recovered cell; no second chance at it.",
+    "No verdict, frozen record or artifact of run 40257143514 or any earlier run is replaced, repaired or reinterpreted; the recovered verdict is a companion published beside the run.",
+    "The source run's passAt1 stays null; this batch publishes no pass@1 of its own.",
+    "The official per-cell budget is preserved (fh_agent_timeout_multiplier=1) and is not extended.",
+    "Only the one cell with no prediction is filled; no failed cell of the source run is re-run by this manifest."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/anko-typed-variable-bindings",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-anko-40257143514-20261026",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b\"}"
+  },
+  "expectedTasks": ["datacurve/anko-typed-variable-bindings"],
+  "knownRisks": {
+    "imageDeliveredFromMirror": "The attempt runs the identical image bytes from GHCR; if the alias plumbing ever failed the workflow's own probe stops the job before any model call, which would again be a pre-model failure and not a verdict.",
+    "noContaminationGate": "Public egress and no gate: a cell that reaches its upstream solution is not detected here.",
+    "singleCellReading": "One cell says nothing about the corpus; it only converts a verdict-less cell into a measured one."
+  },
+  "plannedChecks": "After the batch: confirm the report covers exactly the one predeclared cell, confirm one candidate and one provider, and read the cell's own evidence to state its mechanical outcome. Then publish the repaired reading beside the frozen record with scripts/frontier-harness-repaired-reading.mjs --official, together with the provider recheck manifest, which keeps passAt1 null and discloses both verdicts and the extra-attempt count.",
+  "dispatched": false
+}
