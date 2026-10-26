@@ -53,6 +53,18 @@
     "localBuildEvidence": "The newest build artifacts on this machine are darwin-arm64 only: .tmp/sea/darwin-arm64/best-agent (134,430,592 bytes, sha256 759bbb4e50ab021503edea1fc37fbd6644dfed232e3d15613092c2e8a939619d, Node v24.15.0, acceptance-evidence.json self-signed, version literal 0.0.17-beta.1, built 2026-10-23T09:11+08:00), .tmp/npm/best-agent-cli-darwin-arm64-0.0.17-beta.1.tgz and .tmp/npm/best-agent-cli-0.0.17-beta.1.tgz (both 2026-10-23T09:11+08:00). Nothing newer exists (no .tgz or dist tree on this machine after 2026-10-23), and a Darwin artifact can never be the frozen linux-x64-gnu candidate. The 0.0.17-beta.1 literal also predates the 0.0.17 release bump, so it is not the same source state as the pin.",
     "releaseArtifactEvidence": "The same source commit was built today through the public distribution pipeline: best-agent-releases release cli-v0.0.17-36b1c8583982 (created 2026-10-26T00:40:58Z) carries acceptance.json (sha256 9eebbda765e501dd5dc5d7768613ac4377c612714548c06f47fb821a4b46c243) with all six targets passing nodeAbsent, unusableNode, nativeDependencySmoke, interactiveTui and cpuSupervisor, including linux-x64-gnu standalone sha256 10f60c3533873d430fe8e7f59d216da4ae4a8462752343176b222b82619c1b13. That is independent evidence the pinned commit builds and installs, and it is never the candidate: fh-candidate rebuilds from source and freezes its own receipt."
   },
+  "candidateDeltaAudit": {
+    "from": "9420ec3e8f3123e7f4923189932fab4913ad664e (0.0.16-beta.1, the candidate of run 39883822819)",
+    "to": "36b1c8583982a4e699cf52f884ce535a1d335ecc (0.0.17, origin/main HEAD)",
+    "size": "441 commits, 404 files changed, +46,471/-12,113 lines between the two commits",
+    "method": "Static, read-only diff and blob comparison on the checked-out source repository (git diff --stat/-U2/-U3, git show <commit>:<path>, grep for the flag literals, frozen constants and model-visible instruction text) against the contracts scripts/frontier-harness-harness.mjs and tools/frontier-harness-agent consume. It did not build or run the CLI; the smoke run below is the execution evidence.",
+    "interfaceContract": "NO BLOCKING CHANGE. Every flag the plugin passes still exists with the same meaning: the only flag literals added anywhere in the diff are two entries in an argv composition list ('--workspace-grant write' and '--attempt-evidence <path>'), and no flag literal is removed. apps/cli/src/v3-attempt-evidence.ts, apps/cli/src/v3-provider-config.ts, apps/cli/src/v3-execution-profile.ts, apps/cli/src/v3-request-budget.ts and packages/v3-thread-store/src/usage-accounting.ts are unchanged between the two commits, so the evidence JSONL shape and the thread_metrics read path are byte-identical. apps/cli/product-manifest.json is unchanged.",
+    "modelVisibleChanges": "MATERIAL. The code-intelligence tool package is removed from the product composition (commit 98baa9678, 'remove(lsp): drop dedicated tools and preserve generic fixtures'): the four bindings best-agent/code-intelligence-tools/{definition,references,diagnostics,symbols}-v1 and their 'code-intelligence' approval profile no longer compose, so the baseline run's model had four tools this run's model does not. WORKSPACE_TOOL_ROUTING_INSTRUCTION_TEXT (apps/cli/src/product-slices/workspace-tools.ts) is rewritten: 1,488 -> 1,961 source bytes, replacing the attempt-lease/progress paragraph with an explicit tool-loop paragraph. COMPACTED_CONTEXT_INSTRUCTION_TEXT (apps/cli/src/v3-prompt-composition.ts) is rewritten in place (+79 bytes in the file) around steer/workReport/current-request precedence. The base agent instruction text and the capability-builtin-tools / capability-tool-catalog packages are unchanged, and no tool was added.",
+    "attemptDeliveryChanges": "The attempt window floor moves from 210,000 ms to ATTEMPT_RESERVE_MS = 60,000 ms (30,000 ms stop settlement + 30,000 ms cleanup reserve) in apps/cli/src/v3-run-options.ts, and the '--attempt-remaining-ms' prompt-room check that refused a prompt larger than MAX_USER_MESSAGE_BYTES - 66,000 is deleted. Together with the benchmarks-side plugin guard (harnessDelta), an attempt can now start with a 60-210 s window where the baseline would have refused it outright.",
+    "frozenQuantities": "No change to DEFAULT_MODEL_TIMEOUT_MS, MAX_PROCESS_LIFETIME_MS, MAX_PARALLEL_TOOL_CALLS_PER_MODEL_CYCLE, SERVER_MAX_MODEL_CYCLES, COMPACT_ROUND_BOUND_MS or the terminal-cause vocabulary: the diff of those constants across apps/cli/src/v3-run-options.ts, v3-request-budget.ts, v3-execution-profile.ts and v3/src/plan.ts is empty. The per-call ceiling this run materializes is still the frozen 1,800,000 ms and every cell keeps its own official agent budget.",
+    "otherBehavior": "apps/cli/src/index.ts now defaults DIMCODE_VERSION to the CLI's own version (and restores a caller-supplied value across an upgrade relaunch); capability-network-tools (search providers, empty-result and error-body handling) and capability-ocr (office source handling) change implementation. The network ToolBinding is excluded by the frozen composition, and OCR membership is unchanged.",
+    "reading": "The candidate is not inert: a task model meets four fewer tools, a rewritten workspace routing instruction and a rewritten compacted-context instruction, and an attempt may start with a much shorter remaining window than before. Any verdict difference against run 39883822819 must be read as this delta plus run-to-run variance, never as a single-variable capability claim."
+  },
   "provider": {
     "kind": "openai",
     "model": "glm-5.3",
@@ -142,6 +154,25 @@
     "rerun": "One attempt per cell. A cell that fails keeps its canonical verdict; no retry is admitted by this manifest.",
     "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own; the receipt and the per-run candidateId are the only identity that binds the attempts to the pinned commit.",
     "smokeGate": "No full run is dispatched until a single-task smoke has proven the new candidate builds, delivery-verifies, materializes glm-5.3 at high and reaches the model phase with frozen evidence."
+  },
+  "smoke": {
+    "runId": 40256034429,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40256034429",
+    "headSha": "09bc3b296609a8ee7b5684c30f831c5fa7446675",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "full-36b1c8583-20261026-smoke"
+    },
+    "window": "2026-10-26T01:48:48Z -> 2026-10-26T02:00:36Z (11m48s); all five active jobs green (corpus, candidate build + delivery verification, plan, the single Generate job, aggregate report); the two image-mirror jobs are skipped because fh_mirror_image is empty",
+    "result": "The task PASSED (disposition passed, reward 1, durationMs 466,630, 329,008 in / 299,520 cache / 14,208 out tokens, 14 model calls, 14/14 model outcomes, evidenceSha256 fd52869ba7cdaf6c64b6b401b68793b4c7af367a8ef5b0d59b014e6cd80efeea). The acceptance block reads candidate.single passed (cli-0.0.17-36b1c85-c94f43901fc9; binary sha256 c94f43901fc90ac45ecdfb7b9814c58ec771407e26e1743e1dd27218b82a8cda, candidate manifest sha256 99ee0461a928c6b8933347fbc6c2f0617ad0dd76cc1ae4a0d00e924e3d5da3bb), provider.single passed (glm-5.3 at reasoning effort high), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "The two things this smoke existed to prove are mechanically proven: the 0.0.17 / 36b1c8583 candidate builds, delivery-verifies and runs on the Docker runner, and glm-5.3 serves a real task attempt at reasoning effort high through the dim-oauth credential with frozen evidence and accounted tokens. It says nothing about the 30-task corpus and is never merged anywhere."
   },
   "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against 39883822819 cell by cell; mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate."
 }
