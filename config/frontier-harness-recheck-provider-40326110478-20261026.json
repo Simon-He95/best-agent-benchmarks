@@ -159,5 +159,91 @@
     "noContaminationGate": "Public egress and no gate."
   },
   "plannedChecks": "Read the aggregate report, confirm exactly the four predeclared cells and one candidate/provider, compare each disposition to the source verdict, re-read every non-passing cell's evidence, then publish the repaired reading with --official together with the regex-log recovery.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T15:55:39Z",
+  "dispatchHeadSha": "d8c84ae77a44e94dcd5fe1962c377efcfcf2f8bb",
+  "dispatchedRun": {
+    "runId": 40354114551,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40354114551",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "window": "2026-10-26T15:55:39Z -> 2026-10-26T16:48:41Z",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: the four threshold-selected cells, fh_max_parallel=4 and the same nine mirrors."
+  },
+  "outcome": {
+    "present": 4,
+    "results": {
+      "passed": 2,
+      "failed": 2,
+      "error": 0,
+      "notEvaluated": 0
+    },
+    "acceptance": {
+      "coverage": "failed as expected (4 of 30 predeclared)",
+      "verdictsComplete": "passed (4 present, 0 missing, 0 error)",
+      "candidateSingle": "passed",
+      "providerSingle": "passed (glm-5.3 at reasoning effort high)",
+      "instructionsFrozen": "passed"
+    },
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "disposition": "passed",
+        "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling",
+        "rewards": {
+          "reward": 1,
+          "f2p_passed": 31,
+          "f2p_total": 31
+        },
+        "durationMs": 2864098,
+        "modelCallCount": 144,
+        "evidenceSha256": "56a3a1e55949021ea58b12cd98d13415eb733c9c9fd8fe0e8340d60e1e712426",
+        "outcomeEvidence": "zero model-failure entries; footer complete=true",
+        "reading": "FLIPPED. With a clean transport the cell completed 144 calls in 2,864 s and passed 31/31, exactly as it did in the previous run's recheck. The source verdict was decided by the 1,800 s invocation timeout."
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "passed",
+        "class": "provider-contributed — transport stall above the declared threshold",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 477552,
+        "modelCallCount": 32,
+        "evidenceSha256": "c02bccb0fb1d4915212511f8e733e28c01738bf6e7a44ae0802396c55b434e95",
+        "outcomeEvidence": "zero model-failure entries; footer complete=true; terminalCause completed",
+        "reading": "FLIPPED. 32 calls in 477 s — a third of the source attempt's wall time — with no transport failure at all, and the verifier passed it. The 194 s stall in the source run was what kept this cell from finishing."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "class": "provider — transport stall consumed over half of the cell's budget",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 873614,
+        "modelCallCount": 19,
+        "evidenceSha256": "017eb036467a0f7b93d99c3c61c30cb5c90eaf873ac0d501e4d9a50652225e40",
+        "outcomeEvidence": "one model-failure of reason transport lasting 388 s; footer complete=true; terminalCause stopped",
+        "reading": "REPEATED. 19 calls in 874 s of a 900 s budget with a single 388 s transport stall. Across three measurements this cell has now lost 283 s, 771 s and 388 s of its 900 s to the same failure and never delivered a passing workspace."
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "disposition": "failed",
+        "class": "provider — transport stall above the declared threshold",
+        "rewards": {
+          "reward": 0
+        },
+        "durationMs": 887301,
+        "modelCallCount": 17,
+        "evidenceSha256": "c5b7ccaa8c8ef64653fe470bb721dbaf8f46cf0061cd5d13fb599eee953b8638",
+        "outcomeEvidence": "one model-failure of reason transport lasting 19 s; footer complete=true; terminalCause stopped",
+        "reading": "REPEATED, but with a much smaller stall (19 s vs 147 s), so this repeat is not explained by the provider alone: the attempt used its whole 900 s budget and still delivered no passing state. It is recorded as a repeat without claiming the stall decided it."
+      }
+    ],
+    "reading": {
+      "twoFlips": "Two of the four threshold-selected cells flipped to passed with a clean transport, which mechanically shows their source verdicts were provider-decided.",
+      "twoRepeats": "Two reproduced: largest-eigenval again lost a large slice of its budget to one transport stall, and chess-best-move again used its whole budget. The fourth cell's repeat is weaker evidence than the others and is labelled that way.",
+      "noVerdictReplaced": "No source verdict is replaced; both flip and repeat are published only in the repaired reading."
+    }
+  }
 }

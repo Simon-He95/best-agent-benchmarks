@@ -95,5 +95,45 @@
     "noContaminationGate": "Public egress and no gate."
   },
   "plannedChecks": "Confirm the report covers exactly the one predeclared cell and one candidate/provider, read the cell's evidence for outcomes and provider entries, then publish the repaired reading beside the frozen record with --official.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T15:55:47Z",
+  "dispatchHeadSha": "d8c84ae77a44e94dcd5fe1962c377efcfcf2f8bb",
+  "dispatchedRun": {
+    "runId": 40354135796,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40354135796",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "window": "2026-10-26T15:55:47Z -> 2026-10-26T16:15:15Z",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: the one verdict-less cell, fh_max_parallel=1 and the same nine mirrors."
+  },
+  "outcome": {
+    "present": 1,
+    "results": {
+      "passed": 1,
+      "failed": 0,
+      "error": 0,
+      "notEvaluated": 0
+    },
+    "acceptance": {
+      "coverage": "failed as expected (1 of 30 predeclared)",
+      "verdictsComplete": "passed (1 present, 0 missing, 0 error)",
+      "candidateSingle": "passed",
+      "providerSingle": "passed (glm-5.3 at reasoning effort high)",
+      "instructionsFrozen": "passed"
+    },
+    "cells": [
+      {
+        "task": "terminal-bench/regex-log",
+        "disposition": "passed",
+        "class": "explicit provider transport failure (839 s, no completion)",
+        "rewards": {
+          "reward": 1
+        },
+        "durationMs": 872889,
+        "modelCallCount": 11,
+        "evidenceSha256": "4d5f856a0d5575182ca17d355cdb8ff1ca79d7563e952c0c5fd37b58813725e4",
+        "outcomeEvidence": "11 model outcomes, one transport failure of 9 s; footer complete=true",
+        "reading": "FILLED AND PASSED. The same cell that produced zero model outcomes in the source run made 11 calls here and satisfied the verifier. Its 839 s stall in the source run was the single cause of that error."
+      }
+    ]
+  }
 }

@@ -230,5 +230,13 @@
     "budgetExhausted": 0,
     "cellArithmetic": "Against 40257143514: 4 cells improved (anko, httpx, extract-elf, polyglot-c-py), 4 regressed (katex, build-cython-ext, sanitize-git-repo, regex-log to error), 22 unchanged. Same passed count, different flipped set.",
     "readingBoundary": "Public egress and no contamination gate, so no cell is claimed clean. The 8 flips mix the candidate delta with a much heavier provider period (provider loss 2,491 s -> 5,440 s), so nothing here is a single-variable capability claim."
+  },
+  "repairs": {
+    "plan": "config/frontier-harness-repair-plan-40326110478-20261026.json",
+    "recheck": "config/frontier-harness-recheck-provider-40326110478-20261026.json",
+    "recovery": "config/frontier-harness-recovery-regex-log-40326110478-20261026.json",
+    "officialReading": "docs/benchmarks/history/frontier-harness/20261026T153546Z--40326110478.official.json",
+    "repairedPassRate": 0.6,
+    "note": "Pointer only: the run’s own results and passAt1 above are unchanged. Five declared re-measurements produced 18 passed / 12 failed / 0 error as a repaired reading, with the strict passAt1 still null."
   }
 }

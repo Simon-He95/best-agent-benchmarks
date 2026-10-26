@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "recordKind": "official-repaired-reading",
+  "sourceRun": {
+    "runId": 40326110478,
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T153546Z--40326110478.json",
+    "frozenRecordSha256": "ae19f890b2b8c244d3c5b39193c963fba9747c9250867df3d9b5904a36a9f940",
+    "results": {
+      "passed": 15,
+      "failed": 14,
+      "error": 1,
+      "notEvaluated": 0
+    },
+    "passAt1": null
+  },
+  "repairs": [
+    {
+      "batchLabel": "recheck-provider-40326110478-20261026",
+      "kind": "recheck",
+      "manifestPath": "config/frontier-harness-recheck-provider-40326110478-20261026.json",
+      "cells": [
+        {
+          "task": "datacurve/scc-bounded-memory-spilling",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling",
+          "rewards": {
+            "reward": 1,
+            "f2p_passed": 31,
+            "f2p_total": 31
+          },
+          "durationMs": 2864098
+        },
+        {
+          "task": "terminal-bench/code-from-image",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "provider-contributed — transport stall above the declared threshold",
+          "rewards": {
+            "reward": 1
+          },
+          "durationMs": 477552
+        },
+        {
+          "task": "terminal-bench/largest-eigenval",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "failed",
+          "changed": false,
+          "class": "provider — transport stall consumed over half of the cell's budget",
+          "rewards": {
+            "reward": 0
+          },
+          "durationMs": 873614
+        },
+        {
+          "task": "terminal-bench/chess-best-move",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "failed",
+          "changed": false,
+          "class": "provider — transport stall above the declared threshold",
+          "rewards": {
+            "reward": 0
+          },
+          "durationMs": 887301
+        }
+      ]
+    },
+    {
+      "batchLabel": "recovery-regex-log-40326110478-20261026",
+      "kind": "recovery",
+      "manifestPath": "config/frontier-harness-recovery-regex-log-40326110478-20261026.json",
+      "cells": [
+        {
+          "task": "terminal-bench/regex-log",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "explicit provider transport failure (839 s, no completion)",
+          "rewards": {
+            "reward": 1
+          },
+          "durationMs": 872889
+        }
+      ]
+    }
+  ],
+  "repairedReading": {
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0,
+    "expected": 30,
+    "validCells": 30,
+    "passRate": 0.6,
+    "passRateValidCells": 0.6,
+    "passAt1": null,
+    "extraAttempts": 5,
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "provider-contributed — transport stall above the declared threshold"
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "failed",
+        "changed": false,
+        "class": "provider — transport stall consumed over half of the cell's budget"
+      },
+      {
+        "task": "terminal-bench/chess-best-move",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "failed",
+        "changed": false,
+        "class": "provider — transport stall above the declared threshold"
+      },
+      {
+        "task": "terminal-bench/regex-log",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "explicit provider transport failure (839 s, no completion)"
+      }
+    ]
+  },
+  "official": {
+    "metric": "repairedPassRate",
+    "value": 0.6,
+    "repairedCells": 5,
+    "extraAttempts": 5,
+    "ofExpected": 30,
+    "label": "FrontierHarness Eval v1.0, run 40326110478 on candidate ce69441c99ebc174c9ca981dace8b56e4ab78b0f; 5 cell(s) re-measured once each under a frozen, declared manifest. The strict one-attempt-per-task pass@1 of the raw run is null; this official result counts the declared re-measurements and discloses them."
+  },
+  "boundary": "A repaired reading is not a pass@1. Every repaired cell received one extra attempt beyond the run's own predeclared attempts, so this figure counts more attempts than the run did, it is published beside the run's frozen record and never instead of it, and the run's own verdicts are unchanged. Across the whole reading a cell carries exactly one additional attempt at most, and each repair is labelled with the class it was admitted under so a reader can recompute the reading from the frozen record plus the named manifests."
+}
