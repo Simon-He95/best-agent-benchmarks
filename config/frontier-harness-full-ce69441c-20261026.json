@@ -154,5 +154,25 @@
     "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own; the receipt and the per-run candidateId are the only identity that binds the attempts to the pinned commit.",
     "smokeGate": "No full run is dispatched until a single-task smoke has proven the new candidate builds, delivery-verifies (including the new read helper), materializes glm-5.3 at high and reaches the model phase with frozen evidence."
   },
+  "smoke": {
+    "runId": 40323308223,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40323308223",
+    "headSha": "01167a1ce10e3ad54e3621b703598d9ad9632808",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "full-ce69441c-smoke2-20261026"
+    },
+    "window": "2026-10-26T12:32:24Z -> 2026-10-26T12:51:22Z (18m58s); all five active jobs green",
+    "result": "The task PASSED (reward 1, durationMs 877,313, 5 model calls, evidenceSha256 e45e7166…). candidate.single passed on cli-0.0.17-ce69441-d09545fdfb22 (binary sha256 d09545fdfb22e777c89c1be2ca30a355344d7eede4259a166996284a771156e8, candidate manifest sha256 5f05c72a73f73796ee13bd9c0830307e90a2d093b8f450da8ea31262e73e8bc9), provider.single passed at glm-5.3 / high, verdicts.complete passed, instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "This smoke proves the things the run needed proven: the ce69441c candidate builds a linux-x64-gnu SEA on the runner, passes the delivery gate with the new native workspace read helper in the tarball (packaging.files / receipt / bytes / tarball / runtimeClosure / typecheck.source / runtime.binary), materializes glm-5.3 at high, and reaches the model phase with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere.",
+    "precededByExpiredCredential": "An earlier smoke dispatch (run 40322130981, headSha 0888233) and one before it (run 40322333862, headSha 01167a1) both failed closed in the Generate job with 'Benchmark OAuth access token is expired.' — no model call was made, so neither is a benchmark result. The CI secret was re-synced from this machine's dimcode OAuth login on 2026-10-26T12:32Z (secret updated, values never printed) and this smoke then succeeded. Run 40322130981 additionally ran against an older pin (b45b06d7) because it was dispatched from the remote branch before this commit was pushed; it is obsolete and is not cited as this candidate's evidence."
+  },
   "plannedChecks": "Before dispatch: the smoke gate. After the report artifact is downloaded: the acceptance block; the disposition table against 40257143514 cell by cell, including its repaired reading as a companion; mechanical attribution of every verdict-less cell from its own evidence; the provider stall accounting against the previous run's recheck; and the field comparison updated with this run's own pass rate only if it is scoreable."
 }
