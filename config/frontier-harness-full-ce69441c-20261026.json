@@ -183,5 +183,52 @@
     "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40326110478",
     "ref": "codex/fh-0.0.13-beta.1-20261019",
     "note": "Dispatch inputs are exactly this manifest’s dispatchInputs: fh_run_full=true expanded to 30 Generate jobs, fh_max_parallel=8 and the nine digest-preserving image mirrors."
+  },
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T153546Z--40326110478.json",
+  "frozenRecordSha256": "ae19f890b2b8c244d3c5b39193c963fba9747c9250867df3d9b5904a36a9f940",
+  "outcome": {
+    "present": 30,
+    "passed": 15,
+    "failed": 14,
+    "error": 1,
+    "notEvaluated": 0,
+    "validCells": 29,
+    "passRate": 0.5,
+    "passRateValidCells": 0.5172413793103449,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "passAt1": null,
+    "passAt1Reason": "terminal-bench/regex-log carries no verdict: its evidence holds one model-request, zero model-outcome and one model-failure of reason transport lasting 839 s, so the attempt produced nothing to grade and was then stopped at its own 900 s budget. verdicts.complete therefore failed (30 present, 0 missing, 1 error) and the run cannot support a pass@1. The visible readings are 15/30 = 50.0% raw and 15/29 = 51.7% over valid cells.",
+    "acceptance": {
+      "coverage_full": "passed",
+      "verdicts_complete": "failed",
+      "candidate_single": "passed",
+      "provider_single": "passed",
+      "instructions_frozen": "passed"
+    },
+    "candidateId": "cli-0.0.17-ce69441-f5ef4239e707",
+    "candidateNote": "Binary sha256 f5ef4239e7078ffaef57bdd7dc8347447c024451e6eb8a447f01f29373b96067, manifest sha256 653f35cd199a58025a7e9ee9a9a0c7b35dda2505b5c32ea752786ce54787a68d. The SEA is not byte-reproducible: this run’s smoke (40323308223) delivered d09545fdfb22e770… from the same commit.",
+    "runWindow": "2026-10-26T12:54:08Z -> 2026-10-26T15:35:46Z (2h41m38s); 34 of 36 jobs success, 2 mirror jobs skipped, none failed",
+    "usage": "29 of 30 tasks reported usage: promptTokens 67,522,716, cacheReadTokens 65,652,288, completionTokens 687,222, totalTokens 68,209,938, modelCallCount 996, costUsd null.",
+    "providerAccounting": {
+      "cellsWithProviderEntries": 11,
+      "transportSeconds": 3640,
+      "timeoutSeconds": 1800,
+      "totalProviderSeconds": 5440,
+      "previousRun": {
+        "cellsWithProviderEntries": 6,
+        "transportSeconds": 691,
+        "timeoutSeconds": 1800
+      },
+      "modelCallLatency": {
+        "n": 1171,
+        "medianSeconds": 26.7,
+        "p90Seconds": 147,
+        "maxSeconds": 870
+      }
+    },
+    "budgetExhausted": 0,
+    "cellArithmetic": "Against 40257143514: 4 cells improved (anko, httpx, extract-elf, polyglot-c-py), 4 regressed (katex, build-cython-ext, sanitize-git-repo, regex-log to error), 22 unchanged. Same passed count, different flipped set.",
+    "readingBoundary": "Public egress and no contamination gate, so no cell is claimed clean. The 8 flips mix the candidate delta with a much heavier provider period (provider loss 2,491 s -> 5,440 s), so nothing here is a single-variable capability claim."
   }
 }
