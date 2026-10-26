@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "sourceRun": {
+    "runId": 40326110478,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40326110478",
+    "formalRunId": "formal-40326110478",
+    "headSha": "f9ec8f2f17046a25d3bd20bda826b238f887e0d9",
+    "window": "2026-10-26T12:54:08Z -> 2026-10-26T15:35:46Z",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T153546Z--40326110478.json",
+    "frozenRecordSha256": "ae19f890b2b8c244d3c5b39193c963fba9747c9250867df3d9b5904a36a9f940",
+    "results": {
+      "passed": 15,
+      "failed": 14,
+      "error": 1,
+      "notEvaluated": 0,
+      "passRate": 0.5,
+      "validCells": 29,
+      "passRateValidCells": 0.5172413793103449,
+      "scoreable": false,
+      "passAt1": null
+    },
+    "candidate": "cli-0.0.17-ce69441-f5ef4239e707 (0.0.17, source commit ce69441c99ebc174c9ca981dace8b56e4ab78b0f, binary sha256 f5ef4239e7078ffaef57bdd7dc8347447c024451e6eb8a447f01f29373b96067)"
+  },
+  "candidatePin": {
+    "sourceCommit": "ce69441c99ebc174c9ca981dace8b56e4ab78b0f",
+    "cliVersion": "0.0.17",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "note": "Same source commit as the source run. The workflow rebuilds the Linux SEA itself, and the SEA is not byte-reproducible, so this run's binarySha256 is its own."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to the source run: same model, same effort, same gateway, same credential."
+  },
+  "kind": "recovery",
+  "batchLabel": "recovery-regex-log-40326110478-20261026",
+  "passAt1Note": "A one-cell recovery cannot produce a pass@1 of its own and is never merged into the run it fills. Run 40326110478 keeps its own frozen record (15 passed / 14 failed / 1 error, scoreable false, passAt1 null). The cell filled here was recorded as error, i.e. it carries no prediction that a new attempt could overwrite.",
+  "requestedBy": "User, 2026-10-26: the standing instruction \"如果是上游provider抖动就要重新跑\" applied to this run, whose only verdict-less cell died on an explicit provider transport failure.",
+  "purpose": "Give terminal-bench/regex-log the attempt it effectively never had. Its frozen evidence holds exactly one model-request, zero model-outcome and one model-failure of reason transport lasting 839 s, after which the agent was stopped at 877 s of its 900 s budget, so nothing was ever delivered to the verifier.",
+  "admission": {
+    "rule": "AGENTS.md:13 — benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure or an explicit provider transport failure.",
+    "class": "explicit provider transport failure — one model invocation stalled 839 s and returned no completion",
+    "mechanicalProof": "The cell's own evidence JSONL contains 1 model-request, 0 model-outcome and 1 model-failure with failure.reason=transport and durationMs 839,000 (93% of the cell's 900 s budget); its record carries result.disposition=error, a terminalCause of stopped and a NonZeroAgentExitCodeError. No verifier verdict exists, so no prediction is replaced.",
+    "priorAttempts": "In the same candidate's smoke (run 40323308223) this cell PASSED with 5 model calls in 877 s, which shows the task and the candidate are fine and isolates the stall as the cause here. In run 40257143514 it passed, and in 39883822819 it failed after a 719 s transport stall.",
+    "cells": [
+      {
+        "task": "terminal-bench/regex-log",
+        "class": "explicit provider transport failure (839 s, no completion)"
+      }
+    ]
+  },
+  "mitigation": {
+    "imageMirror": "The same nine digest-preserving GHCR mirrors the source run used are passed unchanged; this cell resolves alexgshaw/* from Docker Hub and cannot hit an ECR pull quota.",
+    "noBudgetChange": "No budget, timeout, effort or parallelism is extended; fh_agent_timeout_multiplier stays 1. If the provider stalls again inside the same 900 s, that is the measurement.",
+    "noCleanClaim": "Public egress and no contamination gate, so no cell is claimed clean."
+  },
+  "constraints": [
+    "Exactly one attempt for the recovered cell; no second chance at it.",
+    "No verdict, frozen record or artifact of run 40326110478 or any earlier run is replaced or reinterpreted.",
+    "The source run's passAt1 stays null; this batch publishes no pass@1 of its own.",
+    "No budget, timeout or effort is extended."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/regex-log",
+    "fh_limit": "1",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "recovery-regex-log-40326110478-20261026",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d\"}"
+  },
+  "expectedTasks": [
+    "terminal-bench/regex-log"
+  ],
+  "knownRisks": {
+    "recurrence": "This cell has now stalled on transport in three of the last five measurements (719 s, 839 s, and one clean pass in the smoke). A repeat inside the same budget is the likeliest outcome and is a valid result.",
+    "noContaminationGate": "Public egress and no gate."
+  },
+  "plannedChecks": "Confirm the report covers exactly the one predeclared cell and one candidate/provider, read the cell's evidence for outcomes and provider entries, then publish the repaired reading beside the frozen record with --official.",
+  "dispatched": false
+}

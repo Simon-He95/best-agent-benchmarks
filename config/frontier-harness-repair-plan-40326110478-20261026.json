@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "frozenAt": "2026-10-26T15:45Z",
+  "sourceRunId": 40326110478,
+  "frozenRecordSha256": "ae19f890b2b8c244d3c5b39193c963fba9747c9250867df3d9b5904a36a9f940",
+  "batchLabel": "full-ce69441c-20261026",
+  "statement": "Both batches were frozen before either was dispatched, from the source run's own frozen evidence. The recovery covers the single cell with no verdict; the recheck covers exactly the cells whose provider failure reached the predeclared 10% threshold. Neither replaces a verdict of run 40326110478, and the strict passAt1 of that run stays null.",
+  "manifests": {
+    "recovery": "config/frontier-harness-recovery-regex-log-40326110478-20261026.json",
+    "recheck": "config/frontier-harness-recheck-provider-40326110478-20261026.json"
+  }
+}
