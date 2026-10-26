@@ -90,5 +90,19 @@
     "do not lower timeout, add retry, alter input/effort/grader or claim source root cause without data",
     "same-task before/after only after identified intervention, otherwise retain diagnosis without speculative runtime change"
   ],
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T06:37:43Z",
+  "dispatchHeadSha": "deaa71062b9b39053257adbb4c8ac5fa1b0fdada",
+  "runId": 40280938950,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40280938950",
+  "outcome": {
+    "stage": "pre-model-provider-materialization",
+    "modelAttempts": 0,
+    "predictions": 0,
+    "verdicts": 0,
+    "observedError": "Benchmark OAuth access token is expired.",
+    "candidateBuild": "success",
+    "corpusFreeze": "success",
+    "reading": "No transport reproduction or task score; no task was remeasured. Valid same-provider authorization is required before declared zero-prediction environment recovery. No secret identity/budget/grade replacement."
+  }
 }

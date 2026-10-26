@@ -287,3 +287,57 @@ test("the fixture excerpts are the real verifier bytes they claim to be", () => 
     "b11a136c5040f5e6",
   );
 });
+
+test("reports stopped calls and task words without inventing provider or infrastructure causes", (t) => {
+  const root = mkdtempSync(join(tmpdir(), "fh-transport-attribution-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const resultsDir = join(root, "results"), jobsDir = join(root, "jobs");
+  mkdirSync(resultsDir, { recursive: true });
+  const cases = [
+    { name: "largest-eigenval", cause: "stopped", late: true, stage: "inconclusive", exception: { type: "NonZeroAgentExitCodeError", message: "Command 'best-agent run eigenvalue task' failed with status 1" } },
+    { name: "extract-elf", cause: "stopped", late: true, stage: "inconclusive", exception: { type: "NonZeroAgentExitCodeError", message: "Command 'best-agent run extract ELF' failed with status 1" } },
+    { name: "code-from-image", cause: "stopped", late: true, stage: "inconclusive", exception: { type: "NonZeroAgentExitCodeError", message: "Command 'best-agent run inspect image container' failed with status 1" } },
+    { name: "source-503", cause: "model-failure", late: false, stage: "provider" },
+    { name: "source-timeout", cause: "model-failure", late: false, stage: "provider" },
+    { name: "explicit-budget", cause: "stopped", late: true, stage: "agent-timeout", exception: { type: "AgentTimeoutError", message: "Agent execution timed out after 900.0 seconds" } },
+    { name: "setup-quota", noRequest: true, stage: "infra", exception: { type: "DockerError", message: "Image pull failed: HTTP 429 quota" } },
+    { name: "missing-terminal", missingTerminal: true, stage: "inconclusive" },
+    { name: "foreign-late", cause: "stopped", foreign: true, late: true, stage: "inconclusive" },
+  ];
+  const originals = [];
+  for (const scenario of cases) {
+    const task = `terminal-bench/${scenario.name}`;
+    writeTask({ resultsDir, jobsDir, task, reward: { reward: 0 }, log: "", terminalCause: scenario.cause ?? "stopped" });
+    const recordPath = join(resultsDir, `frontier-harness-results.${scenario.name}.json`);
+    const record = JSON.parse(readFileSync(recordPath, "utf8"));
+    if (scenario.exception) record.result.exception = scenario.exception;
+    writeFileSync(recordPath, JSON.stringify(record));
+    const evidencePath = join(jobsDir, scenario.name, `fh-test-${scenario.name}`, "pier-task__TEST", "agent", "best-agent-evidence.jsonl");
+    const failure = { type: "model-failure", resourceId: scenario.foreign ? "child" : "primary", invocationId: "model-1", durationMs: 771366, failure: { kind: "failure", reason: scenario.name === "source-timeout" ? "timeout" : "transport" } };
+    const terminal = { type: "terminal-snapshot", resourceId: "primary", snapshot: { status: scenario.cause === "model-failure" ? "failed" : "cancelled", terminalCause: scenario.cause ?? "stopped", transcript: [] } };
+    const rows = [
+      { type: "header", rootRunId: "primary" },
+      ...(scenario.noRequest ? [] : [{ type: "model-request", resourceId: "primary", invocationId: "model-1", startedAtMs: 100 }]),
+      ...(scenario.noRequest || scenario.late ? [] : [failure]),
+      ...(scenario.noRequest || scenario.missingTerminal ? [] : [terminal]),
+      ...(scenario.noRequest || !scenario.late ? [] : [failure]),
+      { type: "footer", complete: true },
+    ].map((row, sequence) => ({ ...row, sequence }));
+    writeFileSync(evidencePath, rows.map((row) => JSON.stringify(row)).join("\n") + "\n");
+    originals.push([recordPath, readFileSync(recordPath)], [evidencePath, readFileSync(evidencePath)]);
+  }
+  const output = join(root, "report.md"), summaryPath = join(root, "report.json");
+  const run = spawnSync(process.execPath, [scriptPath, "--results", resultsDir, "--jobs", jobsDir, "--output", output, "--json", summaryPath], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  const summary = JSON.parse(readFileSync(summaryPath, "utf8"));
+  for (const scenario of cases) {
+    const actual = summary.tasks.find((entry) => entry.task === `terminal-bench/${scenario.name}`);
+    assert.equal(actual.stage, scenario.stage, scenario.name);
+    assert.equal(actual.disposition, "failed");
+    assert.deepEqual(actual.rewards, { reward: 0 });
+    assert.equal(actual.modelFailureCount, scenario.noRequest || scenario.foreign ? 0 : 1, scenario.name);
+    assert.equal(actual.lateModelFailureCount, scenario.late && !scenario.foreign ? 1 : 0, scenario.name);
+  }
+  for (const [path, bytes] of originals) assert.deepEqual(readFileSync(path), bytes);
+  assert.match(readFileSync(output, "utf8"), /late model returns/u);
+});
