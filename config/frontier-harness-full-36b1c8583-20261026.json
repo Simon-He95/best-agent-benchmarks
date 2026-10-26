@@ -183,5 +183,51 @@
     "ref": "codex/fh-0.0.13-beta.1-20261019",
     "note": "Dispatch inputs are exactly this manifest's dispatchInputs, including fh_run_full=true (which expanded to 30 Generate jobs), fh_max_parallel=8 and the seven digest-preserving image mirrors. The plan job logged BATCH_LABEL=full-36b1c8583-20261026."
   },
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T032901Z--40257143514.json",
+  "frozenRecordSha256": "4debb4393e5ea1a731f1bd09c5f83f9dfc7e8581c93e4ba34927dc83c3ba9008",
+  "outcome": {
+    "present": 30,
+    "passed": 15,
+    "failed": 14,
+    "error": 1,
+    "notEvaluated": 0,
+    "validCells": 29,
+    "passRate": 0.5,
+    "passRateValidCells": 0.5172413793103449,
+    "scoreable": false,
+    "capabilityMeasurement": false,
+    "passAt1": null,
+    "passAt1Reason": "One predeclared cell carries no verdict: datacurve/anko-typed-variable-bindings died on a public.ecr.aws HTTP 429 during the environment build, before any model call, so verdicts.complete failed (30 present, 0 missing, 1 error, 0 not-evaluated) and the run cannot support a pass@1. The visible readings are the raw rate 15/30 = 50.0% and the valid-cell rate 15/29 = 51.7%; neither is published as pass@1 and nothing here is merged into or read against 39883822819's 0.60.",
+    "acceptance": {
+      "coverage.full": "passed",
+      "verdicts.complete": "failed",
+      "candidate.single": "passed",
+      "provider.single": "passed",
+      "instructions.frozen": "passed"
+    },
+    "acceptanceDetail": {
+      "coverage.full": "30 of 30 Docker-eligible corpus tasks were predeclared",
+      "verdicts.complete": "30 present, 0 missing, 1 error, 0 not-evaluated",
+      "candidate.single": "30 records agree on one frozen candidate (cli-0.0.17-36b1c85-6fb651b8045e|0.0.17|6fb651b8045e1461cb9fa0c5548bef171edb1bea32a047c8d6dd645dba7b413d|4e3be3d903676e0a8b2ab9a059ae5db95b488c9bf608805f02dcaf1adec7ee2a)",
+      "provider.single": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3",
+      "instructions.frozen": "30 records match the frozen instruction hash of their task"
+    },
+    "runWindow": "2026-10-26T02:02:41Z -> 2026-10-26T03:29:01Z (1h26m20s); 34 of 36 jobs success and the 2 image-mirror jobs skipped, no failed, cancelled or timed-out job; dispatch headSha 8c9139718c2bea368e05a0e526d2fd90a76f43b6",
+    "candidateId": "cli-0.0.17-36b1c85-6fb651b8045e",
+    "candidateNote": "The binary is not byte-reproducible across builds, so this hash belongs to this run alone; the same commit's smoke build (run 40256034429) delivered c94f43901fc90ac45ecdfb7b9814c58ec771407e26e1743e1dd27218b82a8cda.",
+    "usage": "29 of 30 tasks reported usage (the verdict-less cell never reached an attempt): promptTokens 147,437,047, cacheReadTokens 145,530,624, completionTokens 877,647, totalTokens 148,314,694, modelCallCount 1,371, costUsd null.",
+    "budgetExhausted": "The report's own budget-exhausted count is 0 and no per-task record carries budgetExhausted=true; every record's agentTimeoutMultiplier is 1 with its own declared per-task budget. No budget was extended, and no cell was retried to make the run scoreable.",
+    "infraCells": {
+      "count": 1,
+      "tasks": ["datacurve/anko-typed-variable-bindings"],
+      "reading": "The record carries result.disposition=error with a RuntimeError whose text is the docker compose build failing to load metadata for public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1 with '429 Too Many Requests - Server message: toomanyrequests: Data limit exceeded'. No evidence artifact exists, so no model call was ever made: a pre-model environment failure, exactly the knownRisks.ecrRateLimit this manifest declared in advance (anko and httpx are the two unmirrored datacurve images)."
+    },
+    "classifierCorrection": "The report's failure analysis labels chess-best-move and code-from-image as infra. Their own records disagree: both made normal model calls (26 and 43 outcomes), each hit one transport stall (34 s and 149 s), and each was killed at its own run deadline (887 s of 900 s, 1170 s of 1200 s) with a NonZeroAgentExitCodeError, so their reward 0 is an unfinished deliverable, not an environment-build failure. This correction changes the narrative only and no canonical verdict.",
+    "failedCells": ["datacurve/arktype-json-schema-refs-dependencies", "datacurve/expr-try-catch-errors", "datacurve/fastapi-deprecation-response-headers", "datacurve/httpx-multipart-response-parsing", "datacurve/meriyah-explicit-resource-declarations", "datacurve/python-statemachine-state-data-scoping", "datacurve/scc-bounded-memory-spilling", "terminal-bench/chess-best-move", "terminal-bench/code-from-image", "terminal-bench/dna-insert", "terminal-bench/extract-elf", "terminal-bench/gcode-to-text", "terminal-bench/largest-eigenval", "terminal-bench/polyglot-c-py"],
+    "failureStages": "From the run's own failures.json byStage over 30 records: model 5, infra 3, specification-gap 3, provider 3, inconclusive 1. Provider-side loss measured from the evidence files: 691 s of transport across five cells (chess 34, code-from-image 149, extract-elf 223, httpx 2, largest-eigenval 283) plus one 1,800 s single-call timeout in scc, 2,491 s total. Baseline 39883822819 lost 1,945.6 s to transport.",
+    "cellArithmetic": "Against 39883822819 (18 passed / 12 failed / 0 error): 3 cells improved (build-cython-ext, regex-log, sanitize-git-repo), 5 regressed (arktype, expr, fastapi, scc, code-from-image), 1 became error (anko), 12 stayed passed and 9 stayed failed. 15 = 12 + 3 and 14 = 9 + 5 close the arithmetic. The difference mixes the candidate delta (four tool bindings removed, two instruction texts rewritten), the plugin delivery-guard change and heavier provider variance, so it is not attributable to a single variable.",
+    "evidenceIntegrity": "29 of 30 cells produced an evidence JSONL whose footer reports complete=true with expectedCounts == writtenCounts; the single exception is httpx-multipart-response-parsing (complete=false, 2 transport failures of 2 s total). The error cell has no evidence at all.",
+    "readingBoundary": "Public egress and no contamination gate, so this run claims no cell was clean. Its 50.0% raw rate and 51.7% valid-cell rate are visible readings only; passAt1 stays null because one predeclared cell has no verdict."
+  },
   "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against 39883822819 cell by cell; mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate."
 }
