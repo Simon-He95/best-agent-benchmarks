@@ -301,6 +301,7 @@ test("reports stopped calls and task words without inventing provider or infrast
     { name: "source-timeout", cause: "model-failure", late: false, stage: "provider" },
     { name: "explicit-budget", cause: "stopped", late: true, stage: "agent-timeout", exception: { type: "AgentTimeoutError", message: "Agent execution timed out after 900.0 seconds" } },
     { name: "setup-quota", noRequest: true, stage: "infra", exception: { type: "DockerError", message: "Image pull failed: HTTP 429 quota" } },
+    { name: "missing-evidence", noRequest: true, absentEvidence: true, stage: "inconclusive", exception: { type: "NonZeroAgentExitCodeError", message: "Command containing image returned 1; evidence unavailable" } },
     { name: "missing-terminal", missingTerminal: true, stage: "inconclusive" },
     { name: "foreign-late", cause: "stopped", foreign: true, late: true, stage: "inconclusive" },
   ];
@@ -324,7 +325,9 @@ test("reports stopped calls and task words without inventing provider or infrast
       { type: "footer", complete: true },
     ].map((row, sequence) => ({ ...row, sequence }));
     writeFileSync(evidencePath, rows.map((row) => JSON.stringify(row)).join("\n") + "\n");
-    originals.push([recordPath, readFileSync(recordPath)], [evidencePath, readFileSync(evidencePath)]);
+    originals.push([recordPath, readFileSync(recordPath)]);
+    if (scenario.absentEvidence) rmSync(evidencePath);
+    else originals.push([evidencePath, readFileSync(evidencePath)]);
   }
   const output = join(root, "report.md"), summaryPath = join(root, "report.json");
   const run = spawnSync(process.execPath, [scriptPath, "--results", resultsDir, "--jobs", jobsDir, "--output", output, "--json", summaryPath], { encoding: "utf8" });
@@ -335,8 +338,8 @@ test("reports stopped calls and task words without inventing provider or infrast
     assert.equal(actual.stage, scenario.stage, scenario.name);
     assert.equal(actual.disposition, "failed");
     assert.deepEqual(actual.rewards, { reward: 0 });
-    assert.equal(actual.modelFailureCount, scenario.noRequest || scenario.foreign ? 0 : 1, scenario.name);
-    assert.equal(actual.lateModelFailureCount, scenario.late && !scenario.foreign ? 1 : 0, scenario.name);
+    assert.equal(actual.modelFailureCount, scenario.absentEvidence ? null : scenario.noRequest || scenario.foreign ? 0 : 1, scenario.name);
+    assert.equal(actual.lateModelFailureCount, scenario.absentEvidence ? null : scenario.late && !scenario.foreign ? 1 : 0, scenario.name);
   }
   for (const [path, bytes] of originals) assert.deepEqual(readFileSync(path), bytes);
   assert.match(readFileSync(output, "utf8"), /late model returns/u);
