@@ -125,8 +125,12 @@ function classifyFailure(record, evidence, trialExceptionText) {
   // The agent used its whole declared budget and Pier killed the run: the
   // model was still working, so this is a budget outcome, not a model failure.
   if (isAgentBudgetExhaustion(exception, trialExceptionText)) return "agent-timeout";
-  if (/Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)) return "infra";
-  if (evidence.modelFailureCount > 0 || evidence.terminalCause === "model-failure") {
+  if (
+    (evidence.modelRequestCount ?? 0) === 0 &&
+    exception?.type !== "NonZeroAgentExitCodeError" &&
+    /Docker|compose|image|container|agent setup|install-cli\.sh/iu.test(message)
+  ) return "infra";
+  if (evidence.terminalCause === "model-failure") {
     return "provider";
   }
   if (evidence.terminalCause === "tool-unknown") return "tool";
@@ -203,6 +207,9 @@ function analyzeEvidence(evidencePath) {
   }
   const entries = [];
   let modelFailureCount = 0;
+  let modelRequestCount = 0;
+  let lateModelFailureCount = 0;
+  let primaryTerminalSeen = false;
   let terminalCause;
   let deliveryTerminalCause;
   let rootRunId;
@@ -212,13 +219,19 @@ function analyzeEvidence(evidencePath) {
       const parsed = JSON.parse(line);
       entries.push(parsed);
       if (parsed.type === "header") rootRunId = parsed.rootRunId;
+      if (parsed.type === "model-request" &&
+        (rootRunId === undefined || parsed.resourceId === rootRunId)) modelRequestCount += 1;
       if (
         parsed.type === "model-failure" &&
         (rootRunId === undefined || parsed.resourceId === rootRunId)
-      ) modelFailureCount += 1;
+      ) {
+        modelFailureCount += 1;
+        if (primaryTerminalSeen) lateModelFailureCount += 1;
+      }
       if (parsed.type === "terminal-snapshot") {
         if (rootRunId === undefined || parsed.resourceId === rootRunId) {
           terminalCause = parsed.snapshot?.terminalCause;
+          primaryTerminalSeen = true;
         } else {
           deliveryTerminalCause = parsed.snapshot?.terminalCause;
         }
@@ -248,6 +261,8 @@ function analyzeEvidence(evidencePath) {
     present: true,
     entries: entries.length,
     modelFailureCount,
+    modelRequestCount,
+    lateModelFailureCount,
     terminalCause,
     deliveryTerminalCause,
     failedTools,
@@ -336,6 +351,8 @@ function main() {
       durationMs: record.durationMs,
       exceptionType: record.result.exception?.type,
       terminalCause: evidence.terminalCause,
+      modelFailureCount: evidence.modelFailureCount ?? null,
+      lateModelFailureCount: evidence.lateModelFailureCount ?? null,
       deliveryTerminalCause: evidence.deliveryTerminalCause,
       evidenceSha256: record.artifacts?.evidenceSha256,
       failedTools: evidence.failedTools ?? [],
@@ -403,6 +420,7 @@ function main() {
                 ? []
                 : [`delivery terminal cause: ${evidence.deliveryTerminalCause}`]),
               `model failures: ${evidence.modelFailureCount ?? "?"}`,
+              `late model returns: ${evidence.lateModelFailureCount ?? "?"} (retained; not a primary terminal cause)`,
               `failed tool closures: ${evidence.failedTools?.length ?? "?"}`,
               `evidence sha256: ${record.artifacts?.evidenceSha256 ?? "?"}`,
               evidence.lastEntry ? `last entry: ${evidence.lastEntry}` : "",

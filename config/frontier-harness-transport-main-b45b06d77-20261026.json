@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-current-main-reproduction",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "requestedBy": "Human 2026-10-26: reproduce largest-eigenval, extract-elf and code-from-image on latest origin/main, locate provider/gateway/client boundaries, compare Codex, keep same task/budgets before/after; review and merge only verified benefits.",
+  "baseline": "New current-main candidate, not a second remeasurement of the exhausted36b source reading; no existing record/verdict is replaced or merged.",
+  "candidatePin": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.17",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "b45b06d77552f7c81847240b971bd7df85306a12",
+    "target": "linux-x64-gnu"
+  },
+  "benchmarkBase": "f371dbd61194e35b8e0e1a7362906d22159be292",
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "tasks": [
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "agentBudgetSec": 900
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "agentBudgetSec": 900
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "agentBudgetSec": 1200
+    }
+  ],
+  "generation": {
+    "maxBatchTasks": 10,
+    "modelInvocationTimeoutMs": 1800000,
+    "defaultAgentTimeoutMultiplier": 1,
+    "agentSetupTimeoutMultiplier": 3,
+    "environmentBuildTimeoutMultiplier": 3,
+    "defaultHarnessTimeoutMs": 10800000,
+    "hostCpus": 4,
+    "hostMemoryMb": 16384,
+    "toolExclude": [
+      "network"
+    ],
+    "executionProfile": {
+      "source": "explicit-custom",
+      "workspaceBackend": "plain",
+      "workspaceAuthorization": "unrestricted",
+      "processIsolation": "host",
+      "processClosePolicy": "release",
+      "commandPolicy": "path",
+      "workspaceGrants": [
+        "read",
+        "write",
+        "exec"
+      ]
+    }
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/largest-eigenval,terminal-bench/extract-elf,terminal-bench/code-from-image",
+    "fh_limit": "3",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "4",
+    "fh_batch": "transport-main-b45b06d77-20261026",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\"}"
+  },
+  "allowedDelta": "Only candidate source36b\u2192latestmainb45. Frozen task commits/instructions, same model/effort/endpoint/transport/budgets/1800000ms call ceiling, grader, network exclusion/public-egress policy and image mirrors unchanged. Three selected cells, no scc fourth cell; concurrency cap4unchanged, distinct population disclosed. No prompt hints, hidden tests, solutions or evaluator feedback enter attempts.",
+  "observation": "Retain full request/outcome/terminal JSONL and original stdout/stderr/SQL artifacts. Classify terminal snapshot before late cancelled failure separately; do not call its full duration upstream stall or count benchmark timeout as accepted provider failure. No complete stream first-byte/progress or gateway source logs are currently available.",
+  "acceptance": [
+    "exact three task population and pinned original latest-main candidate",
+    "one attempt per task, no rerun of graded cell under this manifest",
+    "capture every model request/outcome/failure relative to same-run terminal sequence",
+    "retain canonical grader verdict regardless of attribution",
+    "do not lower timeout, add retry, alter input/effort/grader or claim source root cause without data",
+    "same-task before/after only after identified intervention, otherwise retain diagnosis without speculative runtime change"
+  ],
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T06:37:43Z",
+  "dispatchHeadSha": "deaa71062b9b39053257adbb4c8ac5fa1b0fdada",
+  "runId": 40280938950,
+  "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40280938950",
+  "outcome": {
+    "stage": "pre-model-provider-materialization",
+    "modelAttempts": 0,
+    "predictions": 0,
+    "verdicts": 0,
+    "observedError": "Benchmark OAuth access token is expired.",
+    "candidateBuild": "success",
+    "corpusFreeze": "success",
+    "reading": "No transport reproduction or task score; no task was remeasured. Valid same-provider authorization is required before declared zero-prediction environment recovery. No secret identity/budget/grade replacement."
+  }
+}
