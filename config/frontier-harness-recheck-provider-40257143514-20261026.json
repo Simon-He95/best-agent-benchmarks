@@ -167,5 +167,73 @@
     "classificationOfDeadlineKills": "The source run's failure analysis labels chess-best-move and code-from-image infra, which their records contradict (normal model calls, one transport stall, killed at the cell's own deadline). This manifest uses the records, not that label."
   },
   "plannedChecks": "After the batch: read the aggregate report, confirm coverage of exactly the four predeclared cells, confirm one candidate and one provider, compare each cell's disposition to the source verdict, and read every non-passing cell's own evidence again to state its mechanical cause. Then publish the repaired reading beside the frozen record with scripts/frontier-harness-repaired-reading.mjs --official, which keeps passAt1 null and discloses both verdicts and the extra-attempt count.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T04:17:58Z",
+  "dispatchHeadSha": "d849805f9785b835339f637bd5c02d8b0238fefa",
+  "dispatchedRun": {
+    "runId": 40268344770,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40268344770",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "window": "2026-10-26T04:17:58Z -> 2026-10-26T05:16:37Z",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_tasks is the four predeclared cells, fh_run_full=false, fh_max_parallel=4 and the same seven mirrors. 6 of 6 jobs success (3 freeze + 4 Generate + aggregate counts 6 active jobs with 2 mirror jobs skipped)."
+  },
+  "outcome": {
+    "present": 4,
+    "results": { "passed": 1, "failed": 3, "error": 0, "notEvaluated": 0 },
+    "acceptance": {
+      "coverage.full": "failed (expected: 4 of 30 predeclared, a recheck cannot cover the corpus)",
+      "verdicts.complete": "passed (4 present, 0 missing, 0 error, 0 not-evaluated)",
+      "candidate.single": "passed (4 records agree on one frozen candidate)",
+      "provider.single": "passed (glm-5.3 at reasoning effort high)",
+      "instructions.frozen": "passed"
+    },
+    "candidateId": "cli-0.0.17-36b1c85-abed28bcf053 (binary sha256 abed28bcf053981ab43746ec43aed69bbf90f639a05e3bfa91903faf8b438118, candidate manifest sha256 f7c4eded080ec54e80052246b13df229f1087b3f200db8b6b30814ee908ffc0c); the workflow rebuilt the Linux SEA from 36b1c8583, so its binary hash is this run's own and differs from the source run's 6fb651b8045e",
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "disposition": "passed",
+        "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling and returned no usable completion",
+        "rewards": { "reward": 1, "f2p_passed": 31, "f2p_total": 31 },
+        "durationMs": 3035499,
+        "modelCallCount": 147,
+        "evidenceSha256": "1b6598a3fca675ed206a84b2afb439a0bd6964c8f3e11ac565650414e91f16f5",
+        "reading": "FLIPPED. The same cell, candidate, budget and grader, with a healthy transport, completed 147 model calls in 3,035 s with zero provider failures and passed all 31 fail-to-pass tests. The source verdict (failed, f2p 0/31, one 1,800 s timeout) was therefore decided by the provider stall, not by the candidate or the task."
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "disposition": "failed",
+        "class": "provider — transport stall consumed a quarter of the cell's budget and the attempt was killed at that budget",
+        "rewards": { "reward": 0 },
+        "durationMs": 891513,
+        "modelCallCount": 10,
+        "evidenceSha256": "796699dd56486dd486db7afc9e8dc5228e3165340b50a9c728ad502da56dc515",
+        "reading": "REPEATED. 10 model calls in 892 s of a 900 s budget with one transport failure lasting 166 s: the same signature as the source run (9 calls, 223 s). The stall is not a one-off; it reproduces on the same cell inside the same frozen budget."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "disposition": "failed",
+        "class": "provider — transport stall consumed a third of the cell's budget; the agent produced 5 model calls in total",
+        "rewards": { "reward": 0 },
+        "durationMs": 872457,
+        "modelCallCount": 3,
+        "evidenceSha256": "951eb60a7720fe31255f58a1b8201a85348ff3de80cd981d52257f34a17741fd",
+        "reading": "REPEATED, AND WORSE. 3 model calls in 872 s of a 900 s budget with one transport failure lasting 771 s (86% of the budget). The source run lost 283 s to the same failure; this attempt lost 771 s and never got a second turn. Re-running did not buy this cell a fair attempt."
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "disposition": "failed",
+        "class": "provider-contributed — transport stall above the declared threshold while the attempt also used its whole budget",
+        "rewards": { "reward": 0 },
+        "durationMs": 1171695,
+        "modelCallCount": 38,
+        "evidenceSha256": "1ad0c18ff3b20731ea76931537a35f04592d5b9ca59966c293c2405904c44346",
+        "reading": "REPEATED. 38 model calls in 1,172 s of a 1,200 s budget with one transport failure lasting 140 s, killed at its own deadline as in the source run (43 calls, 149 s)."
+      }
+    ],
+    "reading": {
+      "providerJitterIsPartlyReproducible": "One of four rechecked cells flipped to passed with a clean transport, which mechanically shows the source verdict for that cell was provider-decided. The other three failed again with the same transport signature and, in largest-eigenval's case, a far larger stall, so for those cells the provider condition is persistent rather than a one-off that a re-run repairs. No budget was extended to give them a second chance, and none is admitted by this manifest.",
+      "noVerdictReplaced": "The three repeated failures stand beside their source verdicts unchanged; the one flip is published as a re-measured verdict in the repaired reading, never as a replacement of the frozen record.",
+      "notACapabilityReading": "None of these four cells becomes a capability reading here: public egress, no contamination gate, and three of them never received a fair attempt."
+    }
+  }
 }

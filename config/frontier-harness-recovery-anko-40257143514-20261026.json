@@ -95,5 +95,38 @@
     "singleCellReading": "One cell says nothing about the corpus; it only converts a verdict-less cell into a measured one."
   },
   "plannedChecks": "After the batch: confirm the report covers exactly the one predeclared cell, confirm one candidate and one provider, and read the cell's own evidence to state its mechanical outcome. Then publish the repaired reading beside the frozen record with scripts/frontier-harness-repaired-reading.mjs --official, together with the provider recheck manifest, which keeps passAt1 null and discloses both verdicts and the extra-attempt count.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T05:10:12Z",
+  "dispatchHeadSha": "f72f49f81b6ca923f79885b06c733a28510e2f31",
+  "dispatchedRun": {
+    "runId": 40272786791,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40272786791",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "window": "2026-10-26T05:10:12Z -> 2026-10-26T05:49:23Z",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: one predeclared cell, fh_max_parallel=1, and the single digest-pinned mirror entry for this task's image. All 6 active jobs success (3 freeze + 1 Generate + aggregate), the 2 mirror jobs skipped because fh_mirror_image is empty."
+  },
+  "outcome": {
+    "present": 1,
+    "results": { "passed": 1, "failed": 0, "error": 0, "notEvaluated": 0 },
+    "acceptance": {
+      "coverage.full": "failed (expected: 1 of 30 predeclared, a one-cell recovery cannot cover the corpus)",
+      "verdicts.complete": "passed (1 present, 0 missing, 0 error, 0 not-evaluated)",
+      "candidate.single": "passed (1 record; the workflow rebuilt the SEA from 36b1c8583)",
+      "provider.single": "passed (glm-5.3 at reasoning effort high)",
+      "instructions.frozen": "passed"
+    },
+    "cells": [
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "disposition": "passed",
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+        "rewards": { "reward": 1, "f2p_passed": 9, "f2p_total": 9, "p2p_passed": 94, "p2p_total": 94 },
+        "durationMs": 1929720,
+        "modelCallCount": 74,
+        "terminalCause": "completed",
+        "evidenceSha256": "e4e67a795de99fbd9ac1488f7bf8c72ffa67793c64ddc884b6e06c829fde9251",
+        "reading": "FILLED AND PASSED. Delivered from the digest-pinned mirror, the cell that had never reached a model in the source run built its environment, made 74 model calls in 1,930 s and passed all 9 fail-to-pass and all 94 pass-to-pass tests. The source run's error was the anonymous-pull 429 and nothing about the candidate or the task."
+      }
+    ]
+  }
 }

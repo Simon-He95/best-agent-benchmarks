@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "recordKind": "official-repaired-reading",
+  "sourceRun": {
+    "runId": 40257143514,
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T032901Z--40257143514.json",
+    "frozenRecordSha256": "4debb4393e5ea1a731f1bd09c5f83f9dfc7e8581c93e4ba34927dc83c3ba9008",
+    "results": {
+      "passed": 15,
+      "failed": 14,
+      "error": 1,
+      "notEvaluated": 0
+    },
+    "passAt1": null
+  },
+  "repairs": [
+    {
+      "batchLabel": "recheck-provider-40257143514-20261026",
+      "kind": "recheck",
+      "manifestPath": "config/frontier-harness-recheck-provider-40257143514-20261026.json",
+      "cells": [
+        {
+          "task": "datacurve/scc-bounded-memory-spilling",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling and returned no usable completion",
+          "rewards": {
+            "reward": 1,
+            "f2p_passed": 31,
+            "f2p_total": 31
+          },
+          "durationMs": 3035499
+        },
+        {
+          "task": "terminal-bench/extract-elf",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "failed",
+          "changed": false,
+          "class": "provider — transport stall consumed a quarter of the cell's budget and the attempt was killed at that budget",
+          "rewards": {
+            "reward": 0
+          },
+          "durationMs": 891513
+        },
+        {
+          "task": "terminal-bench/largest-eigenval",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "failed",
+          "changed": false,
+          "class": "provider — transport stall consumed a third of the cell's budget; the agent produced 5 model calls in total",
+          "rewards": {
+            "reward": 0
+          },
+          "durationMs": 872457
+        },
+        {
+          "task": "terminal-bench/code-from-image",
+          "originalDisposition": "failed",
+          "remediatedDisposition": "failed",
+          "changed": false,
+          "class": "provider-contributed — transport stall above the declared threshold while the attempt also used its whole budget",
+          "rewards": {
+            "reward": 0
+          },
+          "durationMs": 1171695
+        }
+      ]
+    },
+    {
+      "batchLabel": "recovery-anko-40257143514-20261026",
+      "kind": "recovery",
+      "manifestPath": "config/frontier-harness-recovery-anko-40257143514-20261026.json",
+      "cells": [
+        {
+          "task": "datacurve/anko-typed-variable-bindings",
+          "originalDisposition": "error",
+          "remediatedDisposition": "passed",
+          "changed": true,
+          "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")",
+          "rewards": {
+            "reward": 1,
+            "f2p_passed": 9,
+            "f2p_total": 9,
+            "p2p_passed": 94,
+            "p2p_total": 94
+          },
+          "durationMs": 1929720
+        }
+      ]
+    }
+  ],
+  "repairedReading": {
+    "passed": 17,
+    "failed": 13,
+    "error": 0,
+    "notEvaluated": 0,
+    "expected": 30,
+    "validCells": 30,
+    "passRate": 0.5666666666666667,
+    "passRateValidCells": 0.5666666666666667,
+    "passAt1": null,
+    "extraAttempts": 5,
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling and returned no usable completion"
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "failed",
+        "changed": false,
+        "class": "provider — transport stall consumed a quarter of the cell's budget and the attempt was killed at that budget"
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "failed",
+        "changed": false,
+        "class": "provider — transport stall consumed a third of the cell's budget; the agent produced 5 model calls in total"
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "originalDisposition": "failed",
+        "remediatedDisposition": "failed",
+        "changed": false,
+        "class": "provider-contributed — transport stall above the declared threshold while the attempt also used its whole budget"
+      },
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "originalDisposition": "error",
+        "remediatedDisposition": "passed",
+        "changed": true,
+        "class": "pre-model environment failure — public.ecr.aws anonymous pull quota (HTTP 429 \"Data limit exceeded\")"
+      }
+    ]
+  },
+  "official": {
+    "metric": "repairedPassRate",
+    "value": 0.5666666666666667,
+    "repairedCells": 5,
+    "extraAttempts": 5,
+    "ofExpected": 30,
+    "label": "FrontierHarness Eval v1.0, run 40257143514 on candidate 36b1c8583982a4e699cf52f884ce535a1d335ecc; 5 cell(s) re-measured once each under a frozen, declared manifest. The strict one-attempt-per-task pass@1 of the raw run is null; this official result counts the declared re-measurements and discloses them."
+  },
+  "boundary": "A repaired reading is not a pass@1. Every repaired cell received one extra attempt beyond the run's own predeclared attempts, so this figure counts more attempts than the run did, it is published beside the run's frozen record and never instead of it, and the run's own verdicts are unchanged. Across the whole reading a cell carries exactly one additional attempt at most, and each repair is labelled with the class it was admitted under so a reader can recompute the reading from the frozen record plus the named manifests."
+}
