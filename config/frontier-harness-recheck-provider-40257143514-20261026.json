@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "recheck",
+  "batchLabel": "recheck-provider-40257143514-20261026",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "passAt1Note": "A re-measurement never replaces the verdict it re-measures, so run 40257143514's strict passAt1 stays null exactly as it was, and this batch has no pass@1 of its own. What it can produce is the run's repaired pass rate: scripts/frontier-harness-repaired-reading.mjs --official publishes it over the run's predeclared task set, with both verdicts of every re-measured cell, the class each was admitted under and the extra-attempt count disclosed.",
+  "requestedBy": "User, 2026-10-26: \"失败那么多是为什么，如果是上游provider抖动就要重新跑\" — explain the failure count, and re-run if upstream provider jitter is the cause. This manifest is the re-run half of that instruction: it re-measures only the cells whose own frozen evidence carries an explicit provider failure that consumed at least 10% of that cell's declared agent budget. It does not re-run the ten cells whose failure has no provider content.",
+  "purpose": "Test whether the provider-caused part of run 40257143514's 14 failed cells reproduces. Run 40257143514 read the 30-cell corpus on best-agent 36b1c8583 at 15 passed / 14 failed / 1 error. Seven of those 15 non-passes have no provider content at all (5 verifier-graded model outcomes, 3 declared specification gaps, minus one counted twice; see admission.nonProviderCells), one is a pre-model image pull recorded as error and recovered by config/frontier-harness-recovery-anko-40257143514-20261026.json, and four carry an explicit provider failure above the predeclared threshold. Only those four are re-measured here.",
+  "sourceRun": {
+    "runId": 40257143514,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40257143514",
+    "formalRunId": "formal-40257143514",
+    "headSha": "8c9139718c2bea368e05a0e526d2fd90a76f43b6",
+    "window": "2026-10-26T02:02:41Z -> 2026-10-26T03:29:01Z",
+    "frozenRecord": "docs/benchmarks/history/frontier-harness/20261026T032901Z--40257143514.json (exact bytes of report.json inside artifact frontier-harness-report-40257143514; re-downloaded on 2026-10-26T04:12Z, sha256 identical, cmp identical)",
+    "frozenRecordSha256": "4debb4393e5ea1a731f1bd09c5f83f9dfc7e8581c93e4ba34927dc83c3ba9008",
+    "artifactId": 12625088207,
+    "artifactZipSha256": "e5c56b0eddbfdac70b8820b1205ef44000288eb3789fa1ac4681f60d7b2e36d4",
+    "results": {
+      "passed": 15,
+      "failed": 14,
+      "error": 1,
+      "notEvaluated": 0,
+      "passRate": 0.5,
+      "validCells": 29,
+      "passRateValidCells": 0.5172413793103449,
+      "scoreable": false,
+      "passAt1": null
+    },
+    "candidate": "cli-0.0.17-36b1c85-6fb651b8045e (0.0.17, source commit 36b1c8583982a4e699cf52f884ce535a1d335ecc, binary sha256 6fb651b8045e1461cb9fa0c5548bef171edb1bea32a047c8d6dd645dba7b413d)"
+  },
+  "admission": {
+    "rule": "AGENTS.md:11 — a declared re-measurement is the only way an already-graded cell may be measured again, and it never replaces the verdict it re-measures. Each of the four cells below carries a canonical verdict from run 40257143514 (disposition=failed with a verifier-graded rewards object), so none is recovered: each receives exactly one extra attempt, under the same candidate, the same provider and effort, the same per-cell official budget, the same grader and the same generation composition as the source run. No cell receives a second extra attempt.",
+    "class": "variance check — the cell's own frozen evidence carries an explicit provider failure (transport error or model-invocation timeout) that consumed at least 10% of that cell's declared agent budget; the source verdict stands and is not replaced, and the extra attempt asks whether the same frozen composition reproduces the same terminal state or whether the provider contention was the difference",
+    "threshold": {
+      "declaredBeforeDispatch": "cumulative duration of entries whose evidence type is model-failure and whose failure.reason is transport or a timeout, divided by the cell's own effectiveAgentTimeoutSec, at least 0.10",
+      "whyThisThreshold": "It separates a stall that could plausibly decide a cell from incidental noise inside a 900-5400 s budget. It is stated as a number before dispatch so the cell set cannot be chosen after seeing which cells a re-run favours; the two below-threshold cells and their exact shares are disclosed instead of dropped."
+    },
+    "measurement": "For every cell of the source run, the evidence JSONL named by its artifacts was read from the run's own report artifact and every entry of type model-failure was summed by failure.reason. Budgets are the cell's own effectiveAgentTimeoutSec from its frozen record. Nothing was re-run or re-read from a log outside the artifact.",
+    "cells": [
+      {
+        "task": "datacurve/scc-bounded-memory-spilling",
+        "class": "provider — one model invocation consumed the frozen 1,800,000 ms per-call ceiling and returned no usable completion",
+        "asMeasured": "disposition=failed, reward 0, f2p 0/31, p2p 286/286, effectiveAgentTimeoutSec 5400, durationMs 3,301,000, modelCallCount 65, terminalCause model-failure, exception NonZeroAgentExitCodeError; evidence carries exactly one model-failure with failure.reason=timeout and durationMs 1,800,000 (33.3% of the cell's budget). Footer complete=true, expectedCounts == writtenCounts.",
+        "whyProvider": "A single invocation sat on the frozen per-call ceiling for 1,800 s — a third of the cell's whole budget — and produced nothing. The stall is inside the model transport, not in the task: the same cell passed on the previous full run (39883822819) and the delivered workspace here failed all 31 fail-to-pass tests, i.e. the attempt ended without a usable final answer.",
+        "priorAttempts": "Passed in run 39883822819 (f2p 31/31). Failed here. One extra attempt only."
+      },
+      {
+        "task": "terminal-bench/extract-elf",
+        "class": "provider — transport stall consumed a quarter of the cell's budget and the attempt was killed at that budget",
+        "asMeasured": "disposition=failed, reward 0, effectiveAgentTimeoutSec 900, durationMs 896,000 (99.6% of budget), modelCallCount 9, terminalCause stopped, exception NonZeroAgentExitCodeError; evidence carries one model-failure with failure.reason=transport lasting 223 s (24.8% of budget). Footer complete=true.",
+        "whyProvider": "The attempt reached only 9 model calls in its 900 s and spent 223 s of that window inside failed transport; it was then stopped by its own budget. The stall is a quarter of everything the cell had, so it can decide the cell on its own.",
+        "priorAttempts": "Failed in 39883822819 (same class, transport 346.8 s) and failed in 39793858384. In the 8-cell recheck of 39557190033 (run 39700728172, config/frontier-harness-repro-39557190033-batch34.json) this same cell PASSED once, which is direct precedent that the verdict is not stable under provider variance. One extra attempt only."
+      },
+      {
+        "task": "terminal-bench/largest-eigenval",
+        "class": "provider — transport stall consumed a third of the cell's budget; the agent produced 5 model calls in total",
+        "asMeasured": "disposition=failed, reward 0, effectiveAgentTimeoutSec 900, durationMs 877,000 (97.4% of budget), modelCallCount 5, terminalCause stopped, exception NonZeroAgentExitCodeError; evidence carries one model-failure with failure.reason=transport lasting 283 s (31.4% of budget). Footer complete=true.",
+        "whyProvider": "5 model calls in 877 s with 283 s burned inside one failed transport: the attempt never got enough turns to deliver, and its deliverable file was left as the stub the task ships.",
+        "priorAttempts": "Failed in 39883822819 (transport 550.3 s in two stalls) and in 39793858384. One extra attempt only."
+      },
+      {
+        "task": "terminal-bench/code-from-image",
+        "class": "provider-contributed — transport stall above the declared threshold while the attempt also used its whole budget",
+        "asMeasured": "disposition=failed, reward 0, effectiveAgentTimeoutSec 1200, durationMs 1,170,000 (97.5% of budget), modelCallCount 43, terminalCause stopped, exception NonZeroAgentExitCodeError; evidence carries one model-failure with failure.reason=transport lasting 149 s (12.4% of budget). Footer complete=true.",
+        "whyProvider": "This is the weakest of the four and is disclosed as such: 12.4% of the budget sat in a failed transport and the attempt was killed at its own deadline with 43 calls already made. The stall is above the predeclared threshold, but unlike the three cells above it does not by itself show that the stall decided the cell.",
+        "priorAttempts": "Passed in 39883822819 and in 39793858384 (failed in 39557190033). One extra attempt only."
+      }
+    ],
+    "belowThresholdDisclosed": [
+      {
+        "task": "terminal-bench/chess-best-move",
+        "providerEntry": "one transport failure of 34 s",
+        "share": "3.8% of its 900 s budget",
+        "whyNotAdmitted": "Below the predeclared 10% threshold. The attempt made 26 model calls and was killed at 887 s of 900 s, i.e. it used its budget; a re-run of this cell would measure the agent, not the provider."
+      },
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "providerEntry": "two transport failures totalling 2 s",
+        "share": "0.04% of its 5400 s budget",
+        "whyNotAdmitted": "Below the threshold by two orders of magnitude, and the cell is a declared specification gap whose failure is a single hidden test (f2p 121/122); its attempt completed with 59 calls."
+      }
+    ],
+    "nonProviderCells": {
+      "verifierGradedModelOutcome": [
+        "datacurve/arktype-json-schema-refs-dependencies (f2p 23/25, 182 calls, terminalCause completed, zero provider entries)",
+        "datacurve/expr-try-catch-errors (f2p 78/79, 147 calls, completed, zero provider entries)",
+        "datacurve/python-statemachine-state-data-scoping (f2p 70/72, 161 calls, completed, zero provider entries)",
+        "terminal-bench/dna-insert (37 calls, completed, zero provider entries)",
+        "terminal-bench/polyglot-c-py (12 calls, completed, zero provider entries)"
+      ],
+      "declaredSpecificationGap": [
+        "datacurve/fastapi-deprecation-response-headers (f2p 136/137, zero provider entries)",
+        "datacurve/httpx-multipart-response-parsing (f2p 121/122, below threshold)",
+        "datacurve/meriyah-explicit-resource-declarations (f2p 46/49, zero provider entries)"
+      ],
+      "budgetDeadlineWithoutProviderEntry": [
+        "terminal-bench/gcode-to-text (877 s of 900 s, 27 calls, zero provider entries of any kind)"
+      ],
+      "preModelEnvironmentFailureRecoveredSeparately": [
+        "datacurve/anko-typed-variable-bindings (disposition=error, no evidence, 0 model calls; recovered under config/frontier-harness-recovery-anko-40257143514-20261026.json)"
+      ],
+      "convention": "These ten cells are not re-run by this manifest. Their verdicts stand as measured and are not re-interpreted."
+    }
+  },
+  "candidatePin": {
+    "sourceCommit": "36b1c8583982a4e699cf52f884ce535a1d335ecc",
+    "cliVersion": "0.0.17",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "note": "The same source commit as the source run. The workflow rebuilds the Linux SEA itself in this run's own fh-candidate job, and the SEA is not byte-reproducible, so this run's binarySha256 is its own; the receipt binds it to this commit, exactly as in the source run."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to the source run: same model, same effort, same gateway, same credential."
+  },
+  "mitigation": {
+    "imageMirror": "The same seven digest-preserving GHCR mirrors the source run declared are passed unchanged. The three rechecked terminal-bench cells resolve alexgshaw/* images from Docker Hub and scc resolves a mirrored public.ecr.aws image, so no cell here can hit the anonymous-pull 429 that produced the source run's single error.",
+    "noBudgetChange": "No budget, timeout, effort or parallelism per cell is extended for this re-measurement; fh_agent_timeout_multiplier stays 1. If the provider stalls again inside the same budget, that is the measurement this manifest exists to take.",
+    "noCleanClaim": "Public egress and no contamination gate, so this batch claims no cell was clean."
+  },
+  "constraints": [
+    "One extra attempt per admitted cell, never a second chance at that attempt.",
+    "No verdict, frozen record or artifact of run 40257143514 or any earlier run is replaced, repaired or reinterpreted; the repaired reading is a companion published beside the run.",
+    "The source run's passAt1 stays null; this batch publishes no pass@1 of its own.",
+    "No budget, timeout or effort is extended to make any cell scoreable.",
+    "The ten cells listed under admission.nonProviderCells are not re-run by this manifest.",
+    "Every attempt's terminal state is recorded with its own evidence hash; a cell that stalls again keeps the new verdict and is not retried."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "datacurve/scc-bounded-memory-spilling,terminal-bench/extract-elf,terminal-bench/largest-eigenval,terminal-bench/code-from-image",
+    "fh_limit": "4",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "4",
+    "fh_batch": "recheck-provider-40257143514-20261026",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\"}"
+  },
+  "expectedTasks": [
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/extract-elf",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/code-from-image"
+  ],
+  "knownRisks": {
+    "providerMayStallAgain": "The likeliest outcome for the three strongest cells is a second provider stall inside the same budget. That is a valid result: it would show the verdict is provider-sensitive rather than reproducible, and it does not become a capability reading either way.",
+    "varianceIsNotCausation": "A flip on re-measurement shows the verdict is not stable under the provider conditions of this period; it does not by itself attribute the original failure.",
+    "codeFromImageIsWeakest": "That cell's stall is 12.4% of budget and the attempt used all of it, so a flip there is the least informative of the four and is disclosed as such in its own entry.",
+    "noContaminationGate": "Public egress and no gate: a cell that reaches its upstream solution is not detected here.",
+    "classificationOfDeadlineKills": "The source run's failure analysis labels chess-best-move and code-from-image infra, which their records contradict (normal model calls, one transport stall, killed at the cell's own deadline). This manifest uses the records, not that label."
+  },
+  "plannedChecks": "After the batch: read the aggregate report, confirm coverage of exactly the four predeclared cells, confirm one candidate and one provider, compare each cell's disposition to the source verdict, and read every non-passing cell's own evidence again to state its mechanical cause. Then publish the repaired reading beside the frozen record with scripts/frontier-harness-repaired-reading.mjs --official, which keeps passAt1 null and discloses both verdicts and the extra-attempt count.",
+  "dispatched": false
+}
