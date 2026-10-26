@@ -174,5 +174,14 @@
     "result": "The task PASSED (disposition passed, reward 1, durationMs 466,630, 329,008 in / 299,520 cache / 14,208 out tokens, 14 model calls, 14/14 model outcomes, evidenceSha256 fd52869ba7cdaf6c64b6b401b68793b4c7af367a8ef5b0d59b014e6cd80efeea). The acceptance block reads candidate.single passed (cli-0.0.17-36b1c85-c94f43901fc9; binary sha256 c94f43901fc90ac45ecdfb7b9814c58ec771407e26e1743e1dd27218b82a8cda, candidate manifest sha256 99ee0461a928c6b8933347fbc6c2f0617ad0dd76cc1ae4a0d00e924e3d5da3bb), provider.single passed (glm-5.3 at reasoning effort high), verdicts.complete passed (1 present, 0 missing, 0 error, 0 not-evaluated), instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
     "gateReading": "The two things this smoke existed to prove are mechanically proven: the 0.0.17 / 36b1c8583 candidate builds, delivery-verifies and runs on the Docker runner, and glm-5.3 serves a real task attempt at reasoning effort high through the dim-oauth credential with frozen evidence and accounted tokens. It says nothing about the 30-task corpus and is never merged anywhere."
   },
+  "dispatched": true,
+  "dispatchedAt": "2026-10-26T02:02:41Z",
+  "dispatchHeadSha": "8c9139718c2bea368e05a0e526d2fd90a76f43b6",
+  "dispatchedRun": {
+    "runId": 40257143514,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40257143514",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs, including fh_run_full=true (which expanded to 30 Generate jobs), fh_max_parallel=8 and the seven digest-preserving image mirrors. The plan job logged BATCH_LABEL=full-36b1c8583-20261026."
+  },
   "plannedChecks": "Before dispatch: the smoke gate (candidate build + delivery verification + provider materialization + a real attempt on config smokeTask with frozen evidence). After the report artifact is downloaded: the acceptance block; the disposition table against 39883822819 cell by cell; mechanical attribution of every verdict-less cell; usage, per-call durations and budget-exhausted cells; and the field comparison updated with this run's pass rate."
 }
