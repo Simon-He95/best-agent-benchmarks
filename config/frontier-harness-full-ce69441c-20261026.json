@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "formal-full-run",
+  "batchLabel": "full-ce69441c-20261026",
+  "diagnosticOnly": false,
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-26 (second request, same wording as the morning one): \"用best-agent本地最新构建产物去github ci跑bench\". The newest state is now origin/main ce69441c, 78 commits after the 36b1c8583 pinned for run 40257143514. No workflow input accepts a local tarball or binary: fh-candidate checks out the pinned source commit and builds the linux-x64-gnu SEA itself, so \"the newest build\" resolves to the source commit again.",
+  "purpose": "Read the frozen 30-cell corpus on the newest best-agent main. Run 40257143514 read it on 36b1c8583 (0.0.17) at 15 passed / 14 failed / 1 error, and its declared re-measurements (recheck 40268344770 + recovery 40272786791) produced a repaired pass rate of 17/30 = 0.5667 with a null strict pass@1. Main has since advanced 78 commits, so this arm asks what the corpus reads at now, on the same composition.",
+  "comparisonBaseline": {
+    "previousFullRun": {
+      "runId": 40257143514,
+      "candidate": "0.0.17 @ 36b1c8583982a4e699cf52f884ce535a1d335ecc",
+      "dispositions": {
+        "passed": 15,
+        "failed": 14,
+        "error": 1,
+        "notEvaluated": 0
+      },
+      "passRate": 0.5,
+      "note": "Recorded in docs/benchmarks/history/frontier-harness/20261026T032901Z--40257143514.json. Its repairs are companions, never a replacement: recheck 40268344770 flipped scc-bounded-memory-spilling to passed and repeated the provider signature on extract-elf, largest-eigenval and code-from-image; recovery 40272786791 filled its one verdict-less cell (anko) with a passed. The official repaired reading is 17 passed / 13 failed / 0 error = 0.5667 repairedPassRate with passAt1 null."
+    },
+    "olderFullRuns": [
+      {
+        "runId": 39883822819,
+        "candidate": "0.0.16-beta.1 @ 9420ec3e8f3123e7f4923189932fab4913ad664e",
+        "dispositions": {
+          "passed": 18,
+          "failed": 12,
+          "error": 0,
+          "notEvaluated": 0
+        }
+      },
+      {
+        "runId": 39793858384,
+        "candidate": "0.0.16-beta.1 @ c38c6c843333c267967811d38092363d751a3b97",
+        "dispositions": {
+          "passed": 14,
+          "failed": 14,
+          "error": 2,
+          "notEvaluated": 0
+        }
+      }
+    ],
+    "convention": "Cell-by-cell arithmetic only. No rate is merged, and no earlier record, repair or verdict is rewritten."
+  },
+  "candidatePin": {
+    "sourceCommit": "ce69441c99ebc174c9ca981dace8b56e4ab78b0f",
+    "cliVersion": "0.0.17",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "Simon-He95/best-agent origin/main == origin/HEAD == ce69441c99ebc174c9ca981dace8b56e4ab78b0f on 2026-10-26 after git fetch --prune (commit date 2026-10-26T19:19:48+08:00, 'Merge pull request #535 from Simon-He95/codex/cli-package-size'); the local checkout is that same commit with a clean tree and 0 ahead / 0 behind against origin/main. apps/cli/package.json at that commit carries 0.0.17, .nvmrc 24.15.0 and packageManager pnpm@10.33.4. The workflow builds the Linux x64 SEA in this run's own fh-candidate job; the SEA is not byte-reproducible, so this run's binary hash belongs to this run alone.",
+    "localBuildEvidence": "There is no newer build artifact on this machine than 2026-10-23: .tmp/sea/darwin-arm64/best-agent (0.0.17-beta.1, built 2026-10-23T09:11+08:00), .tmp/npm/best-agent-cli-darwin-arm64-0.0.17-beta.1.tgz and .tmp/npm/best-agent-cli-0.0.17-beta.1.tgz, and apps/cli/dist rewritten 2026-10-23T14:48+08:00 — i.e. the newest local build predates even the previous pin, and every such artifact is darwin-arm64, which can never be the linux-x64-gnu candidate. The newest code state is therefore the source commit, not a file.",
+    "releaseArtifactEvidence": "best-agent-releases holds six-platform drafts built from intermediate commits on the way to this one (33d7f7e55e81, 2c0e3bb4469d, 4eb84d7a5ae2, ea52ed0e30c0, all 2026-10-26), plus native read-helper verification runs that passed at 2026-10-26T10:34Z (run 40308462867, 21m12s). No full build from ce69441c exists yet, so this run's fh-candidate job is the first six-to-one-platform proof of that exact commit; the smoke gate below is the first execution evidence."
+  },
+  "candidateDeltaAudit": {
+    "from": "36b1c8583982a4e699cf52f884ce535a1d335ecc (0.0.17, the candidate of run 40257143514)",
+    "to": "ce69441c99ebc174c9ca981dace8b56e4ab78b0f (0.0.17, origin/main HEAD)",
+    "size": "78 commits, 166 files changed, +13,021/-561 lines",
+    "method": "Static, read-only diff and blob comparison on the checked-out source repository against the contracts scripts/frontier-harness-harness.mjs and tools/frontier-harness-agent consume. It did not build or run the CLI; the smoke run is the execution evidence.",
+    "interfaceContract": "NO BLOCKING CHANGE. No flag literal is added, removed or renamed across apps/cli/src and packages (the grep over the full diff for every flag the plugin passes returns nothing). apps/cli/src/v3-attempt-evidence.ts, v3-provider-config.ts, v3-run-options.ts, v3-execution-profile.ts, v3-request-budget.ts, apps/cli/product-manifest.json and packages/v3-thread-store/src/usage-accounting.ts are all unchanged, so the evidence JSONL shape, provider.json whitelist, execution profile and thread_metrics read path are byte-identical.",
+    "modelVisibleChanges": "NONE FOUND. WORKSPACE_TOOL_ROUTING_INSTRUCTION_TEXT is 1,961 source bytes at both commits, the base agent instruction text file is unchanged, apps/cli/product-manifest.json is unchanged, and the capability-builtin-tools / capability-tool-catalog packages are unchanged, so the tool list and its descriptions are the same set the previous run used. The changes that do exist are inside compact.ts (report-generation wiring), upgrade-tui.ts (upgrade dialog), capability-process-tools (presentation isolation) and capability-network-tools (search provider tests), none of which is on a headless tool-calling path the benchmark exercises.",
+    "frozenQuantities": "No change to DEFAULT_MODEL_TIMEOUT_MS, MAX_PROCESS_LIFETIME_MS, MAX_PARALLEL_TOOL_CALLS_PER_MODEL_CYCLE, SERVER_MAX_MODEL_CYCLES or COMPACT_ROUND_BOUND_MS: the constant grep over the diff is empty. The per-call ceiling this run materializes is still the frozen 1,800,000 ms and every cell keeps its own official budget.",
+    "buildAndDeliveryChanges": "MATERIAL FOR PACKAGING, NOT FOR BEHAVIOUR. This commit introduces a native workspace read helper: build-cli-sea.mjs writes <target>/workspace-read-helper, stage-cli-sea-packages.mjs verifies its bytes against the build report and ships it as bin/workspace-read-helper with a bin-map entry best-agent-workspace-read-helper-<target>, and apps/cli/package.json adds dist/workspace-read-helper to files plus ajv 8.18.0 to the bundled runtime dependencies. The delivery gate is presence-based on the tarball (every declared bin member must exist and be executable, runtime/bin/node must exist, each declared runtime dependency must be installed at its exact version), so an extra staged binary is admitted by construction; the candidate directory still holds exactly the three frozen files, so packaging.files is unaffected. The SEA is also trimmed (unused MathJax browser prebuilds are omitted), which changes tarball size and bytes but nothing the model sees.",
+    "reading": "Against run 40257143514 the model-visible surface is unchanged: same tools, same instructions, same evidence contract, same budgets. The declared deltas are the commit itself (compact/upgrade/network internals), a new native read helper in the delivered package, and the two added image mirrors. A verdict difference must still be read as those deltas plus run-to-run variance, and the provider variance measured in the previous run's recheck (one flip, three repeats) is a live confounder for any single-cell comparison."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to run 40257143514 and to 39883822819: same model, same effort, same gateway, same credential."
+  },
+  "composition": {
+    "sameAs": "40257143514 and 39883822819",
+    "stated": "Public egress, no filtered-egress probe, no contamination gate, one attempt per cell, each cell's own declared budget, fh_agent_timeout_multiplier=1, the same grader, and nine digest-preserving image mirrors instead of seven.",
+    "whyTheTwoExtraMirrorsStayComparable": "A mirror changes where the same digest-pinned image is fetched from, never its bytes: both new entries were proven by a build with the source registry blackholed (anko sha256:4fb704fd…, httpx sha256:47d0af14…). They remove the anonymous-pull 429 that made the previous run's only error and that was also declared as a known risk on two unmirrored cells. Nothing about the task source, the harness or the Dockerfile changes.",
+    "parallelism": "fh_max_parallel=8, the width 40257143514 used."
+  },
+  "harnessDelta": {
+    "source": "commit 265cc14ad57a56a5fdc773fa5aad73eda9e3793f ('fix: let the selected CLI admit positive attempt budgets', merged as 59232eb, PR #16), unchanged since run 40257143514 and still present on the dispatched ref",
+    "change": "After provider setup the agent plugin refuses an attempt only when attempt_remaining_ms <= 0; it previously refused at <= 210,000 ms.",
+    "whyDisclosed": "It is the same plugin run 40257143514 used, so it is not a delta against that run. It is disclosed because it is a delta against 39883822819, the last full run before it, and because it can convert a pre-model refusal into a short attempt."
+  },
+  "mitigation": {
+    "imageMirror": "All nine datacurve images the corpus uses are delivered from digest-preserving GHCR mirrors and each generate job re-proves the alias with the source registry blackholed before any model call. anko (sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b, seed run 40270578089 attempt 3) and httpx (sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d, seed run 40321578294 attempt 1, outcome already-present with proof) are the two added here. The earlier anko seed attempt (run 40268226348) lost the anonymous-pull lottery on all three runners and is disclosed rather than hidden.",
+    "providerVariance": "No budget, timeout or effort is extended for any cell, and no re-measurement is predeclared by this manifest. The previous run's recheck showed that three of four provider-stalled cells reproduce the stall inside their own budget (largest-eigenval lost 771 s of 900 s), so a repeat here would be an expected reading of the provider conditions, not a new defect.",
+    "noCleanClaim": "No contamination gate and public egress, so this run claims no cell was clean. Any cell whose record is to be used as a capability reading still needs its own contamination receipt."
+  },
+  "constraints": [
+    "One predeclared attempt per cell over the exact frozen corpus; no second attempt in this manifest.",
+    "No verdict, frozen record, repair or artifact of 40257143514, 40268344770, 40272786791, 39883822819 or any earlier run is replaced, repaired or reinterpreted by this run.",
+    "Nothing here is read as a model-capability result: with public egress and no contamination gate, a model failure cannot be separated from an answer source a cell may have reached.",
+    "Every error cell keeps its mechanical cause in the record; an error is never counted as a model failure.",
+    "No budget, timeout or effort is extended to make any cell scoreable.",
+    "This run's pass@1 comes only from its own frozen aggregate report, and only if every predeclared cell carries a verdict."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "8",
+    "fh_batch": "full-ce69441c-20261026",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d\"}"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "knownRisks": {
+    "firstBuildOfThisCommit": "No six-platform release exists for ce69441c yet, and the commit adds a native read helper to the delivered package. If that packaging path fails on linux-x64-gnu, fh-candidate fails closed before any model call and the run produces no verdicts; that is a pre-model build failure, not a benchmark result.",
+    "providerVariance": "The previous recheck measured one flip (scc) and three repeats (extract-elf, largest-eigenval, code-from-image) under the same provider conditions. A recurrence here is expected and is not evidence about the candidate.",
+    "noContaminationGate": "Public egress and no gate: a cell that reaches its upstream solution is not detected here.",
+    "emptyPatchCaptureGap": "The datacurve collect hook diffs base..HEAD, so a cell that edits without committing still grades the pristine tree. Not changed here.",
+    "rerun": "One attempt per cell. A cell that fails keeps its canonical verdict; no retry is admitted by this manifest.",
+    "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own; the receipt and the per-run candidateId are the only identity that binds the attempts to the pinned commit.",
+    "smokeGate": "No full run is dispatched until a single-task smoke has proven the new candidate builds, delivery-verifies (including the new read helper), materializes glm-5.3 at high and reaches the model phase with frozen evidence."
+  },
+  "plannedChecks": "Before dispatch: the smoke gate. After the report artifact is downloaded: the acceptance block; the disposition table against 40257143514 cell by cell, including its repaired reading as a companion; mechanical attribution of every verdict-less cell from its own evidence; the provider stall accounting against the previous run's recheck; and the field comparison updated with this run's own pass rate only if it is scoreable."
+}
