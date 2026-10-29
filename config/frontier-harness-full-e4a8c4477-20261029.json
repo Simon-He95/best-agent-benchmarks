@@ -185,5 +185,95 @@
     "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40823203153",
     "ref": "codex/fh-0.0.13-beta.1-20261019",
     "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs, fh_max_parallel=8 and the nine digest-preserving image mirrors."
+  },
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261029T071646Z--40823203153.json",
+  "frozenRecordSha256": "0e0f133c1d1d659c7abf99a79c44be1720d5f9f90af1a632f4aaaf24f0435be1",
+  "frozenRecordBytes": 47718,
+  "outcome": {
+    "present": 30,
+    "passed": 18,
+    "failed": 12,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 30,
+    "passRate": 0.6,
+    "passRateValidCells": 0.6,
+    "scoreable": true,
+    "capabilityMeasurement": true,
+    "passAt1": 0.6,
+    "passAt1Reason": "verdicts.complete passed (30 present, 0 missing, 0 error), so this run's one predeclared attempt per corpus cell covers the whole expected set and the aggregate report computes its own pass@1 from the frozen record alone. No cell was re-measured, so no repaired reading exists or is needed for this run and no .official.json accompanies it.",
+    "acceptance": {
+      "coverage_full": "passed",
+      "verdicts_complete": "passed",
+      "candidate_single": "passed",
+      "provider_single": "passed",
+      "instructions_frozen": "passed"
+    },
+    "candidateId": "cli-0.0.18-beta.1-e4a8c44-960935eb2a31",
+    "candidateNote": "Binary sha256 960935eb2a31a9595a4d0e9dc8b35ef1661a792cae223a71fd5f4a88a50e4d0e, manifest sha256 aecb05d47be7b4b646a63a87d124668db0978fcf4aa9d2d1bee7c41da8e62829. The SEA is not byte-reproducible: the smoke of the same commit delivered 0d8786c7e1ad5a34… and the local darwin build 252e58b229c002fd….",
+    "runWindow": "2026-10-29T05:24:21Z -> 2026-10-29T07:16:46Z (1h52m25s); 36 jobs, 34 success, 2 mirror jobs skipped, none failed",
+    "usage": "30 of 30 tasks reported usage: promptTokens 131,138,556, cacheReadTokens 128,875,200, completionTokens 963,845, totalTokens 132,102,401, modelCallCount 1,498, costUsd null. The previous run reported 29 tasks and 68,209,938 total tokens, so this arm roughly doubled token spend: four datacurve cells spent their full 5,400 s budget across 166/122/152/235 model calls.",
+    "providerAccounting": {
+      "cellsWithProviderEntries": 11,
+      "transportSeconds": 588,
+      "connectionSeconds": 0,
+      "timeoutSeconds": 0,
+      "timeoutCalls": 0,
+      "totalProviderSeconds": 588,
+      "previousRun": {
+        "cellsWithProviderEntries": 11,
+        "transportSeconds": 3640,
+        "timeoutSeconds": 1800,
+        "timeoutCalls": 1
+      },
+      "modelCallLatency": {
+        "n": 1498,
+        "medianSeconds": 13.034,
+        "p90Seconds": 53.431,
+        "maxSeconds": 1030.639,
+        "previousRun": { "n": 1171, "medianSeconds": 26.7, "p90Seconds": 147, "maxSeconds": 870 }
+      },
+      "perCellTransportSeconds": {
+        "terminal-bench/dna-insert": 274,
+        "terminal-bench/regex-log": 66,
+        "terminal-bench/largest-eigenval": 57,
+        "terminal-bench/chess-best-move": 47,
+        "datacurve/meriyah-explicit-resource-declarations": 43,
+        "terminal-bench/gcode-to-text": 31,
+        "datacurve/expr-try-catch-errors": 30,
+        "terminal-bench/build-cython-ext": 26,
+        "datacurve/python-statemachine-state-data-scoping": 7,
+        "terminal-bench/extract-elf": 4,
+        "datacurve/arktype-json-schema-refs-dependencies": 3
+      },
+      "reading": "No cell lost its verdict to the provider this run: 0 error cells, 0 timeout calls and 588 s of transport against the previous run's 3,640 s and one 1,800 s timeout. Transport is at most a secondary cause: only dna-insert exceeds 10% of its own budget (274 s of 1,800 s = 15%), every other affected cell stays at or below 7%, and each of those cells stopped at its own budget rather than on a provider failure."
+    },
+    "budgetExhausted": {
+      "reportField": 0,
+      "note": "The report's budget-exhaustion classifier records 0. That field is not the same claim as \"no cell used its whole budget\": eight cells (arktype, expr, meriyah, python-statemachine, chess-best-move, dna-insert, gcode-to-text, largest-eigenval) ended with terminalCause stopped after running to their own declared ceiling, and build-cython-ext and extract-elf also stopped at the ceiling but had already committed a passing patch. The classifier names only the attempts the CLI itself terminated for budget, so this block records the observation without changing the report's number."
+    },
+    "cellArithmetic": "Against 40326110478 (15 passed / 14 failed / 1 error): 4 cells improved (katex, scc, build-cython-ext, code-from-image), 1 regressed (httpx), 1 moved from error to failed (regex-log), 24 unchanged. 15 + 4 - 1 = 18 passed; 14 - 4 + 1 + 1 = 12 failed; 1 - 1 = 0 error.",
+    "failedCellAttribution": {
+      "emptyPatchAfterBudget": [
+        "datacurve/arktype-json-schema-refs-dependencies",
+        "datacurve/expr-try-catch-errors",
+        "datacurve/meriyah-explicit-resource-declarations",
+        "datacurve/python-statemachine-state-data-scoping"
+      ],
+      "specificationGap": [
+        "datacurve/fastapi-deprecation-response-headers",
+        "datacurve/httpx-multipart-response-parsing"
+      ],
+      "providerContributingThenBudget": [
+        "terminal-bench/dna-insert",
+        "terminal-bench/regex-log",
+        "terminal-bench/largest-eigenval",
+        "terminal-bench/chess-best-move",
+        "terminal-bench/gcode-to-text"
+      ],
+      "modelOnly": ["terminal-bench/sanitize-git-repo"],
+      "note": "The four empty-patch cells ran their full 5,400 s budget and were stopped with uncommitted workspace changes (arktype's own `git status` lists modified files and each patch artifact is 0 bytes). The datacurve collect hook diffs base..HEAD, so the graded tree was pristine: f2p 0/N with p2p 100% is that mechanism's fingerprint, and their instructions do require committing on a new branch. fastapi (136/137 f2p) and httpx (121/122 f2p) completed normally with real patches and failed exactly the one case each specification gap names. sanitize-git-repo finished in 182 s with 9 calls, no provider failure entry and reward 0."
+    },
+    "readingBoundary": "Public egress, fh_require_clean=false and no contamination gate, so no cell is claimed clean and this run is a diagnostic candidate comparison, not a capability measurement. The report's capabilityMeasurement field is its own mechanical result of formal + complete verdicts + scoreable and is kept as recorded; the manifest's noCleanClaim note stands beside it. The candidate moved 177 commits, and its model-visible surface changed (a new shell tool, a rewritten exec description, reworded path descriptions), so no cell difference here is a single-variable prompt comparison."
   }
 }
