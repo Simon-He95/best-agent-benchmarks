@@ -177,5 +177,13 @@
     "localBuildCrossCheck": "The same commit built locally as a darwin-arm64 SEA (version 0.0.18-beta.1, sha256 252e58b229c002fd…) in 3m13s of build plus packing and smokes, so the two hosts agree on the version stamp and on the staged package shape; only the target bytes differ."
   },
   "plannedChecks": "Before dispatch: the smoke gate. After the report artifact is downloaded: the acceptance block; the disposition table against 40326110478 cell by cell, including its repaired reading as a companion; mechanical attribution of every verdict-less cell from its own evidence; the provider stall accounting against the previous run; and the field comparison updated with this run's own pass rate only if it is scoreable.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-29T05:24:21Z",
+  "dispatchHeadSha": "497b966ff3cc6fb129278b0c3f2d2544c86f5849",
+  "dispatchedRun": {
+    "runId": 40823203153,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40823203153",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs, fh_max_parallel=8 and the nine digest-preserving image mirrors."
+  }
 }
