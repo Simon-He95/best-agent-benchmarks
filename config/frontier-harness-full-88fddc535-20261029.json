@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "formal-full-run",
+  "batchLabel": "full-88fddc535-20261029",
+  "diagnosticOnly": false,
+  "passAt1": "computed by the frozen aggregate report of this run itself, never by this manifest and never merged with any other run",
+  "requestedBy": "User, 2026-10-29: \"工具层第 1、2 条按老规矩单开候选再验证\". Follows the failed-cell attribution of run 40823203153, whose section 5.3 found that largest-eigenval burned its budget on five segfaults it could not diagnose.",
+  "purpose": "Measure the one tool-contract delta on top of the candidate run 40823203153 already measured: the exec and shell descriptions now state that a shell reports a signal-killed inner command as exitCode 128+N with no signal name, and that a program killed while running can lose output it had not flushed. The expected effect is confined to cells that debug a crashing native program; the arm exists to prove the change is safe and to read whether any cell moves.",
+  "comparisonBaseline": {
+    "previousFullRun": {
+      "runId": 40823203153,
+      "candidate": "0.0.18-beta.1 @ e4a8c44773ba0eb7b62731694858b21ecc0ae7b3",
+      "dispositions": {
+        "passed": 18,
+        "failed": 12,
+        "error": 0,
+        "notEvaluated": 0
+      },
+      "passAt1": 0.6,
+      "note": "The immediate parent of this arm. That run recorded the first complete one-attempt pass@1 for its candidate. Its own record and every verdict stay untouched."
+    },
+    "convention": "Cell-by-cell arithmetic only. No rate is merged, and no earlier record, repair or verdict is rewritten."
+  },
+  "candidatePin": {
+    "sourceCommit": "88fddc5351dae15e72bd58387eab829e0d1abac0",
+    "cliVersion": "0.0.18-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "Branch codex/exec-end-observability, created from e4a8c44773ba0eb7b62731694858b21ecc0ae7b3 (the exact commit run 40823203153 measured) and carrying exactly one commit on top of it. origin/main had advanced to 2fbb23dcf while this change was prepared; branching from the measured commit instead of main keeps this arm a single-variable delta instead of a 20-plus-commit change. The two touched files are byte-identical between e4a8c4477 and 2fbb23dcf, so the commit applies to the measured base without conflict. apps/cli/package.json still carries 0.0.18-beta.1, .nvmrc 24.15.0 and packageManager pnpm@10.33.4.",
+    "localBuildEvidence": "2026-10-29T09:29Z on this machine at 88fddc535 under Node v24.15.0: `pnpm build` passed its gates (check:cli-product, check:provider-catalogs, clean, typecheck, cpu-supervisor, workspace-read-helper, TUI bundle), `pnpm pack:tui` built @best-agent/cli 0.0.18-beta.1 for darwin-arm64, packed the platform and root tarballs, and passed the installed-package smokes and the standalone PTY smoke (first frame 2.57 s). The packaged binary contains all five new sentences (grep over .tmp/sea/darwin-arm64/best-agent: `exitCode 128+N`, `139 for SIGSEGV`, `had not flushed`, `python -u`, `signal name and exitCode null`)."
+  },
+  "candidateDeltaAudit": {
+    "from": "e4a8c44773ba0eb7b62731694858b21ecc0ae7b3 (the candidate of run 40823203153)",
+    "to": "88fddc5351dae15e72bd58387eab829e0d1abac0",
+    "size": "1 commit, 2 files changed, +47/-0 lines",
+    "files": [
+      "packages/capability-builtin-tools/src/index.ts",
+      "packages/capability-builtin-tools/tests/package.test.ts"
+    ],
+    "interfaceContract": "NO INTERFACE CHANGE. No tool is added or removed, no input schema changes, and the exec payload keeps its exact closed key set (spec 267): outcome exited carries exitCode 0..255 with signal null, outcome signaled carries exitCode null with the signal name. The attempt-evidence JSONL, the provider materialization, the execution profile and every budget constant are untouched. What changes is text the model reads: the exec and shell tool descriptions.",
+    "modelVisibleChanges": "THREE STATEMENTS ARE ADDED, and this is the whole delta. (1) exec now says a process it starts directly reports its own end, so a signal-killed process returns outcome \"signaled\" with the signal name and exitCode null. (2) shell now says the shell reports its own exit status, so a command it ran that was killed surfaces as outcome \"exited\" with exitCode 128+N (139 for SIGSEGV, 137 for SIGKILL) and the signal name is not reported for that inner command. (3) Both say a program killed while running can lose output it had not flushed because output to a pipe is buffered, and to ask for unbuffered output (for example `python -u`) or the runtime's fault handler when a crash's own output matters.",
+    "whyItem1IsNotACodeChange": "The first requested item was to report a signal-terminated subprocess as a signal instead of exited. That already holds and is proven by packages/workspace-tools-backend/tests/backend.test.ts, which runs node under exec and asserts outcome \"signaled\", signal <SIGxxx>, exitCode null, with the pre-crash output kept. The largest-eigenval case looked like a violation because it used the shell tool: the harness supervises the shell, the shell's child died on SIGSEGV, and the shell itself exited normally with 139. The payload was therefore correct about the process it actually observed; what was missing was any statement of what 128+N means. That is why the fix is a stated rule rather than a different payload.",
+    "reading": "Against run 40823203153 this is a pure text delta of two tool descriptions. Only cells that debug a crashing native program can move, and largest-eigenval is the one cell where the missing fact was measured to cost the whole budget. Any other cell that moves is provider conditions or run variance, not this change."
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to 40823203153: same model, same effort, same gateway, same credential."
+  },
+  "composition": {
+    "sameAs": "40823203153",
+    "stated": "Public egress, no filtered-egress probe, no contamination gate, one attempt per cell, each cell's own declared budget, fh_agent_timeout_multiplier=1, the same grader, and the same nine digest-preserving image mirrors.",
+    "parallelism": "fh_max_parallel=8, the width 40823203153 used."
+  },
+  "harnessDelta": {
+    "source": "config/frontier-harness.json and scripts/frontier-harness-harness.mjs are unchanged; the harness is byte-identical to the one 40823203153 ran.",
+    "change": "None. This arm isolates the CLI-side text delta."
+  },
+  "mitigation": {
+    "imageMirror": "The same nine digest-preserving GHCR mirrors 40823203153 used, each re-proven with the source registry blackholed before any model call.",
+    "noCleanClaim": "No contamination gate and public egress, so this run claims no cell was clean."
+  },
+  "constraints": [
+    "One predeclared attempt per cell over the exact frozen corpus; no second attempt in this manifest.",
+    "No verdict, frozen record, repair or artifact of 40823203153 or any earlier run is replaced, repaired or reinterpreted by this run.",
+    "Nothing here is read as a model-capability result: with public egress and no contamination gate, a model failure cannot be separated from an answer source a cell may have reached.",
+    "No budget, timeout or effort is extended to make any cell scoreable.",
+    "This arm exists to prove one text delta safe and to read whether it moves any cell; it is not a capability claim about the candidate."
+  ],
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": true,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "8",
+    "fh_batch": "full-88fddc535-20261029",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d\"}"
+  },
+  "expectedTasks": [
+    "datacurve/anko-typed-variable-bindings",
+    "datacurve/arktype-json-schema-refs-dependencies",
+    "datacurve/expr-try-catch-errors",
+    "datacurve/fastapi-deprecation-response-headers",
+    "datacurve/httpx-multipart-response-parsing",
+    "datacurve/katex-multicolumn-array-spans",
+    "datacurve/meriyah-explicit-resource-declarations",
+    "datacurve/python-statemachine-state-data-scoping",
+    "datacurve/scc-bounded-memory-spilling",
+    "terminal-bench/build-cython-ext",
+    "terminal-bench/chess-best-move",
+    "terminal-bench/code-from-image",
+    "terminal-bench/constraints-scheduling",
+    "terminal-bench/db-wal-recovery",
+    "terminal-bench/dna-insert",
+    "terminal-bench/extract-elf",
+    "terminal-bench/gcode-to-text",
+    "terminal-bench/git-leak-recovery",
+    "terminal-bench/kv-store-grpc",
+    "terminal-bench/largest-eigenval",
+    "terminal-bench/log-summary-date-ranges",
+    "terminal-bench/merge-diff-arc-agi-task",
+    "terminal-bench/modernize-scientific-stack",
+    "terminal-bench/multi-source-data-merger",
+    "terminal-bench/openssl-selfsigned-cert",
+    "terminal-bench/polyglot-c-py",
+    "terminal-bench/regex-log",
+    "terminal-bench/sanitize-git-repo",
+    "terminal-bench/sqlite-db-truncate",
+    "terminal-bench/vulnerable-secret"
+  ],
+  "knownRisks": {
+    "firstBuildOfThisCommit": "No build of 88fddc535 exists yet. The local darwin build of this exact commit passed build, staging, installed-package smoke and PTY smoke, and the commit touches only one package's description text, but a linux-x64-gnu build has never run. If it fails, fh-candidate fails closed before any model call.",
+    "descriptionIsPartOfTheRequestPrefix": "The added sentences grow the per-task instruction prefix, so instructions.frozen is computed over new bytes and cannot be compared to the previous run's hash. That is expected and disclosed rather than a regression.",
+    "providerVariance": "The previous round measured one flip and three repeats under the same provider conditions, so a flipped cell is not evidence about this change.",
+    "noContaminationGate": "Public egress and no gate: a cell that reaches its upstream solution is not detected here.",
+    "emptyPatchCaptureGap": "The datacurve collect hook still diffs base..HEAD, so a model that edits without committing still grades the pristine tree. Not changed here; it cost four cells in 40823203153.",
+    "rerun": "One attempt per cell. A cell that fails keeps its canonical verdict.",
+    "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own.",
+    "smokeGate": "No full run is dispatched until a single-task smoke has proven the candidate builds on the runner, passes the delivery gate, materializes glm-5.3 at high and reaches the model phase with frozen evidence."
+  },
+  "smoke": {},
+  "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to prove the two statements reach the wire. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence, with largest-eigenval read specifically for whether the 128+N statement changed how it diagnosed the segfaults.",
+  "dispatched": false
+}
