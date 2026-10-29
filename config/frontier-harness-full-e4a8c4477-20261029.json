@@ -156,7 +156,26 @@
     "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own; the receipt and the per-run candidateId are the only identity that binds the attempts to the pinned commit.",
     "smokeGate": "No full run is dispatched until a single-task smoke has proven the new candidate builds on the runner, passes the delivery gate, materializes glm-5.3 at high and reaches the model phase with frozen evidence."
   },
-  "smoke": {},
+  "smoke": {
+    "runId": 40821363463,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40821363463",
+    "headSha": "ea210986311775c64f53a6e9d139b85b1833af13",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "full-e4a8c4477-smoke-20261029"
+    },
+    "window": "2026-10-29T05:05:24Z -> 2026-10-29T05:23:22Z (17m58s); all five active jobs green (candidate, corpus, plan, generate, aggregate), the two mirror jobs skipped",
+    "result": "The task PASSED (reward 1, durationMs 806,305, 12 model outcomes, terminalCause completed, evidenceSha256 c6c4ed153ccfb19979cf2447afc10e313801b26378b9d88e2c0127da410eacfd). candidate.single passed on cli-0.0.18-beta.1-e4a8c44-0d8786c7e1ad (binary sha256 0d8786c7e1ad5a342032e21b0a3abc269dac9e367b902b3bfff4d08e630095c4, candidate manifest sha256 22b3bf246d4f1e2257dfa24aeaa9d634aa8c86e05898b50b262d29b65092310f), provider.single passed at glm-5.3 / high, verdicts.complete passed, instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "This smoke proves what the run needed proven: e4a8c4477 builds a linux-x64-gnu SEA on the runner (the first build of this commit), passes the delivery gate (packaging.files / receipt / bytes / tarball / runtimeClosure / typecheck.source / runtime.binary, including the binary's own version answer), materializes glm-5.3 at high, and reaches the model phase with frozen evidence. It says nothing about the 30-task corpus and is never merged anywhere.",
+    "localBuildCrossCheck": "The same commit built locally as a darwin-arm64 SEA (version 0.0.18-beta.1, sha256 252e58b229c002fd…) in 3m13s of build plus packing and smokes, so the two hosts agree on the version stamp and on the staged package shape; only the target bytes differ."
+  },
   "plannedChecks": "Before dispatch: the smoke gate. After the report artifact is downloaded: the acceptance block; the disposition table against 40326110478 cell by cell, including its repaired reading as a companion; mechanical attribution of every verdict-less cell from its own evidence; the provider stall accounting against the previous run; and the field comparison updated with this run's own pass rate only if it is scoreable.",
   "dispatched": false
 }
