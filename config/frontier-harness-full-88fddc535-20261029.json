@@ -130,7 +130,28 @@
     "noReproducibleBinary": "The SEA build is not byte-reproducible, so this run's binarySha256 is its own.",
     "smokeGate": "No full run is dispatched until a single-task smoke has proven the candidate builds on the runner, passes the delivery gate, materializes glm-5.3 at high and reaches the model phase with frozen evidence."
   },
-  "smoke": {},
+  "smoke": {
+    "runId": 40850973965,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40850973965",
+    "headSha": "f1742d5efa65d20802da2fdd9f317191e46dcd40",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "full-88fddc535-smoke-20261029"
+    },
+    "window": "2026-10-29T09:36:32Z -> 2026-10-29T09:49:23Z (12m51s); candidate, corpus, plan, generate and aggregate all green, the two mirror jobs skipped",
+    "result": "The task PASSED (reward 1, durationMs 493,475, modelOutcomes 15, terminalCause completed, evidenceSha256 299e9497b151bc5a5f8a71ebb9e476b67a6b5036120515437d499fa06c2db248). candidate.single passed on cli-0.0.18-beta.1-88fddc5-935ba9b80a8a (binary sha256 935ba9b80a8adc030580514b0b2ed06e02b0ce862b4625b24be4a1d6f2c5127a, candidate manifest sha256 73ec1a34042d3da11e9caca8161e0330db94c181fb55f2d6508205a8910e1462), provider.single passed at glm-5.3 / high, verdicts.complete passed, instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "This smoke proves what the arm needed proven: 88fddc535 builds a linux-x64-gnu SEA on the runner, passes the delivery gate, materializes glm-5.3 at high, and reaches the model phase with frozen evidence.",
+    "toolTextReachedTheWire": "Read back from the smoke's own attempt evidence, not from a local build. The request carried 29 tools. The shell description (1,294 bytes) contains `exitCode 128+N`, `139 for SIGSEGV`, `137 for SIGKILL`, `had not flushed` and `python -u`; the exec description (2,518 bytes) contains `outcome \"signaled\" with the signal name and exitCode null`, `had not flushed` and `python -u`. The exact shell excerpt: \"The shell reports its own exit status, so a command it ran that was terminated by a signal surfaces as outcome \\\"exited\\\" with exitCode 128+N — 139 for SIGSEGV, 137 for SIGKILL — and the signal name is not reported for that inner command.\"",
+    "whatItDoesNotProve": "The smoke ran one task that does not crash a native program, so it proves the statements reach the model and that the candidate is otherwise unchanged. It says nothing about whether the statements change any verdict, and nothing about the 30-task corpus. Only largest-eigenval could be expected to move, and that needs a full run."
+  },
   "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to prove the two statements reach the wire. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence, with largest-eigenval read specifically for whether the 128+N statement changed how it diagnosed the segfaults.",
-  "dispatched": false
+  "dispatched": false,
+  "dispatchNote": "Frozen and smoke-gated, NOT dispatched as a full run: the user asked for the candidate to be opened and verified, not for another 30-cell run. The previous arm (config/frontier-harness-full-e4a8c4477-20261029.json, run 40823203153) remains the last full reading."
 }
