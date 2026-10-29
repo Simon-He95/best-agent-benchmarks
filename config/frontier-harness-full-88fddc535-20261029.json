@@ -152,6 +152,14 @@
     "whatItDoesNotProve": "The smoke ran one task that does not crash a native program, so it proves the statements reach the model and that the candidate is otherwise unchanged. It says nothing about whether the statements change any verdict, and nothing about the 30-task corpus. Only largest-eigenval could be expected to move, and that needs a full run."
   },
   "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to prove the two statements reach the wire. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence, with largest-eigenval read specifically for whether the 128+N statement changed how it diagnosed the segfaults.",
-  "dispatched": false,
-  "dispatchNote": "Frozen and smoke-gated, NOT dispatched as a full run: the user asked for the candidate to be opened and verified, not for another 30-cell run. The previous arm (config/frontier-harness-full-e4a8c4477-20261029.json, run 40823203153) remains the last full reading."
+  "dispatched": true,
+  "dispatchNote": "Dispatched as a full run after the smoke gate. The previous arm (config/frontier-harness-full-e4a8c4477-20261029.json, run 40823203153) remains its own reading; this arm adds nothing to it and rewrites none of it.",
+  "dispatchedAt": "2026-10-29T09:51:24Z",
+  "dispatchHeadSha": "5aae19204b3c5b90e7dbd6161f72a746e01dfe60",
+  "dispatchedRun": {
+    "runId": 40852900814,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40852900814",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs, fh_max_parallel=8 and the nine digest-preserving image mirrors. Requested by the user after the smoke gate passed: \"按老规矩派发 fh_run_full=true 跑这个臂的全量\"."
+  }
 }
