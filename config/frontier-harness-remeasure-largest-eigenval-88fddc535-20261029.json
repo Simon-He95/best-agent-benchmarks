@@ -100,5 +100,110 @@
     "cancelledPredecessor": "Run 40852900814 (30 cells, same candidate) was cancelled before it produced a complete corpus. It is not a reading of anything, no cell of it is cited as a verdict, and its own record must say so."
   },
   "plannedChecks": "Read the cell's own evidence and artifacts: disposition, durationMs, modelCallCount, deduplicated segfault count, whether unbuffered output or a fault handler appears, whether the ctypes route was abandoned, and the mechanical cause of a non-pass. Then read its model.patch and verifier output only if the disposition is passed, to name what satisfied the grader. Record the reading beside the baseline in a .md under docs/benchmarks/history/frontier-harness; never write an .official.json and never touch the baseline record.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-29T10:36:11Z",
+  "dispatchHeadSha": "72b9e4fa271658b92c67e2e7131333f00a4a370f",
+  "dispatchedRun": {
+    "runId": 40858860037,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40858860037",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_tasks named the one cell, fh_max_parallel=1, and fh_image_mirror was empty because this cell has no digest-pinned mirror entry."
+  },
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261029T105513Z--40858860037.json",
+  "frozenRecordSha256": "c626f69aa285eddbbd727787fef47747c1f3beb1e5b6b0d26ef79950c6ceab53",
+  "frozenRecordBytes": 5947,
+  "frozenNarrative": "docs/benchmarks/history/frontier-harness/20261029T105513Z--40858860037.md",
+  "outcome": {
+    "present": 1,
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 1,
+    "passRate": 0,
+    "scoreable": false,
+    "passAt1": null,
+    "passAt1Reason": "One predeclared cell of a thirty-cell corpus: coverage.full fails by construction, so this arm never yields a pass@1 and never contributes to one.",
+    "acceptance": {
+      "coverage_full": "failed",
+      "verdicts_complete": "passed",
+      "candidate_single": "passed",
+      "provider_single": "passed",
+      "instructions_frozen": "passed"
+    },
+    "candidateId": "cli-0.0.18-beta.1-88fddc5-dd2e6fa6e5b3",
+    "candidateNote": "Binary sha256 dd2e6fa6e5b388bc9b55c9617b44f3fc881b1eae14cd6b0077fe71902f6e6851, candidate manifest sha256 80437e09e59f5b7db3350db75092c0c092466cfa20bde0265508978dd029c2f5. The SEA is not byte-reproducible, so this run's binary hash is its own.",
+    "runWindow": "2026-10-29T10:36:11Z -> 2026-10-29T10:55:13Z (19m02s); all five active jobs green, the two mirror jobs skipped",
+    "durationMs": 872814,
+    "agentBudgetMs": 900000,
+    "agentTermination": "NonZeroAgentExitCodeError with terminal snapshot status \"cancelled\" and terminalCause \"stopped\": the attempt was cut off at its own budget, not by a grader or an environment failure.",
+    "usage": {
+      "modelCallCount": 10,
+      "toolCalls": 11,
+      "evidenceSha256": "00c075f2844702990d68a038d728aa0eb9d903c4d10c66f5c36ba03bd3848c85"
+    },
+    "providerAccounting": {
+      "cellsWithProviderEntries": 1,
+      "transportSeconds": 10,
+      "connectionSeconds": 0,
+      "timeoutSeconds": 0,
+      "totalProviderSeconds": 10,
+      "note": "The single model-failure is the last entry in the file, followed by zero model requests: it is this run's own budget cutoff recorded as transport, not a provider stall. In-run provider loss is zero."
+    },
+    "budgetExhausted": 1
+  },
+  "largestEigenval": {
+    "baseline": {
+      "runId": 40823203153,
+      "candidate": "0.0.18-beta.1 @ e4a8c44773ba0eb7b62731694858b21ecc0ae7b3",
+      "disposition": "failed",
+      "durationMs": 872572,
+      "modelOutcome": 27,
+      "toolCalls": 31,
+      "realSegfaults": 5,
+      "route": "ctypes direct call into Debian liblapack.so.3 dgeev_ with a misordered argument list",
+      "deathCertificate": "stdout 0 bytes and stderr 33 bytes (\"Segmentation fault (core dumped)\") on every crash, signal null, outcome \"exited\"; no nm/objdump/readelf/compiler in the image"
+    },
+    "reading": {
+      "runId": 40858860037,
+      "candidate": "0.0.18-beta.1 @ 88fddc5351dae15e72bd58387eab829e0d1abac0",
+      "disposition": "failed",
+      "dispositionChanged": false,
+      "durationMs": 872814,
+      "modelOutcome": 10,
+      "toolCalls": 11,
+      "realSegfaults": 0,
+      "route": "installed gcc (apt-get update then apt-get install -y gcc), then wrote a C implementation (Householder Hessenberg reduction, Francis double-shift QR, complex inverse iteration) embedded in /app/eigen.py with a compile-at-import step and a numpy fallback",
+      "deathCertificate": "budget exhausted in the implementation phase: it wrote eigen.py on call 9 and fixed one stray branch on call 10, then the budget cut the attempt off before the first compile-and-test"
+    },
+    "statementReachedTheWire": {
+      "toolCount": 29,
+      "shellDescriptionBytes": 1294,
+      "execDescriptionBytes": 2518,
+      "shellCarries": [
+        "exitCode 128+N",
+        "139 for SIGSEGV",
+        "137 for SIGKILL",
+        "had not flushed",
+        "python -u"
+      ],
+      "execCarries": [
+        "outcome \"signaled\"",
+        "had not flushed",
+        "python -u"
+      ]
+    },
+    "statementWasUsed": {
+      "verdict": "no observable effect this run",
+      "evidence": "Across every model reasoning and text of this attempt: \"128+N\" 0 occurrences, \"139\" 0, \"SIGSEGV\" 0, \"segfault\" 0, \"Segmentation\" 0, \"unbuffered\" 0, \"flush\" 0. No command used `python -u`, PYTHONUNBUFFERED or faulthandler (the baseline used faulthandler once, this run zero).",
+      "why": "The statement describes how a crash is reported, and this attempt never crashed. It chose a route that does not require diagnosing a signal death, so there was nothing for the statement to change.",
+      "predeclaredRuleOutcome": "Neither rule 2 (the statements changed behaviour) nor rule 3 (behaviour unchanged, route repeated) fits: behaviour changed substantially, but not in a way traceable to the statement. The route fork itself is not separable from run-to-run variance with n=1, which is the limitation knownRisks.singleAttempt declared before dispatch."
+    },
+    "costOfTheReading": {
+      "wallClock": "19m02s",
+      "tokens": "not aggregated for a single cell in this record's usage field; the baseline cell used 604,273 tokens over 27 calls, this reading used 10 calls",
+      "versus": "the dispatched-then-cancelled full run 40852900814, measured against the baseline full run's 132,102,401 tokens over 1,498 calls"
+    },
+    "interpretation": "Both attempts died at exactly the 900 s budget, from two different causes: the baseline exhausted it diagnosing five undiagnosable segfaults, this reading exhausted it implementing a C numeric kernel it never got to compile. Two independent attempts, two different routes, the same verdict: this cell is budget-bound, not prompt-recoverable."
+  }
 }

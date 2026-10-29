@@ -152,8 +152,8 @@
     "whatItDoesNotProve": "The smoke ran one task that does not crash a native program, so it proves the statements reach the model and that the candidate is otherwise unchanged. It says nothing about whether the statements change any verdict, and nothing about the 30-task corpus. Only largest-eigenval could be expected to move, and that needs a full run."
   },
   "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to prove the two statements reach the wire. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence, with largest-eigenval read specifically for whether the 128+N statement changed how it diagnosed the segfaults.",
-  "dispatched": true,
-  "dispatchNote": "Dispatched as a full run after the smoke gate. The previous arm (config/frontier-harness-full-e4a8c4477-20261029.json, run 40823203153) remains its own reading; this arm adds nothing to it and rewrites none of it.",
+  "dispatched": false,
+  "dispatchNote": "Dispatched as a full run and then cancelled by user decision before it produced a complete corpus. The single-cell arm config/frontier-harness-remeasure-largest-eigenval-88fddc535-20261029.json replaced it. This manifest is retained as the record of that cancelled dispatch, not as a run record.",
   "dispatchedAt": "2026-10-29T09:51:24Z",
   "dispatchHeadSha": "5aae19204b3c5b90e7dbd6161f72a746e01dfe60",
   "dispatchedRun": {
@@ -161,5 +161,37 @@
     "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40852900814",
     "ref": "codex/fh-0.0.13-beta.1-20261019",
     "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs, fh_max_parallel=8 and the nine digest-preserving image mirrors. Requested by the user after the smoke gate passed: \"按老规矩派发 fh_run_full=true 跑这个臂的全量\"."
+  },
+  "cancelled": true,
+  "cancelledAt": "2026-10-29T10:35:14Z",
+  "cancelledRun": {
+    "runId": 40852900814,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/40852900814",
+    "dispatchedAt": "2026-10-29T09:51:24Z",
+    "dispatchHeadSha": "5aae19204b3c5b90e7dbd6161f72a746e01dfe60",
+    "reason": "User, 2026-10-29: \"取消全量运行，改成只对 largest-eigenval 做一次预声明的单格 re-measurement，保留原判定。\" The full arm was cancelled roughly 44 minutes in, before it could produce a complete corpus, because its cost was about 200x the single-cell question it was meant to answer.",
+    "finalState": "completed / cancelled after 3 Generate jobs had finished and 27 were cancelled",
+    "isNotAReading": "This run produced no complete corpus (3 of 30 cells), so coverage.full fails and no pass@1 exists. It is not a reading of the candidate, no cell of it is cited as a verdict for any purpose, and it must not be compared to run 40823203153 or merged with it.",
+    "diagnosticSideEvidence": [
+      {
+        "task": "datacurve/anko-typed-variable-bindings",
+        "baseline": "passed",
+        "cancelledRun": "passed (89 calls, 1,484,030 ms, f2p 9/9, p2p 94/94)",
+        "reading": "unchanged"
+      },
+      {
+        "task": "datacurve/fastapi-deprecation-response-headers",
+        "baseline": "failed, f2p 136/137",
+        "cancelledRun": "failed, f2p 136/137 (68 calls, 1,794,995 ms)",
+        "reading": "unchanged, digit-for-digit on f2p"
+      },
+      {
+        "task": "datacurve/httpx-multipart-response-parsing",
+        "baseline": "failed, f2p 121/122",
+        "cancelledRun": "failed, f2p 121/122 (67 calls, 1,711,490 ms)",
+        "reading": "unchanged, digit-for-digit on f2p"
+      }
+    ],
+    "sideEvidenceBoundary": "Three cells, from a cancelled run, are side evidence that the description delta did not disturb these three. Three cells of thirty is not a corpus-wide no-regression claim, and nothing here enters any rate."
   }
 }
