@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "kind": "diagnostic-single-cell",
+  "batchLabel": "remeasure-largest-eigenval-88fddc535-20261029",
+  "diagnosticOnly": true,
+  "passAt1": "null by construction: a one-cell arm never satisfies coverage.full, so this arm can never produce or contribute to a pass@1. It is a single-cell reading beside an existing full record, not a run.",
+  "requestedBy": "User, 2026-10-29, choosing option B: \"取消全量运行，改成只对 largest-eigenval 做一次预声明的单格 re-measurement，保留原判定。\" The cancelled full run was 40852900814 (30 cells on this same candidate); no Generate job of it that produced a verdict is cited here, and nothing from it is counted.",
+  "purpose": "Read one cell on candidate 88fddc535, which states in its exec and shell descriptions that a shell reports a signal-killed inner command as exitCode 128+N and that a kill can lose buffered output. The cell is the only one where the missing fact was measured to cost the whole budget: in run 40823203153 it spent 900 s on 27 calls, five of them segfaults returning a 33-byte stderr and zero stdout, and it never found out why.",
+  "cell": {
+    "id": "terminal-bench/largest-eigenval",
+    "budgetClass": "the cell's own declared 900 s agent budget, unchanged",
+    "baseline": {
+      "runId": 40823203153,
+      "candidate": "0.0.18-beta.1 @ e4a8c44773ba0eb7b62731694858b21ecc0ae7b3",
+      "disposition": "failed",
+      "durationMs": 872572,
+      "modelCallCount": 27,
+      "toolCalls": 31,
+      "segfaults": 5,
+      "segfaultSignature": "exitCode 139, signal null, outcome \"exited\", stdout 0 bytes, stderr \"Segmentation fault (core dumped)\"",
+      "record": "docs/benchmarks/history/frontier-harness/20261029T071646Z--40823203153.json (perTask entry terminal-bench/largest-eigenval)"
+    },
+    "historicalContext": "27 prior attempts of this cell are recorded in docs/benchmarks/history/frontier-harness, and exactly one passed (2026-09-30, 50 calls). A single attempt therefore cannot by itself separate this change's effect from that cell's own run-to-run variance; the predeclared reading rules below say what each outcome can and cannot support."
+  },
+  "candidatePin": {
+    "sourceCommit": "88fddc5351dae15e72bd58387eab829e0d1abac0",
+    "cliVersion": "0.0.18-beta.1",
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "target": "linux-x64-gnu",
+    "resolution": "The same candidate the cancelled full run 40852900814 was dispatched on, and the same one the smoke 40850973965 delivered and executed. Its delta against the baseline cell's candidate is one commit touching only the exec and shell descriptions plus their test, audited in config/frontier-harness-full-88fddc535-20261029.json#candidateDeltaAudit."
+  },
+  "admissionClass": {
+    "declared": "diagnostic single-cell reading on a changed candidate — NOT a re-measurement",
+    "whyNotARemeasurement": "AGENTS.md defines a re-measurement as measuring an already-graded cell again on the SAME candidate, admitted under the environment class or a variance check. Here the candidate is 88fddc535, one commit ahead of the baseline's e4a8c4477, so the two readings differ by the candidate as well. This arm is therefore a forward diagnostic reading of a changed candidate on one cell, published beside the baseline and never as its repair.",
+    "notAdmittedUnder": [
+      "environment class: no environment failure occurred in the baseline cell; the container ran and the verifier graded it",
+      "variance check: the baseline cell's cause is identified (a missing fact about 128+N and buffered output), not an unexplained flip"
+    ],
+    "whatItReplaces": "nothing"
+  },
+  "preservesBaseline": "The baseline verdict (terminal-bench/largest-eigenval: failed in run 40823203153) stays exactly as recorded and is never overwritten, repaired, reinterpreted or subtracted from. It also remains counted in that run's own 18/30 reading, which this arm does not touch.",
+  "composition": {
+    "stated": "Public egress, no filtered-egress probe, no contamination gate, one attempt for this cell, the cell's own declared budget, fh_agent_timeout_multiplier=1, the same grader and the same harness scripts as run 40823203153.",
+    "attemptCount": "exactly one attempt for this cell, and no second chance at that attempt",
+    "parallelism": "fh_max_parallel=1, because the arm has one cell"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth",
+    "note": "Identical to 40823203153: same model, same effort, same gateway, same credential."
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_tasks": "terminal-bench/largest-eigenval",
+    "fh_offset": "0",
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "1",
+    "fh_batch": "remeasure-largest-eigenval-88fddc535-20261029",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": ""
+  },
+  "expectedTasks": [
+    "terminal-bench/largest-eigenval"
+  ],
+  "mirrorCheck": {
+    "generatedAtFreeze": true,
+    "entriesFound": 0,
+    "note": "The nine frozen mirrors all map datacurve images; none names this cell, so an empty fh_image_mirror removes no mitigation the baseline cell had."
+  },
+  "predeclaredReadingRules": [
+    "PASSED: the cell now clears the grader. Because the cell passed once in 27 prior attempts, a pass is consistent with the change having helped and also consistent with variance; it is reported as a signal, never as a measured effect size, and it changes no rate anywhere.",
+    "FAILED but the evidence shows unbuffered output, a fault handler, or an abandoned ctypes route: the statements changed this cell's behaviour without changing its verdict. That is the sharpest available reading and is reported as such.",
+    "FAILED with the same shape as the baseline (ctypes direct call into Debian lapack, five or more 139s, zero-byte stdout, no unbuffered output): the statements did not change this cell's route, which is evidence against the fix's premise rather than for it.",
+    "ERROR or verdict-less: reported as a mechanical attribution (transport seconds, timeout, budget) and never counted as a model failure, exactly as the full-run records do.",
+    "In every case, this cell's outcome is compared only against its own baseline cell in 40823203153, never against any other cell and never against a full-run rate."
+  ],
+  "specificQuestionsToAnswer": [
+    "Does the model read the 128+N statement and act on it, or does it keep treating 139 as an opaque failure?",
+    "Does it use `python -u`, `PYTHONUNBUFFERED`, or `faulthandler` when probing the crash, given the description now names the first two? Baseline used `faulthandler` once and never used unbuffered output.",
+    "Does it stop trying to call `dgeev_` through ctypes on the Debian library, or does it repeat that route?",
+    "How many real segfaults (exitCode 139, deduplicated by callId) occur, against the baseline's 5 of 31 calls?"
+  ],
+  "knownRisks": {
+    "singleAttempt": "One attempt on a cell that has passed once in 27 tries: the arm can show behaviour, not an effect size.",
+    "firstRunOfThisCandidateOnThisCell": "88fddc535 has never run this cell. Its only execution evidence is the regex-log smoke, which does not exercise native debugging.",
+    "notAFullRun": "If the value of also knowing whether the other 29 cells were perturbed matters later, that question needs its own full arm; this one cannot answer it and does not pretend to.",
+    "cancelledPredecessor": "Run 40852900814 (30 cells, same candidate) was cancelled before it produced a complete corpus. It is not a reading of anything, no cell of it is cited as a verdict, and its own record must say so."
+  },
+  "plannedChecks": "Read the cell's own evidence and artifacts: disposition, durationMs, modelCallCount, deduplicated segfault count, whether unbuffered output or a fault handler appears, whether the ctypes route was abandoned, and the mechanical cause of a non-pass. Then read its model.patch and verifier output only if the disposition is passed, to name what satisfied the grader. Record the reading beside the baseline in a .md under docs/benchmarks/history/frontier-harness; never write an .official.json and never touch the baseline record.",
+  "dispatched": false
+}
