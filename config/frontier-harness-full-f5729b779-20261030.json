@@ -134,7 +134,25 @@
     "smokeGate": "No full run is dispatched until a single-task smoke has proven the candidate builds on the runner, passes the delivery gate, materializes glm-5.3 at high and reaches the model phase with frozen evidence."
   },
   "smoke": {
-    "status": "pending"
+    "runId": 41043926848,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41043926848",
+    "headSha": "2dd0eae9ef68be8934ef49bbb8c3a792097d4bfa",
+    "task": "terminal-bench/regex-log",
+    "dispatchInputs": {
+      "fh_smoke": true,
+      "fh_run": false,
+      "fh_run_full": false,
+      "fh_limit": 1,
+      "fh_reasoning_effort": "high",
+      "fh_agent_timeout_multiplier": 1,
+      "fh_max_parallel": 1,
+      "fh_batch": "full-f5729b779-smoke-20261030"
+    },
+    "window": "2026-10-30T10:52:25Z -> 2026-10-30T11:11:55Z (19m30s); candidate, corpus, plan, generate and aggregate all green, the two mirror jobs skipped",
+    "result": "The task PASSED (reward 1, 636,731 in / 574,592 cache / 45,333 out tokens). candidate.single passed on cli-0.0.18-f5729b7-89157addc164 (cliVersion 0.0.18, sourceCommit f5729b779, binary sha256 89157addc1640a5a6e07d560dd73e77a8230e7e52273bf664729cd4b90897bbb, candidate manifest sha256 dd1b2c6bd4e46e32409e67b67c32db5953b91841a142cc639feb3c2b3df85a44), provider.single passed at glm-5.3 / high, verdicts.complete passed, instructions.frozen passed, and coverage.full failed exactly as a 1-of-30 smoke must.",
+    "gateReading": "This smoke proves what the arm needed proven: f5729b779 builds a linux-x64-gnu SEA on the runner (the first build of this commit anywhere), passes the delivery gate, materializes glm-5.3 at high, and reaches the model phase with frozen evidence.",
+    "toolSurfaceReachedTheWire": "Read back from the smoke's own attempt evidence, not from source. The first model request carried 28 tools: apply_patch, edit, exec (2,641 bytes), list, mkdir, read, remove, search, stat, write, now, subagent, subagent-cancel, subagent-continue, subagent-result, subagent-status, subagent-wait, thread-read, thread-send, thread-start, thread-status, thread-wait, todowrite, process-read, process-start, process-stop, process-write, memory-write. There is NO separate shell tool: spec 507 ('one exec binding owns the whole line', merged as PR #585) retired workspace-shell-v1 and gave exec the argv-or-line union, which is the material model-visible delta against the candidate of run 40823203153 (that one carried a 29th tool, shell).",
+    "whatItDoesNotProve": "The smoke ran one task, so it says nothing about whether the 28-tool surface changes any verdict in the 30-cell corpus."
   },
   "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to record the model-visible tool surface. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence.",
   "dispatched": false
