@@ -155,5 +155,13 @@
     "whatItDoesNotProve": "The smoke ran one task, so it says nothing about whether the 28-tool surface changes any verdict in the 30-cell corpus."
   },
   "plannedChecks": "Before dispatch: the smoke gate, and a read of the smoke's own model-request tools array to record the model-visible tool surface. After the report artifact is downloaded: the acceptance block, the disposition table against 40823203153 cell by cell, and mechanical attribution of every non-passed cell from its own evidence.",
-  "dispatched": false
+  "dispatched": true,
+  "dispatchedAt": "2026-10-30T11:32:49Z",
+  "dispatchHeadSha": "44b5491a768d1d4cbbb1c1b30b8bf2175aa15730",
+  "dispatchedRun": {
+    "runId": 41048843105,
+    "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41048843105",
+    "ref": "codex/fh-0.0.13-beta.1-20261019",
+    "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs (35 jobs total, max-parallel 8), the nine digest-preserving image mirrors, fh_filtered_egress=false, fh_require_clean=false. Requested by the user: \"用最新的best-agent构建产物重新跑benchmark\" and then \"要跑全量的\", explicitly excluding the single-cell re-measurement run 40858860037."
+  }
 }
