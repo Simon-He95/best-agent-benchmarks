@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "kind": "paired-full-run",
   "profileId": "frontier-harness-v1.0-e837a70b",
-  "batchLabel": "exec-schema-candidate-20261031",
+  "batchLabel": "exec-schema-candidate-v2-20261031",
   "arm": "candidate",
   "requestedBy": "User, 2026-10-31: fix only the exec schema/canonicalizer inconsistency, add actual consistency tests, then run real tasks to measure task success.",
   "pair": {
     "controlSourceCommit": "892e50f5d748e990ecce218d794c92af2ab2852f",
-    "candidateSourceCommit": "30a23b2d3984005695cdc2dff94d96f5048bd796",
+    "candidateSourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
     "benchmarkSourceCommit": "dfc3b8cdc36430316f407349a359c84801532a48",
     "baselineBenchmarkConfigSha256": "864720ee2fcf4f5669da90c12e0ac35686aa64ea9c7bc77bf700c75b8549a6ac",
-    "onlyRuntimeDelta": "The candidate adds the already-admitted args:[\"-c\",line] raw spelling to the exec JSON Schema; canonicalization, tools, instructions, authorizations and control flow are unchanged. Test-only Ajv, tests and delivery notes accompany that correction.",
+    "onlyRuntimeDelta": "The candidate adds the already-admitted args:[\"-c\",line] spelling to exec schema, using explicit draft 2020-12 prefixItems and object-valued items. Canonicalizer, descriptions, other tools, authorization and control flow stay unchanged.",
     "historicalRun": "41048843105 is context only, not a paired control: its source pin differs from both arms."
   },
   "candidatePin": {
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.19",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "30a23b2d3984005695cdc2dff94d96f5048bd796",
+    "sourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
     "target": "linux-x64-gnu"
   },
   "provider": {
@@ -124,7 +124,7 @@
     "fh_reasoning_effort": "high",
     "fh_agent_timeout_multiplier": "1",
     "fh_max_parallel": "8",
-    "fh_batch": "exec-schema-candidate-20261031",
+    "fh_batch": "exec-schema-candidate-v2-20261031",
     "fh_prefix": "",
     "fh_filtered_egress": false,
     "fh_require_clean": false,
@@ -143,5 +143,13 @@
     "A single paired run is an observed outcome, not proof of a general causal success-rate improvement; model/provider variation and shared-provider contention remain.",
     "The raw nonzero/unknown errors and all 17 original arktype rejections retain their original meaning. No input repair, retry, fallback, budget extension or working-tree patch capture is introduced.",
     "Public egress with no contamination gate supplies no closed-book or clean-capability claim. No npm publication."
-  ]
+  ],
+  "supersededPair": {
+    "candidateSourceCommit": "30a23b2d3984005695cdc2dff94d96f5048bd796",
+    "candidateSmokeRun": 41088968970,
+    "outcome": "First provider invocation failed with HTTP 400 invalid_request_error; zero tool entries. No full arm was dispatched. The failed record remains unchanged. The response does not name the rejected keyword.",
+    "controlSmokeRun": 41088955431,
+    "controlSourceUnchanged": true,
+    "reading": "The first candidate is not a measured improvement. This revised candidate needs a separately frozen new smoke; its result never overwrites the first one."
+  }
 }
