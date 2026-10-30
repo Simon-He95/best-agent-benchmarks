@@ -163,5 +163,205 @@
     "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41048843105",
     "ref": "codex/fh-0.0.13-beta.1-20261019",
     "note": "Dispatch inputs are exactly this manifest's dispatchInputs: fh_run_full=true expanded to 30 Generate jobs (35 jobs total, max-parallel 8), the nine digest-preserving image mirrors, fh_filtered_egress=false, fh_require_clean=false. Requested by the user: \"用最新的best-agent构建产物重新跑benchmark\" and then \"要跑全量的\", explicitly excluding the single-cell re-measurement run 40858860037."
+  },
+  "frozenRecord": "docs/benchmarks/history/frontier-harness/20261030T135047Z--41048843105.json",
+  "frozenRecordSha256": "1cd525f37a1d8f5e1136aaf182b89c831231cb3d745bedf98883e5cfb924f34b",
+  "frozenRecordBytes": 51548,
+  "recordNote": "docs/benchmarks/history/frontier-harness/20261030T135047Z--41048843105.md",
+  "outcome": {
+    "runWindow": "2026-10-30T11:32:49Z -> 2026-10-30T13:50:47Z (2h17m58s)",
+    "jobs": "36 jobs: 34 success (3 freeze + 30 generate + aggregate), 2 skipped (the image-mirror jobs this manifest does not enable), 0 failure",
+    "present": 30,
+    "passed": 15,
+    "failed": 15,
+    "error": 0,
+    "notEvaluated": 0,
+    "validCells": 30,
+    "passRate": 0.5,
+    "passRateValidCells": 0.5,
+    "passAt1": 0.5,
+    "scoreable": true,
+    "capabilityMeasurement": true,
+    "budgetExhausted": {
+      "attempts": 0,
+      "passed": 0,
+      "note": "The report counts only Pier's own AgentTimeoutError. All 11 stopped cells ended with NonZeroAgentExitCodeError ('v3 run cancelled: stopped': the CLI stopped its own attempt at the declared budget), so they are not in this counter even though their durations sit exactly on the budget boundary."
+    },
+    "acceptance": [
+      {
+        "id": "coverage.full",
+        "status": "passed",
+        "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+      },
+      {
+        "id": "verdicts.complete",
+        "status": "passed",
+        "detail": "30 present, 0 missing, 0 error, 0 not-evaluated"
+      },
+      {
+        "id": "candidate.single",
+        "status": "passed",
+        "detail": "30 records agree on one frozen candidate (cli-0.0.18-f5729b7-91c629e027ab|0.0.18|91c629e027ab06f7647dcc95114b872d3ac1c36adc58ce697d1a9cd3be79e1c2|1cffb035c529dc7b01f58d436060933321ae710e726322eb184a2e8c3f29117d)"
+      },
+      {
+        "id": "provider.single",
+        "status": "passed",
+        "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+      },
+      {
+        "id": "instructions.frozen",
+        "status": "passed",
+        "detail": "30 records match the frozen instruction hash of their task"
+      }
+    ],
+    "reportArtifact": {
+      "name": "frontier-harness-report-41048843105",
+      "artifactId": 12981859034,
+      "bytes": 83147850,
+      "reportJsonBytes": 51548,
+      "reportJsonSha256": "1cd525f37a1d8f5e1136aaf182b89c831231cb3d745bedf98883e5cfb924f34b",
+      "reportJsonMdSha256": "78f4ef2c69a1e6565f96b189ac5a292c6fa6d102defc64812ccd59bd74316829",
+      "howRead": "gh run download failed twice with a truncated connection, so the zip was fetched in 16 HTTP range requests, concatenated to the declared 83,147,850 bytes, and verified with unzip -tq before use; report.json inside it was copied byte-for-byte to the frozen record (cmp passed)."
+    },
+    "candidateIdentity": {
+      "candidateId": "cli-0.0.18-f5729b7-91c629e027ab",
+      "cliVersion": "0.0.18",
+      "sourceCommit": "f5729b779f6c2fccc8132fe15c816cce6385fc77",
+      "binarySha256": "91c629e027ab06f7647dcc95114b872d3ac1c36adc58ce697d1a9cd3be79e1c2",
+      "candidateManifestSha256": "1cffb035c529dc7b01f58d436060933321ae710e726322eb184a2e8c3f29117d",
+      "note": "Different from the smoke's binary (89157add…): the SEA is not byte-reproducible, so each run builds its own; commit + receipt are the identity that binds the attempts."
+    },
+    "usage": {
+      "tasks": 30,
+      "promptTokens": 63585849,
+      "completionTokens": 766247,
+      "cacheReadTokens": 62200128,
+      "totalTokens": 64352096,
+      "modelCallCount": 1018,
+      "costUsd": null
+    },
+    "dispositionComparison": {
+      "baseline": "run 40823203153, candidate e4a8c4477 (0.0.18-beta.1), 18 passed / 12 failed / 0 error, passAt1 0.6",
+      "delta": "net -3 cells (0.6 -> 0.5); 9 cells flipped: 3 failed->passed, 6 passed->failed. Arithmetic over the same 30 frozen cells only; no rate is merged.",
+      "gained": [
+        {
+          "task": "datacurve/httpx-multipart-response-parsing",
+          "was": "failed",
+          "now": "passed",
+          "cause": "f2p 122/122; its model.patch is 31,828 bytes, so the delivered tree was graded"
+        },
+        {
+          "task": "terminal-bench/regex-log",
+          "was": "failed",
+          "now": "passed",
+          "cause": "stopped at 879s of 900s, but the artifact it had already delivered passed the verifier"
+        },
+        {
+          "task": "terminal-bench/sanitize-git-repo",
+          "was": "failed",
+          "now": "passed",
+          "cause": "stopped at 875s of 900s, but the artifact it had already delivered passed the verifier"
+        }
+      ],
+      "lost": [
+        {
+          "task": "datacurve/katex-multicolumn-array-spans",
+          "was": "passed",
+          "now": "failed",
+          "cause": "stopped at 5,399s of 5,400s with a 0-byte model.patch; f2p 0/94 while p2p 599/599"
+        },
+        {
+          "task": "datacurve/scc-bounded-memory-spilling",
+          "was": "passed",
+          "now": "failed",
+          "cause": "stopped at 5,422s of 5,400s with a 0-byte model.patch; f2p 0/31 while p2p 286/286"
+        },
+        {
+          "task": "terminal-bench/build-cython-ext",
+          "was": "passed",
+          "now": "failed",
+          "cause": "stopped at 877s of 900s; verifier 9 failed / 2 passed on missing compiled modules"
+        },
+        {
+          "task": "terminal-bench/code-from-image",
+          "was": "passed",
+          "now": "failed",
+          "cause": "stopped at 1,174s of 1,200s; verifier found no /app/output.txt"
+        },
+        {
+          "task": "terminal-bench/openssl-selfsigned-cert",
+          "was": "passed",
+          "now": "failed",
+          "cause": "completed in 306s; verifier passed 5 of 6 tests, test_python_verification_script failed"
+        },
+        {
+          "task": "terminal-bench/polyglot-c-py",
+          "was": "passed",
+          "now": "failed",
+          "cause": "completed in 770s; test_fibonacci_polyglot failed because an extra 'cmain' binary was left beside main.py.c"
+        }
+      ],
+      "unchanged": [
+        "datacurve/anko-typed-variable-bindings: passed -> passed",
+        "datacurve/arktype-json-schema-refs-dependencies: failed -> failed",
+        "datacurve/expr-try-catch-errors: failed -> failed",
+        "datacurve/fastapi-deprecation-response-headers: failed -> failed",
+        "datacurve/meriyah-explicit-resource-declarations: failed -> failed",
+        "datacurve/python-statemachine-state-data-scoping: failed -> failed",
+        "terminal-bench/chess-best-move: failed -> failed",
+        "terminal-bench/constraints-scheduling: passed -> passed",
+        "terminal-bench/db-wal-recovery: passed -> passed",
+        "terminal-bench/dna-insert: failed -> failed",
+        "terminal-bench/extract-elf: passed -> passed",
+        "terminal-bench/gcode-to-text: failed -> failed",
+        "terminal-bench/git-leak-recovery: passed -> passed",
+        "terminal-bench/kv-store-grpc: passed -> passed",
+        "terminal-bench/largest-eigenval: failed -> failed",
+        "terminal-bench/log-summary-date-ranges: passed -> passed",
+        "terminal-bench/merge-diff-arc-agi-task: passed -> passed",
+        "terminal-bench/modernize-scientific-stack: passed -> passed",
+        "terminal-bench/multi-source-data-merger: passed -> passed",
+        "terminal-bench/sqlite-db-truncate: passed -> passed",
+        "terminal-bench/vulnerable-secret: passed -> passed"
+      ]
+    },
+    "attribution": {
+      "classifier": "The workflow's own failure analysis labels 4 of the 15 non-passed cells 'model' and 11 'inconclusive'; these are the mechanical facts it recorded, and no verdict is reinterpreted.",
+      "emptyPatch": {
+        "cells": [
+          "datacurve/arktype-json-schema-refs-dependencies",
+          "datacurve/expr-try-catch-errors",
+          "datacurve/fastapi-deprecation-response-headers",
+          "datacurve/katex-multicolumn-array-spans",
+          "datacurve/meriyah-explicit-resource-declarations",
+          "datacurve/python-statemachine-state-data-scoping",
+          "datacurve/scc-bounded-memory-spilling"
+        ],
+        "fact": "Each cell's artifacts/model.patch is 0 bytes while p2p is 100% and f2p is 0/N: the datacurve collect hook diffs base..HEAD, so uncommitted edits grade the pristine tree (knownRisks.emptyPatchCaptureGap). The passing httpx cell in the same batch has a 31,828-byte patch. Six of the seven also stopped at their declared budget; arktype completed in 5,036s and was still empty."
+      },
+      "budgetStopMissingArtifact": {
+        "cells": [
+          "terminal-bench/build-cython-ext",
+          "terminal-bench/chess-best-move",
+          "terminal-bench/code-from-image",
+          "terminal-bench/gcode-to-text",
+          "terminal-bench/largest-eigenval"
+        ],
+        "fact": "Each stopped at its declared budget boundary (873-881s of 900s; 1,174s of 1,200s) and the verifier then found the required artifact missing or incomplete: move.txt, output.txt and hello.txt absent, Cython modules not built (9 failed / 2 passed), largest-eigenval 3 of 27 speedup cases short. Unlike the previous run, largest-eigenval shows no segfault pattern."
+      },
+      "completedButGradedZero": {
+        "cells": [
+          "terminal-bench/dna-insert",
+          "terminal-bench/openssl-selfsigned-cert",
+          "terminal-bench/polyglot-c-py"
+        ],
+        "fact": "The agent completed inside budget and the verifier graded it 0 with no infrastructure question: dna-insert's primer Tm difference 5.72C exceeds the 5C limit; openssl passed 5 of 6 tests and failed test_python_verification_script; polyglot failed test_fibonacci_polyglot because an extra 'cmain' binary remained."
+      },
+      "transport": {
+        "cells": 13,
+        "fact": "13 of 30 cells recorded exactly one model-failure with reason 'transport'; their own durationMs ranged 24.7-226.0s. 11 of those cells are the failed cells above and 2 are passing (sanitize-git-repo, regex-log). The largest share is chess-best-move 226s/900s (25%) and build-cython-ext 164s/900s (18%); every datacurve cell is within 4.2%. Transport is not recorded as the primary cause of any cell, no cell was given a second attempt, and no verdict was altered."
+      }
+    },
+    "reading": "On the newest CI-checkable best-agent main (f5729b779 / 0.0.18) this frozen 30-cell corpus reads 15/30 = 0.5 under one predeclared attempt per cell, with all five acceptance criteria green. It is not a capability assertion against the 0.6 of run 40823203153: the candidate delta is 81 commits and 174 changed files, which includes spec 507 retiring the separate shell tool into one exec binding (the smoke measured 28 tools on the wire, none named shell), and 6 cells moved down while 3 moved up. Per the frozen rule, a per-cell difference is read as candidate delta + provider conditions + run-to-run variance. The 11 'inconclusive' cells carry canonical verdicts and are not retried; recovery is only open to a task with no prediction."
   }
 }
