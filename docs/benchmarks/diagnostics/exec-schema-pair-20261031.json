@@ -1,0 +1,720 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived-evidence-readout",
+  "notAReplacementVerdict": true,
+  "notAPublishedCapabilityOrBilledCostClaim": true,
+  "arms": {
+    "control": {
+      "runId": 41093838098,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41093838098",
+      "sourceCommit": "892e50f5d748e990ecce218d794c92af2ab2852f",
+      "benchmarkHead": "5891b6954fb5354d86370b0c076ef8ebbbba5d56",
+      "canonicalReport": "20261030T183431Z--41093838098.json",
+      "canonicalReportSha256": "380ba5f147c79dd7465cae41d00fe490869d3e7b91f870010cfd308e93a0a292",
+      "results": {
+        "passed": 23,
+        "failed": 7,
+        "error": 0,
+        "notEvaluated": 0
+      },
+      "rawPassedOver30": 0.7666666666666667,
+      "reportPassAt1": 0.7666666666666667,
+      "reportScoreable": true,
+      "reportCapabilityMeasurement": true,
+      "acceptance": [
+        {
+          "id": "coverage.full",
+          "status": "passed",
+          "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+        },
+        {
+          "id": "verdicts.complete",
+          "status": "passed",
+          "detail": "30 present, 0 missing, 0 error, 0 not-evaluated"
+        },
+        {
+          "id": "candidate.single",
+          "status": "passed",
+          "detail": "30 records agree on one frozen candidate (cli-0.0.19-892e50f-70ce2d9af77f|0.0.19|70ce2d9af77fb9675b0b1501f9595e030577e8cc4727ccd660ed2a3ff73b6aaa|ea4bb5e97bbfe47b60a9898c2d5287d84c29d295cc6faa5b5de1d60749f261bd)"
+        },
+        {
+          "id": "provider.single",
+          "status": "passed",
+          "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+        },
+        {
+          "id": "instructions.frozen",
+          "status": "passed",
+          "detail": "30 records match the frozen instruction hash of their task"
+        }
+      ],
+      "reportedParentUsage": {
+        "tasks": 30,
+        "promptTokens": 155288904,
+        "completionTokens": 1021047,
+        "cacheReadTokens": 153255616,
+        "totalTokens": 156309951,
+        "modelCallCount": 1620,
+        "costUsd": null
+      },
+      "wallSecondsIncludingBuildQueueAndVerifier": 6108,
+      "parentTrace": {
+        "evidenceFilesVerified": 30,
+        "modelRequests": 1625,
+        "modelOutcomes": 1620,
+        "modelFailures": 5,
+        "acceptedToolCalls": 1807,
+        "toolResults": 1807,
+        "malformedInput": 21,
+        "argsOnlyCalls": 0,
+        "argsOnlyNextModelVerified": 0,
+        "emptyPatches": [
+          "datacurve/meriyah-explicit-resource-declarations"
+        ],
+        "summedTaskDurationMs": 40594954
+      },
+      "execParentToolResults": 1045,
+      "execMalformedInput": 13,
+      "execMalformedRate": 0.012440191387559809,
+      "execMixedFields": 8,
+      "childOperationsAccepted": 6,
+      "childTasks": [
+        "datacurve/expr-try-catch-errors",
+        "datacurve/python-statemachine-state-data-scoping"
+      ]
+    },
+    "candidate": {
+      "runId": 41093852204,
+      "runUrl": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41093852204",
+      "sourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
+      "benchmarkHead": "c6060f9117906b60b814537dfe72fe012dee1ce6",
+      "canonicalReport": "20261030T183009Z--41093852204.json",
+      "canonicalReportSha256": "626cdae1c9b0d0205c5b9af7cf32cfede4a49f9c6532db8f84100414371856fc",
+      "results": {
+        "passed": 23,
+        "failed": 6,
+        "error": 1,
+        "notEvaluated": 0
+      },
+      "rawPassedOver30": 0.7666666666666667,
+      "reportPassAt1": null,
+      "reportScoreable": false,
+      "reportCapabilityMeasurement": false,
+      "acceptance": [
+        {
+          "id": "coverage.full",
+          "status": "passed",
+          "detail": "30 of 30 Docker-eligible corpus tasks were predeclared"
+        },
+        {
+          "id": "verdicts.complete",
+          "status": "failed",
+          "detail": "30 present, 0 missing, 1 error, 0 not-evaluated"
+        },
+        {
+          "id": "candidate.single",
+          "status": "passed",
+          "detail": "30 records agree on one frozen candidate (cli-0.0.19-8a86cdb-c5eddd51666f|0.0.19|c5eddd51666f20ef763c405cc07afa950f57ee112ef8cd8ccea750c566e93779|9783bcf55b446e7e24f53a98df6a2b0ce74a1c29b423dfe7b8b213503ca302c8)"
+        },
+        {
+          "id": "provider.single",
+          "status": "passed",
+          "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+        },
+        {
+          "id": "instructions.frozen",
+          "status": "passed",
+          "detail": "30 records match the frozen instruction hash of their task"
+        }
+      ],
+      "reportedParentUsage": {
+        "tasks": 29,
+        "promptTokens": 162785141,
+        "completionTokens": 916975,
+        "cacheReadTokens": 160349056,
+        "totalTokens": 163702116,
+        "modelCallCount": 1478,
+        "costUsd": null
+      },
+      "wallSecondsIncludingBuildQueueAndVerifier": 5840,
+      "parentTrace": {
+        "evidenceFilesVerified": 30,
+        "modelRequests": 1483,
+        "modelOutcomes": 1478,
+        "modelFailures": 5,
+        "acceptedToolCalls": 1657,
+        "toolResults": 1657,
+        "malformedInput": 20,
+        "argsOnlyCalls": 0,
+        "argsOnlyNextModelVerified": 0,
+        "emptyPatches": [],
+        "summedTaskDurationMs": 37166453
+      },
+      "execParentToolResults": 869,
+      "execMalformedInput": 19,
+      "execMalformedRate": 0.02186421173762946,
+      "execMixedFields": 15,
+      "childOperationsAccepted": 7,
+      "childTasks": [
+        "datacurve/arktype-json-schema-refs-dependencies",
+        "datacurve/expr-try-catch-errors",
+        "datacurve/python-statemachine-state-data-scoping"
+      ]
+    }
+  },
+  "changedTasks": [
+    {
+      "task": "terminal-bench/code-from-image",
+      "control": "passed",
+      "candidate": "failed"
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "control": "failed",
+      "candidate": "passed"
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "control": "failed",
+      "candidate": "passed"
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "control": "passed",
+      "candidate": "error"
+    }
+  ],
+  "pairedTasks": [
+    {
+      "task": "datacurve/anko-typed-variable-bindings",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 77,
+      "candidateParentRequests": 117,
+      "controlParentToolResults": 91,
+      "candidateParentToolResults": 126,
+      "controlMalformed": 0,
+      "candidateMalformed": 4,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 123740,
+      "candidatePatchBytes": 122507
+    },
+    {
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 160,
+      "candidateParentRequests": 140,
+      "controlParentToolResults": 186,
+      "candidateParentToolResults": 154,
+      "controlMalformed": 2,
+      "candidateMalformed": 2,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 316480,
+      "candidatePatchBytes": 325303
+    },
+    {
+      "task": "terminal-bench/build-cython-ext",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 61,
+      "candidateParentRequests": 55,
+      "controlParentToolResults": 66,
+      "candidateParentToolResults": 74,
+      "controlMalformed": 1,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/chess-best-move",
+      "control": "failed",
+      "candidate": "failed",
+      "controlParentRequests": 25,
+      "candidateParentRequests": 15,
+      "controlParentToolResults": 30,
+      "candidateParentToolResults": 15,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "control": "passed",
+      "candidate": "failed",
+      "controlParentRequests": 21,
+      "candidateParentRequests": 23,
+      "controlParentToolResults": 26,
+      "candidateParentToolResults": 23,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/constraints-scheduling",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 3,
+      "candidateParentRequests": 6,
+      "controlParentToolResults": 4,
+      "candidateParentToolResults": 7,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/db-wal-recovery",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 12,
+      "candidateParentRequests": 11,
+      "controlParentToolResults": 11,
+      "candidateParentToolResults": 11,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/dna-insert",
+      "control": "failed",
+      "candidate": "passed",
+      "controlParentRequests": 15,
+      "candidateParentRequests": 15,
+      "controlParentToolResults": 15,
+      "candidateParentToolResults": 15,
+      "controlMalformed": 0,
+      "candidateMalformed": 1,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "control": "failed",
+      "candidate": "failed",
+      "controlParentRequests": 213,
+      "candidateParentRequests": 113,
+      "controlParentToolResults": 216,
+      "candidateParentToolResults": 136,
+      "controlMalformed": 1,
+      "candidateMalformed": 1,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 52442,
+      "candidatePatchBytes": 57972
+    },
+    {
+      "task": "terminal-bench/extract-elf",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 15,
+      "candidateParentRequests": 9,
+      "controlParentToolResults": 22,
+      "candidateParentToolResults": 8,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/fastapi-deprecation-response-headers",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 103,
+      "candidateParentRequests": 68,
+      "controlParentToolResults": 110,
+      "candidateParentToolResults": 89,
+      "controlMalformed": 1,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 78830,
+      "candidatePatchBytes": 80860
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "control": "failed",
+      "candidate": "failed",
+      "controlParentRequests": 27,
+      "candidateParentRequests": 31,
+      "controlParentToolResults": 29,
+      "candidateParentToolResults": 35,
+      "controlMalformed": 0,
+      "candidateMalformed": 1,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/git-leak-recovery",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 8,
+      "candidateParentRequests": 9,
+      "controlParentToolResults": 11,
+      "candidateParentToolResults": 10,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/httpx-multipart-response-parsing",
+      "control": "failed",
+      "candidate": "passed",
+      "controlParentRequests": 90,
+      "candidateParentRequests": 69,
+      "controlParentToolResults": 115,
+      "candidateParentToolResults": 80,
+      "controlMalformed": 1,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 35406,
+      "candidatePatchBytes": 27325
+    },
+    {
+      "task": "datacurve/katex-multicolumn-array-spans",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 103,
+      "candidateParentRequests": 117,
+      "controlParentToolResults": 109,
+      "candidateParentToolResults": 123,
+      "controlMalformed": 0,
+      "candidateMalformed": 6,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 44107,
+      "candidatePatchBytes": 37389
+    },
+    {
+      "task": "terminal-bench/kv-store-grpc",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 19,
+      "candidateParentRequests": 13,
+      "controlParentToolResults": 20,
+      "candidateParentToolResults": 14,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "control": "failed",
+      "candidate": "failed",
+      "controlParentRequests": 7,
+      "candidateParentRequests": 7,
+      "controlParentToolResults": 7,
+      "candidateParentToolResults": 8,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/log-summary-date-ranges",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 6,
+      "candidateParentRequests": 5,
+      "controlParentToolResults": 6,
+      "candidateParentToolResults": 4,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/merge-diff-arc-agi-task",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 49,
+      "candidateParentRequests": 18,
+      "controlParentToolResults": 52,
+      "candidateParentToolResults": 18,
+      "controlMalformed": 2,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "control": "failed",
+      "candidate": "failed",
+      "controlParentRequests": 163,
+      "candidateParentRequests": 178,
+      "controlParentToolResults": 197,
+      "candidateParentToolResults": 210,
+      "controlMalformed": 5,
+      "candidateMalformed": 1,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 0,
+      "candidatePatchBytes": 92114
+    },
+    {
+      "task": "terminal-bench/modernize-scientific-stack",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 5,
+      "candidateParentRequests": 5,
+      "controlParentToolResults": 7,
+      "candidateParentToolResults": 7,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/multi-source-data-merger",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 8,
+      "candidateParentRequests": 9,
+      "controlParentToolResults": 12,
+      "candidateParentToolResults": 12,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/openssl-selfsigned-cert",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 20,
+      "candidateParentRequests": 8,
+      "controlParentToolResults": 20,
+      "candidateParentToolResults": 7,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/polyglot-c-py",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 11,
+      "candidateParentRequests": 14,
+      "controlParentToolResults": 10,
+      "candidateParentToolResults": 14,
+      "controlMalformed": 1,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 215,
+      "candidateParentRequests": 219,
+      "controlParentToolResults": 226,
+      "candidateParentToolResults": 233,
+      "controlMalformed": 6,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 101339,
+      "candidatePatchBytes": 90269
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "control": "passed",
+      "candidate": "error",
+      "controlParentRequests": 12,
+      "candidateParentRequests": 1,
+      "controlParentToolResults": 14,
+      "candidateParentToolResults": 0,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/sanitize-git-repo",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 21,
+      "candidateParentRequests": 12,
+      "controlParentToolResults": 24,
+      "candidateParentToolResults": 26,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "datacurve/scc-bounded-memory-spilling",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 129,
+      "candidateParentRequests": 172,
+      "controlParentToolResults": 140,
+      "candidateParentToolResults": 172,
+      "controlMalformed": 1,
+      "candidateMalformed": 3,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": 57033,
+      "candidatePatchBytes": 70693
+    },
+    {
+      "task": "terminal-bench/sqlite-db-truncate",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 15,
+      "candidateParentRequests": 13,
+      "controlParentToolResults": 19,
+      "candidateParentToolResults": 12,
+      "controlMalformed": 0,
+      "candidateMalformed": 1,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    },
+    {
+      "task": "terminal-bench/vulnerable-secret",
+      "control": "passed",
+      "candidate": "passed",
+      "controlParentRequests": 12,
+      "candidateParentRequests": 11,
+      "controlParentToolResults": 12,
+      "candidateParentToolResults": 14,
+      "controlMalformed": 0,
+      "candidateMalformed": 0,
+      "controlArgsOnly": 0,
+      "candidateArgsOnly": 0,
+      "controlPatchBytes": null,
+      "candidatePatchBytes": null
+    }
+  ],
+  "wireChecks": {
+    "pairedFirstRequestsVerified": 30,
+    "instructionsEqual": true,
+    "other27ToolDefinitionsEqual": true,
+    "existingExecBranchesEqual": true,
+    "candidate2020SchemaPresent": true
+  },
+  "refusalFidelity": [
+    {
+      "arm": "control",
+      "malformedToolResults": 21,
+      "exactResultsObservedInLaterModelRequest": 21,
+      "missing": []
+    },
+    {
+      "arm": "candidate",
+      "malformedToolResults": 20,
+      "exactResultsObservedInLaterModelRequest": 20,
+      "missing": []
+    }
+  ],
+  "childEvidenceGap": [
+    {
+      "arm": "control",
+      "task": "datacurve/expr-try-catch-errors",
+      "acceptedOperations": 3,
+      "durableRowsInArtifact": {
+        "subagent_operations": 0,
+        "subagent_attempts": 0,
+        "subagent_transcript_entries": 0
+      },
+      "artifactPath": "jobs/expr-try-catch-errors/fh-41093838098-expr-try-catch-errors/pier-task__6c8o56R/agent/best-agent-runtime/v3-subagent-continuation.sqlite"
+    },
+    {
+      "arm": "control",
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "acceptedOperations": 3,
+      "durableRowsInArtifact": {
+        "subagent_operations": 0,
+        "subagent_attempts": 0,
+        "subagent_transcript_entries": 0
+      },
+      "artifactPath": "jobs/python-statemachine-state-data-scoping/fh-41093838098-python-statemachine-state-data-scoping/pier-task__QnpGihL/agent/best-agent-runtime/v3-subagent-continuation.sqlite"
+    },
+    {
+      "arm": "candidate",
+      "task": "datacurve/arktype-json-schema-refs-dependencies",
+      "acceptedOperations": 2,
+      "durableRowsInArtifact": {
+        "subagent_operations": 0,
+        "subagent_attempts": 0,
+        "subagent_transcript_entries": 0
+      },
+      "artifactPath": "jobs/arktype-json-schema-refs-dependencies/fh-41093852204-arktype-json-schema-refs-dependencies/pier-task__nUS63oj/agent/best-agent-runtime/v3-subagent-continuation.sqlite"
+    },
+    {
+      "arm": "candidate",
+      "task": "datacurve/expr-try-catch-errors",
+      "acceptedOperations": 2,
+      "durableRowsInArtifact": {
+        "subagent_operations": 0,
+        "subagent_attempts": 0,
+        "subagent_transcript_entries": 0
+      },
+      "artifactPath": "jobs/expr-try-catch-errors/fh-41093852204-expr-try-catch-errors/pier-task__2fstN5D/agent/best-agent-runtime/v3-subagent-continuation.sqlite"
+    },
+    {
+      "arm": "candidate",
+      "task": "datacurve/python-statemachine-state-data-scoping",
+      "acceptedOperations": 3,
+      "durableRowsInArtifact": {
+        "subagent_operations": 0,
+        "subagent_attempts": 0,
+        "subagent_transcript_entries": 0
+      },
+      "artifactPath": "jobs/python-statemachine-state-data-scoping/fh-41093852204-python-statemachine-state-data-scoping/pier-task__auA32Nk/agent/best-agent-runtime/v3-subagent-continuation.sqlite"
+    }
+  ],
+  "decision": "No measured task-success uplift or verified net benefit. Keep PR606 draft; no merge, rerun, metric repair or scope expansion. Schema correctness is independently demonstrated by the same-input tests, but the new args-only form was not observed in parent calls; child incidence and full-tree cost remain unverified.",
+  "errorControlFlow": "No runtime change. Candidate regex-log: one pending model invocation, zero outcomes and tools, cancelled/stopped at attempt boundary, then a late transport observation that did not change terminal. It is not an observed HTTP400 or proven external outage. All41 malformed parent ToolResults survive exactly into later ModelRequests.",
+  "retrievalNote": "Initial sparse ZIP metadata reads reused a BufferedReader after pwrite and hit CRC errors. Reopening readers corrected the local retrieval code; final complete archives extracted with entry CRC checks, reports were copied byte-for-byte and all60 evidence files matched canonical SHA256 plus footer prefix hashes. No canonical artifact or verdict was modified."
+}
