@@ -11,7 +11,7 @@
     "packageName": "@best-agent/cli-linux-x64-gnu",
     "cliVersion": "0.0.19",
     "sourceRepository": "Simon-He95/best-agent",
-    "sourceCommit": "f6ec9f0dff8cae11c72a246736f280d742783eac",
+    "sourceCommit": "2025c0bba827457a71a4e547f46f019e7ff8d03d",
     "target": "linux-x64-gnu"
   },
   "baselineSourceCommit": "1189b3687806eb02385baf8d77c545980effb502",
@@ -101,5 +101,10 @@
     "No task retry, best-of-N, verdict replacement, timeout tuning, prompt change, streaming toggle, fallback or additional task is authorized by this manifest. Public egress is not a closed-book claim.",
     "Inspect pre-abort body submission versus absent completion and positive local backlog. A late notification or full submitted-byte count cannot prove completed sending; client observations do not prove upstream receipt/queue/inference.",
     "Verify the candidate source full gate and local real HTTP/HTTPS/built CLI controls before the single live dispatch; preserve raw exception/reward and all failed cells."
-  ]
+  ],
+  "preDispatchRevision": {
+    "previousSource": "f6ec9f0dff8cae11c72a246736f280d742783eac",
+    "executedSolverAttempts": 0,
+    "reason": "Exact-head format gate failed. Formatter initially selected no files before the diff was committed; candidate formatting corrected without semantic/call changes. Full gate is repeated on2025c0bb; no test exception or paid attempt is hidden."
+  }
 }
