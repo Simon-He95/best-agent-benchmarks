@@ -2,6 +2,12 @@
 
 Public macOS generation runner for the pinned best-agent CLI on SWE-bench Verified.
 
+Interaction Bench (ibench) is the second path in this repository: it runs the
+same pinned CLI inside Linux task containers through a Harbor installed-agent
+plugin and reports IBench's own per-task verdicts. See
+[the IBench integration notes](docs/ibench.md); it is a separate composition
+with its own frozen task set and is never merged into a SWE-bench reading.
+
 ## Operator entry points
 
 Start with [the benchmark operator runbook](docs/benchmark-operator-runbook.md). It records the executable commands, credential/model changes, candidate refresh procedure, result verification, maximum task-container permission profile, and the current difference between the Terminal-Bench Linux SEA flow and the diagnostic SWE-bench fixed-Node+CJS flow.
@@ -36,12 +42,19 @@ It is not a second grader and cannot be reported as pass@1.
   `config/swe-bench-verified.json`.
 - Workspace: macOS sandbox backend with read/write/exec grants.
 - Interaction and network ToolBindings: excluded.
-- Exec subprocesses: macOS Seatbelt denies network access.
+- Exec subprocesses: macOS Seatbelt denies network access. `scripts/sandbox-network-smoke.mjs`
+  verifies this mechanically: exec descendants and their process descendants reach no TCP
+  endpoint, Unix socket, or host-private path, while the provider transport keeps working.
 - Task selection: fixed before generation with offset/limit/shards or an explicit `--tasks`
   list.
 - Hosted diagnostic batches contain at most 10 predeclared tasks.
 - The formal 500-task run uses 100 predeclared batches of 5 to stay below the hosted job timeout.
 - Hidden tests, official logs, and verdicts never enter the model attempt.
+
+That network boundary belongs to this macOS generation path only. The Terminal-Bench /
+FrontierHarness path keeps task-container network on purpose
+(`scripts/frontier-harness-harness.mjs:17`), so its records claim no closed-book composition;
+see [the operator runbook](docs/benchmark-operator-runbook.md).
 
 ## Hosted macOS generation
 

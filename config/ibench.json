@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "release": {
+    "repository": "https://github.com/eval-sys/ibench",
+    "commit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+    "releaseManifest": "tasks/release.json",
+    "releaseManifestSha256": "e7c351ff85a097aeb9068ca9c8c80157e1f51244e842fc1c16f3a7ad01f9073e",
+    "taskCount": 44,
+    "instructionProfile": "intent"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli",
+    "version": "0.0.19",
+    "install": "npm-in-container"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "transportProfile": "dim-oauth"
+  },
+  "solver": {
+    "config": "config/ibench/solver-best-agent-deepseek-flash-high.json",
+    "harness": "best-agent-cli",
+    "label": "best-agent-cli 0.0.19 / deepseek-v4-flash / high"
+  },
+  "scorer": {
+    "official": {
+      "config": "config/ibench/scorer-codex-deepseek-official.json",
+      "harness": "codex",
+      "label": "codex 0.160.1 / deepseek-flash / high",
+      "requires": ["DEEPSEEK_API_KEY"]
+    },
+    "fallback": {
+      "config": "config/ibench/scorer-best-agent-deepseek-flash-high.json",
+      "harness": "best-agent-cli",
+      "label": "best-agent-cli 0.0.19 / deepseek-v4-flash / high"
+    }
+  },
+  "limits": {
+    "agentTimeoutSec": 3600,
+    "nConcurrent": 2,
+    "batchSize": 4
+  },
+  "baseline": {
+    "harness": "DSH",
+    "model": "DeepSeek Flash",
+    "effort": "high",
+    "passed": 7,
+    "total": 44,
+    "passRate": 0.1590909090909091,
+    "source": "https://github.com/eval-sys/ibench#leaderboard"
+  }
+}

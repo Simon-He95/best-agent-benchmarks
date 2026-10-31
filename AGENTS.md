@@ -12,5 +12,13 @@
 - Infrastructure uncertainty remains `inconclusive`; missing predictions remain `not-evaluated`. Do not retry or overwrite a canonical verdict. Resume only work that has no canonical record.
 - Benchmark-level recovery may fill only a task with no prediction when source evidence mechanically proves a pre-model environment failure or an explicit provider transport failure. Freeze the recovery manifest before recovery, use the same candidate and formal run, preserve the failed evidence, and never replace an existing prediction.
 - `config/swe-bench-verified.json`, `config/swe-bench-full-batches.json`, and `config/best-agent-candidate.json` are the single sources for corpus, full-run selection, and candidate identity. Do not reconstruct those facts from reports or documentation.
+
+## Interaction Bench (ibench)
+
+- One frozen candidate runs all 44 tasks of release `24b0613a` with exactly one predeclared solver attempt per task; `config/ibench.json`, `config/ibench-batches.json`, and the frozen solver/scorer JobConfigs are the single sources for that composition.
+- IBench's own trusted score step is the only grader. A verdict is `rewards.reward == 1` in IBench's `results.json`; no local script, test run, or log reading may substitute for it.
+- A subset run, a `--solver-only` run, or a run whose scorer is not the official `codex` + `deepseek-flash` configuration is diagnostic only. Its report must keep `comparableToPublishedLeaderboard: false` and must not be presented as a like-for-like comparison with the published DSH 7/44.
+- The solver container never receives the reference patch, rubric, verdicts, or the score task's `case-context`. Solve and score are separate Harbor jobs; do not merge them into one prompt or one container.
+- A failed or empty solver patch stays a non-pass. Do not rerun a task, select a different patch, or reuse a batch verdict to improve a reading; a declared re-measurement needs its own frozen manifest and is disclosed beside the original.
 - Keep hosted generation batches at no more than 10 tasks. A formal full run must pin the model explicitly and preserve every raw generation and official-evaluation artifact.
 - Do not publish a candidate or trigger, cancel, restart, or modify GitHub benchmark runs without explicit user authorization.
