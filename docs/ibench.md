@@ -198,3 +198,5 @@ run [41151844978](https://github.com/Simon-He95/best-agent-benchmarks/actions/ru
 Harness benefit record：基线/候选使用同一冻结配置及输入。基线默认可换裁判、5 题自选任务可绕过批次上限、重评分需要 solver 凭据；候选的矩阵测试拒绝 5 题，实际评分 caller 仅需官方 key，且对同一历史报告保留来源和错误。收益是用户要求的可审计对比流程与避免无效评分任务；代价是缺 key 的评分显式失败、保留旧 score 轨迹增加存储、未验证别名等价时不声明严格可比。未测量也不声称任务成功率提升、避免的 ToolCall 失败数量、推理效率或 billed-token 节省。
 
 旧全量运行 [41162502705](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41162502705) 有 10 批、40 题产物；b05 在 `2026-10-31T03:21:27Z` 收到 runner shutdown，exit 143，未上传该批产物。模型已开始，因此不是 pre-model recovery。本次用户明确选择现有 dimagent 凭据的 solver-only；预声明见 `config/ibench-solver-only-b05-20261031.json`：只对 b05 四题各增加一次诊断尝试，候选、模型、effort、任务预算保持冻结值，评分延后。旧运行与 verdict 均保留，不把本次与旧 40 题拼成严格 pass@1，不把诊断运行声明为 DSH 7/44 的正式比较。
+
+调度收据：[41197692944](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41197692944)，`2026-10-31T11:38:30Z`，冻结 wrapper commit `a933456e373425a2d8537e879b47508000f4b63b`，分支 `codex/ibench-ci-comparison`。输入为预声明的四个 task ID、`run_ibench=true`、`ibench_mode=solver-only`、`ibench_concurrency=2`；仅触发一次，没有取消或重启旧运行。任务结果待运行完成；没有据队列状态推断任务通过。
