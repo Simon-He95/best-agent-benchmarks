@@ -340,5 +340,42 @@
       ]
     }
   ],
-  "decision": "Retain the unmerged exec-schema PR. No runtime root cause for the historical wait is proven. Prioritize honest source attribution/reward preservation and phase diagnostics over speculative retry/timeout changes. No production code was changed in this review."
+  "decision": "Retain the unmerged exec-schema PR. No runtime root cause for the historical wait is proven. Prioritize honest source attribution/reward preservation and phase diagnostics over speculative retry/timeout changes. No production code was changed in this review.",
+  "sameInputPrecedent": {
+    "recordedFirstModelRequestValuesEqual": true,
+    "equalFields": {
+      "instructions": true,
+      "messages": true,
+      "externalContext": true,
+      "tools": true
+    },
+    "smokeFirstModelOutcome": {
+      "durationMs": 520770,
+      "kind": "response"
+    },
+    "fullFirstModelOutcome": null,
+    "limit": "ModelRequest equality does not capture HTTP transport state, provider scheduling, credentials or all SDK options. Both frozen profiles declare the same model/high effort.",
+    "successfulCandidateSmokeFirstReasoningChars": 59627,
+    "successfulCandidateSmokeFirstReasoningBytes": 60383,
+    "otherSuccessfulFirstCalls": [
+      {
+        "run": 41088955431,
+        "durationMs": 298949,
+        "reasoningChars": 36267
+      },
+      {
+        "run": 41093838098,
+        "durationMs": 329293,
+        "reasoningChars": 40875
+      }
+    ],
+    "interpretation": "Long pre-tool reasoning is directly observed in successful same-task calls. It is plausible but not proven that the failed call also spent its time generating reasoning. A request/body/queue stall remains possible."
+  },
+  "budgetVisibility": {
+    "actualAttemptBudgetDisclosedInFirstModelRequest": false,
+    "source": "The frozen first instructions/messages/context contain no actual attempt remaining budget; attemptRemainingMs is used by the Application timer. Generic tool lifetime/lease notes are not the task budget.",
+    "classification": "TRADEOFF, not an established Kernel correctness bug",
+    "smallestExperiment": "A separately frozen generic advisory showing the Application-owned projected budget and encouraging early artifact delivery, using the existing prompt-prefix/Application instruction boundary. Keep provider/model/high effort/budgets/grader fixed; do not rerun old canonical cells or claim benefit without measured new results."
+  },
+  "diagnosticCaution": "Adding onModelObservation changes this binding from generateText to streamText; it is not a wire-neutral logging toggle. A passive fetch-boundary diagnostic should preserve the same request primitive, one invocation and AbortSignal. Streaming and budget-guidance behavior changes need independent declared comparisons."
 }
