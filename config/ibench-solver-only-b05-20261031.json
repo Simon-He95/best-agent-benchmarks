@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "purpose": "Declared diagnostic re-measurement after a hosted runner shutdown; retain patches for later official scoring.",
+  "profile": "config/ibench.json",
+  "batches": "config/ibench-batches.json",
+  "releaseCommit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+  "candidate": "@best-agent/cli@0.0.19",
+  "provider": {
+    "model": "deepseek-v4-flash",
+    "reasoningEffort": "high",
+    "baseURL": "https://dimagent.cn/v1",
+    "transportProfile": "dim-oauth"
+  },
+  "mode": "solver-only",
+  "nConcurrent": 2,
+  "maxExtraSolverAttemptsPerTask": 1,
+  "tasks": [
+    "github__saleor__saleor-dashboard__pull__6868",
+    "github__saleor__saleor-dashboard__pull__6891",
+    "github__Dolibarr__dolibarr__pull__39305",
+    "github__Dolibarr__dolibarr__pull__40071"
+  ],
+  "sourceRun": {
+    "id": "41162502705",
+    "commit": "e3577f1f132d8e1d2f98267b80365f98bc2662dd",
+    "batch": "b05",
+    "url": "https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41162502705",
+    "classification": "environment",
+    "observation": "2026-10-31T03:21:27Z: The runner has received a shutdown signal. Process completed with exit code 143. No b05 artifact was uploaded. Model execution had started, so this is not a pre-model recovery."
+  },
+  "scoring": "deferred; later official codex 0.160.1 + deepseek-flash/high only, without another solver attempt",
+  "passAt1": null,
+  "comparableToPublishedLeaderboard": false,
+  "replacesCanonicalVerdict": false,
+  "combinesWithPreviousRunAsPassAt1": false
+}

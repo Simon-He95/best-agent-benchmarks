@@ -22,7 +22,7 @@ on:
         options: [full, solver-only, score]
         default: full
       ibench_tasks:
-        description: Optional comma-separated frozen task ids/names (single diagnostic job)
+        description: Optional comma-separated frozen task ids (single diagnostic job)
         required: false
         default: ""
       ibench_batches:
@@ -60,6 +60,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Require the official scorer credential before dispatching trials
+        if: ${{ inputs.run_ibench && inputs.ibench_mode != 'solver-only' && env.DEEPSEEK_API_KEY == '' }}
+        run: |
+          echo "Full and score modes require DEEPSEEK_API_KEY for the official codex + deepseek-flash scorer. Use solver-only to defer scoring." >&2
+          exit 1
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -93,6 +99,7 @@ jobs:
         env:
           TASKS: ${{ inputs.ibench_tasks }}
           BATCHES: ${{ inputs.ibench_batches }}
+          CONCURRENCY: ${{ inputs.ibench_concurrency }}
         run: |
           node <<'NODE' >> "$GITHUB_OUTPUT"
           const batches = require("./config/ibench-batches.json");
@@ -100,6 +107,10 @@ jobs:
           const frozenSet = new Set(frozen);
           const tasks = (process.env.TASKS ?? "").trim();
           const limit = Number(process.env.BATCHES);
+          const concurrency = Number(process.env.CONCURRENCY);
+          if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > batches.maxBatchSize) {
+            throw new Error("ibench_concurrency must be a positive integer no greater than the frozen batch size.");
+          }
           if (!Number.isInteger(limit) || limit < 0 || limit > batches.batches.length) {
             throw new Error("ibench_batches must be an integer within the frozen plan size.");
           }
@@ -112,6 +123,9 @@ jobs:
             }
             if (ids.some((id) => !frozenSet.has(id))) {
               throw new Error("ibench_tasks contains a task outside the frozen plan.");
+            }
+            if (ids.length > batches.maxBatchSize) {
+              throw new Error("ibench_tasks exceeds the frozen maximum batch size.");
             }
             entries = [{ id: "custom", tasks: ids.join(",") }];
             complete = false;
@@ -241,7 +255,6 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$HOME/.local/bin:$PATH"
-          test -n "$BENCHMARK_PROVIDER_API_KEY"
           test -n "$DEEPSEEK_API_KEY"
           first=1
           for directory in results/ibench/*/; do

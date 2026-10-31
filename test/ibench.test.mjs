@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -10,6 +11,7 @@ import {
   computeReport,
   materializeProvider,
   parseArgs,
+  pickScorer,
   renderReportMarkdown,
   selectTasks,
   verifyFileSha256,
@@ -26,7 +28,7 @@ const PROFILE = {
   release: RELEASE,
   solver: { harness: "best-agent-cli", label: "best-agent-cli / deepseek-v4-flash / high", config: "solver.json" },
   scorer: {
-    official: { harness: "codex", label: "codex / deepseek-flash / high", config: "scorer-official.json" },
+    official: { harness: "codex", label: "codex / deepseek-flash / high", config: "scorer-official.json", requires: ["DEEPSEEK_API_KEY"] },
     fallback: { harness: "best-agent-cli", label: "best-agent-cli / deepseek-v4-flash / high", config: "scorer.json" },
   },
   provider: {
@@ -37,7 +39,7 @@ const PROFILE = {
     reasoningEffort: "high",
     transportProfile: "dim-oauth",
   },
-  baseline: { harness: "DSH", model: "DeepSeek Flash", passed: 7, total: 44, passRate: 7 / 44, source: "ibench" },
+  baseline: { harness: "DSH", model: "DeepSeek Flash", modelId: "deepseek-flash", baseURL: "https://api.deepseek.com", effort: "high", passed: 7, total: 44, passRate: 7 / 44, source: "ibench" },
 };
 const TASKS = [
   { id: "task-a", name: "alpha" },
@@ -76,6 +78,37 @@ test("parseArgs keeps re-grading separate from solving", () => {
   // A run cannot be solved and re-graded by the same invocation.
   assert.throws(() => parseArgs(["--score-only", "--solver-only"]), /opposite ends/u);
   assert.throws(() => parseArgs(["--score-only", "--dry-run"]), /no plan to print/u);
+});
+
+test("pickScorer never silently replaces the published judge", () => {
+  assert.throws(() => pickScorer(PROFILE, undefined, { environment: {} }), /requires DEEPSEEK_API_KEY/u);
+  assert.equal(pickScorer(PROFILE, undefined, { environment: {}, solverOnly: true }).official, true);
+  assert.equal(pickScorer(PROFILE, undefined, { environment: {}, dryRun: true }).official, true);
+  assert.equal(pickScorer(PROFILE, undefined, { environment: { DEEPSEEK_API_KEY: "synthetic" } }).official, true);
+  assert.equal(pickScorer(PROFILE, "diagnostic.json", { environment: {} }).official, false);
+});
+
+test("the CI matrix enforces the frozen batch size before dispatch", () => {
+  const workflow = readFileSync(new URL("../.github/workflows/ibench.yml", import.meta.url), "utf8");
+  const script = workflow.split('node <<\'NODE\' >> "$GITHUB_OUTPUT"\n')[1].split("          NODE")[0];
+  const batches = JSON.parse(readFileSync(new URL("../config/ibench-batches.json", import.meta.url), "utf8"));
+  const run = (tasks, concurrency = "2") => spawnSync(process.execPath, ["-e", script], {
+    cwd: new URL("..", import.meta.url),
+    env: { ...process.env, TASKS: tasks, BATCHES: "0", CONCURRENCY: concurrency },
+    encoding: "utf8",
+  });
+  const full = run("");
+  assert.equal(full.status, 0, full.stderr);
+  assert.match(full.stdout, /complete=true/u);
+  const custom = run(batches.batches[4].tasks.join(","));
+  assert.equal(custom.status, 0, custom.stderr);
+  assert.match(custom.stdout, /complete=false/u);
+  assert.match(run(batches.batches.flatMap((batch) => batch.tasks).slice(0, 5).join(",")).stderr, /exceeds the frozen/u);
+  for (const value of ["0", "-1", "NaN", "5", "1.5"]) {
+    const invalid = run("", value);
+    assert.notEqual(invalid.status, 0);
+    assert.match(invalid.stderr, /ibench_concurrency/u);
+  }
 });
 
 test("verifyFileSha256 accepts exact bytes and rejects a different manifest", () => {
@@ -132,7 +165,13 @@ test("computeReport is leaderboard-comparable only for the full official composi
     ...base,
     context: { runId: "run-3", scorer: { ...PROFILE.scorer.official, official: true } },
   });
-  assert.equal(official.comparableToPublishedLeaderboard, true);
+  assert.equal(official.comparableToPublishedLeaderboard, false, "gateway model aliases are not verified as equivalent");
+  const matched = computeReport({
+    ...base,
+    profile: { ...PROFILE, provider: { ...PROFILE.provider, model: PROFILE.baseline.modelId, baseURL: PROFILE.baseline.baseURL } },
+    context: { runId: "run-matched", scorer: { ...PROFILE.scorer.official, official: true } },
+  });
+  assert.equal(matched.comparableToPublishedLeaderboard, true);
   const solverOnly = computeReport({
     ...base,
     run: { solverOnly: true },
@@ -251,6 +290,22 @@ test("aggregateReports rejects a batch produced by a different composition", () 
   const b = batchReport({ runId: "b2", rows: [{ id: "task-b", status: "scored", passed: false, reward: 0 }] });
   const changed = { ...b, provider: { ...b.provider, reasoningEffort: "max" } };
   assert.throws(() => aggregateReports({ reports: [a, changed], batches, profile: PROFILE, runId: "x" }), /same frozen composition/u);
+  const foreignRelease = [a, b].map((report) => ({ ...report, release: { ...report.release, commit: "foreign" } }));
+  assert.throws(() => aggregateReports({ reports: foreignRelease, batches, profile: PROFILE, runId: "x" }), /pinned release/u);
+  assert.throws(() => aggregateReports({ reports: [a, { ...b, candidate: { ...b.candidate, scorerIsOfficial: true } }], batches, profile: PROFILE, runId: "x" }), /same frozen composition/u);
+});
+
+test("aggregateReports requires the baseline model endpoint and effort even with the official judge", () => {
+  const batches = { taskCount: 2, maxBatchSize: 1, batches: [{ id: "b1", tasks: ["task-a"] }, { id: "b2", tasks: ["task-b"] }] };
+  const profile = { ...PROFILE, release: { ...RELEASE, taskCount: 2 } };
+  const reports = ["task-a", "task-b"].map((id) => batchReport({ runId: id, scorerIsOfficial: true, rows: [{ id, status: "scored", passed: false, reward: 0 }] }));
+  assert.equal(aggregateReports({ reports, batches, profile, runId: "gateway" }).comparableToPublishedLeaderboard, false);
+  for (const report of reports) {
+    report.provider = { ...report.provider, model: PROFILE.baseline.modelId, baseURL: PROFILE.baseline.baseURL };
+  }
+  assert.equal(aggregateReports({ reports, batches, profile, runId: "official" }).comparableToPublishedLeaderboard, true);
+  for (const report of reports) report.provider.reasoningEffort = "low";
+  assert.equal(aggregateReports({ reports, batches, profile, runId: "effort" }).comparableToPublishedLeaderboard, false);
 });
 
 test("aggregateReports reports a deferred rate for solver-only batches", () => {
@@ -265,4 +320,99 @@ test("aggregateReports reports a deferred rate for solver-only batches", () => {
   const markdown = renderAggregateMarkdown(report);
   assert.match(markdown, /deferred \(0\/2 seen\)/u);
   assert.doesNotMatch(markdown, /NaN/u);
+});
+
+test("score-only preserves source evidence and identity without solver credentials or calls", () => {
+  for (const scoreExit of [0, 7]) {
+    const directory = mkdtempSync(join(tmpdir(), "ibench-score-"));
+    try {
+      const source = join(directory, "source");
+      const output = join(directory, "run");
+      const bin = join(directory, "bin");
+      mkdirSync(join(source, "tasks"), { recursive: true });
+      mkdirSync(join(output, "jobs/score"), { recursive: true });
+      mkdirSync(join(output, "jobs/solve"), { recursive: true });
+      mkdirSync(bin);
+      const manifest = JSON.stringify({ tasks: TASKS });
+      writeFileSync(join(source, "tasks/release.json"), manifest);
+      for (const args of [
+        ["init", source],
+        ["-C", source, "add", "."],
+        ["-C", source, "-c", "user.name=test", "-c", "user.email=test@invalid", "commit", "-m", "fixture"],
+        ["-C", source, "remote", "add", "origin", source],
+      ]) {
+        const result = spawnSync("git", args, { encoding: "utf8" });
+        assert.equal(result.status, 0, result.stderr);
+      }
+      const commit = spawnSync("git", ["-C", source, "rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim();
+      const profile = {
+        ...PROFILE,
+        schemaVersion: 1,
+        benchmark: "ibench",
+        release: { ...RELEASE, commit, releaseManifest: "tasks/release.json", releaseManifestSha256: createHash("sha256").update(manifest).digest("hex") },
+        limits: { nConcurrent: 1 },
+      };
+      const config = join(directory, "profile.json");
+      writeFileSync(config, JSON.stringify(profile));
+      const previous = batchReport({ runId: "original-run", rows: TASKS.map((task) => ({ ...task, passed: false, reward: null })) });
+      previous.release.commit = commit;
+      previous.release.manifestSha256 = profile.release.releaseManifestSha256;
+      previous.candidate.label = "original-cli-version";
+      previous.provider.model = "original-model";
+      previous.instructionProfile = "intent-actions";
+      const originalReport = JSON.stringify(previous);
+      const originalResults = JSON.stringify({ error: "source-scorer-fault", trials: [] });
+      writeFileSync(join(output, "run.json"), '{"original":"run"}');
+      writeFileSync(join(output, "ibench-report.json"), originalReport);
+      writeFileSync(join(output, "results.json"), originalResults);
+      writeFileSync(join(output, "jobs/score/source-error.txt"), "source-scorer-fault");
+      writeFileSync(join(output, "jobs/solve/candidate.patch"), "frozen patch");
+      writeFileSync(join(bin, "uv"), `#!${process.execPath}
+import { appendFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+const args = process.argv.slice(2);
+appendFileSync(process.env.UV_CALL_LOG, JSON.stringify(args) + "\\n");
+if (args.slice(0, 4).join(" ") !== "run --no-sync ibench score") process.exit(99);
+const output = args[4];
+writeFileSync(join(output, "results.json"), JSON.stringify({
+  success: ${scoreExit === 0}, phase: "completed", error: ${scoreExit === 0 ? "null" : '"controlled score source failure"'},
+  trials: ${JSON.stringify(TASKS.map((task) => ({ task_id: task.id, status: "scored", rewards: { reward: 1 } })))},
+}));
+if (${scoreExit} !== 0) console.error("controlled score source failure");
+process.exit(${scoreExit});
+`, { mode: 0o755 });
+      const args = [
+        new URL("../scripts/ibench-run.mjs", import.meta.url).pathname,
+        "--score-only", "--config", config, "--ibench-source", source,
+        "--output", output, "--skip-uv-sync", "--skip-base-image",
+      ];
+      const env = {
+        ...process.env, PATH: `${bin}:${process.env.PATH}`, HOME: directory,
+        BENCHMARK_PROVIDER_API_KEY: "", DEEPSEEK_API_KEY: "", UV_CALL_LOG: join(directory, "calls.jsonl"),
+      };
+      const denied = spawnSync(process.execPath, args, { env, encoding: "utf8" });
+      assert.equal(denied.status, 1);
+      assert.match(denied.stderr, /requires DEEPSEEK_API_KEY/u);
+      assert.equal(readdirSync(output).includes("prior-scores"), false);
+      const result = spawnSync(process.execPath, args, { env: { ...env, DEEPSEEK_API_KEY: "synthetic" }, encoding: "utf8" });
+      assert.equal(result.status, scoreExit, result.stderr);
+      const calls = readFileSync(env.UV_CALL_LOG, "utf8").trim().split("\n").map(JSON.parse);
+      assert.equal(calls.length, 1, "no solver, plugin install, or extra scorer invocation");
+      assert.equal(calls[0][3], "score");
+      const report = JSON.parse(readFileSync(join(output, "ibench-report.json"), "utf8"));
+      assert.equal(report.runId, "original-run");
+      assert.equal(report.candidate.label, previous.candidate.label);
+      assert.deepEqual(report.provider, previous.provider);
+      assert.equal(report.instructionProfile, "intent-actions");
+      assert.equal(report.candidate.scorerIsOfficial, true);
+      assert.equal(report.ibench.exitCode, scoreExit);
+      assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "ibench-report.json"), "utf8"), originalReport);
+      assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "results.json"), "utf8"), originalResults);
+      assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "jobs/score/source-error.txt"), "utf8"), "source-scorer-fault");
+      assert.equal(readFileSync(join(output, "jobs/solve/candidate.patch"), "utf8"), "frozen patch");
+      if (scoreExit !== 0) assert.match(result.stderr, /controlled score source failure/u);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  }
 });

@@ -31,13 +31,13 @@
  *
  * Environment:
  *   BENCHMARK_PROVIDER_API_KEY  dim OAuth access token for the frozen provider
- *   DEEPSEEK_API_KEY            optional official scorer credential
+ *   DEEPSEEK_API_KEY            required for scoring with the official judge
  *   UV_DEFAULT_INDEX            optional package index override for uv
  */
 
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -215,7 +215,11 @@ export function computeReport({ profile, release, tasks, trials, run, context })
     deferred: Boolean(run.solverOnly),
     passed,
     total,
-    comparableToPublishedLeaderboard: completeSet && !run.solverOnly && context.scorer.official,
+    comparableToPublishedLeaderboard:
+      completeSet && !run.solverOnly && context.scorer.official &&
+      profile.provider.model === profile.baseline.modelId &&
+      profile.provider.baseURL === profile.baseline.baseURL &&
+      profile.provider.reasoningEffort === profile.baseline.effort,
     baseline: profile.baseline,
     tasks: rows,
   };
@@ -234,6 +238,7 @@ export function renderReportMarkdown(report) {
       : `- Pass rate: **${report.passed}/${report.total}** = ${(report.passRate * 100).toFixed(1)}%`,
     `- Published DSH reference: ${report.baseline.passed}/${report.baseline.total} = ${(report.baseline.passRate * 100).toFixed(1)}% (${report.baseline.harness} / ${report.baseline.model}, ${report.baseline.source})`,
     `- Comparable to the published leaderboard: ${report.comparableToPublishedLeaderboard ? "yes" : "no"}`,
+    `- Published solver endpoint: \`${report.baseline.modelId}\` / \`${report.baseline.effort}\` via ${report.baseline.baseURL}; gateway aliases are not verified as equivalent.`,
     report.solverOnly ? "- Solver-only run: scoring deferred, so no task has a verdict yet." : "",
     "",
     "| Task | Status | Reward | Verdicts | Error |",
@@ -377,15 +382,15 @@ export function resolveProviderCredential(environment = process.env, home = home
   throw new Error("No provider credential: set BENCHMARK_PROVIDER_API_KEY or log in with dimcode.");
 }
 
-function pickScorer(profile, override) {
+export function pickScorer(profile, override, { solverOnly = false, dryRun = false, environment = process.env } = {}) {
   const official = profile.scorer.official;
-  const fallback = profile.scorer.fallback;
-  const officialReady = official.requires.every((name) => Boolean(process.env[name]));
+  const missing = official.requires.filter((name) => !environment[name]);
+  if (!override && !solverOnly && !dryRun && missing.length > 0) {
+    throw new Error(`Official IBench scoring requires ${missing.join(", ")}; use --solver-only to defer scoring.`);
+  }
   const chosen = override
     ? { config: override, harness: "custom", label: override, official: false }
-    : officialReady
-      ? { ...official, official: true }
-      : { ...fallback, official: false };
+    : { ...official, official: true };
   return {
     config: isAbsolute(chosen.config) ? chosen.config : join(repoRoot, chosen.config),
     harness: chosen.harness,
@@ -439,34 +444,41 @@ async function ensureBaseImage(source, version) {
 async function scoreExistingRun({ options, profile, source, output, scorer, nConcurrent }) {
   const resultsPath = join(output, "results.json");
   const reportPath = join(output, "ibench-report.json");
-  const previous = existsSync(reportPath) ? readJson(reportPath) : undefined;
-  const results = readJson(resultsPath);
-  const tasks = previous?.tasks?.length
-    ? previous.tasks.map(({ id, name }) => ({ id, name }))
-    : (results.trials ?? []).map((trial) => ({
-        id: trial.task_id,
-        name: trial.task_name ?? trial.task_id,
-      }));
+  const previous = readJson(reportPath);
+  if (previous.release.commit !== profile.release.commit || previous.release.manifestSha256 !== profile.release.releaseManifestSha256) {
+    throw new Error("The source run must use the pinned IBench release and manifest.");
+  }
+  const tasks = previous.tasks.map(({ id, name }) => ({ id, name }));
   if (tasks.length === 0) throw new Error(`${output} has no task to grade.`);
-  const runId = previous?.runId ?? process.env.IBENCH_RUN_ID ?? `score-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const runId = previous.runId;
 
   const providerDir = join(repoRoot, ".tmp", `ibench-provider-${process.pid}`);
-  mkdirSync(providerDir, { recursive: true });
-  const credential = resolveProviderCredential();
-  const provider = materializeProvider({
-    profile: profile.provider,
-    directory: providerDir,
-    token: credential.token,
-    credentialRef: credential.credentialRef,
-    auth: credential.auth,
-  });
+  let provider;
   try {
+    if (!scorer.official) {
+      const credential = resolveProviderCredential();
+      provider = materializeProvider({
+        profile: profile.provider,
+        directory: providerDir,
+        token: credential.token,
+        credentialRef: credential.credentialRef,
+        auth: credential.auth,
+      });
+    }
     if (!options.skipUvSync) await run("uv", ["sync", "--frozen"], { cwd: source });
-    await run("uv", [
-      "pip", "install", "--python", join(source, ".venv/bin/python"), "-e", join(repoRoot, "tools/ibench-agent"),
-    ]);
+    if (!scorer.official) {
+      await run("uv", [
+        "pip", "install", "--python", join(source, ".venv/bin/python"), "-e", join(repoRoot, "tools/ibench-agent"),
+      ]);
+    }
     if (!options.skipBaseImage) await ensureBaseImage(source, baseImageVersion(source));
 
+    const priorEvidence = join("prior-scores", new Date().toISOString().replace(/[:.]/g, "-"));
+    for (const relative of ["run.json", "results.json", "ibench-report.json", "ibench-report.md", "jobs/score"]) {
+      if (existsSync(join(output, relative))) {
+        cpSync(join(output, relative), join(output, priorEvidence, relative), { recursive: true });
+      }
+    }
     const args = [
       "run", "--no-sync", "ibench", "score", output,
       "--config", scorer.config,
@@ -478,16 +490,24 @@ async function scoreExistingRun({ options, profile, source, output, scorer, nCon
     const result = await run("uv", args, {
       cwd: source,
       allowFailure: true,
-      env: {
+      env: provider ? {
         BEST_AGENT_PROVIDER_CONFIG: provider.providerConfig,
         DIMCODE_HOME: provider.dimcodeHome,
-      },
+      } : {},
     });
     const elapsedMs = Date.now() - started;
     const graded = readJson(resultsPath);
     const report = computeReport({
-      profile,
-      release: profile.release,
+      profile: {
+        ...profile,
+        solver: {
+          harness: previous.candidate.harness,
+          label: previous.candidate.label,
+          config: previous.candidate.solverConfig,
+        },
+        provider: previous.provider,
+      },
+      release: { ...profile.release, instructionProfile: previous.instructionProfile },
       tasks,
       trials: graded.trials ?? [],
       run: { solverOnly: false },
@@ -495,11 +515,13 @@ async function scoreExistingRun({ options, profile, source, output, scorer, nCon
     });
     report.ibench = {
       exitCode: result.code,
+      signal: result.signal,
       elapsedMs,
       phase: graded.phase,
       success: graded.success,
       error: graded.error ?? null,
       regraded: true,
+      priorEvidence,
     };
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
     writeFileSync(join(output, "ibench-report.md"), renderReportMarkdown(report));
@@ -509,6 +531,7 @@ async function scoreExistingRun({ options, profile, source, output, scorer, nCon
         `(scorer: ${scorer.harness}${scorer.official ? "" : ", non-official"}); report: ${join(output, "ibench-report.md")}`,
     );
     if (graded.error) console.error(`ibench> score error: ${graded.error}`);
+    if (result.code !== 0) process.exitCode = result.code ?? 1;
   } finally {
     rmSync(providerDir, { recursive: true, force: true });
   }
@@ -546,7 +569,7 @@ async function main() {
     throw new Error(`run output already exists: ${output}`);
   }
   const solverConfig = options.solverConfig ?? join(repoRoot, profile.solver.config);
-  const scorer = pickScorer(profile, options.scoreConfig);
+  const scorer = pickScorer(profile, options.scoreConfig, options);
   const nConcurrent = options.nConcurrent ?? profile.limits.nConcurrent;
   if (options.scoreOnly) {
     await scoreExistingRun({ options, profile, source, output, scorer, nConcurrent });
@@ -638,6 +661,7 @@ async function main() {
   });
   report.ibench = {
     exitCode: result.code,
+    signal: result.signal,
     elapsedMs,
     phase: ibenchResults.phase,
     success: ibenchResults.success,
@@ -651,6 +675,7 @@ async function main() {
       `(scorer: ${scorer.harness}${scorer.official ? "" : ", non-official"}); report: ${join(output, "ibench-report.md")}`,
   );
   if (ibenchResults.error) console.error(`ibench> run error: ${ibenchResults.error}`);
+  if (result.code !== 0) process.exitCode = result.code ?? 1;
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
