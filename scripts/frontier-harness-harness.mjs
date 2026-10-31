@@ -658,7 +658,11 @@ function createEvidenceSummary() {
         }
       }
       if (entry?.type === "footer" && entry.writtenCounts) {
-        if (Number.isInteger(entry.writtenCounts.modelRequest) && entry.writtenCounts.modelRequest >= 0) {
+        if (
+          Number.isInteger(entry.writtenCounts.modelRequest) &&
+          entry.writtenCounts.modelRequest >= 0 &&
+          (entry.writtenCounts.modelRequest > 0 || entry.complete === true)
+        ) {
           footerRequests = entry.writtenCounts.modelRequest;
         }
         if (Number.isInteger(entry.writtenCounts.modelOutcome)) {

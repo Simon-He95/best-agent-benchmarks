@@ -583,7 +583,7 @@ test("pre-model attribution requires recorded zero requests and retains its sour
   const evidenceText = [
     { type: "header", rootRunId: "primary" },
     { type: "terminal-snapshot", resourceId: "primary", snapshot: { terminalCause: "context-unavailable" } },
-    { type: "footer", writtenCounts: { modelRequest: 0, modelOutcome: 0 } },
+    { type: "footer", complete: true, writtenCounts: { modelRequest: 0, modelOutcome: 0 } },
   ].map(entry => JSON.stringify(entry)).join("\n");
   const result = classifyTrialOutcome({
     trialResult: { verifier_result: { rewards: { reward: 0 } }, exception_info: { exception_type: "RuntimeError", exception_message: "before model" } },
@@ -593,6 +593,13 @@ test("pre-model attribution requires recorded zero requests and retains its sour
   assert.equal(result.preModelFailure, true);
   assert.equal(result.modelRequests, 0);
   assert.deepEqual(result.rewards, { reward: 0 });
+  const incomplete = classifyTrialOutcome({
+    trialResult: { verifier_result: { rewards: { reward: 0 } }, exception_info: { exception_type: "RuntimeError" } },
+    evidenceText: JSON.stringify({ type: "footer", complete: false, writtenCounts: { modelRequest: 0, modelOutcome: 0 } }),
+  });
+  assert.equal(incomplete.modelRequests, null);
+  assert.equal(incomplete.preModelFailure, undefined);
+  assert.deepEqual(incomplete.rewards, { reward: 0 });
 });
 
 test("classifyTrialOutcome marks pre-model provider deaths as errors", async () => {
