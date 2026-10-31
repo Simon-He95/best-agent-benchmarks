@@ -76,7 +76,22 @@ node scripts/ibench-aggregate.mjs --input results/ibench --output results/ibench
 - `ibench-run`：每个批次一个 job，`timeout-minutes: 350`，跑 `scripts/ibench-run.mjs`，上传该批证据。
 - `ibench-aggregate`：下载全部批次报告，校验“同一冻结组成 + 完整覆盖”，写 `ibench-aggregate.json`；不完整时只能加 `--allow-partial`，此时 `partial: true` 且不声明可比。
 
-输入项：`run_ibench`（是否真正发起）、`ibench_mode`（`full` / `solver-only`）、`ibench_tasks`（逗号分隔的冻结任务 id/name）、`ibench_batches`（跑前 N 批，0 = 全部）、`ibench_concurrency`。
+输入项：`run_ibench`（是否真正发起）、`ibench_mode`（`full` / `solver-only` / `score`）、`ibench_tasks`（逗号分隔的冻结任务 id/name）、`ibench_batches`（跑前 N 批，0 = 全部）、`ibench_concurrency`、`ibench_source_run`（仅 `score` 模式：要重判的那次 run id）。
+
+### solve 与 judge 解耦
+
+被测的是 harness，judge 是固定的测量装置。IBench 把 solver 的补丁冻结在 `jobs/solve`、把编译好的评分任务留在 `compiled/score`，所以 `ibench score --overwrite` 可以只换裁判、不重放任何一次模型尝试：
+
+```bash
+# 1) 解一次，冻结 44 份补丁
+gh workflow run ibench.yml --ref master -f run_ibench=true -f ibench_mode=full -f ibench_batches=0
+
+# 2) 官方裁判就位后，原地重判（不重跑 solver）
+gh workflow run ibench.yml --ref master -f run_ibench=true -f ibench_mode=score \
+  -f ibench_source_run=<第 1 步的 run id>
+```
+
+`score` 模式会先校验 `DEEPSEEK_API_KEY` 与 `ibench_source_run`，缺一即失败——重判的意义就是用上官方 `codex` + `deepseek-flash` judge，没有它就只会产出一个形似的数字。
 
 注意：每题 solve + score 各最多 1 小时，4 题一批在 4 vCPU runner 上可能接近 6 小时 job 上限；正式全量更适合分批多次触发，或换更大的 runner。
 
@@ -90,7 +105,7 @@ node scripts/ibench-aggregate.mjs --input results/ibench --output results/ibench
 
 - **补提交**：官方 DSH / Codex 依赖 agent 自己 `git commit`；本插件在 solver 返回后再补一次 `git add -A` + commit（模型已提交则跳过），避免“修好了但没提交”被记成空 patch。这条对 solver 略宽松，比较时应披露。
 - **scorer**：见上文，默认可能不是官方 codex scorer。
-- **CLI 安装**：每个任务容器单独 `npm install` 一次（容器是一次性的），每题多约 1–2 分钟；没有做镜像级预热。
+- **CLI 安装**：每个任务容器单独 `npm install` 一次（容器是一次性的），没有做镜像级预热。CI 实测每题每阶段 8–10 秒（`agent_setup` 7.5–9.1 s），一批 4 题共两次阶段约 72 秒，占 b01 全程 98.6 分钟的 1.2%；本地慢网络下才是分钟级。
 
 ## 验证状态（2026-10-30）
 
@@ -115,12 +130,33 @@ DIMCODE_HOME=$PWD/provider/dimcode-home \
 ../ibench/.venv/bin/harbor run -c solver.json -c tasks-public.json --job-name smoke4 -o jobs
 ```
 
-**未完成**：真实 ibench 任务（`ibench-dev` 镜像 + solve 步骤的 allowlist 网络 + verifier 采集 `candidate.patch` + score agent 出 verdict）。
+### 本地 macOS 的限制（不是 bench 的限制）
 
-阻塞点不在插件，而在 macOS 上的 allowlist 网络：ibench 的任务把 solve 步骤固定在 `network_mode = "allowlist"`，Harbor 0.23 为此启动 `gost` egress sidecar，其 nftables 规则只放行 TCP 转发（除 `/etc/resolv.conf` 列出的解析器外拒绝其余 UDP）。在 Docker Desktop 上这套配置下 DNS 查询返回 SERVFAIL（同一个 sidecar 切回 `public` 立刻恢复），于是模型端点解析失败：
+ibench 的任务把 solve 步骤固定在 `network_mode = "allowlist"`，Harbor 0.23 为此启动 `gost` egress sidecar，其 nftables 规则只放行 TCP 转发（除 `/etc/resolv.conf` 列出的解析器外拒绝其余 UDP）。在 Docker Desktop 上这套配置下 DNS 查询返回 SERVFAIL（同一个 sidecar 切回 `public` 立刻恢复），模型端点因此无法解析：
 
 ```
 v3 run model-failure: connection: Cannot connect to API: getaddrinfo EAI_AGAIN dimagent.cn
 ```
 
-本机没有 Linux Docker，无法确认 Linux 上是否同样复现；预期不会，因为那里的嵌入式 DNS 由 dockerd 在宿主侧转发，不受容器内 nftables 影响，但这条只是推断，未被实测。第一次真实运行放在 CI（GitHub ubuntu runner）上发起，先 `ibench_batches=1`（4 题）确认 allowlist 下模型可达 → solve 产出 `candidate.patch` → verifier 采集 → score agent 写出 verdict，通过后再 `ibench_batches=0` 跑全量。
+这条只属于 Docker Desktop，Linux 上不复现（见下）。本机的容器级冒烟因此改用 `public` 网络，真实运行一律放 CI。
+
+### 首次容器端到端读数（CI 诊断，2026-10-31）
+
+run [41151844978](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41151844978) 的 batch `b01`，4 题，链路全绿：容器内安装 CLI → allowlist 下模型可达 → solve 冻结 `candidate.patch` → 独立 score 容器重放交互 → 写出 verdict 与 issue 级理由。四个 job（校验、计划、b01、聚合）均 `success`。
+
+| 任务 | solve | 补丁改了哪里 | score | 判定 |
+| --- | --- | --- | --- | --- |
+| `Afilmory#243` photo-map-panning | 21.2 min，CLI `exitCode 1` | `main.tsx` + 两个调试用 `module-probe.html` | protocol 1 / repair 0 | 平移地图后详情卡仍未跟随标记移动 |
+| `Afilmory#274` tiny-storage-comparison | 18.0 min | 后端 `cleanup-candidates.service.ts` 的 storage 聚合 SQL | protocol 1 / repair 0 | Content 列仍按 `toFixed(1)` 显示 `0.0 MB`，小体积与空工作区不可区分 |
+| `actual#7827` csv-footer-skipping | 54.3 min | `ImportTransactionsModal.tsx` 把解析失败从 `break` 改成 `continue` | protocol 1 / repair 0 | 改的是“坏行不再中止”，而 bug 是改 Skip end lines 后字段映射被重置 |
+| `cal.diy#29544` password-form-editing | 43.0 min | `password-view.tsx` 加 `autoComplete` | protocol 1 / repair 0 | 三个非法状态下 Update 仍可点，补的是浏览器自动填充提示 |
+
+读数 `0/4`，`partial: true`，`comparableToPublishedLeaderboard: false`（4 题子集 + 回退 scorer）。这是诊断，不是对 DSH 7/44 的对比。产物 `ibench-41151844978-b01`，76,080,241 B，SHA-256 `d477b31b…`。
+
+三条与本地不同的事实：
+
+1. **allow-list 在 Linux 上不阻塞 DNS。** 整份产物里 0 处 `getaddrinfo`/`EAI_AGAIN`；四题 solve 的 verifier 均 `reward 1`，四个 score agent 也都在同一 allowlist 下正常出 verdict。上面那条 macOS 症状不适用于 CI。
+2. **一题的 solver 被上下文打满。** `Afilmory#243` 在 21 分钟处以 `context_length_exceeded`（HTTP 400，`invalid_request_error`）退出，CLI `exitCode 1`；它的补丁是崩溃后按工作区最终状态冻结的（HEAD `3fc2309` → `763357e`），因而带着模型调试用的两个 `module-probe.html`。判定不变（本来也没修好），但长轨迹会把窗口吃满。
+3. **时间预算贴着实测上限。** `actual#7827` 用了 54.3 分钟，而 CLI 预算是 55 分钟（`BEST_AGENT_RUN_DURATION_MS=3300000`）；相对任务 `timeout_sec = 3600`，留给模型的比官方 harness 少约 5 分钟（差额用于容器内安装与补提交）。冻结参数不动，比较时披露。
+
+**仍未验证**：全量 44 题，以及官方 `codex` + `deepseek-flash` scorer（缺 `DEEPSEEK_API_KEY` 时一律走回退 scorer）。

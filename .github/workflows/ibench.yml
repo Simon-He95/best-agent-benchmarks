@@ -17,9 +17,9 @@ on:
         type: boolean
         default: false
       ibench_mode:
-        description: full = solve and score; solver-only defers scoring
+        description: full = solve and score; solver-only defers scoring; score = re-grade a finished run
         type: choice
-        options: [full, solver-only]
+        options: [full, solver-only, score]
         default: full
       ibench_tasks:
         description: Optional comma-separated frozen task ids/names (single diagnostic job)
@@ -33,6 +33,10 @@ on:
         description: Parallel trials inside one batch job
         required: false
         default: "2"
+      ibench_source_run:
+        description: Run id whose frozen solve evidence is re-graded (score mode only)
+        required: false
+        default: ""
 
 concurrency:
   group: ibench-${{ github.run_id }}
@@ -123,7 +127,7 @@ jobs:
   ibench-run:
     name: IBench batch ${{ matrix.id }}
     needs: ibench-plan
-    if: ${{ inputs.run_ibench }}
+    if: ${{ inputs.run_ibench && inputs.ibench_mode != 'score' }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
     strategy:
@@ -179,10 +183,98 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+  # Grading is the measurement apparatus, not a property of the harness under
+  # test. IBench freezes the solver's patches in `jobs/solve` and the compiled
+  # score tasks in `compiled/score`, so this job replaces the judge with
+  # `ibench score --overwrite` and never repeats a model attempt.
+  ibench-score:
+    name: Re-grade the finished run
+    needs: ibench-plan
+    if: ${{ inputs.run_ibench && inputs.ibench_mode == 'score' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # A re-grade is only worth running with the published judge: the official
+      # codex + deepseek-flash scorer is what makes a reading comparable to the
+      # published DSH number. Fail here rather than emit a look-alike.
+      - name: Require the official scorer credential
+        if: ${{ env.DEEPSEEK_API_KEY == '' }}
+        run: |
+          echo "score mode requires DEEPSEEK_API_KEY for the official codex + deepseek-flash scorer." >&2
+          exit 1
+
+      - name: Require the source run
+        if: ${{ inputs.ibench_source_run == '' }}
+        run: |
+          echo "score mode requires ibench_source_run: the run id whose frozen solve evidence is re-graded." >&2
+          exit 1
+
+      - name: Free disk space for task images
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Download the frozen solve evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ibench-${{ inputs.ibench_source_run }}-*
+          run-id: ${{ inputs.ibench_source_run }}
+          path: results/ibench
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Re-grade every batch in place
+        env:
+          CONCURRENCY: ${{ inputs.ibench_concurrency }}
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          test -n "$BENCHMARK_PROVIDER_API_KEY"
+          test -n "$DEEPSEEK_API_KEY"
+          first=1
+          for directory in results/ibench/*/; do
+            test -f "$directory/run.json" || continue
+            # The first call owns `uv sync`; the remaining batches reuse that venv.
+            reuse=""
+            if [ "$first" = "0" ]; then reuse="--skip-uv-sync"; fi
+            node scripts/ibench-run.mjs \
+              --score-only \
+              --output "${directory%/}" \
+              --n-concurrent "$CONCURRENCY" \
+              $reuse
+            first=0
+          done
+
+      - name: Make re-graded evidence readable before upload
+        if: always()
+        run: sudo chmod -R a+rX results || true
+
+      - name: Upload the re-graded evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibench-${{ github.run_id }}-regraded
+          path: results/ibench
+          if-no-files-found: warn
+          retention-days: 30
+
   ibench-aggregate:
     name: Aggregate IBench verdicts
-    needs: [ibench-plan, ibench-run]
-    if: ${{ inputs.run_ibench }}
+    needs: [ibench-plan, ibench-run, ibench-score]
+    # A skipped phase is the normal case: one of the two always does not run.
+    if: ${{ always() && inputs.run_ibench && !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
