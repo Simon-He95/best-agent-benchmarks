@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "dataset": {
+    "name": "frontier-harness-eval/eval",
+    "benchmarkLabel": "FrontierHarness Eval v1",
+    "sourceRepository": "frontier-harness-eval/eval",
+    "sourceCommit": "e837a70bd6beb4e72eeeda62dd06e3bd34f6cb63",
+    "benchmarkTaskCount": 30,
+    "taskCount": 30,
+    "terminalBenchSourceRepository": "laude-institute/terminal-bench-2",
+    "terminalBenchSourceCommit": "69671fbaac6d67a7ef0dfec016cc38a64ef7a77c",
+    "deepSweSourceRepository": "datacurve-ai/deep-swe",
+    "deepSweSourceCommit": "435ee89ec2f2e2289f33b0da4f992f0b7b7266b9"
+  },
+  "pier": {
+    "version": "0.3.1",
+    "environment": "docker",
+    "sourceRepository": "datacurve-ai/pier",
+    "sourceTag": "v0.3.1",
+    "sourceCommit": "df89f994623a0a6a57229103b6fe910766693c30"
+  },
+  "cli": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.19",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
+    "target": "linux-x64-gnu"
+  },
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "formal": false,
+  "comparability": "diagnostic self-run on GitHub-hosted runners; not comparable to the published frontierharness.org leaderboard",
+  "gpuExcludedTasks": [],
+  "specificationGapTasks": [],
+  "coverage": {
+    "expected": 1,
+    "expectedEligible": 1,
+    "present": 1,
+    "missing": [],
+    "fullExpected": false
+  },
+  "results": {
+    "passed": 1,
+    "failed": 0,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "budgetExhausted": {
+    "attempts": 0,
+    "passed": 0,
+    "tasks": [],
+    "passedTasks": []
+  },
+  "passRate": 1,
+  "validCells": 1,
+  "passRateValidCells": 1,
+  "scoreable": false,
+  "acceptance": [
+    {
+      "id": "coverage.full",
+      "status": "failed",
+      "detail": "1 of 30 Docker-eligible corpus tasks were predeclared"
+    },
+    {
+      "id": "verdicts.complete",
+      "status": "passed",
+      "detail": "1 present, 0 missing, 0 error, 0 not-evaluated"
+    },
+    {
+      "id": "candidate.single",
+      "status": "passed",
+      "detail": "1 records agree on one frozen candidate (cli-0.0.19-8a86cdb-d636ff4806c3|0.0.19|d636ff4806c3866018119a1825d31f1714d8e27df5d8fd99d54d83f765ae3de4|00aef56b7611f40fa7405c572f08c314126d48207f09cdb32c8d23225fb44aea)"
+    },
+    {
+      "id": "provider.single",
+      "status": "passed",
+      "detail": "model(s) glm-5.3 at reasoning effort high; the frozen profile is glm-5.3"
+    },
+    {
+      "id": "instructions.frozen",
+      "status": "passed",
+      "detail": "1 records match the frozen instruction hash of their task"
+    }
+  ],
+  "capabilityMeasurement": false,
+  "passAt1": null,
+  "usage": {
+    "tasks": 1,
+    "promptTokens": 603773,
+    "completionTokens": 26165,
+    "cacheReadTokens": 567168,
+    "totalTokens": 629938,
+    "modelCallCount": 18,
+    "costUsd": null
+  },
+  "perTask": [
+    {
+      "task": "terminal-bench/regex-log",
+      "disposition": "passed",
+      "budgetExhausted": false,
+      "rewards": {
+        "reward": 1
+      },
+      "durationMs": 755826,
+      "usage": {
+        "promptTokens": 603773,
+        "completionTokens": 26165,
+        "cacheReadTokens": 567168,
+        "costUsd": null,
+        "totalTokens": 629938,
+        "cacheWriteTokens": 0,
+        "noCacheInputTokens": 36605,
+        "modelCallCount": 18,
+        "reportedCallCount": 18,
+        "reportedInputTokens": 603773
+      },
+      "evidenceSha256": "4ea81d987997ea7c7dd5de50d027edae4654a9747ed8e77465554036bdc749a9",
+      "batchId": "exec-schema-candidate-v2-smoke-20261031"
+    }
+  ]
+}

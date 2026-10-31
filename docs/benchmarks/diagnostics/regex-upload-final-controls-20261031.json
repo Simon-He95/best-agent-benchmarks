@@ -1,0 +1,25 @@
+{
+  "source": "2025c0bba827457a71a4e547f46f019e7ff8d03d",
+  "verified": [
+    {
+      "file": "candidate-final-http.json",
+      "sha256": "0017e5d12aeb3919c8097ed928dc0d8c77df3bcdfcf6c02355fd39972df5e701",
+      "pairs": 7,
+      "tls": false,
+      "lateAfterAbortNotPromoted": true,
+      "wireReadBodyHashesAndOutcomesUnchanged": true,
+      "oneRequestPerInvocation": true
+    },
+    {
+      "file": "candidate-final-tls.json",
+      "sha256": "49efc1411916a52f76fcb2c61b60ff8e5670b1c84738d139c81b2a4f90d81f28",
+      "pairs": 7,
+      "tls": true,
+      "lateAfterAbortNotPromoted": true,
+      "wireReadBodyHashesAndOutcomesUnchanged": true,
+      "oneRequestPerInvocation": true
+    }
+  ],
+  "newLiveProviderCalls": 0,
+  "limits": "Actual local ModelBinding/SDK HTTP1+TLS1 controls. Paired source ModelRequests and mode unchanged; local-test model/endpoint/effort settings are fixtures, not a captured original upstream wire or proof of remote receipt."
+}

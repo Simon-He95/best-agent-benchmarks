@@ -544,6 +544,64 @@ test("stagePierTask copies the source task verbatim with network normalization",
   );
 });
 
+test("a first-call budget stop preserves the verifier reward without pre-model attribution", async () => {
+  const { classifyTrialOutcome } = await import("../scripts/frontier-harness-harness.mjs");
+  const evidenceText = [
+    { type: "header", rootRunId: "primary" },
+    { type: "model-request", resourceId: "primary" },
+    { type: "terminal-snapshot", resourceId: "primary", snapshot: { terminalCause: "stopped" } },
+    { type: "model-failure", resourceId: "primary", failure: { reason: "transport" } },
+    { type: "footer", writtenCounts: { modelRequest: 1, modelOutcome: 0 } },
+  ].map(entry => JSON.stringify(entry)).join("\n");
+  const result = classifyTrialOutcome({
+    trialResult: {
+      verifier_result: { rewards: { reward: 0 } },
+      exception_info: { exception_type: "NonZeroAgentExitCodeError", exception_message: "exit 1" },
+    },
+    evidenceText,
+  });
+  assert.equal(result.disposition, "failed");
+  assert.deepEqual(result.rewards, { reward: 0 });
+  assert.equal(result.modelRequests, 1);
+  assert.equal(result.modelOutcomes, 0);
+  assert.equal(result.terminalCause, "stopped");
+  assert.equal(result.preModelFailure, undefined);
+  const legacy = classifyTrialOutcome({
+    trialResult: { verifier_result: { rewards: { reward: 0 } }, exception_info: { exception_type: "NonZeroAgentExitCodeError" } },
+    evidenceText: [
+      { type: "model-request" },
+      { type: "terminal-snapshot", snapshot: { terminalCause: "stopped" } },
+      { type: "footer", writtenCounts: { modelRequest: 0, modelOutcome: 0 } },
+    ].map(entry => JSON.stringify(entry)).join("\n"),
+  });
+  assert.equal(legacy.preModelFailure, undefined);
+  assert.equal(legacy.modelRequests, 1);
+});
+
+test("pre-model attribution requires recorded zero requests and retains its source reward", async () => {
+  const { classifyTrialOutcome } = await import("../scripts/frontier-harness-harness.mjs");
+  const evidenceText = [
+    { type: "header", rootRunId: "primary" },
+    { type: "terminal-snapshot", resourceId: "primary", snapshot: { terminalCause: "context-unavailable" } },
+    { type: "footer", complete: true, writtenCounts: { modelRequest: 0, modelOutcome: 0 } },
+  ].map(entry => JSON.stringify(entry)).join("\n");
+  const result = classifyTrialOutcome({
+    trialResult: { verifier_result: { rewards: { reward: 0 } }, exception_info: { exception_type: "RuntimeError", exception_message: "before model" } },
+    evidenceText,
+  });
+  assert.equal(result.disposition, "error");
+  assert.equal(result.preModelFailure, true);
+  assert.equal(result.modelRequests, 0);
+  assert.deepEqual(result.rewards, { reward: 0 });
+  const incomplete = classifyTrialOutcome({
+    trialResult: { verifier_result: { rewards: { reward: 0 } }, exception_info: { exception_type: "RuntimeError" } },
+    evidenceText: JSON.stringify({ type: "footer", complete: false, writtenCounts: { modelRequest: 0, modelOutcome: 0 } }),
+  });
+  assert.equal(incomplete.modelRequests, null);
+  assert.equal(incomplete.preModelFailure, undefined);
+  assert.deepEqual(incomplete.rewards, { reward: 0 });
+});
+
 test("classifyTrialOutcome marks pre-model provider deaths as errors", async () => {
   const { classifyTrialOutcome, summarizeAttemptEvidence } = await import(
     `../scripts/frontier-harness-harness.mjs?unit=${Date.now()}`
@@ -553,6 +611,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   assert.deepEqual(summarizeAttemptEvidence(undefined), {
     present: false,
     modelOutcomes: null,
+    modelRequests: null,
     terminalCause: null,
     modelFailureReasons: [],
   });
@@ -566,6 +625,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   assert.deepEqual(summarizeAttemptEvidence(footerEvidence), {
     present: true,
     modelOutcomes: 0,
+    modelRequests: 1,
     terminalCause: "model-failure",
     modelFailureReasons: ["transport"],
   });
@@ -578,6 +638,7 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
   assert.deepEqual(summarizeAttemptEvidence(countedEvidence), {
     present: true,
     modelOutcomes: 2,
+    modelRequests: null,
     terminalCause: "completed",
     modelFailureReasons: [],
   });
@@ -635,12 +696,12 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
       rewards: { reward: 0 },
       exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
       modelOutcomes: 2,
+      modelRequests: null,
       terminalCause: "completed",
     },
   );
-  // A pre-model provider death: the CLI errored before receiving any model
-  // response, so the graded 0 is an environment/provider failure, not a task
-  // failure.
+  // A request was entered but its terminal is a classified provider failure.
+  // Keep that disposition and its original verifier reward, without calling it pre-model.
   assert.deepEqual(
     classifyTrialOutcome({
       trialResult: {
@@ -652,8 +713,10 @@ test("classifyTrialOutcome marks pre-model provider deaths as errors", async () 
     {
       disposition: "error",
       exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
-      preModelFailure: true,
+      infraFailure: true,
+      rewards: { reward: 0 },
       modelOutcomes: 0,
+      modelRequests: 1,
       terminalCause: "model-failure",
     },
   );
@@ -699,6 +762,7 @@ test("delivery Run evidence cannot replace the primary failure or its model coun
   assert.deepEqual(summarizeAttemptEvidence(evidence), {
     present: true,
     modelOutcomes: 0,
+    modelRequests: null,
     terminalCause: "stopped",
     deliveryTerminalCause: "completed",
     modelFailureReasons: [],
@@ -708,8 +772,8 @@ test("delivery Run evidence cannot replace the primary failure or its model coun
     {
       disposition: "error",
       exception: { type: "killed", message: "" },
-      preModelFailure: true,
       modelOutcomes: 0,
+      modelRequests: null,
       terminalCause: "stopped",
       deliveryTerminalCause: "completed",
     },
@@ -738,6 +802,7 @@ test("classifyTrialOutcome marks post-response provider deaths as errors", async
   assert.deepEqual(summarizeAttemptEvidence(transportEvidence), {
     present: true,
     modelOutcomes: 2,
+    modelRequests: null,
     terminalCause: "model-failure",
     modelFailureReasons: ["transport"],
   });
@@ -753,7 +818,9 @@ test("classifyTrialOutcome marks post-response provider deaths as errors", async
       disposition: "error",
       exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
       infraFailure: true,
+      rewards: { reward: 0 },
       modelOutcomes: 2,
+      modelRequests: null,
       terminalCause: "model-failure",
     },
   );
@@ -770,6 +837,7 @@ test("classifyTrialOutcome marks post-response provider deaths as errors", async
   assert.deepEqual(summarizeAttemptEvidence(connectionEvidence), {
     present: true,
     modelOutcomes: 1,
+    modelRequests: null,
     terminalCause: "model-failure",
     modelFailureReasons: ["connection"],
   });
@@ -785,7 +853,9 @@ test("classifyTrialOutcome marks post-response provider deaths as errors", async
       disposition: "error",
       exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
       infraFailure: true,
+      rewards: { reward: 0 },
       modelOutcomes: 1,
+      modelRequests: null,
       terminalCause: "model-failure",
     },
   );
@@ -810,6 +880,7 @@ test("classifyTrialOutcome marks post-response provider deaths as errors", async
       rewards: { reward: 0 },
       exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
       modelOutcomes: 1,
+      modelRequests: null,
       terminalCause: "model-failure",
     },
   );
@@ -1012,6 +1083,7 @@ test("classifyTrialOutcome grades a run whose fatal failure was its own budget",
     rewards: { reward: 0 },
     exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
     modelOutcomes: 2,
+    modelRequests: null,
     terminalCause: "model-failure",
   });
 
@@ -1029,7 +1101,9 @@ test("classifyTrialOutcome grades a run whose fatal failure was its own budget",
     disposition: "error",
     exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
     infraFailure: true,
+    rewards: { reward: 0 },
     modelOutcomes: 2,
+    modelRequests: null,
     terminalCause: "model-failure",
   });
 
@@ -1048,6 +1122,7 @@ test("classifyTrialOutcome grades a run whose fatal failure was its own budget",
     rewards: { reward: 0 },
     exception: { type: "NonZeroAgentExitCodeError", message: "Command failed (exit 1)" },
     modelOutcomes: 2,
+    modelRequests: null,
     terminalCause: "model-failure",
   });
 
@@ -1596,6 +1671,7 @@ test("an attempt's evidence is summarized from bytes, so a huge file cannot cost
   assert.deepEqual(byText, {
     present: true,
     modelOutcomes: 1,
+    modelRequests: null,
     terminalCause: "model-failure",
     modelFailureReasons: ["transport"],
   });

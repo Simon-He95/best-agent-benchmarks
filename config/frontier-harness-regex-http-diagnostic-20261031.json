@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "kind": "diagnostic-single-cell",
+  "diagnosticOnly": true,
+  "passAt1": null,
+  "profileId": "frontier-harness-v1.0-e837a70b",
+  "diagnosticPolicyVersion": "model-http-v2-reward-preserving-transcription",
+  "batchLabel": "regex-http-diagnostic-20261031",
+  "requestedBy": "User, 2026-10-31: fix the proven transcription bug and retain raw rewards; add HTTP phase diagnostics without changing call mode, retries or timeouts; use one new regex-log run. Do not change historical records or merge.",
+  "candidatePin": {
+    "packageName": "@best-agent/cli-linux-x64-gnu",
+    "cliVersion": "0.0.19",
+    "sourceRepository": "Simon-He95/best-agent",
+    "sourceCommit": "1189b3687806eb02385baf8d77c545980effb502",
+    "target": "linux-x64-gnu"
+  },
+  "baselineSourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
+  "provider": {
+    "kind": "openai",
+    "model": "glm-5.3",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "reasoningEffortOptions": [
+      "max",
+      "high"
+    ],
+    "transportProfile": "dim-oauth"
+  },
+  "expectedTasks": [
+    "terminal-bench/regex-log"
+  ],
+  "harnessDelta": {
+    "summary": "The summary counts primary model-request events, marks pre-model only on observed zero requests and zero outcomes, and preserves verifier rewards in error dispositions. A stopped first invocation with a source reward is graded from that verifier reward in this new policy.",
+    "historicalRecordSha256": "626cdae1c9b0d0205c5b9af7cf32cfede4a49f9c6532db8f84100414371856fc",
+    "historicalDisposition": "run41093852204 regex-log remains error and passAt1 remains null; no old record is regenerated or reinterpreted.",
+    "sourceReplay": "Old raw trial stores reward0, one model request and cancelled/stopped. New transcriber replay returns failed with reward0 and modelRequests1, without preModelFailure; this replay is a regression test, not a replacement prediction."
+  },
+  "diagnostics": {
+    "recordEncodingVersion": 2,
+    "transport": "Same generateText/streamText selection, dispatcher, handler method presence/receiver/return values, request bytes, AbortSignal and maxRetries0; header/body response timeout settings stay0.",
+    "metadataOnly": [
+      "phase",
+      "elapsed time",
+      "HTTP status",
+      "body byte count",
+      "first/last body timing",
+      "connection callback count",
+      "signal aborted"
+    ],
+    "privacy": "No URLs, request/response headers, credentials, bodies, reasoning or tool arguments in model-http rows. Existing model/terminal evidence remains unchanged in role.",
+    "newRequestMode": false,
+    "newTimeout": false,
+    "newRetry": false,
+    "newPromptOrToolDefinition": false
+  },
+  "budgets": {
+    "taskAttemptMs": 900000,
+    "modelInvocationMs": 1800000,
+    "agentTimeoutMultiplier": 1,
+    "applicationReserveMs": 60000
+  },
+  "dispatchInputs": {
+    "fh_run": true,
+    "fh_smoke": false,
+    "fh_run_full": false,
+    "fh_reasoning_effort": "high",
+    "fh_agent_timeout_multiplier": "1",
+    "fh_max_parallel": "8",
+    "fh_batch": "regex-http-diagnostic-20261031",
+    "fh_prefix": "",
+    "fh_filtered_egress": false,
+    "fh_require_clean": false,
+    "fh_image_mirror": "{\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:e0b0410d828b816474cfb89a448c448f15cf7d617c3fbddfacd45a1c1b232ef9\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71gkadwafw4ry4r6g37era0182qpms-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:8fc7209012a27d12aeaa96f4bd30579442c2817c64bca45bf10e634950892486\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:459b6d4c5f8d45218b25d0837a88d91052d0fb066c21b8bc2939290c4876b3ae\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7398skqnxqwg9hbmdj7ncmk1822aa0-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:43ce618452b29610b682ea77e384dcb8c57308957a7eb65734a47d76a7ff47dc\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh719np6e210pf8skawv132rw183pfyy-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:06309d9ef75ee48bc5aa98258af57a6d102057983871513b5de91d6a9ead0f9a\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75azsnb5eqs3mf4xm0zkzha582rvcd-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:b8c599ce29c14f9e729b3bab32ab7c1d3278b42f98308e74d299bb15e36758c6\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71j0gr2axgn6v1f92cam6s6x82rkv6-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:483e18c744ab845e5c776f514d4bc27f7e3ff66494f14f20173c73b065bc6f62\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79betfed7ets4an20cr4j57182y9wt-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:4fb704fd8dff600f6d028c20ae4aca5e1261968bb615bb41c01a111dd371255b\",\"public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fr6f1yw1289ye5ttsfvaqen8319dq-v1.1\":\"ghcr.io/simon-he95/best-agent-benchmarks/swe-bench-202605@sha256:47d0af14d988caa7d22b14312be2c3ee4e9ac799a5679bd83d19f298d346749d\"}",
+    "fh_tasks": "terminal-bench/regex-log",
+    "fh_limit": "1"
+  },
+  "attemptPolicy": {
+    "newDeclaredSolverAttempts": 1,
+    "extraSmoke": false,
+    "rerunOldAttempt": false,
+    "recoveryOrRepair": false,
+    "retryOnFailure": false,
+    "npmPublication": false,
+    "merge": false
+  },
+  "readingRules": [
+    "Read canonical task verdict/rewards and exception separately; retain raw verifier rewards even on an error. A diagnostic subset never claims passAt1 or a success-rate improvement.",
+    "Verify actual ModelRequest instructions/tools and non-streaming mode against the prior source, disclosing normal environment/date differences. Do not change the frozen model/high effort/budgets/grader/collect behavior.",
+    "Check one invocation and actual dispatcher request sequence; inspect phase timing and status/byte counters before any root-cause claim. Connection-ready may be reused connectivity, not fresh DNS/TLS proof.",
+    "A new successful or failed request does not retroactively determine why the uncaptured old request waited. Preserve source errors, terminal, complete footer/count/hash facts and any gaps.",
+    "If the call stops, report the last actually observed phase and counters, without inferring a provider outage from transport or inventing absent headers/body facts.",
+    "No task retry, best-of-N, verdict replacement, timeout tuning, prompt change, streaming toggle, fallback or additional task is authorized by this manifest. Public egress is not a closed-book claim."
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "run": 41157675261,
+  "source": "1189b3687806eb02385baf8d77c545980effb502",
+  "benchmarkHead": "5bb30ef987b23b01dcd779cfeb72dcf9df5bd11e",
+  "canonicalResults": {
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "sourceVerifierReward": {
+    "reward": 0.0
+  },
+  "recordReward": {
+    "reward": 0
+  },
+  "modelRequests": 1,
+  "modelOutcomes": 0,
+  "httpDispatcherRequests": 1,
+  "httpConnectionCallbacks": 1,
+  "modelHttpRecords": [
+    {
+      "type": "model-http",
+      "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+      "resourceId": "[\"best-agent-cli-run\",1,1]",
+      "runId": "[\"best-agent-cli-run\",1,1]",
+      "invocationElapsedMs": 10,
+      "http": {
+        "phase": "request-start",
+        "requestSequence": 1,
+        "elapsedMs": 0,
+        "bodyBytes": 0,
+        "connectionCount": 0,
+        "signalAborted": false
+      },
+      "sequence": 2
+    },
+    {
+      "type": "model-http",
+      "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+      "resourceId": "[\"best-agent-cli-run\",1,1]",
+      "runId": "[\"best-agent-cli-run\",1,1]",
+      "invocationElapsedMs": 594,
+      "http": {
+        "phase": "connection-ready",
+        "requestSequence": 1,
+        "elapsedMs": 584,
+        "bodyBytes": 0,
+        "connectionCount": 1,
+        "signalAborted": false
+      },
+      "sequence": 3
+    },
+    {
+      "type": "model-http",
+      "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+      "resourceId": "[\"best-agent-cli-run\",1,1]",
+      "runId": "[\"best-agent-cli-run\",1,1]",
+      "invocationElapsedMs": 839318,
+      "http": {
+        "phase": "error",
+        "requestSequence": 1,
+        "elapsedMs": 839307,
+        "bodyBytes": 0,
+        "connectionCount": 1,
+        "signalAborted": true
+      },
+      "sequence": 4
+    }
+  ],
+  "noFinalResponseHeadersObserved": true,
+  "responseBodyBytes": 0,
+  "bindingToHttpDispatchMs": 10,
+  "connectionReadyAtInvocationMs": 594,
+  "connectionToAbortWithoutFinalHeadersMs": 838723,
+  "modelInvocationDurationMs": 839334,
+  "terminal": "cancelled/stopped",
+  "completeEvidenceVerified": true,
+  "evidenceSha256": "377beca592b4a9c55bd89c48d2a7961fc15d85b5ad6f72d4e018e56916cdc589",
+  "reportSha256": "3e3f30bd14a082091d54ef769d2ebac73f63da0ab83e03612dd7c9435b7b61af",
+  "firstRequestComparedWithPriorFailedRun": {
+    "instructions": true,
+    "messages": true,
+    "externalContext": false,
+    "tools": true
+  },
+  "interpretation": "The observed wait is after connection availability and before final response headers. No response body reached the dispatcher. It is not observed JSON/body processing or local request assembly delay. Client upload/link/TLS-peer/server queue/inference cannot be distinguished further; no upstream root cause or HTTP status is invented. The error event is observed with the existing signal aborted by the attempt boundary, not proof of an independent network outage.",
+  "notTaskSuccessImprovement": true,
+  "noRetryOrTimeoutOrCallModeChange": true,
+  "priorCanonicalRecordsUnchanged": true,
+  "environmentContextDifference": "Only the normal admitted date changes from 2026-10-30 to 2026-10-31; instructions, user messages and all tools match the old failed attempt.",
+  "rootCauseLimits": "No final response headers were observed after the connection-availability callback. Upload completion, remote receipt, TLS/link behavior, provider queue and provider reasoning cannot be separated by these observations. Do not claim the provider received and processed the request, or that the old request had the same phase.",
+  "providerUsageAvailable": false,
+  "sourceGate": {
+    "sourceCommit": "1189b3687806eb02385baf8d77c545980effb502",
+    "fullPnpmTestExit": 0,
+    "localRealHttpAndBuiltCliTests": true,
+    "newSolverAttempts": 1,
+    "typecheckExit": 0,
+    "lintExit": 0,
+    "formatCheckExit": 0,
+    "docsExit": 0
+  }
+}

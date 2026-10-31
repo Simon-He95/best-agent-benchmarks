@@ -1,0 +1,210 @@
+{
+  "run": 41163904206,
+  "source": "2025c0bba827457a71a4e547f46f019e7ff8d03d",
+  "reportSha256": "82b3d546734b95f4c55fe95761e98465f38ff22aa7db402a4046440fd34ab020",
+  "evidenceSha256": "7bc6f9c5afbd8d3b7c198244630447dfd5519ea3f2795d1e9346a4c692f09db4",
+  "results": {
+    "passed": 0,
+    "failed": 1,
+    "error": 0,
+    "notEvaluated": 0
+  },
+  "coverage": {
+    "expected": 1,
+    "expectedEligible": 1,
+    "present": 1,
+    "missing": [],
+    "fullExpected": false
+  },
+  "passAt1": null,
+  "durationMs": 879320,
+  "providerReportedUsage": null,
+  "primaryModelRequests": 1,
+  "primaryModelOutcomes": 0,
+  "primaryModelFailures": 1,
+  "http": [
+    {
+      "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+      "requestSequence": 1,
+      "events": [
+        {
+          "type": "model-http",
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+          "resourceId": "[\"best-agent-cli-run\",1,1]",
+          "runId": "[\"best-agent-cli-run\",1,1]",
+          "invocationElapsedMs": 14,
+          "http": {
+            "phase": "request-start",
+            "requestSequence": 1,
+            "elapsedMs": 0,
+            "bodyBytes": 0,
+            "connectionCount": 0,
+            "signalAborted": false,
+            "requestBodyBytes": null,
+            "requestBodySentBeforeAbort": null
+          },
+          "sequence": 2
+        },
+        {
+          "type": "model-http",
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+          "resourceId": "[\"best-agent-cli-run\",1,1]",
+          "runId": "[\"best-agent-cli-run\",1,1]",
+          "invocationElapsedMs": 453,
+          "http": {
+            "phase": "connection-ready",
+            "requestSequence": 1,
+            "elapsedMs": 439,
+            "bodyBytes": 0,
+            "connectionCount": 1,
+            "signalAborted": false,
+            "requestBodyBytes": 0,
+            "requestBodySentBeforeAbort": false
+          },
+          "sequence": 3
+        },
+        {
+          "type": "model-http",
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+          "resourceId": "[\"best-agent-cli-run\",1,1]",
+          "runId": "[\"best-agent-cli-run\",1,1]",
+          "invocationElapsedMs": 457,
+          "http": {
+            "phase": "request-body-sent",
+            "requestSequence": 1,
+            "elapsedMs": 443,
+            "bodyBytes": 0,
+            "connectionCount": 1,
+            "signalAborted": false,
+            "requestBodyBytes": 46923,
+            "requestBodySentBeforeAbort": true,
+            "requestBodySentMs": 443,
+            "writableLength": 0,
+            "writableNeedDrain": false
+          },
+          "sequence": 4
+        },
+        {
+          "type": "model-http",
+          "invocationId": "[\"model\",\"[\\\"best-agent-cli-run\\\",1,1]\",1]",
+          "resourceId": "[\"best-agent-cli-run\",1,1]",
+          "runId": "[\"best-agent-cli-run\",1,1]",
+          "invocationElapsedMs": 839181,
+          "http": {
+            "phase": "error",
+            "requestSequence": 1,
+            "elapsedMs": 839167,
+            "bodyBytes": 0,
+            "connectionCount": 1,
+            "signalAborted": true,
+            "requestBodyBytes": 46923,
+            "requestBodySentBeforeAbort": true,
+            "requestBodySentMs": 443,
+            "writableLength": 0,
+            "writableNeedDrain": false
+          },
+          "sequence": 5
+        }
+      ],
+      "records": 4,
+      "completedBodyBeforeAbort": true,
+      "lastLocalBuffer": 0,
+      "lastNeedDrain": false,
+      "headersObserved": false
+    }
+  ],
+  "completeEvidenceVerified": true,
+  "integrity": {
+    "footerComplete": true,
+    "countsMatch": true,
+    "sequenceContinuous": true,
+    "prefixHashMatches": true
+  },
+  "firstRequestComparedWith41157675261": {
+    "instructions": true,
+    "messages": true,
+    "externalContext": true,
+    "tools": true
+  },
+  "scope": "Existing root evidence scope only; a complete footer is not proof of full child coverage. Local submission is not remote receipt or model start. No provider usage for a pending response is unknown cost, not zero.",
+  "sourceVerifierReward": {
+    "reward": 0.0
+  },
+  "recordResult": {
+    "disposition": "failed",
+    "rewards": {
+      "reward": 0
+    },
+    "modelOutcomes": 0,
+    "modelRequests": 1,
+    "terminalCause": "stopped"
+  },
+  "originalExceptionType": "NonZeroAgentExitCodeError",
+  "terminal": [
+    {
+      "status": "cancelled",
+      "terminalCause": "stopped"
+    }
+  ],
+  "modelInvocationDurationMs": 839201,
+  "httpDispatcherRequests": 1,
+  "acceptedToolCalls": 0,
+  "attemptTiming": {
+    "attemptBudgetMs": 900000,
+    "wrapperElapsedMs": 706,
+    "attemptRemainingMs": 899294,
+    "modelTimeoutMs": 1800000
+  },
+  "historicalCanonicalHashesUnchanged": true,
+  "cliBinarySha256": "818239fa92b423ec1dda89532951cead1a77362af9c5406ea8d06b42fb4271ad",
+  "candidateManifestSha256": "0578e1b75e1ec9b31c665a66e1d74927719c33ac805d2b3cb2a4fa6571a36e40",
+  "taskInstructionSha256": "4f7ac05e70cf9220ea0f1e5a052c5f908cd0fa884e847d80b0bd51bae2e96f9c",
+  "interpretation": "The body submission was observed before abort at invocation457ms, with46923 bytes and no local writable backlog. Thereafter838724ms elapsed without final response headers or response body until the existing task boundary stopped the Run. This is a client-submission-complete wait, not evidence of remote receipt or of which link/proxy/provider queue/inference stage is responsible. Local buffers and submitted bytes are not billed tokens.",
+  "integrationReview": "The source integration head544013987 merges current main and renumbers the diagnostic spec523. Diagnostic/CLI producer and exec implementation bytes match tested2025 exactly; integration gates are separately recorded and not borrowed from2025.",
+  "artifactIdentityVerification": {
+    "candidateManifestSha256": "0578e1b75e1ec9b31c665a66e1d74927719c33ac805d2b3cb2a4fa6571a36e40",
+    "buildReportSha256": "18b38a1163079a3745046f49351a03d65273d74f9bcab855232d8dd4ec121ef9",
+    "deliveryReceiptSha256": "3d8453fae2180b282ccff63c213297e8621fb46f84d5b37343432179289cdb75",
+    "deliveryVerified": true,
+    "deliveryChecks": [
+      {
+        "id": "packaging.files",
+        "status": "passed",
+        "detail": "best-agent-cli.tgz, build-report.json, candidate.json"
+      },
+      {
+        "id": "packaging.receipt",
+        "status": "passed",
+        "detail": "@best-agent/cli-linux-x64-gnu@0.0.19 linux-x64-gnu 2025c0b"
+      },
+      {
+        "id": "packaging.bytes",
+        "status": "passed",
+        "detail": "tarball ce095c679510 matches the receipt"
+      },
+      {
+        "id": "packaging.tarball",
+        "status": "passed",
+        "detail": "8656 members incl. bin/best-agent, bin/cpu-supervisor, bin/workspace-read-helper"
+      },
+      {
+        "id": "packaging.runtimeClosure",
+        "status": "passed",
+        "detail": "4 runtime dependencies present"
+      },
+      {
+        "id": "typecheck.source",
+        "status": "passed",
+        "detail": "pnpm typecheck (pnpm typecheck:tui) exited 0"
+      },
+      {
+        "id": "runtime.binary",
+        "status": "passed",
+        "detail": "best-agent --version -> 0.0.19; packaged node -> v24.15.0"
+      }
+    ],
+    "readMethod": "ZIP central-directory and entry byte ranges, CRC/size checked against the same GitHub artifact; no signed URL retained",
+    "independentlyRehashedFullBinary": false,
+    "fullArchiveDownloadFailure": "unexpected EOF after partial download; retained as a verification limit, not a solver retry"
+  }
+}
