@@ -9,6 +9,7 @@ import { aggregateReports, frozenTaskIds, renderAggregateMarkdown } from "../scr
 import {
   computeReport,
   materializeProvider,
+  parseArgs,
   renderReportMarkdown,
   selectTasks,
   verifyFileSha256,
@@ -65,6 +66,16 @@ test("selectTasks applies offset, shard and limit over release order", () => {
   assert.deepEqual(selectTasks(TASKS, { shard: 1, shardTotal: 2 }).map((task) => task.id), ["task-b"]);
   assert.deepEqual(selectTasks(TASKS, { limit: 2 }).map((task) => task.id), ["task-a", "task-b"]);
   assert.throws(() => selectTasks(TASKS, { limit: 0 }), /positive/u);
+});
+
+test("parseArgs keeps re-grading separate from solving", () => {
+  const parsed = parseArgs(["--score-only", "--output", "results/ibench/b01", "--score-config", "scorer.json"]);
+  assert.equal(parsed.scoreOnly, true);
+  assert.equal(parsed.solverOnly, false);
+  assert.match(parsed.output, /results\/ibench\/b01$/u);
+  // A run cannot be solved and re-graded by the same invocation.
+  assert.throws(() => parseArgs(["--score-only", "--solver-only"]), /opposite ends/u);
+  assert.throws(() => parseArgs(["--score-only", "--dry-run"]), /no plan to print/u);
 });
 
 test("verifyFileSha256 accepts exact bytes and rejects a different manifest", () => {

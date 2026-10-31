@@ -23,6 +23,7 @@
  *   --score-config <path>    Harbor JobConfig for scoring
  *   --n-concurrent <n>       parallel trials (default from the profile)
  *   --solver-only            stop after collecting patches; score later
+ *   --score-only             re-grade an existing run in place, no solver rerun
  *   --ibench-source <path>   IBench checkout (default .tmp/ibench-<sha8>)
  *   --skip-uv-sync           reuse an existing environment
  *   --skip-base-image        do not build the shared ibench-dev image
@@ -58,6 +59,7 @@ export function parseArgs(argv) {
     scoreConfig: undefined,
     nConcurrent: undefined,
     solverOnly: false,
+    scoreOnly: false,
     ibenchSource: undefined,
     skipUvSync: false,
     skipBaseImage: false,
@@ -82,6 +84,7 @@ export function parseArgs(argv) {
       case "--score-config": options.scoreConfig = resolve(value(arg, index)); index += 1; break;
       case "--n-concurrent": options.nConcurrent = Number(value(arg, index)); index += 1; break;
       case "--solver-only": options.solverOnly = true; break;
+      case "--score-only": options.scoreOnly = true; break;
       case "--ibench-source": options.ibenchSource = resolve(value(arg, index)); index += 1; break;
       case "--skip-uv-sync": options.skipUvSync = true; break;
       case "--skip-base-image": options.skipBaseImage = true; break;
@@ -92,6 +95,12 @@ export function parseArgs(argv) {
   }
   if (options.taskIds !== undefined && (options.limit !== undefined || options.shard !== undefined)) {
     throw new Error("--tasks cannot be combined with --limit or --shard.");
+  }
+  if (options.scoreOnly && options.solverOnly) {
+    throw new Error("--score-only and --solver-only are opposite ends of the same run.");
+  }
+  if (options.scoreOnly && options.dryRun) {
+    throw new Error("--score-only grades an existing run and has no plan to print.");
   }
   if ((options.shard === undefined) !== (options.shardTotal === undefined)) {
     throw new Error("--shard and --shard-total must be given together.");
@@ -418,6 +427,93 @@ async function ensureBaseImage(source, version) {
   return image;
 }
 
+/**
+ * Re-grade an existing run in place with a different scorer.
+ *
+ * IBench keeps the solver's frozen patches in `jobs/solve` and the compiled
+ * score tasks in `compiled/score`, so `ibench score --overwrite` replaces the
+ * judge without repeating a single model attempt. That is what lets a run be
+ * solved once and then graded by the official scorer, keeping the harness
+ * reading and the judge independent.
+ */
+async function scoreExistingRun({ options, profile, source, output, scorer, nConcurrent }) {
+  const resultsPath = join(output, "results.json");
+  const reportPath = join(output, "ibench-report.json");
+  const previous = existsSync(reportPath) ? readJson(reportPath) : undefined;
+  const results = readJson(resultsPath);
+  const tasks = previous?.tasks?.length
+    ? previous.tasks.map(({ id, name }) => ({ id, name }))
+    : (results.trials ?? []).map((trial) => ({
+        id: trial.task_id,
+        name: trial.task_name ?? trial.task_id,
+      }));
+  if (tasks.length === 0) throw new Error(`${output} has no task to grade.`);
+  const runId = previous?.runId ?? process.env.IBENCH_RUN_ID ?? `score-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+
+  const providerDir = join(repoRoot, ".tmp", `ibench-provider-${process.pid}`);
+  mkdirSync(providerDir, { recursive: true });
+  const credential = resolveProviderCredential();
+  const provider = materializeProvider({
+    profile: profile.provider,
+    directory: providerDir,
+    token: credential.token,
+    credentialRef: credential.credentialRef,
+    auth: credential.auth,
+  });
+  try {
+    if (!options.skipUvSync) await run("uv", ["sync", "--frozen"], { cwd: source });
+    await run("uv", [
+      "pip", "install", "--python", join(source, ".venv/bin/python"), "-e", join(repoRoot, "tools/ibench-agent"),
+    ]);
+    if (!options.skipBaseImage) await ensureBaseImage(source, baseImageVersion(source));
+
+    const args = [
+      "run", "--no-sync", "ibench", "score", output,
+      "--config", scorer.config,
+      "--n-concurrent", String(nConcurrent),
+      "--overwrite",
+    ];
+    console.log(`ibench> ${["uv", ...args].join(" ")}`);
+    const started = Date.now();
+    const result = await run("uv", args, {
+      cwd: source,
+      allowFailure: true,
+      env: {
+        BEST_AGENT_PROVIDER_CONFIG: provider.providerConfig,
+        DIMCODE_HOME: provider.dimcodeHome,
+      },
+    });
+    const elapsedMs = Date.now() - started;
+    const graded = readJson(resultsPath);
+    const report = computeReport({
+      profile,
+      release: profile.release,
+      tasks,
+      trials: graded.trials ?? [],
+      run: { solverOnly: false },
+      context: { runId, scorer },
+    });
+    report.ibench = {
+      exitCode: result.code,
+      elapsedMs,
+      phase: graded.phase,
+      success: graded.success,
+      error: graded.error ?? null,
+      regraded: true,
+    };
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+    writeFileSync(join(output, "ibench-report.md"), renderReportMarkdown(report));
+    const rate = report.passRate === null ? "deferred" : `${(report.passRate * 100).toFixed(1)}%`;
+    console.log(
+      `ibench> re-graded ${report.passed}/${report.total} = ${rate} ` +
+        `(scorer: ${scorer.harness}${scorer.official ? "" : ", non-official"}); report: ${join(output, "ibench-report.md")}`,
+    );
+    if (graded.error) console.error(`ibench> score error: ${graded.error}`);
+  } finally {
+    rmSync(providerDir, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
@@ -443,10 +539,19 @@ async function main() {
   });
   const runId = process.env.IBENCH_RUN_ID ?? `${profile.release.commit.slice(0, 8)}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const output = options.output ?? join(repoRoot, "results", "ibench", runId);
-  if (existsSync(output)) throw new Error(`run output already exists: ${output}`);
+  if (options.scoreOnly) {
+    if (options.output === undefined) throw new Error("--score-only requires --output naming an existing run directory.");
+    if (!existsSync(join(output, "results.json"))) throw new Error(`${output} is not an IBench run directory.`);
+  } else if (existsSync(output)) {
+    throw new Error(`run output already exists: ${output}`);
+  }
   const solverConfig = options.solverConfig ?? join(repoRoot, profile.solver.config);
   const scorer = pickScorer(profile, options.scoreConfig);
   const nConcurrent = options.nConcurrent ?? profile.limits.nConcurrent;
+  if (options.scoreOnly) {
+    await scoreExistingRun({ options, profile, source, output, scorer, nConcurrent });
+    return;
+  }
   const declared = {
     runId,
     output,
