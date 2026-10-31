@@ -590,7 +590,7 @@ const PROVIDER_FAILURE_REASONS = new Set(["connection", "transport"]);
  * real recovery cell its record on 2026-10-02 (a 536 MiB attempt evidence file).
  * Splitting the bytes on newlines keeps every string the parser sees line-sized.
  *
- * @returns {{ present: boolean, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
+ * @returns {{ present: boolean, modelRequests: number | null, modelOutcomes: number | null, terminalCause: string | null, modelFailureReasons: string[] }}
  */
 export function summarizeAttemptEvidence(evidenceText) {
   const state = createEvidenceSummary();
@@ -618,6 +618,9 @@ export function summarizeAttemptEvidence(evidenceText) {
  * string or from a file's bytes, is the same computation either way.
  */
 function createEvidenceSummary() {
+  let footerRequests = null;
+  let countedRequests = 0;
+  let primaryRequests = 0;
   let footerOutcomes = null;
   let countedOutcomes = 0;
   let primaryOutcomes = 0;
@@ -641,6 +644,10 @@ function createEvidenceSummary() {
         countedOutcomes += 1;
         if (entry.resourceId === rootRunId) primaryOutcomes += 1;
       }
+      if (entry?.type === "model-request") {
+        countedRequests += 1;
+        if (entry.resourceId === rootRunId) primaryRequests += 1;
+      }
       if (entry?.type === "header") rootRunId = entry.rootRunId;
       if (entry?.type === "model-failure" && (rootRunId === null || entry.resourceId === rootRunId)) {
         // The frozen CLI nests the fact as `failure.reason`; older artifacts
@@ -651,6 +658,9 @@ function createEvidenceSummary() {
         }
       }
       if (entry?.type === "footer" && entry.writtenCounts) {
+        if (Number.isInteger(entry.writtenCounts.modelRequest) && entry.writtenCounts.modelRequest >= 0) {
+          footerRequests = entry.writtenCounts.modelRequest;
+        }
         if (Number.isInteger(entry.writtenCounts.modelOutcome)) {
           footerOutcomes = entry.writtenCounts.modelOutcome;
         }
@@ -668,6 +678,7 @@ function createEvidenceSummary() {
         return {
           present: false,
           modelOutcomes: null,
+          modelRequests: null,
           terminalCause: null,
           modelFailureReasons: [],
         };
@@ -675,6 +686,9 @@ function createEvidenceSummary() {
       return {
         present: true,
         modelOutcomes: rootRunId === null ? footerOutcomes ?? countedOutcomes : primaryOutcomes,
+        modelRequests: rootRunId === null
+          ? countedRequests > 0 ? countedRequests : footerRequests
+          : primaryRequests > 0 ? primaryRequests : footerRequests === 0 && countedRequests === 0 ? 0 : null,
         terminalCause,
         ...(deliveryTerminalCause === null ? {} : { deliveryTerminalCause }),
         modelFailureReasons,
@@ -686,13 +700,10 @@ function createEvidenceSummary() {
 /**
  * Transcribe one Pier trial into the harness disposition vocabulary.
  *
- * The task's own verifier reward is the only grader, but a trial that never
- * received a model answer has no gradeable attempt: either the agent process
- * failed before its first model response (attempt evidence recorded zero model
- * outcomes), or the run ended on a provider transport failure (endpoint
- * unreachable, quota exhausted, gateway error). Both are environment/provider
- * deaths, recorded as `error` — never scored as a task failure — matching the
- * benchmark rule that infrastructure deaths are marked rather than graded.
+ * The task's verifier reward remains visible even when a source exception or
+ * genuine provider failure gives the attempt an error disposition. Zero complete
+ * responses do not establish pre-model failure: a recorded request stopped at
+ * its attempt boundary still reached the model invocation stage.
  *
  * `evidenceText` accepts the evidence's text or its bytes; see
  * `summarizeAttemptEvidence` for why the record path passes bytes.
@@ -719,18 +730,18 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
     };
   }
   const evidenceFields = {
-    ...(evidence.present ? { modelOutcomes: evidence.modelOutcomes } : {}),
+    ...(evidence.present ? { modelOutcomes: evidence.modelOutcomes, modelRequests: evidence.modelRequests } : {}),
     ...(evidence.terminalCause ? { terminalCause: evidence.terminalCause } : {}),
     ...(evidence.deliveryTerminalCause
       ? { deliveryTerminalCause: evidence.deliveryTerminalCause }
       : {}),
   };
-  // The agent process errored out without ever receiving a model response.
-  const preModelFailure = Boolean(exception) && evidence.modelOutcomes === 0;
+  const preModelFailure = Boolean(exception) && evidence.modelRequests === 0 && evidence.modelOutcomes === 0;
   if (preModelFailure) {
     return {
       disposition: "error",
       exception,
+      ...(hasRewards ? { rewards: verifier.rewards } : {}),
       preModelFailure: true,
       ...evidenceFields,
     };
@@ -748,6 +759,7 @@ export function classifyTrialOutcome({ trialResult, evidenceText }) {
     return {
       disposition: "error",
       ...(exception ? { exception } : {}),
+      ...(hasRewards ? { rewards: verifier.rewards } : {}),
       infraFailure: true,
       ...evidenceFields,
     };
@@ -1044,6 +1056,7 @@ async function main() {
       ...(exception === undefined ? {} : { exception }),
       ...(outcome.preModelFailure ? { preModelFailure: true } : {}),
       ...(outcome.modelOutcomes === undefined ? {} : { modelOutcomes: outcome.modelOutcomes }),
+      ...(outcome.modelRequests === undefined ? {} : { modelRequests: outcome.modelRequests }),
       ...(outcome.terminalCause ? { terminalCause: outcome.terminalCause } : {}),
       ...(outcome.deliveryTerminalCause
         ? { deliveryTerminalCause: outcome.deliveryTerminalCause }
