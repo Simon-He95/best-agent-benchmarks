@@ -80,6 +80,18 @@ jobs:
             --ibench-source "$RUNNER_TEMP/ibench" \
             --output "$RUNNER_TEMP/ibench-dry-run"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test the installed-agent budget and preparation contract
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --frozen --project "$RUNNER_TEMP/ibench"
+          uv pip install --python "$RUNNER_TEMP/ibench/.venv/bin/python" -e tools/ibench-agent
+          "$RUNNER_TEMP/ibench/.venv/bin/python" test/ibench-agent.test.py
+
   ibench-plan:
     name: Freeze the IBench batch plan
     needs: ibench-check

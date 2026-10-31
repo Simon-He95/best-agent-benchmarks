@@ -25,7 +25,7 @@
   "solver": {
     "config": "config/ibench/solver-best-agent-deepseek-flash-high.json",
     "harness": "best-agent-cli",
-    "label": "best-agent-cli 0.0.19 / deepseek-v4-flash / high"
+    "label": "best-agent-cli 0.0.19 / ibench-adapter 0.2.0 / deepseek-v4-flash / high"
   },
   "scorer": {
     "official": {

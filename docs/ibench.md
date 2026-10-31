@@ -15,7 +15,7 @@ ibench 用 44 个来自真实开源项目合并 PR 的交互缺陷任务，评�
 | --- | --- | --- |
 | 任务集 | 44 题，release `24b0613a`，`tasks/release.json` SHA-256 `e7c351ff…` | `config/ibench.json` |
 | 指令 profile | `intent`（默认，仅用户意图） | `config/ibench.json` |
-| solver harness | `best-agent-cli 0.0.19`，容器内 npm 安装 | `config/ibench/solver-best-agent-deepseek-flash-high.json` |
+| solver harness | `best-agent-cli 0.0.19` + adapter `0.2.0`，容器内 npm 安装 | `config/ibench/solver-best-agent-deepseek-flash-high.json` |
 | solver 模型 | `deepseek-v4-flash`，`reasoningEffort=high`，`dimagent.cn/v1`，`dim-oauth` | `config/ibench.json` |
 | scorer（官方） | `codex 0.160.1` + `deepseek/deepseek-flash` + high，`api.deepseek.com` | `config/ibench/scorer-codex-deepseek-official.json` |
 | scorer（显式诊断） | `best-agent-cli` + `deepseek-v4-flash` + high | `config/ibench/scorer-best-agent-deepseek-flash-high.json` |
@@ -40,9 +40,9 @@ ibench 把每题编译成 Harbor 任务：solve 阶段的容器里是 `/workspac
 1. `install()`：在容器内用现成的 Node/npm 安装 `@best-agent/cli@<pin>` 到 `$HOME/.ibench-best-agent`，并校验 `--version`。
 2. `run()`：上传 `provider.json` 与 `~/.dimcode` 身份文件（`dim-oauth`），以最大权限 profile 启动一次 headless `best-agent run`，产出 `/logs/agent/best-agent-evidence.jsonl`、stdout/stderr 与进程 receipt。
 3. solver 阶段结束后由插件执行 `git add -A` + `git commit`（模型自己已提交则跳过），保证 verifier 能采集到 patch。
-4. 非零退出码被记录而不是抛出：ibench 只按“是否有可信 patch + 评分 verdict”判定，一次失败的 CLI 调用不该被误当成基础设施错误重跑。
+4. 新接入保留 CLI 的 exit/signal，并把非零结果传给 Harbor。CLI 退出后才做限时 Git 收尾；收尾退出/信号/超时另记，不覆盖主结果。Harbor 的现有失败和可信补丁规则保持原样，失败不会自动重跑。
 
-评分阶段复用同一插件，但 `BEST_AGENT_CLI_WORKSPACE=/workspace`、不提交 git（评分 agent 要写 `case-context` 下的 verdict 与证据）。
+显式诊断评分可复用同一插件，但 `BEST_AGENT_CLI_WORKSPACE=/workspace`、不提交 git（评分 agent 要写 `case-context` 下的 verdict 与证据）。
 
 ## 本地运行
 
@@ -162,7 +162,7 @@ run [41151844978](https://github.com/Simon-He95/best-agent-benchmarks/actions/ru
 
 1. **allow-list 在 Linux 上不阻塞 DNS。** 整份产物里 0 处 `getaddrinfo`/`EAI_AGAIN`；四题 solve 的 verifier 均 `reward 1`，四个 score agent 也都在同一 allowlist 下正常出 verdict。上面那条 macOS 症状不适用于 CI。
 2. **一题的 solver 被上下文打满。** `Afilmory#243` 在 21 分钟处以 `context_length_exceeded`（HTTP 400，`invalid_request_error`）退出，CLI `exitCode 1`；它的补丁是崩溃后按工作区最终状态冻结的（HEAD `3fc2309` → `763357e`），因而带着模型调试用的两个 `module-probe.html`。判定不变（本来也没修好），但长轨迹会把窗口吃满。
-3. **时间预算贴着实测上限。** `actual#7827` 用了 54.3 分钟，而 CLI 预算是 55 分钟（`BEST_AGENT_RUN_DURATION_MS=3300000`）；相对任务 `timeout_sec = 3600`，留给模型的比官方 harness 少约 5 分钟（差额用于容器内安装与补提交）。冻结参数不动，比较时披露。
+3. **预算语义更正。** `actual#7827` 用了 54.3 分钟。`BEST_AGENT_RUN_DURATION_MS=3300000` 是会随进展续期的无进展租约，不是 55 分钟尝试预算；旧接入没有据此留出 5 分钟收尾时间。旧运行参数和 verdict 保留，新接入使用实际 Harbor 尝试预算。
 
 **仍未验证**：全量 44 题，以及官方 `codex` + `deepseek-flash` scorer（缺 `DEEPSEEK_API_KEY` 时一律走回退 scorer）。
 
@@ -200,3 +200,58 @@ Harness benefit record：基线/候选使用同一冻结配置及输入。基线
 旧全量运行 [41162502705](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41162502705) 有 10 批、40 题产物；b05 在 `2026-10-31T03:21:27Z` 收到 runner shutdown，exit 143，未上传该批产物。模型已开始，因此不是 pre-model recovery。本次用户明确选择现有 dimagent 凭据的 solver-only；预声明见 `config/ibench-solver-only-b05-20261031.json`：只对 b05 四题各增加一次诊断尝试，候选、模型、effort、任务预算保持冻结值，评分延后。旧运行与 verdict 均保留，不把本次与旧 40 题拼成严格 pass@1，不把诊断运行声明为 DSH 7/44 的正式比较。
 
 调度收据：[41197692944](https://github.com/Simon-He95/best-agent-benchmarks/actions/runs/41197692944)，`2026-10-31T11:38:30Z`，冻结 wrapper commit `a933456e373425a2d8537e879b47508000f4b63b`，分支 `codex/ibench-ci-comparison`。输入为预声明的四个 task ID、`run_ibench=true`、`ibench_mode=solver-only`、`ibench_concurrency=2`；仅触发一次，没有取消或重启旧运行。任务结果待运行完成；没有据队列状态推断任务通过。
+
+
+## Adapter 0.2.0：真实预算与初始环境
+
+本次用户只授权 P0/P1 和自有小任务验证；没有启动或重跑公开 benchmark，也不改 exec/process 上限、coding 指令、官方任务或评分器。CLI 仍冻结在 `0.0.19`，solver label 增加 `ibench-adapter 0.2.0`，避免与旧接入混合汇总。
+
+预算来自 Harbor 0.23 的实际单阶段 task/trial 配置，按框架同一规则计入 step timeout、override、maximum 和 timeout multiplier。`agent.run` 入口启动单调时钟，CLI 前扣除准备耗时及固定 30 秒接入层收尾余量，再传 `--attempt-remaining-ms`。CLI 自己保留的 30 秒停止结算和 30 秒清理不变；单次模型 ceiling 与 Run 租约独立。`best-agent-attempt-timing.json` 保留预算、准备耗时、收尾余量和传入值。它是保守投影，不保证消除进程崩溃或所有外层强杀。
+
+容器驱动只启动一次 CLI；CLI 退出后先落盘 `best-agent-process-receipt.json`，再做最多 30 秒的 Git 收尾。收尾超时终止并等待自己启动的进程组。CLI exit/signal 与 `finalizationExitCode`、`finalizationSignal`、`finalizationTimedOut` 分别保存，stdout/stderr 也分别保留。实际非零结果传播至 Harbor；没有交付模型、自动续跑、边运行边提交或合成 footer。按既有 IBench admission，含此异常的 solver trial 不进入评分，即使保留了非空补丁；本次收尾不提供失败救分路径。IBench 原有 collect hook 仍是唯一 canonical patch producer，空补丁和失败不会被修饰为成功。
+
+solver 的环境说明在模型前形成一次：只选 `DEV_ENV_SETUP`、`DEV_ENV_START`、`DEV_ENV_READY`，执行一次限时 readiness probe，观察本容器的 loopback HTTP listener/status 和 `agent-browser` 路径/版本。最多探测 8 个监听端口，若超出会明确标注，非 HTTP TCP 监听不会被当成网页。记录和初始说明均不超过 65,536 UTF-8 字节。`best-agent-environment.json` 保存原观察、确切追加文本及 SHA-256；原始公开 task instruction 原样保留，环境块只追加一次。准备失败在模型前返回并保留 source output。
+
+这份说明只证明初始观察；`sourceRefresh: unverified` 明示源码修改是否已加载尚未验证。它不读取 provider 凭据、任意环境变量、score task、rubric、参考补丁或历史诊断；不刷新 active Run，不增加另一份 coding checklist。官方 codex scorer 不走这个插件。
+
+本地自有验证入口（受控 HTTP 模型，不请求真实模型）：
+
+```bash
+# Linux 自有容器；验证固定发布产物支持 budget 参数
+docker build -t best-agent-ibench-closure:0.0.19 test/fixtures/ibench-closure
+# 使用 harbor==0.23.0 的 Python
+<ibench-venv>/bin/python test/ibench-agent.test.py
+uv build --wheel tools/ibench-agent --out-dir results/ibench/adapter-wheel
+<ibench-venv>/bin/python test/ibench-agent.e2e.py --wheel results/ibench/adapter-wheel/ibench_best_agent-0.2.0-py3-none-any.whl --output results/ibench/self-owned-<unique-id>
+```
+
+测试涵盖正常完成、写入后预算停止、未写入即停止、长工具执行中的停止、provider 503、Git 提交失败、readiness 失败/超时，以及旧 caller 在同一自有任务上的外层超时对照。它们只能证明受控调用链、产物与错误保真，不能作为 iBench 通过率或真实模型服从性的证据。
+
+### P0/P1 验收记录
+
+实际验证是本机 OrbStack 的 Linux amd64 容器（arm64 宿主上的仿真），Node 24.15.0、发布 CLI 0.0.19、Harbor 0.23.0。固定 wheel SHA-256 为 `9d0a240c67d8e2ed48ff32eeac70c9a5408a738e6dbabf97e31a55e1117aa07c`；解包的两个执行模块与当前源码逐字节一致。镜像 ID 为 `sha256:0df140605072d6b92d6d43445854d8c3731be64bae51cd9463ed8141f64538bb`。模型是容器 loopback 上的确定性 HTTP fixture，不调用 DeepSeek 或其它付费模型。正常安装路径仍执行，依赖缓存只用于让自有测试离线安装；`agent-browser` 在这个自有镜像中缺席，环境记录如实为 null，未据此宣称浏览器会话可用。
+
+| 自有场景 | model POST 数 | Run / CLI | Git 收尾 | frozen patch / footer |
+| --- | ---: | --- | --- | --- |
+| completed | 3 | completed/completed，exit 0 | exit 0 | 171 B / complete |
+| budget-work | 3 | cancelled/stopped，exit 1 | exit 0 | 171 B / complete |
+| budget-empty | 1 | cancelled/stopped，exit 1 | exit 0 | 0 B / complete |
+| budget-tool | 2 | cancelled/stopped，exit 1 | exit 0 | 171 B / complete |
+| provider-failure | 1 | failed/model-failure，exit 1 | exit 0 | 0 B / complete |
+| commit-failure | 3 | completed/completed，CLI exit 0 | exit 128，真实 index.lock 错误 | 0 B / complete；Harbor 失败 |
+| readiness-failure / timeout | 各 0 | 尚未创建 Run/CLI | 不执行 | 不伪造 footer/receipt |
+| baseline-work（74e8c4c） | 3 | Harbor AgentTimeoutError，agent phase 100.007 s | 未到达 | 0 B / 无 footer、receipt |
+
+长工具用例实际一次 exec 被停止，source 观察完整保留为 `unknown/uncertain`，含 `SIGKILL`、`exitCode=null`、`terminationRequest=AbortSignal received`；同批后续 write 得到唯一 `not-invoked/stopped`，零进入、无 sentinel 文件，且没有下一 model 请求。写入后等待用例保留 terminal 后到达的 abort model-failure 行；这不改写 `cancelled/stopped`，也不被归因成 provider 导致的终态。provider 用例只请求一次，原 `owned-provider-fault`、HTTP 503 和响应正文在 stderr 保留。提交失败不会把已完成 Run 改成 failed；CLI receipt 先落盘，外部 Git 错误和 Harbor 失败独立保留。
+
+readiness 非零保留实际 exit 7 和原 stderr，超时保留实际 SIGKILL、空 exitCode、timedOut 与源日志；两者模型入口均为零。另一个 POSIX 原生进程组用例实测 30 秒 Git 收尾 cutoff、保留 CLI exit 0、finalization signal SIGKILL/timeout 和 driver exit 124，并在额外等待后确认孙进程没有继续写文件。它是受控故障，不是公开任务数据。
+
+每份 complete evidence 均核对连续 sequence、expected/written counts 和 prefix SHA-256。旧/新自有 work 对照的实际首个 SDK 请求，其 tool definitions 和 system messages 完全一致；没有借本次改动修改 coding 或 exec 定义。实际初始说明为 855 UTF-8 字节，模型请求中恰好出现一次；记录/text 哈希一致，不含 provider key 或配置路径，且始终保留 `sourceRefresh: unverified`。这是来源与注入证据，不是模型服从性或任务质量证据。
+
+可复核本地数据：`results/ibench/p0-p1-acceptance.json`；正常完成原件 `results/ibench/p0-p1-self-check-4/`；其它八个场景及旧 caller 对照 `results/ibench/p0-p1-self-cases/`。这些被 Git 忽略的本地证据保留原始 trial、请求、footer、receipt 和补丁，不替换任何既有 benchmark verdict。
+
+命令和结果：`<pinned venv>/bin/python test/ibench-agent.test.py` exit 0（9 项，含原生收尾超时）；`node --test test/ibench.test.mjs` exit 0（16 项）；自有 E2E 两条命令分别以 `--cases completed` 和 `--cases budget-work,budget-empty,budget-tool,provider-failure,commit-failure,readiness-failure,readiness-timeout,baseline-work` 运行，均 exit 0；ruff check/format-check、actionlint（未启用 shellcheck）、`git diff --check` 均 exit 0。`npm test` exit 1，271/273，仍为上文两个旧 SWE candidate closure 断言，未接受例外或执行合并。产品仓库只改合同/实现记录：build、lint、check:docs、构建后的 check:packages、format:check 均 exit 0；没有改运行时代码。
+
+准备期间的失败另留档、没有计入验证通过：首次 arm64 镜像下载遇到 npm ECONNRESET；`run --help` 不受该 CLI 支持，改用明确拒绝 60000 ms 的无模型 admission 探针；首次离线安装缺缓存后将安装缓存保存到自有镜像；Docker 到宿主 HTTP 的 fake-IP 路径分别由 Python/Node 复现连接重置，故只将测试模型改为容器 loopback，生产 provider 路由没有变。早期 fixture 对缺失 step 的 TypeError 已改为先断言真实 preparation exception。原失败目录 `self-check-1/2/3` 保留。没有绕过运行时错误来制造绿色结果。
+
+Harness benefit record：相同 CLI、镜像、100 秒外层预算、公开自有任务和三次固定模型请求，旧 caller 在 cutoff 时丢失补丁及闭合证据，新 caller 保留 171 B 补丁和完整闭合，同时仍报告 stopped/exit 1。该对照验证产物保留和诚实停止，不证明任务更快完成，也不把自有 verifier reward 当公开 bench 成功。P1 验证了正确初始事实的一次交付和失败准备的零模型入口；没有测得真实模型少调查多少轮或少失败多少 ToolCall。代价是 90 秒总收尾预留（CLI 60 秒加 wrapper 30 秒）、准备探测耗时和初始输入增加 855 字节；实际 token 用量及 billed cost 未测量，不声称节省。后续真实模型/benchmark 效果仍需另行授权，当前没有 dispatch、重跑、重评分或 npm 发布。另以只读方式检查了冻结 release 的 44 个 solve task 定义：均为一个 3600 秒 agent step，且提供 DEV_ENV_READY；这是静态兼容性检查，未启动这些任务的容器或模型。

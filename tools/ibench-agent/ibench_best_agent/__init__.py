@@ -14,14 +14,19 @@ command line.
 from __future__ import annotations
 
 import json
+import math
 import os
 import shlex
+import time
 from pathlib import Path
 from typing import override
 
+import tomllib
 from harbor.agents.installed.base import BaseInstalledAgent, with_prompt_template
 from harbor.environments.base import BaseEnvironment
 from harbor.models.agent.context import AgentContext
+from harbor.models.task.config import TaskConfig
+from harbor.models.trial.config import TrialConfig
 
 DEFAULT_WORKSPACE = "/workspace/app"
 LOG_DIR = "/logs/agent"
@@ -73,7 +78,7 @@ class BestAgentCli(BaseInstalledAgent):
         provider_config = Path(_required_env("BEST_AGENT_PROVIDER_CONFIG"))
         dimcode_home = Path(_required_env("DIMCODE_HOME"))
         identity = await self.exec_as_agent(
-            environment, command='printf \'%s\\n\' "$HOME"; id -u; id -g'
+            environment, command="printf '%s\\n' \"$HOME\"; id -u; id -g"
         )
         home, uid, gid = identity.stdout.splitlines()[:3]
         files = [(provider_config, f"{home}/.best-agent/provider.json")]
@@ -102,8 +107,14 @@ class BestAgentCli(BaseInstalledAgent):
         )
         # The CLI runs model-issued commands with a null global git config, so a
         # repo-local identity is the only channel a commit it makes can read.
-        name = _single_line("BEST_AGENT_GIT_IDENTITY_NAME", self._required_setting("BEST_AGENT_GIT_IDENTITY_NAME"))
-        email = _single_line("BEST_AGENT_GIT_IDENTITY_EMAIL", self._required_setting("BEST_AGENT_GIT_IDENTITY_EMAIL"))
+        name = _single_line(
+            "BEST_AGENT_GIT_IDENTITY_NAME",
+            self._required_setting("BEST_AGENT_GIT_IDENTITY_NAME"),
+        )
+        email = _single_line(
+            "BEST_AGENT_GIT_IDENTITY_EMAIL",
+            self._required_setting("BEST_AGENT_GIT_IDENTITY_EMAIL"),
+        )
         workspace = self._setting("BEST_AGENT_CLI_WORKSPACE", DEFAULT_WORKSPACE)
         await self.exec_as_agent(
             environment,
@@ -115,8 +126,8 @@ class BestAgentCli(BaseInstalledAgent):
                 f"  for candidate in {shlex.quote(workspace + '/.git')}"
                 f" {shlex.quote(workspace + '/../.git')}; do\n"
                 '    if [ -d "$candidate" ]; then\n'
-                f"      git --git-dir=\"$candidate\" config user.name {shlex.quote(name)}\n"
-                f"      git --git-dir=\"$candidate\" config user.email {shlex.quote(email)}\n"
+                f'      git --git-dir="$candidate" config user.name {shlex.quote(name)}\n'
+                f'      git --git-dir="$candidate" config user.email {shlex.quote(email)}\n'
                 "    fi\n"
                 "  done\n"
                 "fi"
@@ -128,9 +139,12 @@ class BestAgentCli(BaseInstalledAgent):
         version = self._required_setting("BEST_AGENT_CLI_VERSION")
         package = self._setting("BEST_AGENT_CLI_PACKAGE", "@best-agent/cli")
         probe = await self.exec_as_agent(
-            environment, command="set -e; command -v node; node --version; npm --version"
+            environment,
+            command="set -e; command -v node; node --version; npm --version",
         )
-        self.logger.info("best-agent install runtime: %s", probe.stdout.strip().replace("\n", " "))
+        self.logger.info(
+            "best-agent install runtime: %s", probe.stdout.strip().replace("\n", " ")
+        )
         await self.exec_as_agent(
             environment,
             command=(
@@ -151,14 +165,47 @@ class BestAgentCli(BaseInstalledAgent):
                 "install_cli() {\n"
                 '  npm install --prefix "$prefix" --no-audit --no-fund --loglevel=error \\\n'
                 "    " + shlex.quote(f"{package}@{version}") + " \\\n"
-                '    "@best-agent/cli-linux-${platform}-gnu@'
-                + version
-                + '"\n'
+                '    "@best-agent/cli-linux-${platform}-gnu@' + version + '"\n'
                 "}\n"
                 "install_cli || install_cli\n"
                 f'"{CLI_BIN}" --version\n'
             ),
         )
+
+    @staticmethod
+    def _attempt_budget_ms(environment: BaseEnvironment) -> int:
+        task = TaskConfig.model_validate(
+            tomllib.loads(
+                (environment.environment_dir.parent / "task.toml").read_text()
+            )
+        )
+        trial = TrialConfig.model_validate_json(
+            environment.trial_paths.config_path.read_bytes()
+        )
+        if task.steps is None or len(task.steps) != 1:
+            raise RuntimeError(
+                "The IBench plugin requires exactly one solve or score step"
+            )
+        step_timeout = task.steps[0].agent.timeout_sec
+        default_timeout = (
+            step_timeout if step_timeout is not None else task.agent.timeout_sec
+        )
+        timeout = trial.agent.override_timeout_sec or default_timeout
+        if timeout is None:
+            raise RuntimeError(
+                "The IBench attempt requires a finite Harbor agent timeout"
+            )
+        multiplier = (
+            trial.agent_timeout_multiplier
+            if trial.agent_timeout_multiplier is not None
+            else trial.timeout_multiplier
+        )
+        seconds = min(timeout, trial.agent.max_timeout_sec or math.inf) * multiplier
+        if not math.isfinite(seconds) or seconds <= 0:
+            raise RuntimeError(
+                "The IBench attempt requires a positive finite Harbor agent timeout"
+            )
+        return int(seconds * 1000)
 
     @with_prompt_template
     @override
@@ -168,6 +215,8 @@ class BestAgentCli(BaseInstalledAgent):
         environment: BaseEnvironment,
         context: AgentContext,
     ) -> None:
+        started_ns = time.monotonic_ns()
+        budget_ms = self._attempt_budget_ms(environment)
         model = self._setting("BEST_AGENT_PROVIDER_MODEL", self.model_name or "")
         if not model:
             raise RuntimeError("BEST_AGENT_PROVIDER_MODEL is required")
@@ -175,91 +224,94 @@ class BestAgentCli(BaseInstalledAgent):
         commit = self._setting("BEST_AGENT_CLI_COMMIT", "0") == "1"
         model_timeout_ms = self._setting("BEST_AGENT_MODEL_TIMEOUT_MS", "600000")
         run_duration_ms = self._setting("BEST_AGENT_RUN_DURATION_MS", "3300000")
-        execution_args = json.loads(self._setting("BEST_AGENT_CLI_EXECUTION_ARGS_JSON", "[]"))
-        name = _single_line("BEST_AGENT_GIT_IDENTITY_NAME", self._required_setting("BEST_AGENT_GIT_IDENTITY_NAME"))
-        email = _single_line("BEST_AGENT_GIT_IDENTITY_EMAIL", self._required_setting("BEST_AGENT_GIT_IDENTITY_EMAIL"))
+        execution_args = json.loads(
+            self._setting("BEST_AGENT_CLI_EXECUTION_ARGS_JSON", "[]")
+        )
+        name = _single_line(
+            "BEST_AGENT_GIT_IDENTITY_NAME",
+            self._required_setting("BEST_AGENT_GIT_IDENTITY_NAME"),
+        )
+        email = _single_line(
+            "BEST_AGENT_GIT_IDENTITY_EMAIL",
+            self._required_setting("BEST_AGENT_GIT_IDENTITY_EMAIL"),
+        )
         await self._prepare_provider(environment)
         await self.exec_as_agent(
+            environment, command="mkdir -p " + shlex.quote(LOG_DIR)
+        )
+        driver = f"{LOG_DIR}/best-agent-attempt.py"
+        await environment.upload_file(
+            str(Path(__file__).with_name("attempt.py")), driver
+        )
+        if commit:
+            preparation = {
+                "workspace": workspace,
+                "commands": {
+                    key: environment.task_env_config.env[key]
+                    for key in ("DEV_ENV_SETUP", "DEV_ENV_START", "DEV_ENV_READY")
+                    if key in environment.task_env_config.env
+                },
+            }
+            preparation_path = Path(self.logs_dir) / "best-agent-preparation-input.json"
+            preparation_path.write_text(json.dumps(preparation))
+            target = f"{LOG_DIR}/best-agent-preparation-input.json"
+            await environment.upload_file(str(preparation_path), target)
+            observed = await self.exec_as_agent(
+                environment,
+                command=f"python3 {shlex.quote(driver)} prepare {shlex.quote(target)}",
+                timeout_sec=25,
+            )
+            block = json.loads(observed.stdout)["text"]
+            instruction += "\n\n" + block
+        elapsed_ms = (time.monotonic_ns() - started_ns) // 1_000_000
+        remaining_ms = budget_ms - elapsed_ms - 30_000
+        timing = {
+            "attemptBudgetMs": budget_ms,
+            "wrapperElapsedMs": elapsed_ms,
+            "finalizationReserveMs": 30_000,
+            "attemptRemainingMs": remaining_ms,
+            "modelTimeoutMs": int(model_timeout_ms),
+        }
+        (Path(self.logs_dir) / "best-agent-attempt-timing.json").write_text(
+            json.dumps(timing)
+        )
+        if remaining_ms <= 0:
+            raise RuntimeError(
+                "No attempt time remains after preparation and finalization reserve"
+            )
+        launch = {
+            "argv": [
+                CLI_BIN,
+                "run",
+                "--model",
+                model,
+                "--model-timeout-ms",
+                model_timeout_ms,
+                "--run-duration-ms",
+                run_duration_ms,
+                "--attempt-remaining-ms",
+                str(remaining_ms),
+                "--workspace",
+                workspace,
+                *execution_args,
+                "--attempt-evidence",
+                f"{LOG_DIR}/best-agent-evidence.jsonl",
+                instruction,
+            ],
+            "workspace": workspace,
+            "commit": commit,
+            "gitName": name,
+            "gitEmail": email,
+            "version": self._required_setting("BEST_AGENT_CLI_VERSION"),
+            "model": model,
+        }
+        launch_path = Path(self.logs_dir) / "best-agent-launch.json"
+        launch_path.write_text(json.dumps(launch))
+        target = f"{LOG_DIR}/best-agent-launch.json"
+        await environment.upload_file(str(launch_path), target)
+        await self.exec_as_agent(
             environment,
-            command=(
-                "set -e; mkdir -p "
-                + shlex.quote(LOG_DIR)
-                + "; if [ -d "
-                + shlex.quote(workspace + "/.git")
-                + " ]; then git -C "
-                + shlex.quote(workspace)
-                + ' rev-parse HEAD > '
-                + shlex.quote(f"{LOG_DIR}/best-agent-workspace-head-before.txt")
-                + " 2>/dev/null || true; fi"
-            ),
-        )
-        command = "\n".join(
-            [
-                "set -e",
-                'export BEST_AGENT_PROVIDER_CONFIG="$HOME/.best-agent/provider.json"',
-                'export DIMCODE_HOME="$HOME/.dimcode"',
-                'export BEST_AGENT_STORAGE_ROOT=' + shlex.quote(f"{LOG_DIR}/best-agent-runtime"),
-                "export BEST_AGENT_PROVIDER_MODEL=" + shlex.quote(model),
-                "export DIMCODE_VERSION=" + shlex.quote(self._setting("BEST_AGENT_CLI_VERSION", "dev")),
-                "mkdir -p " + shlex.quote(f"{LOG_DIR}/best-agent-runtime"),
-                # A resumed trial can reuse this logs volume; the CLI refuses an
-                # evidence path that already exists, so drop our own stale file.
-                "rm -f " + shlex.quote(f"{LOG_DIR}/best-agent-evidence.jsonl"),
-                "cd " + shlex.quote(workspace),
-                "set +e",
-                CLI_BIN
-                + " run --model "
-                + shlex.quote(model)
-                + " --model-timeout-ms "
-                + shlex.quote(model_timeout_ms)
-                + " --run-duration-ms "
-                + shlex.quote(run_duration_ms)
-                + " --workspace "
-                + shlex.quote(workspace)
-                + " "
-                + " ".join(shlex.quote(value) for value in execution_args)
-                + " --attempt-evidence "
-                + shlex.quote(f"{LOG_DIR}/best-agent-evidence.jsonl")
-                + " "
-                + shlex.quote(instruction)
-                + " </dev/null > "
-                + shlex.quote(f"{LOG_DIR}/best-agent-stdout.txt")
-                + " 2> "
-                + shlex.quote(f"{LOG_DIR}/best-agent-stderr.txt"),
-                "status=$?",
-                "set -e",
-                *([self._commit_script(workspace, name, email)] if commit else []),
-                "if [ -d "
-                + shlex.quote(workspace + "/.git")
-                + " ]; then git -C "
-                + shlex.quote(workspace)
-                + ' rev-parse HEAD > '
-                + shlex.quote(f"{LOG_DIR}/best-agent-workspace-head-after.txt")
-                + " 2>/dev/null || true; fi",
-                "printf '{\"exitCode\":%s,\"committed\":%s}\\n' \"$status\" "
-                + ("1" if commit else "0")
-                + " > "
-                + shlex.quote(f"{LOG_DIR}/best-agent-process-receipt.json"),
-                # A non-zero CLI exit is recorded, not raised: IBench grades the
-                # committed patch, and a trial that produced one must still be
-                # scored rather than discarded as an agent error.
-                "exit 0",
-            ]
-        )
-        await self.exec_as_agent(environment, command=command)
-
-    @staticmethod
-    def _commit_script(workspace: str, name: str, email: str) -> str:
-        quoted = shlex.quote(workspace)
-        return (
-            f'if [ -d {quoted}/.git ]; then\n'
-            f"  git -C {quoted} add -A\n"
-            f"  if ! git -C {quoted} diff --cached --quiet; then\n"
-            f"    git -C {quoted} -c user.name={shlex.quote(name)}"
-            f" -c user.email={shlex.quote(email)} commit --no-verify"
-            ' -m "ibench: candidate repair" >/dev/null\n'
-            "  fi\n"
-            "fi"
+            command=f"python3 {shlex.quote(driver)} run {shlex.quote(target)}",
         )
 
     def populate_context_post_run(self, context: AgentContext) -> None:
