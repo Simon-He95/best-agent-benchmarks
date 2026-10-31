@@ -1,0 +1,25 @@
+{
+  "source": "f6ec9f0dff8cae11c72a246736f280d742783eac",
+  "verified": [
+    {
+      "file": "candidate-http.json",
+      "sha256": "8bbc5c14959f0169159e9762de0a77df468416320348751cbd55ffb169c1ad29",
+      "pairs": 7,
+      "tls": false,
+      "lateAfterAbortNotPromoted": true,
+      "wireReadBodyHashesAndOutcomesUnchanged": true,
+      "oneRequestPerInvocation": true
+    },
+    {
+      "file": "candidate-tls.json",
+      "sha256": "0fe927d4cf3212cb20c2a877429543c3b86b92532d05482cf94acfb1213ded08",
+      "pairs": 7,
+      "tls": true,
+      "lateAfterAbortNotPromoted": true,
+      "wireReadBodyHashesAndOutcomesUnchanged": true,
+      "oneRequestPerInvocation": true
+    }
+  ],
+  "newLiveProviderCalls": 0,
+  "limits": "Local actual binding/SDK HTTP1+TLS1, no new Kernel terminal test beyond four existing built-CLI checks. Not a reproduction of upstream behavior or original request wire options."
+}
