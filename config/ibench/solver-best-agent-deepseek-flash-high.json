@@ -12,7 +12,7 @@
         "BEST_AGENT_RUN_DURATION_MS": "3300000",
         "BEST_AGENT_GIT_IDENTITY_NAME": "ibench solver",
         "BEST_AGENT_GIT_IDENTITY_EMAIL": "solver@ibench.invalid",
-        "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": "[\"--workspace-backend\",\"plain\",\"--workspace-authorization\",\"unrestricted\",\"--command-policy\",\"path\",\"--process-isolation\",\"host\",\"--workspace-grant\",\"read\",\"--workspace-grant\",\"write\",\"--workspace-grant\",\"exec\",\"--tool-exclude\",\"network\"]"
+        "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": "[\"--workspace-process-duration-ms\",\"120000\",\"--workspace-backend\",\"plain\",\"--workspace-authorization\",\"unrestricted\",\"--command-policy\",\"path\",\"--process-isolation\",\"host\",\"--workspace-grant\",\"read\",\"--workspace-grant\",\"write\",\"--workspace-grant\",\"exec\",\"--tool-exclude\",\"network\"]"
       },
       "extra_allowed_hosts": ["dimagent.cn"],
       "override_setup_timeout_sec": 1800

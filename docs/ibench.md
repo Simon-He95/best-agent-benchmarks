@@ -255,3 +255,13 @@ readiness 非零保留实际 exit 7 和原 stderr，超时保留实际 SIGKILL�
 准备期间的失败另留档、没有计入验证通过：首次 arm64 镜像下载遇到 npm ECONNRESET；`run --help` 不受该 CLI 支持，改用明确拒绝 60000 ms 的无模型 admission 探针；首次离线安装缺缓存后将安装缓存保存到自有镜像；Docker 到宿主 HTTP 的 fake-IP 路径分别由 Python/Node 复现连接重置，故只将测试模型改为容器 loopback，生产 provider 路由没有变。早期 fixture 对缺失 step 的 TypeError 已改为先断言真实 preparation exception。原失败目录 `self-check-1/2/3` 保留。没有绕过运行时错误来制造绿色结果。
 
 Harness benefit record：相同 CLI、镜像、100 秒外层预算、公开自有任务和三次固定模型请求，旧 caller 在 cutoff 时丢失补丁及闭合证据，新 caller 保留 171 B 补丁和完整闭合，同时仍报告 stopped/exit 1。该对照验证产物保留和诚实停止，不证明任务更快完成，也不把自有 verifier reward 当公开 bench 成功。P1 验证了正确初始事实的一次交付和失败准备的零模型入口；没有测得真实模型少调查多少轮或少失败多少 ToolCall。代价是 90 秒总收尾预留（CLI 60 秒加 wrapper 30 秒）、准备探测耗时和初始输入增加 855 字节；实际 token 用量及 billed cost 未测量，不声称节省。后续真实模型/benchmark 效果仍需另行授权，当前没有 dispatch、重跑、重评分或 npm 发布。另以只读方式检查了冻结 release 的 44 个 solve task 定义：均为一个 3600 秒 agent step，且提供 DEV_ENV_READY；这是静态兼容性检查，未启动这些任务的容器或模型。
+
+## P1：短同步命令与长验证（2026-10-31，后续授权）
+
+用户随后明确授权修改 exec/process 分工与唯一 coding 指令。solver profile 通过既有 `--workspace-process-duration-ms 120000` 选择两分钟同步上限，solver label 同步记录 `exec<=120000ms`。长时间或时长不确定的验证应由模型选择独立的 `process-start/read/stop`；没有自动重路由、重试或隐藏超时。CLI 仍固定 0.0.19，因此本仓库的配置立即表达上限，但产品仓库新 coding 2.24 指令必须等待未来发布并显式升级 CLI 后才生效；本次没有发布 npm 或更换 CLI。
+
+自有 E2E 不再复制执行参数，而是读取实际 solver JSON，并检查真实 SDK 请求里 exec 的全部 `lifetimeMs.maximum` 均为 120000。使用同一 0.2.0 wheel/发布 CLI 的 `completed,budget-tool` 两题已运行，exit 0；分别 3/2 次模型请求、Run completed/stopped、CLI exit 0/1，均保留 171 B 补丁、完整 footer 和 exit 0 的独立 Git 收尾。停止用例仍保留 `unknown/uncertain` 原始 SIGKILL 观察，后续 write 唯一 `not-invoked/stopped` 且未执行；没有后续模型请求。原始证据在 `results/ibench/exec-lanes-config-exact/`，不是公开 benchmark 或真实模型通过率证据。
+
+为满足全仓 pass-only 检查，另外校正 `config/best-agent-candidate.json` 已失配的 `controlClosureSha256` 为实际 closure `99c8247884e7899261eb0f07e7f6a15ef5f22ddabdfde50d6f4688047247166d`。这是上文两个失败的修正；不更换执行产物、语料、历史结果或评分，`formalBenchmarkReady` 仍为 false。修正后 `npm test` exit 0，273/273；不能将这些测试数量解释成任务成功率。
+
+本次收益是冻结配置确实限制同步阻塞时间，且原有真实预算/失败来源/补丁收尾仍可达。合法长验证需要额外 process 观察调用；是否提高真实任务完成率或降低 billed tokens 尚未测得。旧、新各次本地失败和历史 benchmark verdict 均保留，没有 dispatch、重跑或重评分公开任务。

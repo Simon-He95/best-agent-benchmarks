@@ -177,26 +177,12 @@ fi
                         "BEST_AGENT_RUN_DURATION_MS": "3300000",
                         "BEST_AGENT_GIT_IDENTITY_NAME": "owned fixture",
                         "BEST_AGENT_GIT_IDENTITY_EMAIL": "owned@invalid",
-                        "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": json.dumps(
-                            [
-                                "--workspace-backend",
-                                "plain",
-                                "--workspace-authorization",
-                                "unrestricted",
-                                "--command-policy",
-                                "path",
-                                "--process-isolation",
-                                "host",
-                                "--workspace-grant",
-                                "read",
-                                "--workspace-grant",
-                                "write",
-                                "--workspace-grant",
-                                "exec",
-                                "--tool-exclude",
-                                "network",
-                            ]
-                        ),
+                        "BEST_AGENT_CLI_EXECUTION_ARGS_JSON": json.loads(
+                            (
+                                repository
+                                / "config/ibench/solver-best-agent-deepseek-flash-high.json"
+                            ).read_text()
+                        )["agents"][0]["env"]["BEST_AGENT_CLI_EXECUTION_ARGS_JSON"],
                     },
                 }
             ],
@@ -269,6 +255,23 @@ fi
             prefix = evidence.read_bytes().rsplit(b"\n", 2)[0] + b"\n"
             assert hashlib.sha256(prefix).hexdigest() == footer["prefixSha256"]
             assert receipt is not None
+            exec_schema = next(
+                tool["function"]["parameters"]
+                for tool in requests[0]["tools"]
+                if tool["function"]["name"] == "exec"
+            )
+            schemas = [exec_schema]
+            maxima = []
+            while schemas:
+                schema = schemas.pop()
+                for key, value in (
+                    enumerate(schema) if isinstance(schema, list) else schema.items()
+                ):
+                    if key == "lifetimeMs":
+                        maxima.append(value["maximum"])
+                    elif isinstance(value, (dict, list)):
+                        schemas.append(value)
+            assert maxima and all(value == 120000 for value in maxima)
             assert len(requests) == (
                 1
                 if case in ["budget-empty", "provider-failure"]
