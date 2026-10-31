@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "kind": "read-only-followup-review",
+  "sourceCommit": "8a86cdb7053b6cac46240f60fa5f5f09a513aee6",
+  "benchmarkSourceCommit": "c6060f9117906b60b814537dfe72fe012dee1ce6",
+  "runId": 41093852204,
+  "task": "terminal-bench/regex-log",
+  "sourceEvidenceSha256": "111a98fcafc1f5ffc67f5965b9ef09a03c0c387065950e3cef1554d75e091917",
+  "rawTrialResultSha256": "cea541a919b67d3568c97d9cfcf8de0493900f36f63388e543c818e1da3cf581",
+  "historicalCanonicalRecordsUnchanged": true,
+  "mergeState": "PR606 remains open draft; do not merge",
+  "timing": {
+    "taskAttemptBudgetMs": 900000,
+    "wrapperElapsedMs": 664,
+    "cliAttemptRemainingMs": 899336,
+    "applicationReserveMs": 60000,
+    "selectedModelTimeoutMs": 1800000,
+    "agentExecutionMs": 841039.943,
+    "recordedModelInvocationMs": 839242,
+    "recordedModelRequestStartedAtMs": 499,
+    "terminal": "cancelled/stopped",
+    "modelOutcomeCount": 0,
+    "lateFailure": "transport after terminal; not proof of an upstream transport outage"
+  },
+  "historicalHttpProgress": "Unknown. The model-request event is recorded at binding entry before SDK preparation/fetch, and headless mode chooses generateText without a stream observation sink. No received-headers, body-byte or first/last-byte record is available. Zero complete ModelOutcomes does not imply zero HTTP response bytes.",
+  "findings": [
+    {
+      "classification": "BUG",
+      "severity": "P2",
+      "owner": "benchmark transcriber, not AgentKernel",
+      "location": "scripts/frontier-harness-harness.mjs:729",
+      "fact": "Exception plus zero complete ModelOutcomes is labelled preModelFailure even though a model invocation was recorded. The return also omits the existing verifier reward0. This does not establish an environment/provider death.",
+      "smallestCorrection": "Use source request/terminal facts for phase attribution and retain verifier rewards alongside diagnostics. Any disposition/scoring policy change needs a new frozen report/profile; do not rewrite the historical error or passAt1.",
+      "benefit": "Verified source-fact fidelity on this actual trial; no task-success or token-saving claim."
+    },
+    {
+      "classification": "NOT BUG",
+      "owner": "existing Application budget and Kernel model deadline",
+      "fact": "The 15-minute attempt stops before the selected 30-minute component timeout, after its 60-second reserve. The local real-CLI HTTP controls show prompt completion for a complete framed response and proper component timeout when a shorter model deadline wins. No Kernel deadline/late-outcome violation was established.",
+      "contract": "Kernel lifecycle/T3/N5/N15; Extension1.1 independent limits; Product model composition forbids competing SDK timers/retry."
+    },
+    {
+      "classification": "TRADEOFF",
+      "severity": "P2",
+      "owner": "Application/provider transport diagnostic boundary",
+      "fact": "Different controlled HTTP phases produce indistinguishable current evidence. Historical root cause cannot be recovered from these records.",
+      "smallestProposal": "Bounded non-authoritative transport-phase timing/status/byte counters at the actual fetch boundary, with the same single invocation and AbortSignal. No credentials, response bodies, retry, timeout, fallback or lifecycle changes. Record future real evidence before claiming a latency or task-success benefit."
+    }
+  ],
+  "classificationReplay": {
+    "recordedModelRequests": 1,
+    "sourceVerifierRewards": {
+      "reward": 0
+    },
+    "sourceTerminal": "stopped",
+    "summary": {
+      "present": true,
+      "modelOutcomes": 0,
+      "terminalCause": "stopped",
+      "modelFailureReasons": [
+        "transport"
+      ]
+    },
+    "classified": {
+      "disposition": "error",
+      "preModelFailure": true,
+      "rewards": null,
+      "terminalCause": "stopped"
+    },
+    "historicalRecordUnchanged": true
+  },
+  "localHttpControls": [
+    {
+      "mode": "no-headers",
+      "closed": {
+        "code": 1,
+        "signal": null
+      },
+      "elapsedMs": 5757,
+      "received": [
+        {
+          "atMs": 1133,
+          "stream": false,
+          "headersSent": false,
+          "bodyBytesWritten": 0
+        }
+      ],
+      "terminal": {
+        "status": "cancelled",
+        "cause": "stopped"
+      },
+      "events": [
+        {
+          "type": "header",
+          "sequence": 0
+        },
+        {
+          "type": "model-request",
+          "sequence": 1
+        },
+        {
+          "type": "terminal-snapshot",
+          "sequence": 2
+        },
+        {
+          "type": "model-failure",
+          "sequence": 3,
+          "reason": "transport",
+          "durationMs": 4613
+        },
+        {
+          "type": "footer",
+          "sequence": 4
+        }
+      ],
+      "source": "Controlled local HTTP server and actual built CLI from source8a86cdb70 on Darwin/Node24.15; no live provider, no benchmark attempt rerun."
+    },
+    {
+      "mode": "partial-json-body",
+      "closed": {
+        "code": 1,
+        "signal": null
+      },
+      "elapsedMs": 5518,
+      "received": [
+        {
+          "atMs": 834,
+          "stream": false,
+          "headersSent": true,
+          "bodyBytesWritten": 27
+        }
+      ],
+      "terminal": {
+        "status": "cancelled",
+        "cause": "stopped"
+      },
+      "events": [
+        {
+          "type": "header",
+          "sequence": 0
+        },
+        {
+          "type": "model-request",
+          "sequence": 1
+        },
+        {
+          "type": "terminal-snapshot",
+          "sequence": 2
+        },
+        {
+          "type": "model-failure",
+          "sequence": 3,
+          "reason": "transport",
+          "durationMs": 4671
+        },
+        {
+          "type": "footer",
+          "sequence": 4
+        }
+      ],
+      "source": "Controlled local HTTP server and actual built CLI from source8a86cdb70 on Darwin/Node24.15; no live provider, no benchmark attempt rerun."
+    },
+    {
+      "mode": "complete-content-length",
+      "closed": {
+        "code": 0,
+        "signal": null
+      },
+      "elapsedMs": 789,
+      "received": [
+        {
+          "atMs": 748,
+          "stream": false,
+          "headersSent": true,
+          "bodyBytesWritten": 213
+        }
+      ],
+      "terminal": {
+        "status": "completed",
+        "cause": "completed"
+      },
+      "events": [
+        {
+          "type": "header",
+          "sequence": 0
+        },
+        {
+          "type": "model-request",
+          "sequence": 1
+        },
+        {
+          "type": "model-outcome",
+          "sequence": 2
+        },
+        {
+          "type": "terminal-snapshot",
+          "sequence": 3
+        },
+        {
+          "type": "footer",
+          "sequence": 4
+        }
+      ],
+      "source": "Controlled local HTTP server and actual built CLI from source8a86cdb70 on Darwin/Node24.15; no live provider, no benchmark attempt rerun."
+    },
+    {
+      "mode": "model-timeout",
+      "closed": {
+        "code": 1,
+        "signal": null
+      },
+      "elapsedMs": 1276,
+      "received": [
+        {
+          "atMs": 753,
+          "stream": false,
+          "headersSent": false,
+          "bodyBytesWritten": 0
+        }
+      ],
+      "terminal": {
+        "status": "failed",
+        "cause": "model-failure"
+      },
+      "events": [
+        {
+          "type": "header",
+          "sequence": 0
+        },
+        {
+          "type": "model-request",
+          "sequence": 1
+        },
+        {
+          "type": "terminal-snapshot",
+          "sequence": 2
+        },
+        {
+          "type": "model-failure",
+          "sequence": 3,
+          "reason": "timeout",
+          "durationMs": 510
+        },
+        {
+          "type": "footer",
+          "sequence": 4
+        }
+      ],
+      "source": "Controlled local HTTP server and actual built CLI from source8a86cdb70 on Darwin/Node24.15; no live provider, no benchmark attempt rerun."
+    }
+  ],
+  "probeLimitations": "Controlled localhost HTTP on Darwin/Node24.15, same built source but not the CI Linux SEA or the actual provider. No DNS/TLS/proxy/remote reasoning behavior is reproduced. Fixture completions and synthetic usage are not task success or billed tokens. No live provider, grader or benchmark task was rerun.",
+  "otherNonPassedTasks": [
+    {
+      "task": "terminal-bench/chess-best-move",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 15,
+      "completeModelOutcomes": 14,
+      "modelBindingElapsedMs": 836985,
+      "recordedAttemptMs": 885040,
+      "rootTerminal": "stopped",
+      "failedVerifierTests": [
+        "test_outputs.py::test_move_correct"
+      ]
+    },
+    {
+      "task": "terminal-bench/code-from-image",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 23,
+      "completeModelOutcomes": 22,
+      "modelBindingElapsedMs": 1114593,
+      "recordedAttemptMs": 1172143,
+      "rootTerminal": "stopped",
+      "failedVerifierTests": [
+        "test_outputs.py::test_output_file_exists",
+        "test_outputs.py::test_output_is_correct"
+      ]
+    },
+    {
+      "task": "datacurve/expr-try-catch-errors",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 113,
+      "completeModelOutcomes": 113,
+      "modelBindingElapsedMs": 2897176,
+      "recordedAttemptMs": 3476047,
+      "rootTerminal": "completed",
+      "failedVerifierTests": [
+        "[f2p] github.com/expr-lang/expr/test/trycatch.TestTryCatch_ErrtypeTypeError"
+      ]
+    },
+    {
+      "task": "terminal-bench/gcode-to-text",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 31,
+      "completeModelOutcomes": 30,
+      "modelBindingElapsedMs": 835791,
+      "recordedAttemptMs": 874023,
+      "rootTerminal": "stopped",
+      "failedVerifierTests": [
+        "test_outputs.py::test_hello_file_exists",
+        "test_outputs.py::test_hello_file_content"
+      ]
+    },
+    {
+      "task": "terminal-bench/largest-eigenval",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 7,
+      "completeModelOutcomes": 6,
+      "modelBindingElapsedMs": 831536,
+      "recordedAttemptMs": 876823,
+      "rootTerminal": "stopped",
+      "failedVerifierTests": [
+        "test_outputs.py::test_speedup"
+      ]
+    },
+    {
+      "task": "datacurve/meriyah-explicit-resource-declarations",
+      "canonicalDisposition": "failed",
+      "recordedParentModelRequests": 178,
+      "completeModelOutcomes": 178,
+      "modelBindingElapsedMs": 3163796,
+      "recordedAttemptMs": 3399786,
+      "rootTerminal": "completed",
+      "failedVerifierTests": [
+        "[f2p] test/parser/declarations/using.ts: Declarations - using > Error cases > should reject array destructuring in await using",
+        "[f2p] test/parser/declarations/using.ts: Declarations - using > Error cases > should reject array destructuring in using",
+        "[f2p] test/parser/declarations/using.ts: Declarations - using > Using in for-of loops > should parse for-of with using and of as binding name"
+      ]
+    },
+    {
+      "task": "terminal-bench/regex-log",
+      "canonicalDisposition": "error",
+      "recordedParentModelRequests": 1,
+      "completeModelOutcomes": 0,
+      "modelBindingElapsedMs": 839242,
+      "recordedAttemptMs": 877673,
+      "rootTerminal": "stopped",
+      "failedVerifierTests": [
+        "test_outputs.py::test_regex_matches_dates"
+      ]
+    }
+  ],
+  "decision": "Retain the unmerged exec-schema PR. No runtime root cause for the historical wait is proven. Prioritize honest source attribution/reward preservation and phase diagnostics over speculative retry/timeout changes. No production code was changed in this review."
+}
