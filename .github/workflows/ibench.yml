@@ -1,0 +1,216 @@
+name: IBench
+
+# Interaction Bench (ibench) composition for one frozen best-agent CLI
+# candidate. Every batch is an independent Harbor job over its own predeclared
+# task subset; the aggregate job re-reads IBench's own verdicts and refuses a
+# mixed or partial composition as a leaderboard-comparable result.
+#
+# This is a Linux + Docker path: ibench runs each task in a task container that
+# ships Node, npm and the Playwright browser, and the CLI is installed inside
+# that container from the pinned public npm package.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ibench:
+        description: Dispatch IBench (otherwise this workflow only validates the plan)
+        type: boolean
+        default: false
+      ibench_mode:
+        description: full = solve and score; solver-only defers scoring
+        type: choice
+        options: [full, solver-only]
+        default: full
+      ibench_tasks:
+        description: Optional comma-separated frozen task ids/names (single diagnostic job)
+        required: false
+        default: ""
+      ibench_batches:
+        description: Number of frozen batches to run (0 = all)
+        required: false
+        default: "1"
+      ibench_concurrency:
+        description: Parallel trials inside one batch job
+        required: false
+        default: "2"
+
+concurrency:
+  group: ibench-${{ github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  BENCHMARK_PROVIDER_API_KEY: ${{ secrets.BENCHMARK_PROVIDER_API_KEY }}
+  DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+  DOCKER_DEFAULT_PLATFORM: linux/amd64
+  IBENCH_RUN_ID: ibench-${{ github.run_id }}
+
+jobs:
+  ibench-check:
+    name: Validate the IBench plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unit-test the runner and aggregation contract
+        run: node --test test/ibench.test.mjs
+
+      - name: Check the pinned release and frozen manifest hash
+        run: |
+          node scripts/ibench-run.mjs \
+            --dry-run \
+            --ibench-source "$RUNNER_TEMP/ibench" \
+            --output "$RUNNER_TEMP/ibench-dry-run"
+
+  ibench-plan:
+    name: Freeze the IBench batch plan
+    needs: ibench-check
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      complete: ${{ steps.plan.outputs.complete }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the bounded matrix
+        id: plan
+        env:
+          TASKS: ${{ inputs.ibench_tasks }}
+          BATCHES: ${{ inputs.ibench_batches }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const batches = require("./config/ibench-batches.json");
+          const frozen = batches.batches.flatMap((batch) => batch.tasks);
+          const frozenSet = new Set(frozen);
+          const tasks = (process.env.TASKS ?? "").trim();
+          const limit = Number(process.env.BATCHES);
+          if (!Number.isInteger(limit) || limit < 0 || limit > batches.batches.length) {
+            throw new Error("ibench_batches must be an integer within the frozen plan size.");
+          }
+          let entries;
+          let complete;
+          if (tasks !== "") {
+            const ids = tasks.split(",").map((value) => value.trim()).filter(Boolean);
+            if (ids.length === 0 || new Set(ids).size !== ids.length) {
+              throw new Error("ibench_tasks must be a unique non-empty task list.");
+            }
+            if (ids.some((id) => !frozenSet.has(id))) {
+              throw new Error("ibench_tasks contains a task outside the frozen plan.");
+            }
+            entries = [{ id: "custom", tasks: ids.join(",") }];
+            complete = false;
+          } else {
+            const selected = limit === 0 ? batches.batches : batches.batches.slice(0, limit);
+            entries = selected.map((batch) => ({ id: batch.id, tasks: batch.tasks.join(",") }));
+            complete = limit === 0;
+          }
+          console.log(`matrix=${JSON.stringify({ include: entries })}`);
+          console.log(`complete=${complete}`);
+          NODE
+
+  ibench-run:
+    name: IBench batch ${{ matrix.id }}
+    needs: ibench-plan
+    if: ${{ inputs.run_ibench }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJSON(needs.ibench-plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Free disk space for task images
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Run the frozen batch
+        env:
+          BATCH_ID: ${{ matrix.id }}
+          BATCH_TASKS: ${{ matrix.tasks }}
+          MODE: ${{ inputs.ibench_mode }}
+          CONCURRENCY: ${{ inputs.ibench_concurrency }}
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          test -n "$BENCHMARK_PROVIDER_API_KEY"
+          node scripts/ibench-run.mjs \
+            --tasks "$BATCH_TASKS" \
+            --output "results/ibench/$BATCH_ID" \
+            --n-concurrent "$CONCURRENCY" \
+            $([ "$MODE" = "solver-only" ] && printf '%s' "--solver-only")
+
+      - name: Make frozen evidence readable before upload
+        if: always()
+        run: sudo chmod -R a+rX results || true
+
+      - name: Upload the batch evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibench-${{ github.run_id }}-${{ matrix.id }}
+          # Upload the run root, not the batch directory, so a merged download
+          # keeps each batch under results/ibench/<batchId>.
+          path: results/ibench
+          if-no-files-found: warn
+          retention-days: 30
+
+  ibench-aggregate:
+    name: Aggregate IBench verdicts
+    needs: [ibench-plan, ibench-run]
+    if: ${{ inputs.run_ibench }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download every batch report
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ibench-${{ github.run_id }}-*
+          path: results/ibench
+          merge-multiple: true
+
+      - name: Aggregate
+        run: |
+          node scripts/ibench-aggregate.mjs \
+            --input results/ibench \
+            --output results/ibench/ibench-aggregate.json \
+            $([ "${{ needs.ibench-plan.outputs.complete }}" = "true" ] && printf '%s' "" || printf '%s' "--allow-partial")
+
+      - name: Upload the aggregate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibench-aggregate-${{ github.run_id }}
+          path: results/ibench/ibench-aggregate.*
+          if-no-files-found: warn
+          retention-days: 30

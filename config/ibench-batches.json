@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "releaseCommit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+  "releaseManifestSha256": "e7c351ff85a097aeb9068ca9c8c80157e1f51244e842fc1c16f3a7ad01f9073e",
+  "taskCount": 44,
+  "maxBatchSize": 4,
+  "batches": [
+    {
+      "id": "b01",
+      "tasks": [
+        "github__Afilmory__Afilmory__pull__243",
+        "github__Afilmory__Afilmory__pull__274",
+        "github__actualbudget__actual__pull__7827",
+        "github__calcom__cal.diy__pull__29544"
+      ]
+    },
+    {
+      "id": "b02",
+      "tasks": [
+        "github__hoppscotch__hoppscotch__pull__6155",
+        "github__langgenius__dify__pull__38063",
+        "github__lobehub__lobehub__pull__17789",
+        "github__makeplane__plane__pull__8600"
+      ]
+    },
+    {
+      "id": "b03",
+      "tasks": [
+        "github__makeplane__plane__pull__8759",
+        "github__makeplane__plane__pull__9285",
+        "github__metabase__metabase__pull__77898",
+        "github__metabase__metabase__pull__79490"
+      ]
+    },
+    {
+      "id": "b04",
+      "tasks": [
+        "github__metabase__metabase__pull__80439",
+        "github__penpot__penpot__pull__10550",
+        "github__penpot__penpot__pull__11427",
+        "github__penpot__penpot__pull__11699"
+      ]
+    },
+    {
+      "id": "b05",
+      "tasks": [
+        "github__saleor__saleor-dashboard__pull__6868",
+        "github__saleor__saleor-dashboard__pull__6891",
+        "github__Dolibarr__dolibarr__pull__39305",
+        "github__Dolibarr__dolibarr__pull__40071"
+      ]
+    },
+    {
+      "id": "b06",
+      "tasks": [
+        "github__Dolibarr__dolibarr__pull__40681",
+        "github__Dolibarr__dolibarr__pull__40920",
+        "github__Dolibarr__dolibarr__pull__41125",
+        "github__FreshRSS__FreshRSS__pull__9025"
+      ]
+    },
+    {
+      "id": "b07",
+      "tasks": [
+        "github__LimeSurvey__LimeSurvey__pull__4254",
+        "github__discourse__discourse__pull__42435",
+        "github__discourse__discourse__pull__43076",
+        "github__documenso__documenso__pull__2204"
+      ]
+    },
+    {
+      "id": "b08",
+      "tasks": [
+        "github__glpi-project__glpi__pull__24797",
+        "github__glpi-project__glpi__pull__24800",
+        "github__go-gitea__gitea__pull__38329",
+        "github__go-gitea__gitea__pull__38593"
+      ]
+    },
+    {
+      "id": "b09",
+      "tasks": [
+        "github__go-gitea__gitea__pull__39221",
+        "github__go-gitea__gitea__pull__39285",
+        "github__gristlabs__grist-core__pull__2298",
+        "github__grokability__snipe-it__pull__18872"
+      ]
+    },
+    {
+      "id": "b10",
+      "tasks": [
+        "github__kimai__kimai__pull__6075",
+        "github__navidrome__navidrome__pull__5706",
+        "github__netbox-community__netbox__pull__23161",
+        "github__netbox-community__netbox__pull__23190"
+      ]
+    },
+    {
+      "id": "b11",
+      "tasks": [
+        "github__openemr__openemr__pull__14233",
+        "github__oppia__oppia__pull__27320",
+        "github__oppia__oppia__pull__27464",
+        "github__owncloud__ocis__pull__12753"
+      ]
+    }
+  ]
+}
