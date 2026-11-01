@@ -15,7 +15,7 @@ ibench 用 44 个来自真实开源项目合并 PR 的交互缺陷任务，评�
 | --- | --- | --- |
 | 任务集 | 44 题，release `24b0613a`，`tasks/release.json` SHA-256 `e7c351ff…` | `config/ibench.json` |
 | 指令 profile | `intent`（默认，仅用户意图） | `config/ibench.json` |
-| solver harness | `best-agent-cli 0.0.19` + adapter `0.2.0`，容器内 npm 安装 | `config/ibench/solver-best-agent-deepseek-flash-high.json` |
+| solver harness | `best-agent-cli 0.0.21` + adapter `0.2.0`，容器内 npm 安装 | `config/ibench/solver-best-agent-deepseek-flash-high.json` |
 | solver 模型 | `deepseek-v4-flash`，`reasoningEffort=high`，`dimagent.cn/v1`，`dim-oauth` | `config/ibench.json` |
 | scorer（官方） | `codex 0.160.1` + `deepseek/deepseek-flash` + high，`api.deepseek.com` | `config/ibench/scorer-codex-deepseek-official.json` |
 | scorer（显式诊断） | `best-agent-cli` + `deepseek-v4-flash` + high | `config/ibench/scorer-best-agent-deepseek-flash-high.json` |
@@ -265,3 +265,23 @@ Harness benefit record：相同 CLI、镜像、100 秒外层预算、公开自�
 为满足全仓 pass-only 检查，另外校正 `config/best-agent-candidate.json` 已失配的 `controlClosureSha256` 为实际 closure `99c8247884e7899261eb0f07e7f6a15ef5f22ddabdfde50d6f4688047247166d`。这是上文两个失败的修正；不更换执行产物、语料、历史结果或评分，`formalBenchmarkReady` 仍为 false。修正后 `npm test` exit 0，273/273；不能将这些测试数量解释成任务成功率。
 
 本次收益是冻结配置确实限制同步阻塞时间，且原有真实预算/失败来源/补丁收尾仍可达。合法长验证需要额外 process 观察调用；是否提高真实任务完成率或降低 billed tokens 尚未测得。旧、新各次本地失败和历史 benchmark verdict 均保留，没有 dispatch、重跑或重评分公开任务。
+
+## 0.0.21 全量 solver-only（2026-11-01，用户授权）
+
+用户在本日明确要求：合并 PR #22、把 pin 换成已发布到 npm 的 `@best-agent/cli@0.0.21`、用该候选跑一次全量 11 批 44 题。预声明见 `config/ibench-solver-only-0.0.21-20261101.json`，先于 dispatch 冻结。
+
+- 合并：PR #22 以 merge commit `afaa38be` 进入 `master`（`fix(ibench): enforce official scoring and budgeted solver closure`）。
+- pin：`config/ibench.json` 的 `cli.version` 与 solver `label`、`config/ibench/solver-best-agent-deepseek-flash-high.json` 的 `BEST_AGENT_CLI_VERSION` 全部改为 `0.0.21`；release、任务集、provider、指令 profile、exec 上限（`exec<=120000ms`）不变。显式诊断 scorer 仍固定 0.0.19，重判配置不被本次升级改写。
+- 形态：`ibench_mode=solver-only`、`ibench_batches=0`（全部 11 批）、`ibench_concurrency=2`、每题一次 solver attempt、不重跑不挑选。仓库没有 `DEEPSEEK_API_KEY`，因此 `full`/`score` 会在模型前失败，solver-only 是当前唯一可执行的形态；官方 codex + deepseek-flash 评分延后，不产生任何 verdict。
+- 读数定位：44 题全量但未评分，`passAt1` 保持 null，`comparableToPublishedLeaderboard` 为 false。产物只用于冻结补丁和诊断，不构成对 DSH 7/44 的对比。
+
+对发布产物本身的核对（本机，非容器）：`npm view` 确认 `@best-agent/cli@0.0.21` 与 `@best-agent/cli-linux-x64-gnu@0.0.21` 均已发布；安装发布的 0.0.21 后 `run --help` 列出适配器使用的全部参数（`--attempt-remaining-ms`、`--workspace-process-duration-ms`、`--attempt-evidence`、`--run-duration-ms`、`--model-timeout-ms`、`--workspace-backend plain`、`--process-isolation host` 等）。两条无模型探针给出真实错误文本：`--attempt-remaining-ms 1000` 被拒绝为 `must exceed 60000 milliseconds`，已存在的 `--attempt-evidence` 路径被拒绝为 `Attempt evidence path must not already exist`。
+
+上述两条探针同时确认了以下待修项，登记为后续修复，不在本次运行前改动候选：
+
+1. `[P2]` `tools/ibench-agent/ibench_best_agent/__init__.py` 只拒绝 `attemptRemainingMs <= 0`，而 CLI 要求大于 60000；任务预算 ≲90 秒时会在模型入口前失败。冻结的 3600 秒任务不触发，但守卫值应与 CLI 合同一致。
+2. `[P2]` 同一文件丢掉了基线的 `rm -f /logs/agent/best-agent-evidence.jsonl`；CLI 拒绝已存在的 evidence 路径，复用 agent 日志卷的 trial 会直接失败。
+3. `[P2]` `scripts/ibench-aggregate.mjs` 只校验批次之间一致与 release/端点，不校验 `profile.solver`/`scorer.official`；当前 provider 不匹配使可比性仍为 false，但“不与旧接入混合”只靠 label 字符串自证。
+4. `[P3]` score 模式下重评循环 `set -e` 中断后，`always()` 的聚合 job 仍会上传混合产物；仅有 workflow 红状态提示。
+5. `[P3]` `config/ibench.json` 的 `baseline.modelId` 写作 `deepseek-flash`，冻结基线 JobConfig 是 `deepseek/deepseek-flash`，该比较永不相等（保守，但值不准确）。
+6. `[P3]` 主 CLI 调用没有自带 deadline/进程组；若 CLI 不遵守 `--attempt-remaining-ms`，收尾会拖到 Harbor cutoff 之后。基线同样如此，属既有风险。

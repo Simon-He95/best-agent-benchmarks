@@ -4,7 +4,7 @@
       "import_path": "ibench_best_agent:BestAgentCli",
       "model_name": "deepseek-v4-flash",
       "env": {
-        "BEST_AGENT_CLI_VERSION": "0.0.19",
+        "BEST_AGENT_CLI_VERSION": "0.0.21",
         "BEST_AGENT_CLI_WORKSPACE": "/workspace/app",
         "BEST_AGENT_CLI_COMMIT": "1",
         "BEST_AGENT_PROVIDER_MODEL": "deepseek-v4-flash",
