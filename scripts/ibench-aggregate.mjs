@@ -54,6 +54,7 @@ export function aggregateReports({ reports, batches, profile, runId, allowPartia
       report.candidate.label,
       report.candidate.scorerHarness,
       report.candidate.scorerLabel,
+      report.candidate.scorerIsOfficial,
       report.provider.model,
       report.provider.reasoningEffort,
       report.provider.baseURL,
@@ -62,6 +63,9 @@ export function aggregateReports({ reports, batches, profile, runId, allowPartia
     ]);
   const reference = identity(reports[0]);
   for (const report of reports) {
+    if (report.release.commit !== profile.release.commit || report.release.manifestSha256 !== profile.release.releaseManifestSha256) {
+      throw new Error(`batch ${report.runId} does not match the pinned release and manifest.`);
+    }
     if (identity(report) !== reference) {
       throw new Error(`batch ${report.runId} was not produced by the same frozen composition.`);
     }
@@ -96,7 +100,10 @@ export function aggregateReports({ reports, batches, profile, runId, allowPartia
     passed,
     total,
     comparableToPublishedLeaderboard:
-      !partial && !first.solverOnly && first.candidate.scorerIsOfficial,
+      !partial && !first.solverOnly && first.candidate.scorerIsOfficial &&
+      first.provider.model === profile.baseline.modelId &&
+      first.provider.baseURL === profile.baseline.baseURL &&
+      first.provider.reasoningEffort === profile.baseline.effort,
     baseline: profile.baseline,
     tasks: rows,
   };
@@ -116,6 +123,7 @@ export function renderAggregateMarkdown(report) {
       : `- Pass rate: **${report.passed}/${report.total}** = ${(report.passRate * 100).toFixed(1)}%`,
     `- Published DSH reference: ${report.baseline.passed}/${report.baseline.total} = ${(report.baseline.passRate * 100).toFixed(1)}% (${report.baseline.harness} / ${report.baseline.model})`,
     `- Comparable to the published leaderboard: ${report.comparableToPublishedLeaderboard ? "yes" : "no"}`,
+    `- Published solver endpoint: \`${report.baseline.modelId}\` / \`${report.baseline.effort}\` via ${report.baseline.baseURL}; gateway aliases are not verified as equivalent.`,
     "",
     "| Task | Status | Reward |",
     "| --- | --- | --- |",

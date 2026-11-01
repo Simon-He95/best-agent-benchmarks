@@ -25,7 +25,7 @@
   "solver": {
     "config": "config/ibench/solver-best-agent-deepseek-flash-high.json",
     "harness": "best-agent-cli",
-    "label": "best-agent-cli 0.0.19 / deepseek-v4-flash / high"
+    "label": "best-agent-cli 0.0.19 / ibench-adapter 0.2.0 / exec<=120000ms / deepseek-v4-flash / high"
   },
   "scorer": {
     "official": {
@@ -47,7 +47,11 @@
   },
   "baseline": {
     "harness": "DSH",
+    "version": "0.2.0-rc.2",
     "model": "DeepSeek Flash",
+    "modelId": "deepseek-flash",
+    "baseURL": "https://api.deepseek.com",
+    "config": "configs/deepseek-flash-dsh-high.json",
     "effort": "high",
     "passed": 7,
     "total": 44,
