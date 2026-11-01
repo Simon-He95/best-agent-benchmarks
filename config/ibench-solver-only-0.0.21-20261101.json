@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "purpose": "Predeclared full diagnostic solve of the frozen 44-task composition with the published 0.0.21 CLI; scoring deferred to the official judge.",
+  "profile": "config/ibench.json",
+  "batches": "config/ibench-batches.json",
+  "releaseCommit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+  "candidate": "@best-agent/cli@0.0.21",
+  "adapter": "tools/ibench-agent 0.2.0",
+  "provider": {
+    "model": "deepseek-v4-flash",
+    "reasoningEffort": "high",
+    "baseURL": "https://dimagent.cn/v1",
+    "transportProfile": "dim-oauth"
+  },
+  "mode": "solver-only",
+  "batchCount": 11,
+  "taskCount": 44,
+  "nConcurrent": 2,
+  "solverAttemptsPerTask": 1,
+  "scoring": "deferred; later official codex 0.160.1 + deepseek-flash/high only, without another solver attempt",
+  "reason": "DEEPSEEK_API_KEY is not configured for this repository, so a full or score dispatch would fail before any model call. The declared mode is the only admissible run shape.",
+  "passAt1": null,
+  "comparableToPublishedLeaderboard": false,
+  "replacesCanonicalVerdict": false,
+  "combinesWithPreviousRunAsPassAt1": false
+}
