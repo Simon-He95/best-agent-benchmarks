@@ -384,6 +384,7 @@ test("aggregateReports reports a deferred rate for solver-only batches", () => {
 });
 
 test("score-only preserves source evidence and identity without solver credentials or calls", () => {
+  for (const archivedCli of [false, true]) {
   for (const scoreExit of [0, 7]) {
     const directory = mkdtempSync(join(tmpdir(), "ibench-score-"));
     try {
@@ -408,6 +409,7 @@ test("score-only preserves source evidence and identity without solver credentia
       const commit = spawnSync("git", ["-C", source, "rev-parse", "HEAD"], { encoding: "utf8" }).stdout.trim();
       const profile = {
         ...PROFILE,
+        cli: { version: "current-cli", artifact: { sourceCommit: "current-source", sha256: "current-bytes" } },
         schemaVersion: 1,
         benchmark: "ibench",
         release: { ...RELEASE, commit, releaseManifest: "tasks/release.json", releaseManifestSha256: createHash("sha256").update(manifest).digest("hex") },
@@ -419,6 +421,10 @@ test("score-only preserves source evidence and identity without solver credentia
       previous.release.commit = commit;
       previous.release.manifestSha256 = profile.release.releaseManifestSha256;
       previous.candidate.label = "original-cli-version";
+      if (archivedCli) {
+        previous.candidate.cliVersion = "original-cli";
+        previous.candidate.cliArtifact = { sourceCommit: "original-source", sha256: "original-bytes" };
+      }
       previous.provider.model = "original-model";
       previous.instructionProfile = "intent-actions";
       const originalReport = JSON.stringify(previous);
@@ -463,6 +469,9 @@ process.exit(${scoreExit});
       const report = JSON.parse(readFileSync(join(output, "ibench-report.json"), "utf8"));
       assert.equal(report.runId, "original-run");
       assert.equal(report.candidate.label, previous.candidate.label);
+      assert.equal(report.candidate.cliVersion, previous.candidate.cliVersion);
+      assert.deepEqual(report.candidate.cliArtifact, previous.candidate.cliArtifact);
+      assert.equal("cliArtifact" in report.candidate, archivedCli);
       assert.deepEqual(report.provider, previous.provider);
       assert.equal(report.instructionProfile, "intent-actions");
       assert.equal(report.candidate.scorerIsOfficial, true);
@@ -481,5 +490,6 @@ process.exit(${scoreExit});
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
+  }
   }
 });

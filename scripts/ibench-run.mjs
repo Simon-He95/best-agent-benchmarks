@@ -510,6 +510,10 @@ async function scoreExistingRun({ options, profile, source, output, scorer, nCon
     const report = computeReport({
       profile: {
         ...profile,
+        cli: previous.candidate.cliArtifact ? {
+          version: previous.candidate.cliVersion,
+          artifact: previous.candidate.cliArtifact,
+        } : undefined,
         solver: {
           harness: previous.candidate.harness,
           label: previous.candidate.label,
