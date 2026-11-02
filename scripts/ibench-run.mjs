@@ -171,6 +171,7 @@ export function computeReport({ profile, release, tasks, trials, run, context })
       status: trial?.status ?? "missing",
       passed,
       reward: typeof reward === "number" ? reward : null,
+      solverError: trial?.solver_error ?? null,
       error: trial?.error ?? null,
       verdicts: Array.isArray(trial?.verdicts) ? trial.verdicts.length : 0,
     };
@@ -225,6 +226,15 @@ export function computeReport({ profile, release, tasks, trials, run, context })
   };
 }
 
+export function renderReportError(error) {
+  return String(error ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\|/g, "&#124;")
+    .replace(/\r\n|\r|\n/g, "<br>");
+}
+
 export function renderReportMarkdown(report) {
   const lines = [
     `# IBench run ${report.runId}`,
@@ -241,13 +251,11 @@ export function renderReportMarkdown(report) {
     `- Published solver endpoint: \`${report.baseline.modelId}\` / \`${report.baseline.effort}\` via ${report.baseline.baseURL}; gateway aliases are not verified as equivalent.`,
     report.solverOnly ? "- Solver-only run: scoring deferred, so no task has a verdict yet." : "",
     "",
-    "| Task | Status | Reward | Verdicts | Error |",
-    "| --- | --- | --- | --- | --- |",
+    "| Task | Status | Reward | Verdicts | Solver error | Trial error |",
+    "| --- | --- | --- | --- | --- | --- |",
     ...report.tasks.map(
       (task) =>
-        `| \`${task.id}\` | ${task.status} | ${task.reward === null ? "-" : task.reward} | ${task.verdicts} | ${
-          task.error === null ? "" : String(task.error).replace(/\|/g, "\\|").slice(0, 160)
-        } |`,
+        `| \`${task.id}\` | ${task.status} | ${task.reward === null ? "-" : task.reward} | ${task.verdicts} | ${renderReportError(task.solverError)} | ${renderReportError(task.error)} |`,
     ),
     "",
   ];

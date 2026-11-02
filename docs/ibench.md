@@ -42,7 +42,21 @@ ibench 把每题编译成 Harbor 任务：solve 阶段的容器里是 `/workspac
 3. solver 阶段结束后由插件执行 `git add -A` + `git commit`（模型自己已提交则跳过），保证 verifier 能采集到 patch。
 4. 新接入保留 CLI 的 exit/signal，并把非零结果传给 Harbor。CLI 退出后才做限时 Git 收尾；收尾退出/信号/超时另记，不覆盖主结果。Harbor 的现有失败和可信补丁规则保持原样，失败不会自动重跑。
 
+报告分别复制 canonical trial 的 `solver_error` 为 `solverError`、`error` 为 `error`，批次和汇总 Markdown 也分别显示两者。不能用评分错误覆盖 solver 错误，或因有补丁就清除执行失败。Pinned iBench 可以把非零退出但可信采集到非空补丁的 trial 绑定成 `pending`，并保留 `solver_error`；`pending` 是候选等待评分，不表示 solver 正常完成。官方 status/reward 保持原样，只有 canonical `rewards.reward` 决定评分判定。
+
 显式诊断评分可复用同一插件，但 `BEST_AGENT_CLI_WORKSPACE=/workspace`、不提交 git（评分 agent 要写 `case-context` 下的 verdict 与证据）。
+
+### Solver 错误保真修复验收（run 41315555658）
+
+修复前的 `computeReport` 只读取 `trial.error`，遗漏 `trial.solver_error`。本轮冻结源 `a8e9976a3c90da27f8de5b028568d03d53dfcc52` 的 44 题中，7 题保留了非零退出及非空补丁，原始结果有 `solver_error`，报告却显示 `pending` / `error:null`。修复只增加该来源事实的独立投影和展示，不重分类 status、reward 或 Run，也不改变评分候选规则。
+
+配对验证读取同一份已下载 canonical results，用旧版和修复版函数分别生成 11 批报告，再分别经过实际 aggregate CLI。7/7 个原先遗漏的 solver 错误恢复到批次和汇总 JSON/Markdown；44 题原有字段逐项一致，22 份原始 results/report 与 44 份补丁的 SHA-256 前后不变。原始运行及报告没有被覆盖，所有新输出保存在独立诊断目录。这是旧结果的报告重建，不是 solver 重跑或官方重评分，pass rate 仍为 null。
+
+错误/控制流：`canonical solver_error → computeReport.solverError → aggregate.tasks → Markdown` 保留来源全文；与同题 `error` 并存。JSON 原样复制字符串，Markdown 只转义 HTML/表格字符并保留换行，不再只显示 160 字符。受控 score-only caller 的成功和 exit 7 分支均验证 solver/trial 错误并存、评分源 exit/stderr 保留、单次 scorer 调用和零 solver/plugin-install 调用；缺 key 为零 scorer 调用。没有进入 Kernel、ModelBinding 或 ToolBinding，故 sibling/next-model 不适用，也不从报告推断新的 terminal。
+
+收益限于可观测性：7 个执行失败不再在报告中丢失，没有证明任务修复率、ToolCall 失败率或模型效率改善。模型、工具和真实评分调用均为零，模型请求/计费 token 不受影响；报告增加必要的错误全文，文件及页面更长是代价。原始错误和受控 fixture 内容只保存在本地，PR 不附原始轨迹。
+
+定向 `node --test test/ibench.test.mjs` exit 0（17 项），仓库完整 `npm test` exit 0（274 项），`git diff --check` exit 0。同一新增回归在基线函数上 exit 1，原因为缺失 `solverError`。独立 worktree 首次全量检查暴露两个缺少本地输入的 ENOENT；复制既有冻结 corpus/ledger，核对各自配置中的 SHA-256 后，全量检查通过，没有跳过或改写测试。本地配对脚本与收据：`results/ibench/report-fidelity-41315555658/receipt.json`；原始输入来自固定 run 的 artifacts，基线报告脚本 SHA-256 为 `8c115965ecc4232eda0fcddd3e340fc70374880e586eb484a582c0a6cf97f4ea`。
 
 ## 本地运行
 
