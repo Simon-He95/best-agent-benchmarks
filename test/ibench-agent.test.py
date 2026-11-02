@@ -5,6 +5,7 @@ shell the plugin issues without starting a container.
 """
 
 import json
+import hashlib
 import os
 import shlex
 import subprocess
@@ -168,6 +169,63 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("node --version", environment.records[0]["command"])
         self.assertIn("npm --version", environment.records[0]["command"])
         self.assertIn("--version", install)
+
+    async def test_install_uses_verified_archive_without_npm_fallback(self):
+        archive = self.root / "candidate.tar.gz"
+        archive.write_bytes(b"owned archive")
+        digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+        environment = RecordedEnvironment(self.root)
+        with patch.dict(os.environ, {
+            "BEST_AGENT_CLI_ARCHIVE": str(archive),
+            "BEST_AGENT_CLI_ARCHIVE_SHA256": digest,
+            "BEST_AGENT_CLI_ARCHIVE_VERSION": SETTINGS["BEST_AGENT_CLI_VERSION"],
+        }):
+            await self.agent().install(environment)
+        self.assertEqual(environment.uploads, [("/tmp/ibench-best-agent-candidate.tar.gz", b"owned archive")])
+        install = environment.records[1]["command"]
+        self.assertIn(digest, install)
+        self.assertLess(install.index("node -e"), install.index("tar -xzf"))
+        self.assertIn("best-agent-0.0.19-linux-x64-gnu/bin/best-agent", install)
+        self.assertIn("--version", install)
+        self.assertNotIn("npm install", install)
+        self.assertNotIn("||", install)
+
+    async def test_archive_mismatch_stops_before_upload_or_install(self):
+        archive = self.root / "candidate.tar.gz"
+        archive.write_bytes(b"owned archive")
+        environment = RecordedEnvironment(self.root)
+        with patch.dict(os.environ, {
+            "BEST_AGENT_CLI_ARCHIVE": str(archive),
+            "BEST_AGENT_CLI_ARCHIVE_SHA256": "0" * 64,
+            "BEST_AGENT_CLI_ARCHIVE_VERSION": SETTINGS["BEST_AGENT_CLI_VERSION"],
+        }):
+            with self.assertRaisesRegex(RuntimeError, "SHA256 mismatch before upload"):
+                await self.agent().install(environment)
+        self.assertEqual(environment.uploads, [])
+        self.assertEqual(len(environment.records), 1)
+
+    async def test_receiver_install_failure_preserves_exit_and_source(self):
+        archive = self.root / "candidate.tar.gz"
+        archive.write_bytes(b"owned archive")
+        environment = RecordedEnvironment(self.root)
+        execute = environment.exec
+
+        async def fail_receiver(command, **kwargs):
+            result = await execute(command, **kwargs)
+            if "tar -xzf" in command:
+                return SimpleNamespace(return_code=7, stdout="", stderr="owned receiver checksum fault")
+            return result
+
+        environment.exec = fail_receiver
+        with patch.dict(os.environ, {
+            "BEST_AGENT_CLI_ARCHIVE": str(archive),
+            "BEST_AGENT_CLI_ARCHIVE_SHA256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+            "BEST_AGENT_CLI_ARCHIVE_VERSION": SETTINGS["BEST_AGENT_CLI_VERSION"],
+        }):
+            with self.assertRaisesRegex(RuntimeError, "(?s)exit 7.*owned receiver checksum fault"):
+                await self.agent().install(environment)
+        self.assertEqual(len(environment.uploads), 1)
+        self.assertEqual(len(environment.records), 2)
 
     async def test_solver_run_uploads_identity_commits_and_keeps_flag_order(self):
         environment = RecordedEnvironment(

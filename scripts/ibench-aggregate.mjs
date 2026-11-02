@@ -54,6 +54,8 @@ export function aggregateReports({ reports, batches, profile, runId, allowPartia
       report.release.manifestSha256,
       report.candidate.harness,
       report.candidate.label,
+      report.candidate.cliVersion ?? null,
+      report.candidate.cliArtifact ?? null,
       report.candidate.scorerHarness,
       report.candidate.scorerLabel,
       report.candidate.scorerIsOfficial,

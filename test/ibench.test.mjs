@@ -146,6 +146,21 @@ test("computeReport counts only reward 1 as a pass and keeps every declared task
   assert.equal(report.comparableToPublishedLeaderboard, false, "3 of 44 tasks is a subset");
 });
 
+test("computeReport preserves frozen CLI bytes independently from source outcomes", () => {
+  const cli = { version: "0.0.21", install: "standalone-archive", artifact: { sha256: "a".repeat(64), sourceCommit: "b".repeat(40) } };
+  const report = computeReport({
+    profile: { ...PROFILE, cli }, release: RELEASE, tasks: TASKS,
+    trials: [{ task_id: "task-a", status: "scored", rewards: { reward: 1 }, solver_error: "original solver failure" }],
+    run: { solverOnly: false }, context: { runId: "owned", scorer: { ...PROFILE.scorer.official, official: true } },
+  });
+  assert.deepEqual(report.candidate.cliArtifact, cli.artifact);
+  assert.equal(report.candidate.cliVersion, cli.version);
+  assert.equal(report.tasks[0].reward, 1);
+  assert.equal(report.tasks[0].solverError, "original solver failure");
+  report.candidate.cliArtifact.sha256 = "changed";
+  assert.equal(cli.artifact.sha256, "a".repeat(64));
+});
+
 test("computeReport is leaderboard-comparable only for the full official composition", () => {
   const fullTasks = Array.from({ length: 44 }, (_, index) => ({ id: `task-${index}`, name: `name-${index}` }));
   const trials = fullTasks.map((task) => ({ task_id: task.id, status: "scored", rewards: { reward: 0 } }));
@@ -335,6 +350,10 @@ test("aggregateReports rejects a batch produced by a different composition", () 
   const foreignRelease = [a, b].map((report) => ({ ...report, release: { ...report.release, commit: "foreign" } }));
   assert.throws(() => aggregateReports({ reports: foreignRelease, batches, profile: PROFILE, runId: "x" }), /pinned release/u);
   assert.throws(() => aggregateReports({ reports: [a, { ...b, candidate: { ...b.candidate, scorerIsOfficial: true } }], batches, profile: PROFILE, runId: "x" }), /same frozen composition/u);
+  const archive = { sha256: "a".repeat(64), sourceCommit: "b".repeat(40) };
+  const pinned = { ...a, candidate: { ...a.candidate, cliVersion: "0.0.21", cliArtifact: archive } };
+  const changedArchive = { ...b, candidate: { ...b.candidate, cliVersion: "0.0.21", cliArtifact: { ...archive, sha256: "c".repeat(64) } } };
+  assert.throws(() => aggregateReports({ reports: [pinned, changedArchive], batches, profile: PROFILE, runId: "x" }), /same frozen composition/u);
 });
 
 test("aggregateReports requires the baseline model endpoint and effort even with the official judge", () => {

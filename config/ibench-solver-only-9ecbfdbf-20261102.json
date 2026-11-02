@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "purpose": "New frozen candidate measurement after merging harness evidence and process retention fixes; does not replace or combine run41315555658.",
+  "profile": "config/ibench.json",
+  "batches": "config/ibench-batches.json",
+  "releaseCommit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+  "candidate": {
+    "packageName": "@best-agent/cli",
+    "version": "0.0.21",
+    "install": "standalone-archive",
+    "artifact": {
+      "repository": "Simon-He95/best-agent",
+      "releaseTag": "ibench-linux-9ecbfdbfb6f5",
+      "assetName": "best-agent-0.0.21-linux-x64-gnu.tar.gz",
+      "bytes": 56917892,
+      "sha256": "4edf910957c8c48aa3f1d983295be89af8f791aa156d2560434e0d1927c8b256",
+      "sourceCommit": "9ecbfdbfb6f5e4c6eef9e7fa6eb37763c2135e81",
+      "buildRun": "https://github.com/Simon-He95/best-agent-releases/actions/runs/41412020172"
+    }
+  },
+  "adapter": "tools/ibench-agent 0.3.0",
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "transportProfile": "dim-oauth"
+  },
+  "mode": "solver-only",
+  "batchCount": 11,
+  "taskCount": 44,
+  "nConcurrent": 2,
+  "solverAttemptsPerTask": 1,
+  "scoring": "deferred; original official codex + deepseek-flash/high only, without another solver attempt",
+  "previousRun": 41315555658,
+  "passAt1": null,
+  "comparableToPublishedLeaderboard": false,
+  "replacesCanonicalVerdict": false,
+  "combinesWithPreviousRunAsPassAt1": false
+}
