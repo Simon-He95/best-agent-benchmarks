@@ -266,6 +266,23 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("DEV_ENV_READY", prep["commands"])
         self.assertIn(" run ", commands[-1])
 
+    async def test_frozen_solver_selects_one_isolated_compact_scope(self):
+        repository = Path(__file__).resolve().parents[1]
+        config = json.loads(
+            (repository / "config/ibench/solver-best-agent-deepseek-flash-high.json").read_text()
+        )
+        selected = config["agents"][0]["env"]
+        environment = RecordedEnvironment(self.root)
+        await self.agent(**selected).run("Read the clue and repair the source.", environment, None)
+        launch = json.loads((self.root / "best-agent-launch.json").read_text())
+        argv = launch["argv"]
+        self.assertEqual(argv.count("--compact-dir"), 1)
+        self.assertEqual(argv[argv.index("--compact-dir") + 1], "/logs/agent/best-agent-compact")
+        self.assertEqual(argv[argv.index("--workspace-process-duration-ms") + 1], "120000")
+        self.assertEqual(argv[argv.index("--model-timeout-ms") + 1], "600000")
+        self.assertEqual(len([r for r in environment.records if " run " in r["command"]]), 1)
+        self.uploads_never_leak(environment)
+
     async def test_scorer_run_does_not_commit_or_append_solve_environment(self):
         environment = RecordedEnvironment(self.root, phase="score")
         await self.agent(

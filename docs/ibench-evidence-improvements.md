@@ -1,0 +1,11 @@
+# Evidence-led Harness integration
+
+This branch follows the human's sequential H01–H12 improvement program. It changes future source/configuration only: no benchmark dispatch, scoring, task retry, canonical patch/verdict rewrite or candidate publication. Runs41315555658 and41418162469 and their original manifests remain frozen at their source commits.
+
+H01 selects the existing headless `--compact-dir` at `/logs/agent/best-agent-compact`, inside the task's own logs and outside the application repository. The installed-agent adapter forwards the frozen argument vector once; it does not construct or own compact state, infer an input limit, classify a provider error or retry the solver. The CLI Application/ContextService owns terminal-after recovery, source selection and cleanup. Existing120000ms exec ceiling,600000ms model ceiling,3600s Harbor attempt, network policy, model/effort and official grader remain unchanged.
+
+The default CLI artifact is still explicitly pinned to9ecbfdbfb6f5. It already implements explicitly selected compact recovery; the companion core branch adds own-model C2 input-budget selection. A future measurement must freeze the intended source/artifact and adapter composition before dispatch. This PR does not pretend that an old artifact contains new core changes or authorize publication/re-measurement.
+
+Controlled actual built-Node pair: same owned read/write task and HTTP400 source wall. Baseline9ec without a compact scope exits1 after2provider requests and1read, with no answer. Candidate with the explicit scope preserves the failed source terminal, opens a new Session, writes the expected answer and exits0 after4provider requests,1read and1write. No read replay; the extra2requests are completion cost. Both evidence footers are complete. This is local controlled evidence, not live model obedience, benchmark success or billed-token savings. Source diagnostics and status stay distinct from scoring.
+
+Python actual adapter caller test loads the selected config, verifies exactly one CLI launch/compact argument and unchanged ceilings, and retains credential-upload isolation. Remaining H02–H12 and final exact-head checks/review are tracked in the companion core delivery record; this is not merge approval.
