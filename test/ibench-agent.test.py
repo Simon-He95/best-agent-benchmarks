@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools/ibench-agent"))
 import tomllib
-from harbor.models.task.config import TaskConfig
+from harbor.models.task.config import NetworkPolicy, TaskConfig
 from harbor.models.trial.config import TrialConfig
 from harbor.trial.multi_step import MultiStepTrial
 from ibench_best_agent import BestAgentCli
@@ -38,6 +38,9 @@ class RecordedEnvironment:
     ):
         self.home, self.uid, self.gid = home, uid, gid
         self.default_user = None
+        self.network_policy = NetworkPolicy(
+            network_mode="allowlist", allowed_hosts=["dimagent.cn"]
+        )
         task = root / "task"
         self.environment_dir = task / "environment"
         self.environment_dir.mkdir(parents=True, exist_ok=True)
@@ -265,6 +268,22 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("PROVIDER_SECRET", prep["commands"])
         self.assertIn("DEV_ENV_READY", prep["commands"])
         self.assertIn(" run ", commands[-1])
+
+    async def test_solver_copies_active_policy_without_changing_or_rederiving_it(self):
+        environment = RecordedEnvironment(self.root)
+        environment.network_policy = NetworkPolicy(
+            network_mode="allowlist",
+            allowed_hosts=["dimagent.cn", "*.owned.invalid", "192.0.2.0/24"],
+        )
+        original = environment.network_policy.model_dump(mode="json")
+        await self.agent().run("Inspect the owned source.", environment, None)
+        preparation = json.loads(
+            (self.root / "best-agent-preparation-input.json").read_text()
+        )
+        self.assertEqual(preparation["networkPolicy"], original)
+        self.assertEqual(environment.network_policy.model_dump(mode="json"), original)
+        self.assertNotIn("PROVIDER_SECRET", preparation["commands"])
+        self.uploads_never_leak(environment)
 
     async def test_frozen_solver_selects_one_isolated_compact_scope(self):
         repository = Path(__file__).resolve().parents[1]

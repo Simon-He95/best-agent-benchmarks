@@ -21,6 +21,7 @@ if mode == "prepare":
     observation = {
         "workspace": workspace,
         "commands": commands,
+        "networkPolicy": settings["networkPolicy"],
         "sourceRefresh": "unverified",
     }
     if "DEV_ENV_READY" in commands:
@@ -77,6 +78,31 @@ if mode == "prepare":
                 if ready.returncode > 0
                 else 128 - ready.returncode
             )
+    if (Path(workspace) / ".git").exists():
+        try:
+            history = subprocess.run(
+                ["git", "rev-parse", "--is-shallow-repository"],
+                cwd=workspace,
+                capture_output=True,
+                timeout=3,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as error:
+            git_stdout, git_stderr = error.stdout or b"", error.stderr or b""
+            git_history = {"status": "unavailable", "probeTimedOut": True}
+        else:
+            git_stdout, git_stderr = history.stdout, history.stderr
+            value = git_stdout.strip()
+            git_history = (
+                {"status": "observed", "isShallowRepository": value == b"true"}
+                if history.returncode == 0 and value in (b"true", b"false")
+                else {"status": "unavailable", "probeReturnCode": history.returncode}
+            )
+        (logs / "best-agent-git-history-stdout.txt").write_bytes(git_stdout)
+        (logs / "best-agent-git-history-stderr.txt").write_bytes(git_stderr)
+    else:
+        git_history = {"status": "unavailable", "probePerformed": False}
+    observation["gitHistory"] = git_history
     browser = shutil.which("agent-browser")
     observation["browser"] = {"path": browser}
     if browser:

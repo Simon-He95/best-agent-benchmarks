@@ -1,0 +1,201 @@
+{
+  "scope": "Actual uploaded Python preparation driver/native Linux controls plus actual pinned Harbor0.23.0 agent-phase caller with controlled local model; no paid model, benchmark, retries or official task scoring",
+  "baselineAdapter": "c38ca2d91f2609b197f20ee1e9dd11bc0bf2da5c",
+  "candidateAdapter": "0.4.0 development source; final exact-head gates pending",
+  "installedCliForOwnedCaller": "0.0.19 from existing owned closure image/offline cache; joint latest-Core artifact integration remains a final program check",
+  "nativePreparation": {
+    "scope": "Actual uploaded Python driver in owned Linux Docker/no-network, controlled Git faults explicitly labeled, no model or benchmark",
+    "driverSha256": "052f42d84d52be0c2ff8abcec78d624fa2fa5c6e608286dfdca58455eaed0b28",
+    "imageId": "sha256:0df140605072d6b92d6d43445854d8c3731be64bae51cd9463ed8141f64538bb",
+    "platform": "linux/amd64",
+    "cases": [
+      {
+        "case": "full",
+        "callerExit": 0,
+        "probeEntries": 1,
+        "gitHistory": {
+          "status": "observed",
+          "isShallowRepository": false
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      },
+      {
+        "case": "shallow",
+        "callerExit": 0,
+        "probeEntries": 1,
+        "gitHistory": {
+          "status": "observed",
+          "isShallowRepository": true
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      },
+      {
+        "case": "no-git",
+        "callerExit": 0,
+        "probeEntries": 0,
+        "gitHistory": {
+          "status": "unavailable",
+          "probePerformed": false
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      },
+      {
+        "case": "nonzero",
+        "callerExit": 0,
+        "probeEntries": 1,
+        "gitHistory": {
+          "status": "unavailable",
+          "probeReturnCode": 7
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      },
+      {
+        "case": "junk",
+        "callerExit": 0,
+        "probeEntries": 1,
+        "gitHistory": {
+          "status": "unavailable",
+          "probeReturnCode": 0
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      },
+      {
+        "case": "timeout",
+        "callerExit": 0,
+        "probeEntries": 1,
+        "gitHistory": {
+          "status": "unavailable",
+          "probeTimedOut": true
+        },
+        "networkPolicyExact": true,
+        "sourceUnchanged": true,
+        "textHashValid": true,
+        "modelRequests": 0
+      }
+    ]
+  },
+  "nativeCaller": {
+    "sourceHashes": {
+      "baseline/__init__.py": "ae99d2aa0ec2b9a54289a95781f149840e18c274397c344b4a0c2d5d60c1ed72",
+      "baseline/attempt.py": "3b095428c02b34e0d82e4ab439a249c359e080f8bf433f668f248d21717bf332",
+      "candidate/__init__.py": "17e96272ebf35686a5e2ff3898832e2d5030aaebcd9791fc7ed883bfd4fb8a7a",
+      "candidate/attempt.py": "052f42d84d52be0c2ff8abcec78d624fa2fa5c6e608286dfdca58455eaed0b28"
+    },
+    "results": [
+      {
+        "case": "full",
+        "arm": "baseline",
+        "elapsedSec": 44.28870066674426,
+        "modelRequests": 3,
+        "toolCalls": 2,
+        "preModelShallowQueries": 0,
+        "modelShallowQueries": 1,
+        "ownedAcceptance": true,
+        "terminal": "completed",
+        "footerComplete": true,
+        "activeAgentPolicyExact": false,
+        "taskEnvironmentNetworkMode": "public",
+        "agentPhasePolicy": "no-network"
+      },
+      {
+        "case": "full",
+        "arm": "candidate",
+        "elapsedSec": 37.1363887921907,
+        "modelRequests": 2,
+        "toolCalls": 1,
+        "preModelShallowQueries": 1,
+        "modelShallowQueries": 0,
+        "ownedAcceptance": true,
+        "terminal": "completed",
+        "footerComplete": true,
+        "activeAgentPolicyExact": true,
+        "taskEnvironmentNetworkMode": "public",
+        "agentPhasePolicy": "no-network"
+      },
+      {
+        "case": "shallow",
+        "arm": "candidate",
+        "elapsedSec": 42.04629166703671,
+        "modelRequests": 2,
+        "toolCalls": 1,
+        "preModelShallowQueries": 1,
+        "modelShallowQueries": 0,
+        "ownedAcceptance": true,
+        "terminal": "completed",
+        "footerComplete": true,
+        "activeAgentPolicyExact": true,
+        "taskEnvironmentNetworkMode": "public",
+        "agentPhasePolicy": "no-network"
+      },
+      {
+        "case": "shallow",
+        "arm": "baseline",
+        "elapsedSec": 37.29527945816517,
+        "modelRequests": 3,
+        "toolCalls": 2,
+        "preModelShallowQueries": 0,
+        "modelShallowQueries": 1,
+        "ownedAcceptance": true,
+        "terminal": "completed",
+        "footerComplete": true,
+        "activeAgentPolicyExact": false,
+        "taskEnvironmentNetworkMode": "public",
+        "agentPhasePolicy": "no-network"
+      }
+    ],
+    "fixtureSourceLabelNote": "Original networkBaseline field stored configured task-environment mode, not a separate runtime-baseline observation. Corrected label here is taskEnvironmentNetworkMode. Agent phase is independently verified from captured active property.",
+    "platformSelection": "Each cached image's own platform; no global override on mixed-architecture agent/sidecar"
+  },
+  "decision": "Retain provisionally: true initial facts avoid one model-mediated Git query per owned task, same correct report; no policy/control/data-loss change",
+  "costs": [
+    "One extra bounded pre-model Git query on repositories; replaces later query in this controlled workload, total shallow reads remains one in each arm",
+    "Additional initial snapshot/prompt bytes; no general latency, live model obedience or billed-token saving claim"
+  ],
+  "initialFixtureFailures": [
+    "Original run stopped before any step/model because global linux/amd64 override conflicted with cached arm64 egress sidecar; preserve original failed result, then select each local image platform without weakening network mode",
+    "Fixture result assertion order and embedded-verifier quoting corrected before valid cases; no unexpected exception accepted"
+  ],
+  "evidenceHashes": {
+    "native/receipt.json": "79bf5c425bd85572b3fb13e8cb35d4c376b6710f420133783251645d2a1ab1cc",
+    "native/full/best-agent-environment.json": "6c595a87e49374054e90195280f01eb2e5da3ed0f051679251fd2178f8447a1a",
+    "native/no-git/best-agent-environment.json": "d857162a7694ff1549201554e041a246dc27512c8496556022587f824db927b3",
+    "native/shallow/best-agent-environment.json": "d9b2b6b74f8c034e0b8f2af970e0486d3416407ec941a8d52b87794bf3b235e2",
+    "native/timeout/best-agent-environment.json": "9afa05117e32dbeab7ca43fe6a4bbfb1d5412084ccb1e61d54fe7e481beb6849",
+    "native/junk/best-agent-environment.json": "074abde105075f8b90da43316c634de2ee9fadcdc0b3fff48d6e0f121d541d7b",
+    "native/nonzero/best-agent-environment.json": "11fe5721ddf3658b42068cfec601a95dae9b414b3b02e3f98b4fa0d082a80bb8",
+    "caller/plan.json": "512b77aa9597d7ecd844e5135cc4202bf04402c2c055dc475c0a9cfe40c590ba",
+    "caller/results.json": "1a9d755eb2328315ecc8b6e39206722db918fbd9679fb85bd942f7dd19e65136",
+    "caller/receipt.json": "8859ec103d6908e4501ebf1542ebcb24641eaf1935895cb0d0b3fe131a9a83f2",
+    "caller/shallow-baseline/jobs/shallow-baseline/task__zyxpjEc/steps/solve/agent/best-agent-environment.json": "372d3e6445515e958f69ccddc5de7c833bebb5db7743763a84d256912b1c8400",
+    "caller/shallow-baseline/jobs/shallow-baseline/task__zyxpjEc/steps/solve/agent/best-agent-evidence.jsonl": "e5e813041929445e5441874a7d2854bd7bdfc54a4e46d5381b5955646e25a046",
+    "caller/shallow-baseline/jobs/shallow-baseline/task__zyxpjEc/steps/solve/agent/best-agent-preparation-input.json": "3dd7c58a4170322f2a0bed8850e1d5a385c612264a8eaf1458e5e7f7df74ae5c",
+    "caller/shallow-baseline/jobs/shallow-baseline/task__zyxpjEc/steps/solve/agent/owned-env-requests.json": "10d5f7ad3cb9b862b9aed8e30fd5ed01354cdc932028b541635aad9ba7044a78",
+    "caller/full-baseline/jobs/full-baseline/task__6MP9hpg/steps/solve/agent/best-agent-environment.json": "372d3e6445515e958f69ccddc5de7c833bebb5db7743763a84d256912b1c8400",
+    "caller/full-baseline/jobs/full-baseline/task__6MP9hpg/steps/solve/agent/best-agent-evidence.jsonl": "6812a09a6f7d4b37aab2aa42176fd1af2a6560b16ec863192e0cb3f5f1078079",
+    "caller/full-baseline/jobs/full-baseline/task__6MP9hpg/steps/solve/agent/best-agent-preparation-input.json": "3dd7c58a4170322f2a0bed8850e1d5a385c612264a8eaf1458e5e7f7df74ae5c",
+    "caller/full-baseline/jobs/full-baseline/task__6MP9hpg/steps/solve/agent/owned-env-requests.json": "5bea6146fd0a6ba5946803545698c74e138bb0d24f54e121940649361f8c06ea",
+    "caller/full-candidate/jobs/full-candidate/task__gvLYBP7/steps/solve/agent/best-agent-environment.json": "6b09b68071c5e4da82daa8a6cd0763d92d7bfaf9f9ce950d9b345c8ef0a086ed",
+    "caller/full-candidate/jobs/full-candidate/task__gvLYBP7/steps/solve/agent/best-agent-evidence.jsonl": "92116aa282b1e90cd7985400159ae6f64bb112ebb6b3decf2fa81f59aee31437",
+    "caller/full-candidate/jobs/full-candidate/task__gvLYBP7/steps/solve/agent/best-agent-preparation-input.json": "529c50ae1293614564ce9231ad127a470e484a2f1885adc0700fd3fb7d5484ea",
+    "caller/full-candidate/jobs/full-candidate/task__gvLYBP7/steps/solve/agent/owned-env-requests.json": "a9688a11fc55ae4547e9978beadc3bcdc19839cd8e080e08c4b83f15dd5c8e4c",
+    "caller/shallow-candidate/jobs/shallow-candidate/task__inP7oMo/steps/solve/agent/best-agent-environment.json": "b0f539c8093b464fae67fdf4712b452140a5b3f2c60b1516c5eba4bd39cca534",
+    "caller/shallow-candidate/jobs/shallow-candidate/task__inP7oMo/steps/solve/agent/best-agent-evidence.jsonl": "973ae1321d44fe965734ba882c5662207d6f6459b8a56b15818165f0447e7257",
+    "caller/shallow-candidate/jobs/shallow-candidate/task__inP7oMo/steps/solve/agent/best-agent-preparation-input.json": "529c50ae1293614564ce9231ad127a470e484a2f1885adc0700fd3fb7d5484ea",
+    "caller/shallow-candidate/jobs/shallow-candidate/task__inP7oMo/steps/solve/agent/owned-env-requests.json": "f9dc097fe63e2ef1659ce388bf27c9721182e4622f2ead6f9786adac2977a02c"
+  }
+}
