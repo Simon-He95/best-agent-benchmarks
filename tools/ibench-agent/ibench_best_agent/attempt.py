@@ -11,17 +11,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+FROZEN_SETUP_ENV = {"DEV_ENV_LOCK_MODE": "restore"}
+
 mode, input_path = sys.argv[1:]
 settings = json.loads(Path(input_path).read_text())
 logs = Path(input_path).parent
 workspace = settings["workspace"]
 
 if mode == "prepare":
+    os.environ.update(FROZEN_SETUP_ENV)
     commands = settings["commands"]
     observation = {
         "workspace": workspace,
         "commands": commands,
         "networkPolicy": settings["networkPolicy"],
+        "setupEnvironment": FROZEN_SETUP_ENV,
         "sourceRefresh": "unverified",
     }
     if "DEV_ENV_READY" in commands:
@@ -155,6 +159,8 @@ if mode == "prepare":
     (logs / "best-agent-environment.json").write_text(encoded)
     print(json.dumps(record))
 elif mode == "run":
+    if settings["commit"]:
+        os.environ.update(FROZEN_SETUP_ENV)
     home = str(Path.home())
     argv = settings["argv"]
     argv[0] = argv[0].replace("$HOME", home)

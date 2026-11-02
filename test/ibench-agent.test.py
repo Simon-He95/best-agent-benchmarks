@@ -392,6 +392,31 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
 
 
 class FinalizationTests(unittest.TestCase):
+    def test_scorer_driver_preserves_ambient_lock_mode(self):
+        with tempfile.TemporaryDirectory(prefix="ibench-score-environment-") as name:
+            root = Path(name)
+            launch = root / "launch.json"
+            launch.write_text(json.dumps({
+                "workspace": str(root),
+                "argv": [sys.executable, "-c", "import os; print(os.environ['DEV_ENV_LOCK_MODE'])"],
+                "commit": False,
+                "model": "local-test",
+                "version": "0.0.21",
+            }))
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).resolve().parents[1] / "tools/ibench-agent/ibench_best_agent/attempt.py"), "run", str(launch)],
+                env={**os.environ, "DEV_ENV_LOCK_MODE": "owned-scorer-mode"},
+                capture_output=True,
+                timeout=5,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((root / "best-agent-stdout.txt").read_text(), "owned-scorer-mode\n")
+            receipt = json.loads((root / "best-agent-process-receipt.json").read_text())
+            self.assertFalse(receipt["commitRequested"])
+            self.assertEqual(receipt["exitCode"], 0)
+            self.assertIsNone(receipt["finalizationExitCode"])
+
     def test_finalization_timeout_kills_its_process_group_and_retains_primary_receipt(
         self,
     ):
