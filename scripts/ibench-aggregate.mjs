@@ -16,6 +16,8 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { renderReportError } from "./ibench-run.mjs";
+
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function readJson(path) {
@@ -125,9 +127,9 @@ export function renderAggregateMarkdown(report) {
     `- Comparable to the published leaderboard: ${report.comparableToPublishedLeaderboard ? "yes" : "no"}`,
     `- Published solver endpoint: \`${report.baseline.modelId}\` / \`${report.baseline.effort}\` via ${report.baseline.baseURL}; gateway aliases are not verified as equivalent.`,
     "",
-    "| Task | Status | Reward |",
-    "| --- | --- | --- |",
-    ...report.tasks.map((task) => `| \`${task.id}\` | ${task.status} | ${task.reward === null ? "-" : task.reward} |`),
+    "| Task | Status | Reward | Solver error | Trial error |",
+    "| --- | --- | --- | --- | --- |",
+    ...report.tasks.map((task) => `| \`${task.id}\` | ${task.status} | ${task.reward === null ? "-" : task.reward} | ${renderReportError(task.solverError)} | ${renderReportError(task.error)} |`),
     "",
   ].join("\n");
 }

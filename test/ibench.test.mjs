@@ -183,6 +183,48 @@ test("computeReport is leaderboard-comparable only for the full official composi
   assert.match(renderReportMarkdown(official), /0\.0%/u);
 });
 
+test("solver errors survive batch and aggregate projection alongside independent trial errors", () => {
+  const solverError = `NonZeroAgentExitCodeError: exit 1 | stdout:\n${"observed ".repeat(40)}<cancelled: stopped>`;
+  const trials = [
+    { task_id: "task-a", status: "pending", solver_error: solverError, rewards: {} },
+    { task_id: "task-b", status: "scored", solver_error: solverError, error: "score source failure", rewards: { reward: 1 } },
+    { task_id: "task-c", status: "failed", error: "solver produced an empty patch" },
+  ];
+  const source = structuredClone(trials);
+  const report = computeReport({
+    profile: PROFILE, release: RELEASE, tasks: TASKS, trials,
+    run: { solverOnly: true },
+    context: { runId: "solver-error", scorer: { ...PROFILE.scorer.official, official: true } },
+  });
+  assert.equal(report.tasks[0].solverError, solverError);
+  assert.equal(report.tasks[0].error, null);
+  assert.equal(report.tasks[0].status, "pending");
+  assert.equal(report.tasks[0].reward, null);
+  assert.equal(report.tasks[1].solverError, solverError);
+  assert.equal(report.tasks[1].error, "score source failure");
+  assert.equal(report.tasks[1].reward, 1);
+  assert.equal(report.tasks[1].passed, true, "only the canonical reward decides the verdict");
+  assert.equal(report.tasks[2].solverError, null);
+  assert.equal(report.tasks[2].error, "solver produced an empty patch");
+  const aggregate = aggregateReports({
+    reports: [report],
+    batches: { taskCount: 3, maxBatchSize: 3, batches: [{ id: "all", tasks: TASKS.map((task) => task.id) }] },
+    profile: PROFILE, runId: "solver-error-aggregate",
+  });
+  assert.deepEqual(aggregate.tasks, report.tasks);
+  for (const markdown of [renderReportMarkdown(report), renderAggregateMarkdown(aggregate)]) {
+    assert.match(markdown, /Solver error \| Trial error/u);
+    assert.match(markdown, /NonZeroAgentExitCodeError: exit 1 &#124; stdout:<br>/u);
+    assert.match(markdown, /&lt;cancelled: stopped&gt;/u);
+    assert.match(markdown, /score source failure/u);
+    assert.match(markdown, /solver produced an empty patch/u);
+    assert.match(markdown, /deferred/u);
+  }
+  assert.equal(aggregate.passRate, null);
+  assert.equal(aggregate.comparableToPublishedLeaderboard, false);
+  assert.deepEqual(trials, source);
+});
+
 test("materializeProvider writes the CLI identity files and rejects an expired token", () => {
   const directory = mkdtempSync(join(tmpdir(), "ibench-provider-"));
   try {
@@ -376,7 +418,7 @@ if (args.slice(0, 4).join(" ") !== "run --no-sync ibench score") process.exit(99
 const output = args[4];
 writeFileSync(join(output, "results.json"), JSON.stringify({
   success: ${scoreExit === 0}, phase: "completed", error: ${scoreExit === 0 ? "null" : '"controlled score source failure"'},
-  trials: ${JSON.stringify(TASKS.map((task) => ({ task_id: task.id, status: "scored", rewards: { reward: 1 } })))},
+  trials: ${JSON.stringify(TASKS.map((task, index) => ({ task_id: task.id, status: "scored", rewards: { reward: 1 }, solver_error: index === 0 ? "NonZeroAgentExitCodeError: preserved solver exit 1" : null, error: scoreExit !== 0 && index === 0 ? "controlled trial score failure" : null })))},
 }));
 if (${scoreExit} !== 0) console.error("controlled score source failure");
 process.exit(${scoreExit});
@@ -406,6 +448,12 @@ process.exit(${scoreExit});
       assert.equal(report.instructionProfile, "intent-actions");
       assert.equal(report.candidate.scorerIsOfficial, true);
       assert.equal(report.ibench.exitCode, scoreExit);
+      assert.equal(report.tasks[0].solverError, "NonZeroAgentExitCodeError: preserved solver exit 1");
+      assert.equal(report.tasks[0].error, scoreExit === 0 ? null : "controlled trial score failure");
+      assert.equal(report.tasks[0].reward, 1);
+      const markdown = readFileSync(join(output, "ibench-report.md"), "utf8");
+      assert.match(markdown, /preserved solver exit 1/u);
+      if (scoreExit !== 0) assert.match(markdown, /controlled trial score failure/u);
       assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "ibench-report.json"), "utf8"), originalReport);
       assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "results.json"), "utf8"), originalResults);
       assert.equal(readFileSync(join(output, report.ibench.priorEvidence, "jobs/score/source-error.txt"), "utf8"), "source-scorer-fault");
