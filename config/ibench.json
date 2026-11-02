@@ -12,7 +12,16 @@
   "cli": {
     "packageName": "@best-agent/cli",
     "version": "0.0.21",
-    "install": "npm-in-container"
+    "install": "standalone-archive",
+    "artifact": {
+      "repository": "Simon-He95/best-agent",
+      "releaseTag": "ibench-linux-9ecbfdbfb6f5",
+      "assetName": "best-agent-0.0.21-linux-x64-gnu.tar.gz",
+      "bytes": 56917892,
+      "sha256": "4edf910957c8c48aa3f1d983295be89af8f791aa156d2560434e0d1927c8b256",
+      "sourceCommit": "9ecbfdbfb6f5e4c6eef9e7fa6eb37763c2135e81",
+      "buildRun": "https://github.com/Simon-He95/best-agent-releases/actions/runs/41412020172"
+    }
   },
   "provider": {
     "kind": "openai",
@@ -25,14 +34,16 @@
   "solver": {
     "config": "config/ibench/solver-best-agent-deepseek-flash-high.json",
     "harness": "best-agent-cli",
-    "label": "best-agent-cli 0.0.21 / ibench-adapter 0.2.0 / exec<=120000ms / deepseek-v4-flash / high"
+    "label": "best-agent-cli 0.0.21+9ecbfdbfb6f5 / private Linux archive / ibench-adapter 0.3.0 / exec<=120000ms / deepseek-v4-flash / high"
   },
   "scorer": {
     "official": {
       "config": "config/ibench/scorer-codex-deepseek-official.json",
       "harness": "codex",
       "label": "codex 0.160.1 / deepseek-flash / high",
-      "requires": ["DEEPSEEK_API_KEY"]
+      "requires": [
+        "DEEPSEEK_API_KEY"
+      ]
     },
     "fallback": {
       "config": "config/ibench/scorer-best-agent-deepseek-flash-high.json",

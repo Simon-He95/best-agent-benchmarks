@@ -41,6 +41,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } fr
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { cliArchiveEnvironment } from "./ibench-cli-artifact.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PROVIDER_CONNECTION_ID = "dimcode-api-oauth";
@@ -201,6 +202,7 @@ export function computeReport({ profile, release, tasks, trials, run, context })
       scorerLabel: context.scorer.label,
       scorerConfig: context.scorer.config,
       scorerIsOfficial: context.scorer.official,
+      ...(profile.cli?.artifact ? { cliVersion: profile.cli.version, cliArtifact: { ...profile.cli.artifact } } : {}),
     },
     provider: {
       model: profile.provider.model,
@@ -508,6 +510,10 @@ async function scoreExistingRun({ options, profile, source, output, scorer, nCon
     const report = computeReport({
       profile: {
         ...profile,
+        cli: previous.candidate.cliArtifact ? {
+          version: previous.candidate.cliVersion,
+          artifact: previous.candidate.cliArtifact,
+        } : undefined,
         solver: {
           harness: previous.candidate.harness,
           label: previous.candidate.label,
@@ -598,6 +604,7 @@ async function main() {
     return;
   }
 
+  const archiveEnvironment = cliArchiveEnvironment(profile);
   const providerDir = join(repoRoot, ".tmp", `ibench-provider-${runId}`);
   mkdirSync(providerDir, { recursive: true });
   const credential = resolveProviderCredential();
@@ -644,6 +651,7 @@ async function main() {
       cwd: source,
       allowFailure: true,
       env: {
+        ...archiveEnvironment,
         BEST_AGENT_PROVIDER_CONFIG: provider.providerConfig,
         DIMCODE_HOME: provider.dimcodeHome,
       },

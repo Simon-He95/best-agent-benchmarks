@@ -178,6 +178,12 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
+      # The download token is confined to this host preparation step.
+      - name: Download the frozen private CLI candidate
+        env:
+          BEST_AGENT_SOURCE_TOKEN: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+        run: node scripts/ibench-cli-artifact.mjs "$RUNNER_TEMP/ibench-cli-candidate"
+
       - name: Run the frozen batch
         env:
           BATCH_ID: ${{ matrix.id }}

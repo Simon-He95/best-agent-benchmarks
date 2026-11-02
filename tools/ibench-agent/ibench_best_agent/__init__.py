@@ -5,8 +5,8 @@ trusted `candidate.patch`. That patch is produced by the task verifier from the
 commits the solver leaves in `/workspace/app`, so this plugin both runs the CLI
 and makes the workspace's final state a commit before the verifier runs.
 
-The CLI is installed from the pinned public npm package inside the task
-container (the IBench base image already ships Node and npm). Credentials are
+The CLI is installed from the pinned npm package or a checksummed standalone
+archive inside the task container. Credentials are
 uploaded as the CLI's own provider/dimcode identity files, never passed on a
 command line.
 """
@@ -14,8 +14,10 @@ command line.
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 import os
+import re
 import shlex
 import time
 from pathlib import Path
@@ -145,6 +147,37 @@ class BestAgentCli(BaseInstalledAgent):
         self.logger.info(
             "best-agent install runtime: %s", probe.stdout.strip().replace("\n", " ")
         )
+        archive = os.environ.get("BEST_AGENT_CLI_ARCHIVE")
+        if archive:
+            if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?", version):
+                raise RuntimeError("Invalid standalone CLI version")
+            expected = _required_env("BEST_AGENT_CLI_ARCHIVE_SHA256")
+            if version != _required_env("BEST_AGENT_CLI_ARCHIVE_VERSION"):
+                raise RuntimeError("CLI archive version does not match selected agent")
+            if hashlib.sha256(Path(archive).read_bytes()).hexdigest() != expected:
+                raise RuntimeError("CLI archive SHA256 mismatch before upload")
+            target = "/tmp/ibench-best-agent-candidate.tar.gz"
+            await environment.upload_file(archive, target)
+            entry = f"best-agent-{version}-linux-x64-gnu/bin/best-agent"
+            verify = (
+                "const fs=require('node:fs'),c=require('node:crypto');"
+                f"if(c.createHash('sha256').update(fs.readFileSync({json.dumps(target)})).digest('hex')"
+                f"!=={json.dumps(expected)})throw Error('CLI archive SHA256 mismatch after upload')"
+            )
+            await self.exec_as_agent(
+                environment,
+                command=(
+                    "set -e\n"
+                    "case \"$(uname -m)\" in x86_64|amd64) ;; *) exit 1 ;; esac\n"
+                    f"node -e {shlex.quote(verify)}\n"
+                    f"prefix={INSTALL_DIR}\n"
+                    'mkdir -p "$prefix/node_modules/.bin"\n'
+                    f'tar -xzf {shlex.quote(target)} -C "$prefix"\n'
+                    f'ln -sfn "$prefix"/{shlex.quote(entry)} "{CLI_BIN}"\n'
+                    f'"{CLI_BIN}" --version\n'
+                ),
+            )
+            return
         await self.exec_as_agent(
             environment,
             command=(
