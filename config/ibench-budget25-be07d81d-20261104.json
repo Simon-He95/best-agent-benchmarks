@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "ibench",
+  "purpose": "User-authorized diagnostic re-measurement of all25budget-stopped tasks from run41557196637 with a new origin/main artifact; exactly one new solver-only attempt per task, no old prediction replacement.",
+  "mode": "solver-only",
+  "previousRun": 41557196637,
+  "sourceCommit": "be07d81d492cb120a42f61738e44a10efba4581b",
+  "sourceRefAtFreeze": "origin/main",
+  "profile": "config/ibench.json",
+  "profileSha256": "6788d30193a857f907898035a226be9c1e5fd14b213e72f7ff35b0fb7e7f70e8",
+  "releaseCommit": "24b0613a5b79b5e70b5c902c4d64c77e58ec0102",
+  "provider": {
+    "kind": "openai",
+    "model": "deepseek-v4-flash",
+    "baseURL": "https://dimagent.cn/v1",
+    "compatibilityMode": "compatible",
+    "reasoningEffort": "high",
+    "transportProfile": "dim-oauth"
+  },
+  "limits": {
+    "agentTimeoutSec": 3600,
+    "nConcurrent": 2,
+    "batchSize": 4
+  },
+  "solverAttemptsPerTask": 1,
+  "taskCount": 25,
+  "dispatch": {
+    "workflow": "ibench.yml",
+    "ref": "codex/ibench-budget25-20261104",
+    "groupSize": 4,
+    "groups": 7,
+    "nConcurrentPerGroup": 2,
+    "retry": false
+  },
+  "baselineAuditSha256": "b98a42e0a23f5fd3a959062596f848927f61bddcfce63bb42ff81d9b74ce1d7b",
+  "baselineSelection": "category == stopped; excludes completed15 and billing-interrupted4",
+  "tasks": [
+    {
+      "id": "github__actualbudget__actual__pull__7827",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.575838,
+        "modelRequests": 227,
+        "modelResponses": 226,
+        "patchBytes": 844,
+        "patchSha256": "8415277a5ad68d1c93283c3606ef4b001d705a5d3a3337a1892c2f0f6bc423e9",
+        "evidenceSha256": "2c7a03aaeb1771a274956f32fb21227ee531a257220863b15e59125658ac1dc0"
+      }
+    },
+    {
+      "id": "github__calcom__cal.diy__pull__29544",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.413621,
+        "modelRequests": 223,
+        "modelResponses": 222,
+        "patchBytes": 4770,
+        "patchSha256": "b09e31ba798806ea87afc28814d943c1bfd87175a9db0f6ac75e1761067b08f5",
+        "evidenceSha256": "4ecffda00b90b32f6e9a60e6b4f9f91d0227a4fab115b192e6fe4fefe2801feb"
+      }
+    },
+    {
+      "id": "github__langgenius__dify__pull__38063",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.220654,
+        "modelRequests": 322,
+        "modelResponses": 321,
+        "patchBytes": 117080,
+        "patchSha256": "7cae25f522857f8dda79e085a1e22ad8d21622909b4fdcd8cc7123848f2c5fed",
+        "evidenceSha256": "7283f6aa16319fe4779d3270867445d8249981527943d5e48306198903db44af"
+      }
+    },
+    {
+      "id": "github__lobehub__lobehub__pull__17789",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.448773,
+        "modelRequests": 501,
+        "modelResponses": 499,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "727882c898f0d49dd430aff95a50da24f1e4f0f22ff7d80c065f310df19699f8"
+      }
+    },
+    {
+      "id": "github__makeplane__plane__pull__8600",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.962941,
+        "modelRequests": 186,
+        "modelResponses": 185,
+        "patchBytes": 603494,
+        "patchSha256": "63a19997396763ff56576317709c3c929345007d8130c391e0eeff95b29c7cb4",
+        "evidenceSha256": "b8043c739e1539258f40e1cb46472a77f2222457833243df5de5a7629377bd21"
+      }
+    },
+    {
+      "id": "github__makeplane__plane__pull__8759",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.761781,
+        "modelRequests": 279,
+        "modelResponses": 278,
+        "patchBytes": 811,
+        "patchSha256": "73d7a4133013ef69930a61f4ac304fb9e9118806997249e869f177cc682fd604",
+        "evidenceSha256": "590889a3332cc71bb9aebc65c9909f8832ea0645e95ca5892d2d0eea984c74e6"
+      }
+    },
+    {
+      "id": "github__metabase__metabase__pull__77898",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.906111,
+        "modelRequests": 189,
+        "modelResponses": 188,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "6edf51d92c3043439b9aa1e0bb9a9c8d6c940d1d7cc35eceb51065abc35d7207"
+      }
+    },
+    {
+      "id": "github__metabase__metabase__pull__79490",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.066023,
+        "modelRequests": 103,
+        "modelResponses": 102,
+        "patchBytes": 103152,
+        "patchSha256": "35587c75416529eeeeebd7447acb24895c3332fbc1aebcad605fb010f5385d1e",
+        "evidenceSha256": "865f13b2a33ae6bd71e2f10b6b95bc4853d66785a24a78104f38b09d2308f434"
+      }
+    },
+    {
+      "id": "github__metabase__metabase__pull__80439",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3517.173204,
+        "modelRequests": 225,
+        "modelResponses": 223,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "11c63e12058ea759e9caa03887c8af26386a473d7454d9659706934a06b924bb"
+      }
+    },
+    {
+      "id": "github__penpot__penpot__pull__11427",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.684361,
+        "modelRequests": 183,
+        "modelResponses": 182,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "96e1532fae4683bc6cea69a873f1b0cb179c94b7b11de1d33e7867385473b42e"
+      }
+    },
+    {
+      "id": "github__penpot__penpot__pull__11699",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.163776,
+        "modelRequests": 404,
+        "modelResponses": 401,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "779730c98faef0e4ac2ab1d74dc52fb5d3de59135882c9a0582bfde28411f6dd"
+      }
+    },
+    {
+      "id": "github__saleor__saleor-dashboard__pull__6868",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3515.261015,
+        "modelRequests": 224,
+        "modelResponses": 223,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "c8c8b6d62987ff633191958bf1fa88e4cd0d373781c8d9d5329cb302bb9dade4"
+      }
+    },
+    {
+      "id": "github__Dolibarr__dolibarr__pull__39305",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.97192,
+        "modelRequests": 85,
+        "modelResponses": 84,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "ea52519690388c77b8f07ce21caa03d663d7b7283d15f6c0e7101b6f6cfdea86"
+      }
+    },
+    {
+      "id": "github__Dolibarr__dolibarr__pull__40071",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.571495,
+        "modelRequests": 200,
+        "modelResponses": 199,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "702ff5638f9ef1465e7fc437829801faa0c47f9b224321c4de45a929450905bd"
+      }
+    },
+    {
+      "id": "github__Dolibarr__dolibarr__pull__40681",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.266643,
+        "modelRequests": 151,
+        "modelResponses": 150,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "4467e9b1630d81af12f2ce79df65cd9f4972bb7eeca5db46149da2eebf649313"
+      }
+    },
+    {
+      "id": "github__Dolibarr__dolibarr__pull__40920",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.906932,
+        "modelRequests": 196,
+        "modelResponses": 195,
+        "patchBytes": 4312,
+        "patchSha256": "621672b407d7021000a7fa34dbf93e3e5ec996f84d73c50d09e79cd943f0d724",
+        "evidenceSha256": "c64b341517dcf34b631bf4d01ce0caf31185fa8db6b9b91a7e5db57c9d19cf5c"
+      }
+    },
+    {
+      "id": "github__Dolibarr__dolibarr__pull__41125",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.754709,
+        "modelRequests": 132,
+        "modelResponses": 131,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "67b2ba1ce112d49c7e36f7f0aa1825fdea49d4a7a564163b215546a1d3af5ca9"
+      }
+    },
+    {
+      "id": "github__FreshRSS__FreshRSS__pull__9025",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3513.60864,
+        "modelRequests": 251,
+        "modelResponses": 250,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "3ad0e5017e06cc2f1606502af2f812572a0efba124df4c94b3830f1e9e4a81a3"
+      }
+    },
+    {
+      "id": "github__discourse__discourse__pull__42435",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.360862,
+        "modelRequests": 167,
+        "modelResponses": 166,
+        "patchBytes": 1676,
+        "patchSha256": "02f58ed361890f5b106606e23b1af926aa68dfcbbbde8a11b5f0bb7e9c0e13b2",
+        "evidenceSha256": "64e18f443dcd2d1515a1e0dcaed77691dda7790a930b789b15c2860432856520"
+      }
+    },
+    {
+      "id": "github__discourse__discourse__pull__43076",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.386569,
+        "modelRequests": 225,
+        "modelResponses": 224,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "2d1a3bd0ccd8ac646a9feae8c877d691578baa291dcfd54a3e673ca519f61ed0"
+      }
+    },
+    {
+      "id": "github__documenso__documenso__pull__2204",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.276174,
+        "modelRequests": 210,
+        "modelResponses": 210,
+        "patchBytes": 2801,
+        "patchSha256": "57db21330e576a254627ae233d0abb6de8b092ebb3f2697a156da9428f8d8ef7",
+        "evidenceSha256": "5871f85754efc3e3abad978baaa4ec77def1f6f3514d27c241029de36f98fb52"
+      }
+    },
+    {
+      "id": "github__go-gitea__gitea__pull__38329",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.279295,
+        "modelRequests": 184,
+        "modelResponses": 183,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "8e79d7057b3a186eb7ffde6db48cf027397284f9237796aca5d067e9d505e231"
+      }
+    },
+    {
+      "id": "github__go-gitea__gitea__pull__38593",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.819387,
+        "modelRequests": 223,
+        "modelResponses": 222,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "9e9b2c91f0d8931a1f491817d0c851e1d24dd1fb399997dc083d79d278fd0bf9"
+      }
+    },
+    {
+      "id": "github__go-gitea__gitea__pull__39285",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.490831,
+        "modelRequests": 323,
+        "modelResponses": 322,
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "evidenceSha256": "1a4123eb43f494b60b7542407d37cc7c50cfc9570124ddc9b02b93c54021bb89"
+      }
+    },
+    {
+      "id": "github__kimai__kimai__pull__6075",
+      "baseline": {
+        "status": "cancelled",
+        "cause": "stopped",
+        "agentWallSeconds": 3514.003007,
+        "modelRequests": 367,
+        "modelResponses": 366,
+        "patchBytes": 784474,
+        "patchSha256": "5f4de7ba2127efd9ea7d865f9edbad0cf21a8eaedaeed62742604e7b5f294249",
+        "evidenceSha256": "04d3d0e8282b616d586622b4def87b10a28cfe7609c731bbaff3033775ca301d"
+      }
+    }
+  ],
+  "comparison": {
+    "patchProduction": "canonical candidate.patch empty/nonempty, source diff scope, bytes and sha256; preserve original patch",
+    "completionRate": "authoritative CLI/Run completion, not official task correctness",
+    "timeDistribution": "same25paired agent wall times, budget-stopped/failed remain in denominator; median/p90/range and per-task deltas",
+    "evidence": "full root/headless child v7 JSONL, HTTP/usage/diagnostic, actual tool entry/settlement, stdout/stderr, receipts, storage/compact artifacts and canonical patches",
+    "officialScore": "deferred",
+    "passAt1": null,
+    "comparableToPublishedLeaderboard": false,
+    "combinesWithPreviousRun": false,
+    "artifactLayout": "Preserve each workflow run under its own run-id directory; never flatten the seven custom batches into one path."
+  },
+  "build": {
+    "repository": "Simon-He95/best-agent-releases",
+    "workflow": "ibench-linux-candidate.yml",
+    "runId": 41672181016,
+    "workflowCommit": "99b88c68da5a77f203508a3b2916f073f2347ea4",
+    "npmBefore": "2026-11-02T08:17:53Z",
+    "targets": [
+      "linux-x64-gnu"
+    ],
+    "publishNpm": false
+  },
+  "scheduling": {
+    "createAutomation": false,
+    "monitorExistingAutomation": false
+  },
+  "previousProfileSha256": "1167b645e4e061df5275d8c922cd46d01de61a68acb5e489f33a14c0fccc03b2",
+  "candidateIdentity": "Only config/ibench.json owns executable archive identity; this manifest pins its exact file hash."
+}
