@@ -1,0 +1,201 @@
+{
+  "scope": "Owned actual CLI/helper controls, controlled local model, no benchmark or paid requests",
+  "baseline": "3af0d3e30a1ca21c105e2c0f84be243e1a0f255b",
+  "driverHashes": {
+    "baseline": "052f42d84d52be0c2ff8abcec78d624fa2fa5c6e608286dfdca58455eaed0b28",
+    "candidate": "eb32e132256ff25c2ee9f16c64f41bc6ef9a79c51b0e40a692320990b7426dc7"
+  },
+  "fixtureSha256": "b40abd99f538a5a6fd86d451252759cdad128ad44613d2eee2d65f859a7b75c2",
+  "helperSha256": "bac609f866fbc87df30c37f2e3ab8bd355ae51b4dc61ac5c722cf078365e849c",
+  "cliArchiveSha256": "4edf910957c8c48aa3f1d983295be89af8f791aa156d2560434e0d1927c8b256",
+  "imageId": "sha256:0df140605072d6b92d6d43445854d8c3731be64bae51cd9463ed8141f64538bb",
+  "order": [
+    [
+      "exec",
+      "baseline"
+    ],
+    [
+      "exec",
+      "candidate"
+    ],
+    [
+      "process",
+      "candidate"
+    ],
+    [
+      "process",
+      "baseline"
+    ],
+    [
+      "mismatch",
+      "candidate"
+    ],
+    [
+      "legitimate",
+      "candidate"
+    ]
+  ],
+  "results": [
+    {
+      "case": "exec",
+      "arm": "baseline",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 2,
+      "toolCalls": 2,
+      "setupMode": "unset",
+      "setupExitCode": 0,
+      "patchPaths": [
+        ".vendor-dependencies.lock.json"
+      ],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": false
+    },
+    {
+      "case": "exec",
+      "arm": "candidate",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 2,
+      "toolCalls": 2,
+      "setupMode": "restore",
+      "setupExitCode": 0,
+      "patchPaths": [],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": false
+    },
+    {
+      "case": "process",
+      "arm": "candidate",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 3,
+      "toolCalls": 2,
+      "setupMode": "restore",
+      "setupExitCode": 0,
+      "patchPaths": [],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": false
+    },
+    {
+      "case": "process",
+      "arm": "baseline",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 3,
+      "toolCalls": 2,
+      "setupMode": "unset",
+      "setupExitCode": 0,
+      "patchPaths": [
+        ".vendor-dependencies.lock.json"
+      ],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": false
+    },
+    {
+      "case": "mismatch",
+      "arm": "candidate",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 2,
+      "toolCalls": 2,
+      "setupMode": "restore",
+      "setupExitCode": 1,
+      "patchPaths": [],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": true
+    },
+    {
+      "case": "legitimate",
+      "arm": "candidate",
+      "callerExit": 0,
+      "terminal": "completed",
+      "modelRequests": 3,
+      "toolCalls": 3,
+      "setupMode": "restore",
+      "setupExitCode": 0,
+      "patchPaths": [
+        "launch.sh",
+        "local.config.json",
+        "screen.png",
+        "source.js"
+      ],
+      "dependencyBytesUnchanged": true,
+      "footerComplete": true,
+      "sourceErrorInNextRequest": false
+    }
+  ],
+  "integrity": [
+    {
+      "case": "exec",
+      "arm": "baseline",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "524756281321020854dc5d086575e95b0b2f4ed7faa6417fb340c0dc6be9b4aa",
+      "evidenceSha256": "08150e6c0b5ccb5c708356ec4e19bc961f92d5e71a31dc572d5cd5d2f63a0c8f"
+    },
+    {
+      "case": "exec",
+      "arm": "candidate",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidenceSha256": "ab1a3b227485d454c2c898f1f869b002dd5a76411ea85887583e2029d79a3757"
+    },
+    {
+      "case": "process",
+      "arm": "candidate",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidenceSha256": "a1eb6df975158b7e7a30355f9234c0ac3515b9fc3d9a481eadad32413fe66c14"
+    },
+    {
+      "case": "process",
+      "arm": "baseline",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "0f3b7319a531ef8f38a1afcc0df6252801c47efa515fb8dd747f423e145945a8",
+      "evidenceSha256": "79bd69c10c4e624e04b6f41e72bb1adc054e403643000c6427b33550c2c922e9"
+    },
+    {
+      "case": "mismatch",
+      "arm": "candidate",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "evidenceSha256": "7f34de3ead4adcca87081aa4e91d7c245802f63a912543b97ef5ddefd5bd68db"
+    },
+    {
+      "case": "legitimate",
+      "arm": "candidate",
+      "hashCountsSequenceValid": true,
+      "setupToolEntries": 1,
+      "patchSha256": "5e907d9dd5a38480cb7fc96ee5a77cdde81178b5d8441c0ac4f4dbb3ccebe04d",
+      "evidenceSha256": "5e98c21e2e4500e3879caaf84d94d25b60ff5945e1751f7827ceb71aab6a50c2"
+    }
+  ],
+  "disposition": "Retain startup default provisionally; final joint artifact, program gates and independent review pending",
+  "limits": [
+    "Controlled local model, not live obedience or benchmark success",
+    "Same call counts per pair: no token/time savings claim",
+    "Restore does not make complete setup idempotent or enforce permissions",
+    "No filtering: all fixture source/PNG/config/shell changes retained",
+    "CLI pinned original9ec0.0.21; latest combined Core artifact integration still pending"
+  ],
+  "negativeDisposition": "known/failed closure with original exit1/stderr exactly equals next model request; sibling succeeded; controlled diagnostic Run completed",
+  "checks": {
+    "pythonAdapterTests": 15,
+    "nodeRunnerArtifactTests": 22
+  },
+  "initialFixtureFailures": [
+    "Initial90s Run below120s default Tool ceiling refused before model entry; corrected fixture duration to normal3300000, raw .tmp/h06-native retained",
+    "Early owned counterexample byte edits improved to valid source/config/shell and PNG; final cohort retained separately at .tmp/h06-native-final",
+    "Offline inspector assumptions about zero-based sequence and ToolResult.closure were corrected against observed journal; all6 source/hash/count checks then passed without product mutation or rerun"
+  ]
+}

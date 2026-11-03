@@ -279,6 +279,7 @@ class BestAgentCli(BaseInstalledAgent):
         if commit:
             preparation = {
                 "workspace": workspace,
+                "networkPolicy": environment.network_policy.model_dump(mode="json"),
                 "commands": {
                     key: environment.task_env_config.env[key]
                     for key in ("DEV_ENV_SETUP", "DEV_ENV_START", "DEV_ENV_READY")

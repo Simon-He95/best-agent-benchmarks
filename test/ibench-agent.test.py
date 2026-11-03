@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools/ibench-agent"))
 import tomllib
-from harbor.models.task.config import TaskConfig
+from harbor.models.task.config import NetworkPolicy, TaskConfig
 from harbor.models.trial.config import TrialConfig
 from harbor.trial.multi_step import MultiStepTrial
 from ibench_best_agent import BestAgentCli
@@ -38,6 +38,9 @@ class RecordedEnvironment:
     ):
         self.home, self.uid, self.gid = home, uid, gid
         self.default_user = None
+        self.network_policy = NetworkPolicy(
+            network_mode="allowlist", allowed_hosts=["dimagent.cn"]
+        )
         task = root / "task"
         self.environment_dir = task / "environment"
         self.environment_dir.mkdir(parents=True, exist_ok=True)
@@ -266,6 +269,39 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("DEV_ENV_READY", prep["commands"])
         self.assertIn(" run ", commands[-1])
 
+    async def test_solver_copies_active_policy_without_changing_or_rederiving_it(self):
+        environment = RecordedEnvironment(self.root)
+        environment.network_policy = NetworkPolicy(
+            network_mode="allowlist",
+            allowed_hosts=["dimagent.cn", "*.owned.invalid", "192.0.2.0/24"],
+        )
+        original = environment.network_policy.model_dump(mode="json")
+        await self.agent().run("Inspect the owned source.", environment, None)
+        preparation = json.loads(
+            (self.root / "best-agent-preparation-input.json").read_text()
+        )
+        self.assertEqual(preparation["networkPolicy"], original)
+        self.assertEqual(environment.network_policy.model_dump(mode="json"), original)
+        self.assertNotIn("PROVIDER_SECRET", preparation["commands"])
+        self.uploads_never_leak(environment)
+
+    async def test_frozen_solver_selects_one_isolated_compact_scope(self):
+        repository = Path(__file__).resolve().parents[1]
+        config = json.loads(
+            (repository / "config/ibench/solver-best-agent-deepseek-flash-high.json").read_text()
+        )
+        selected = config["agents"][0]["env"]
+        environment = RecordedEnvironment(self.root)
+        await self.agent(**selected).run("Read the clue and repair the source.", environment, None)
+        launch = json.loads((self.root / "best-agent-launch.json").read_text())
+        argv = launch["argv"]
+        self.assertEqual(argv.count("--compact-dir"), 1)
+        self.assertEqual(argv[argv.index("--compact-dir") + 1], "/logs/agent/best-agent-compact")
+        self.assertEqual(argv[argv.index("--workspace-process-duration-ms") + 1], "120000")
+        self.assertEqual(argv[argv.index("--model-timeout-ms") + 1], "600000")
+        self.assertEqual(len([r for r in environment.records if " run " in r["command"]]), 1)
+        self.uploads_never_leak(environment)
+
     async def test_scorer_run_does_not_commit_or_append_solve_environment(self):
         environment = RecordedEnvironment(self.root, phase="score")
         await self.agent(
@@ -356,6 +392,31 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
 
 
 class FinalizationTests(unittest.TestCase):
+    def test_scorer_driver_preserves_ambient_lock_mode(self):
+        with tempfile.TemporaryDirectory(prefix="ibench-score-environment-") as name:
+            root = Path(name)
+            launch = root / "launch.json"
+            launch.write_text(json.dumps({
+                "workspace": str(root),
+                "argv": [sys.executable, "-c", "import os; print(os.environ['DEV_ENV_LOCK_MODE'])"],
+                "commit": False,
+                "model": "local-test",
+                "version": "0.0.21",
+            }))
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).resolve().parents[1] / "tools/ibench-agent/ibench_best_agent/attempt.py"), "run", str(launch)],
+                env={**os.environ, "DEV_ENV_LOCK_MODE": "owned-scorer-mode"},
+                capture_output=True,
+                timeout=5,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((root / "best-agent-stdout.txt").read_text(), "owned-scorer-mode\n")
+            receipt = json.loads((root / "best-agent-process-receipt.json").read_text())
+            self.assertFalse(receipt["commitRequested"])
+            self.assertEqual(receipt["exitCode"], 0)
+            self.assertIsNone(receipt["finalizationExitCode"])
+
     def test_finalization_timeout_kills_its_process_group_and_retains_primary_receipt(
         self,
     ):

@@ -11,16 +11,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+FROZEN_SETUP_ENV = {"DEV_ENV_LOCK_MODE": "restore"}
+
 mode, input_path = sys.argv[1:]
 settings = json.loads(Path(input_path).read_text())
 logs = Path(input_path).parent
 workspace = settings["workspace"]
 
 if mode == "prepare":
+    os.environ.update(FROZEN_SETUP_ENV)
     commands = settings["commands"]
     observation = {
         "workspace": workspace,
         "commands": commands,
+        "networkPolicy": settings["networkPolicy"],
+        "setupEnvironment": FROZEN_SETUP_ENV,
         "sourceRefresh": "unverified",
     }
     if "DEV_ENV_READY" in commands:
@@ -77,6 +82,31 @@ if mode == "prepare":
                 if ready.returncode > 0
                 else 128 - ready.returncode
             )
+    if (Path(workspace) / ".git").exists():
+        try:
+            history = subprocess.run(
+                ["git", "rev-parse", "--is-shallow-repository"],
+                cwd=workspace,
+                capture_output=True,
+                timeout=3,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as error:
+            git_stdout, git_stderr = error.stdout or b"", error.stderr or b""
+            git_history = {"status": "unavailable", "probeTimedOut": True}
+        else:
+            git_stdout, git_stderr = history.stdout, history.stderr
+            value = git_stdout.strip()
+            git_history = (
+                {"status": "observed", "isShallowRepository": value == b"true"}
+                if history.returncode == 0 and value in (b"true", b"false")
+                else {"status": "unavailable", "probeReturnCode": history.returncode}
+            )
+        (logs / "best-agent-git-history-stdout.txt").write_bytes(git_stdout)
+        (logs / "best-agent-git-history-stderr.txt").write_bytes(git_stderr)
+    else:
+        git_history = {"status": "unavailable", "probePerformed": False}
+    observation["gitHistory"] = git_history
     browser = shutil.which("agent-browser")
     observation["browser"] = {"path": browser}
     if browser:
@@ -129,6 +159,8 @@ if mode == "prepare":
     (logs / "best-agent-environment.json").write_text(encoded)
     print(json.dumps(record))
 elif mode == "run":
+    if settings["commit"]:
+        os.environ.update(FROZEN_SETUP_ENV)
     home = str(Path.home())
     argv = settings["argv"]
     argv[0] = argv[0].replace("$HOME", home)
