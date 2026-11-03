@@ -15,12 +15,12 @@
     "install": "standalone-archive",
     "artifact": {
       "repository": "Simon-He95/best-agent",
-      "releaseTag": "ibench-linux-9ecbfdbfb6f5",
+      "releaseTag": "ibench-linux-02d40a083dc3",
       "assetName": "best-agent-0.0.21-linux-x64-gnu.tar.gz",
-      "bytes": 56917892,
-      "sha256": "4edf910957c8c48aa3f1d983295be89af8f791aa156d2560434e0d1927c8b256",
-      "sourceCommit": "9ecbfdbfb6f5e4c6eef9e7fa6eb37763c2135e81",
-      "buildRun": "https://github.com/Simon-He95/best-agent-releases/actions/runs/41412020172"
+      "bytes": 56945693,
+      "sha256": "abe5d7892e4224d1c55dd463de5e3f2ce8fe3b6addc4c5c472ebda9a448e2847",
+      "sourceCommit": "02d40a083dc352e51f0284f8bec7a156a24d82cf",
+      "buildRun": "https://github.com/Simon-He95/best-agent-releases/actions/runs/41555144939"
     }
   },
   "provider": {
@@ -34,7 +34,7 @@
   "solver": {
     "config": "config/ibench/solver-best-agent-deepseek-flash-high.json",
     "harness": "best-agent-cli",
-    "label": "best-agent-cli 0.0.21+9ecbfdbfb6f5 / private Linux archive / ibench-adapter 0.4.0 / compact:selected / exec<=120000ms / deepseek-v4-flash / high"
+    "label": "best-agent-cli 0.0.21+02d40a083dc3 / private Linux archive / ibench-adapter 0.4.0 / compact:selected / exec<=120000ms / deepseek-v4-flash / high"
   },
   "scorer": {
     "official": {
