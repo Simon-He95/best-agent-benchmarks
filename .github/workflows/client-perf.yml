@@ -31,11 +31,14 @@ on:
         type: string
         default: best-agent-ts,dim-rust,opencode-ts,opencode-native
 
+  push:
+    branches: [perf/client-v1]
+
 permissions:
   contents: read
 
 concurrency:
-  group: client-perf-${{ inputs.source_sha }}-${{ inputs.dim_sha }}
+  group: client-perf-${{ github.event.inputs.source_sha || github.ref_name }}-${{ github.event.inputs.dim_sha || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -48,8 +51,8 @@ jobs:
       CARGO_PROFILE_RELEASE_DEBUG: "0"
       RUSTC_WRAPPER: ""
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
-      BENCH_SOURCE_SHA: ${{ inputs.source_sha }}
-      BENCH_DIM_SHA: ${{ inputs.dim_sha }}
+      BENCH_SOURCE_SHA: ${{ github.event.inputs.source_sha || '1904387449f55d00d33dcedc498e99b6c4c432ec' }}
+      BENCH_DIM_SHA: ${{ github.event.inputs.dim_sha || 'c0d90fed1b9500649ae512d853a6be637dd0dc4c' }}
     steps:
       - name: Check out the benchmark workflow
         uses: actions/checkout@v4
@@ -66,7 +69,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Simon-He95/best-agent
-          ref: ${{ inputs.source_sha }}
+          ref: ${{ github.event.inputs.source_sha || '1904387449f55d00d33dcedc498e99b6c4c432ec' }}
           token: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
           path: best-agent
           fetch-depth: 1
@@ -76,7 +79,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: arcships/dim
-          ref: ${{ inputs.dim_sha }}
+          ref: ${{ github.event.inputs.dim_sha || 'c0d90fed1b9500649ae512d853a6be637dd0dc4c' }}
           path: dim
           fetch-depth: 1
           persist-credentials: false
@@ -97,10 +100,13 @@ jobs:
           toolchain: 1.98.1
 
       - name: Record the exact inputs
+        env:
+          SOURCE_SHA: ${{ github.event.inputs.source_sha || '1904387449f55d00d33dcedc498e99b6c4c432ec' }}
+          DIM_SHA: ${{ github.event.inputs.dim_sha || 'c0d90fed1b9500649ae512d853a6be637dd0dc4c' }}
         run: |
           set -euo pipefail
-          test "$(git -C best-agent rev-parse HEAD)" = "${{ inputs.source_sha }}"
-          test "$(git -C dim rev-parse HEAD)" = "${{ inputs.dim_sha }}"
+          test "$(git -C best-agent rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git -C dim rev-parse HEAD)" = "$DIM_SHA"
           node --version
           pnpm --version || true
           bun --version
@@ -164,6 +170,10 @@ jobs:
 
       - name: Measure
         working-directory: perf/client-v1
+        env:
+          ROUNDS: ${{ github.event.inputs.rounds || '8' }}
+          TURNS: ${{ github.event.inputs.turns || '20' }}
+          LABELS: ${{ github.event.inputs.labels || 'best-agent-ts,dim-rust,opencode-ts,opencode-native' }}
         run: |
           set -euo pipefail
           export BENCH_NODE="$(command -v node)"
@@ -172,14 +182,14 @@ jobs:
           export BENCH_OPENCODE_TS="$RUNNER_TEMP/opencode/node_modules/.bin/opencode"
           export BENCH_OPENCODE_NATIVE="$RUNNER_TEMP/opencode-native/opencode-native"
           only_args=()
-          if [[ "${{ inputs.labels }}" != "all" ]]; then
-            only_args=(--only "${{ inputs.labels }}")
+          if [[ "$LABELS" != "all" ]]; then
+            only_args=(--only "$LABELS")
           fi
           mkdir -p "$GITHUB_WORKSPACE/results"
           bun bench.ts \
             --matrix matrix.json \
-            --rounds "${{ inputs.rounds }}" \
-            --turns "${{ inputs.turns }}" \
+            --rounds "$ROUNDS" \
+            --turns "$TURNS" \
             --work "$GITHUB_WORKSPACE/results" \
             --out "$GITHUB_WORKSPACE/results/results.csv" \
             "${only_args[@]}"
