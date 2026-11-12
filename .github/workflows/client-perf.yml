@@ -195,7 +195,7 @@ jobs:
             "${only_args[@]}"
 
       - name: Summarize
-        if: hashFiles('results/results.csv') != ''
+        if: always() && hashFiles('results/results.csv') != ''
         run: |
           set -euo pipefail
           bun perf/client-v1/summarize.ts \

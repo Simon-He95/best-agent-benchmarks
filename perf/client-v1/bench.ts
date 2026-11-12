@@ -165,10 +165,12 @@ const meta = {
 };
 await Bun.write(path.join(options.work, "meta.json"), JSON.stringify(meta, null, 2) + "\n");
 
+let failedRuns = 0;
 for (let round = options.firstRound; round < options.firstRound + options.rounds; round += 1) {
   const order = round % 2 === 0 ? [...targets].reverse() : targets;
   for (const target of order) {
     const row = await runOnce(target, round);
+    if (row.error) failedRuns += 1;
     appendFileSync(options.out, columns.map((column) => csv(row[column])).join(",") + "\n");
     console.log(
       `[${target.label} #${round}] frame=${fmt(row.first_frame_ms)} paint=${fmt(row.first_paint_ms)} ` +
@@ -180,6 +182,10 @@ for (let round = options.firstRound; round < options.firstRound + options.rounds
     );
     await Bun.sleep(1_000);
   }
+}
+if (failedRuns > 0) {
+  console.error(`${failedRuns} benchmark run(s) failed; see results.csv and results/failures/.`);
+  process.exitCode = 1;
 }
 
 async function runOnce(target: Target, round: number): Promise<Record<string, string | number>> {
