@@ -4,7 +4,7 @@ Same-run, whole-product TUI benchmark for four labels:
 
 | label | implementation | process model |
 | --- | --- | --- |
-| `best-agent-ts` | best-agent at the dispatched `source_sha` | one Node process hosting the harness and TUI |
+| `best-agent-ts` | best-agent at the dispatched `source_sha`, packaged Node bundle | one Node process hosting the harness and TUI |
 | `dim-rust` | Dim at the dispatched `dim_sha` | Rust TUI client plus the Rust app-server it starts |
 | `opencode-ts` | `@opencode/cli@2.2.7` | TypeScript client plus the server it starts with `--standalone` |
 | `opencode-native` | `opencode-native 0.0.0-rs-7` | Rust client plus the TypeScript server it starts with `--standalone` |
@@ -43,7 +43,7 @@ cd perf/client-v1
 npm install --ignore-scripts --no-audit --no-fund
 
 BENCH_NODE="$(command -v node)" \
-BENCH_BEST_AGENT=/path/to/best-agent/apps/cli/dist/index.js \
+BENCH_BEST_AGENT=/path/to/best-agent/.tmp/node-cli/package/dist/index.js \
 BENCH_DIM=/path/to/dimcode \
 BENCH_OPENCODE_TS=/path/to/opencode \
 BENCH_OPENCODE_NATIVE=/path/to/opencode-native \
@@ -53,7 +53,7 @@ bun bench.ts --matrix matrix.json --rounds 2 --turns 20 \
 bun summarize.ts /tmp/client-perf/results.csv --out-dir /tmp/client-perf
 ```
 
-`best-agent` must be built (`pnpm build`); `dimcode` is the `dimcode` binary; `opencode` is the
+`best-agent` must be built and packaged (`pnpm build && node scripts/pack-cli-node.mjs`); `dimcode` is the `dimcode` binary; `opencode` is the
 `@opencode/cli` binary; `opencode-native` is the preview binary from
 [`simonklee/opencode-native-preview`](https://github.com/simonklee/opencode-native-preview).
 

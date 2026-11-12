@@ -129,6 +129,10 @@ jobs:
           pnpm build
           test -f apps/cli/dist/index.js
           test -f apps/cli/dist/tui/dimsdk-tui.bundle.js
+          node scripts/pack-cli-node.mjs
+          test -f .tmp/node-cli/package/dist/index.js
+          test -f .tmp/node-cli/package/dist/cpu-supervisor
+          test -f .tmp/node-cli/package/dist/workspace-read-helper
 
       - name: Build Dim
         working-directory: dim
@@ -177,7 +181,7 @@ jobs:
         run: |
           set -euo pipefail
           export BENCH_NODE="$(command -v node)"
-          export BENCH_BEST_AGENT="$GITHUB_WORKSPACE/best-agent/apps/cli/dist/index.js"
+          export BENCH_BEST_AGENT="$GITHUB_WORKSPACE/best-agent/.tmp/node-cli/package/dist/index.js"
           export BENCH_DIM="$GITHUB_WORKSPACE/dim/target/release/dimcode"
           export BENCH_OPENCODE_TS="$RUNNER_TEMP/opencode/node_modules/.bin/opencode"
           export BENCH_OPENCODE_NATIVE="$RUNNER_TEMP/opencode-native/opencode-native"
@@ -222,6 +226,9 @@ jobs:
             sha256sum \
               best-agent/apps/cli/dist/index.js \
               best-agent/apps/cli/dist/tui/dimsdk-tui.bundle.js \
+              best-agent/.tmp/node-cli/package/dist/index.js \
+              best-agent/.tmp/node-cli/package/dist/cpu-supervisor \
+              best-agent/.tmp/node-cli/package/dist/workspace-read-helper \
               dim/target/release/dimcode \
               "$RUNNER_TEMP/opencode/node_modules/.bin/opencode" \
               "$RUNNER_TEMP/opencode-native/opencode-native" 2>/dev/null || true
