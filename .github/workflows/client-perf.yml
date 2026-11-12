@@ -1,0 +1,227 @@
+name: Client performance
+
+# Whole-product cold-start comparison for best-agent (TypeScript), Dim (Rust), OpenCode 2.2.7
+# and opencode-native, all on one Ubuntu runner with one mock provider and one 20-turn script.
+# This workflow deliberately does not publish anything and does not run a model.
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact private best-agent commit to build
+        required: true
+        type: string
+      dim_sha:
+        description: Exact arcships/dim commit to build
+        required: true
+        type: string
+        default: c0d90fed1b9500649ae512d853a6be637dd0dc4c
+      rounds:
+        description: Interleaved rounds per label
+        required: false
+        type: string
+        default: "8"
+      turns:
+        description: Scripted prompts per run
+        required: false
+        type: string
+        default: "20"
+      labels:
+        description: Comma-separated labels from perf/client-v1/matrix.json
+        required: false
+        type: string
+        default: best-agent-ts,dim-rust,opencode-ts,opencode-native
+
+permissions:
+  contents: read
+
+concurrency:
+  group: client-perf-${{ inputs.source_sha }}-${{ inputs.dim_sha }}
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      CARGO_BUILD_JOBS: "4"
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_RELEASE_DEBUG: "0"
+      RUSTC_WRAPPER: ""
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      BENCH_SOURCE_SHA: ${{ inputs.source_sha }}
+      BENCH_DIM_SHA: ${{ inputs.dim_sha }}
+    steps:
+      - name: Check out the benchmark workflow
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Free disk space
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Check out the exact best-agent source
+        uses: actions/checkout@v4
+        with:
+          repository: Simon-He95/best-agent
+          ref: ${{ inputs.source_sha }}
+          token: ${{ secrets.BEST_AGENT_SOURCE_TOKEN }}
+          path: best-agent
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out the exact Dim source
+        uses: actions/checkout@v4
+        with:
+          repository: arcships/dim
+          ref: ${{ inputs.dim_sha }}
+          path: dim
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.22.2"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.4"
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.98.1
+
+      - name: Record the exact inputs
+        run: |
+          set -euo pipefail
+          test "$(git -C best-agent rev-parse HEAD)" = "${{ inputs.source_sha }}"
+          test "$(git -C dim rev-parse HEAD)" = "${{ inputs.dim_sha }}"
+          node --version
+          pnpm --version || true
+          bun --version
+          rustc --version
+          df -h /
+
+      - name: Install best-agent dependencies
+        working-directory: best-agent
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack install
+          pnpm install --frozen-lockfile
+
+      - name: Build best-agent
+        working-directory: best-agent
+        run: |
+          set -euo pipefail
+          command -v clang >/dev/null || { sudo apt-get update; sudo apt-get install -y clang; }
+          pnpm build
+          test -f apps/cli/dist/index.js
+          test -f apps/cli/dist/tui/dimsdk-tui.bundle.js
+
+      - name: Build Dim
+        working-directory: dim
+        run: |
+          set -euo pipefail
+          cargo build --locked --release -p dimcode
+          ./target/release/dimcode --version
+          du -sh target
+          rm -rf target/release/deps target/release/build target/release/.fingerprint
+          df -h /
+
+      - name: Install OpenCode TypeScript 2.2.7
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/opencode"
+          printf '{"private":true}\n' > "$RUNNER_TEMP/opencode/package.json"
+          npm install --prefix "$RUNNER_TEMP/opencode" --no-save --no-audit --no-fund @opencode/cli@2.2.7
+          "$RUNNER_TEMP/opencode/node_modules/.bin/opencode" --version
+
+      - name: Install opencode-native 0.0.0-rs-7
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/opencode-native"
+          cd "$RUNNER_TEMP/opencode-native"
+          gh release download v0.0.0-rs-7 \
+            -R simonklee/opencode-native-preview \
+            -p 'opencode-native-0.0.0-rs-7-x86_64-unknown-linux-gnu.tar.gz' \
+            -p 'SHA256SUMS'
+          grep 'opencode-native-0.0.0-rs-7-x86_64-unknown-linux-gnu.tar.gz' SHA256SUMS > SHA256SUMS.linux
+          sha256sum -c SHA256SUMS.linux
+          tar -xzf opencode-native-0.0.0-rs-7-x86_64-unknown-linux-gnu.tar.gz
+          ./opencode-native --version
+
+      - name: Install the benchmark harness
+        working-directory: perf/client-v1
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Measure
+        working-directory: perf/client-v1
+        run: |
+          set -euo pipefail
+          export BENCH_NODE="$(command -v node)"
+          export BENCH_BEST_AGENT="$GITHUB_WORKSPACE/best-agent/apps/cli/dist/index.js"
+          export BENCH_DIM="$GITHUB_WORKSPACE/dim/target/release/dimcode"
+          export BENCH_OPENCODE_TS="$RUNNER_TEMP/opencode/node_modules/.bin/opencode"
+          export BENCH_OPENCODE_NATIVE="$RUNNER_TEMP/opencode-native/opencode-native"
+          only_args=()
+          if [[ "${{ inputs.labels }}" != "all" ]]; then
+            only_args=(--only "${{ inputs.labels }}")
+          fi
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          bun bench.ts \
+            --matrix matrix.json \
+            --rounds "${{ inputs.rounds }}" \
+            --turns "${{ inputs.turns }}" \
+            --work "$GITHUB_WORKSPACE/results" \
+            --out "$GITHUB_WORKSPACE/results/results.csv" \
+            "${only_args[@]}"
+
+      - name: Summarize
+        if: hashFiles('results/results.csv') != ''
+        run: |
+          set -euo pipefail
+          bun perf/client-v1/summarize.ts \
+            "$GITHUB_WORKSPACE/results/results.csv" \
+            --out-dir "$GITHUB_WORKSPACE/results"
+          cat "$GITHUB_WORKSPACE/results/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record provenance
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          {
+            echo "best_agent_sha=$(git -C best-agent rev-parse HEAD)"
+            echo "dim_sha=$(git -C dim rev-parse HEAD)"
+            echo "node=$(node --version)"
+            echo "pnpm=$(pnpm --version 2>/dev/null || echo unavailable)"
+            echo "bun=$(bun --version)"
+            echo "rustc=$(rustc --version)"
+            echo "opencode_ts=$("$RUNNER_TEMP/opencode/node_modules/.bin/opencode" --version 2>/dev/null || echo unavailable)"
+            echo "opencode_native=$("$RUNNER_TEMP/opencode-native/opencode-native" --version 2>/dev/null || echo unavailable)"
+            echo "runner=$RUNNER_NAME"
+            echo "os=$(uname -a)"
+            sha256sum \
+              best-agent/apps/cli/dist/index.js \
+              best-agent/apps/cli/dist/tui/dimsdk-tui.bundle.js \
+              dim/target/release/dimcode \
+              "$RUNNER_TEMP/opencode/node_modules/.bin/opencode" \
+              "$RUNNER_TEMP/opencode-native/opencode-native" 2>/dev/null || true
+          } > "$GITHUB_WORKSPACE/results/provenance.txt"
+
+      - name: Upload raw results and failure screens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-perf-${{ github.run_id }}
+          path: results/
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,12 @@
+{
+  "name": "@best-agent/bench-client-v1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "bun bench.ts",
+    "summarize": "bun summarize.ts"
+  },
+  "dependencies": {
+    "@xterm/headless": "5.5.0"
+  }
+}

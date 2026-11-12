@@ -1,0 +1,41 @@
+[
+  {
+    "label": "best-agent-ts",
+    "provider": "best-agent",
+    "client": ["{node}", "{bestAgent}", "chat"],
+    "ready": "Type a message&&bench-model",
+    "busy": "[Ee]sc interrupt"
+  },
+  {
+    "label": "dim-rust",
+    "provider": "dim",
+    "client": [
+      "{dim}",
+      "tui",
+      "--home",
+      "{home}/dim",
+      "--cwd",
+      "{project}",
+      "--model-config",
+      "{modelConfig}",
+      "--permission",
+      "read-only"
+    ],
+    "ready": "Ask anything&&bench-model",
+    "busy": "[Ee]sc interrupt"
+  },
+  {
+    "label": "opencode-ts",
+    "provider": "opencode",
+    "client": ["{opencodeTs}", "--standalone"],
+    "ready": "ctrl\\+p commands&&Mock Model",
+    "busy": "[Ee]sc interrupt"
+  },
+  {
+    "label": "opencode-native",
+    "provider": "opencode",
+    "client": ["{opencodeNative}", "--standalone"],
+    "ready": "ctrl\\+p commands&&Mock Model",
+    "busy": "[Ee]sc interrupt"
+  }
+]
